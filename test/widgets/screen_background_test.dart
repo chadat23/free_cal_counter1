@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 
 void main() {
   group('ScreenBackground', () {
-    testWidgets('renders its child and has correct background color', (WidgetTester tester) async {
+    testWidgets('renders its child and has correct background color', (
+      WidgetTester tester,
+    ) async {
       const Key testKey = Key('testChild');
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: ScreenBackground(
-            child: Text('Test Child', key: testKey),
-          ),
+          home: ScreenBackground(child: Text('Test Child', key: testKey)),
         ),
       );
 
@@ -39,22 +38,25 @@ void main() {
       expect(find.text('Test App Bar'), findsOneWidget);
     });
 
-    testWidgets('content respects SafeArea padding', (WidgetTester tester) async {
+    testWidgets('content respects SafeArea padding', (
+      WidgetTester tester,
+    ) async {
       const double topPadding = 50.0;
 
       await tester.pumpWidget(
         MediaQuery(
           data: const MediaQueryData(padding: EdgeInsets.only(top: topPadding)),
           child: const MaterialApp(
-            home: ScreenBackground(
-              child: Text('Test Child'),
-            ),
+            home: ScreenBackground(child: Text('Test Child')),
           ),
         ),
       );
 
       // Find the SafeArea widget within ScreenBackground
-      final Finder safeAreaFinder = find.descendant(of: find.byType(ScreenBackground), matching: find.byType(SafeArea));
+      final Finder safeAreaFinder = find.descendant(
+        of: find.byType(ScreenBackground),
+        matching: find.byType(SafeArea),
+      );
       expect(safeAreaFinder, findsOneWidget);
 
       // Find the child of ScreenBackground (Text('Test Child'))
@@ -66,7 +68,10 @@ void main() {
 
       // Verify that the child's top is below the simulated padding
       // The SafeArea should push the content down by topPadding
-      expect(renderBox.localToGlobal(Offset.zero).dy, greaterThanOrEqualTo(topPadding));
+      expect(
+        renderBox.localToGlobal(Offset.zero).dy,
+        greaterThanOrEqualTo(topPadding),
+      );
     });
   });
 }

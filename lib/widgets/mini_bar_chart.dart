@@ -73,9 +73,9 @@ class MiniBarChartPainter extends CustomPainter {
         canvas.drawRRect(
           RRect.fromRectAndCorners(
             Rect.fromLTWH(
-              size.width * 0.1,
+              size.width * 0.35,
               size.height - finalBarHeight + 2,
-              size.width * 0.8,
+              size.width * 0.3,
               finalBarHeight - 2,
             ), // 10% padding on each side
             bottomLeft: const Radius.circular(2),

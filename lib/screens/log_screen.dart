@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
+import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 
 class LogScreen extends StatelessWidget {
   const LogScreen({super.key});
@@ -7,7 +8,12 @@ class LogScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const ScreenBackground(
-      child: Center(child: Text('Log Screen')),
+      child: Column(
+        children: [
+          Expanded(child: Center(child: Text('Log Screen'))),
+          FoodSearchRibbon(),
+        ],
+      ),
     );
   }
 }

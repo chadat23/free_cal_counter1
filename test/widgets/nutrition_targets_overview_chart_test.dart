@@ -45,7 +45,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NutritionTargetsOverviewChart(nutritionData: mockNutritionData),
+            body: NutritionTargetsOverviewChart(
+              nutritionData: mockNutritionData,
+            ),
           ),
         ),
       );
@@ -57,7 +59,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NutritionTargetsOverviewChart(nutritionData: mockNutritionData),
+            body: NutritionTargetsOverviewChart(
+              nutritionData: mockNutritionData,
+            ),
           ),
         ),
       );
@@ -69,7 +73,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NutritionTargetsOverviewChart(nutritionData: mockNutritionData),
+            body: NutritionTargetsOverviewChart(
+              nutritionData: mockNutritionData,
+            ),
           ),
         ),
       );
@@ -87,7 +93,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NutritionTargetsOverviewChart(nutritionData: mockNutritionData),
+            body: NutritionTargetsOverviewChart(
+              nutritionData: mockNutritionData,
+            ),
           ),
         ),
       );
@@ -108,7 +116,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NutritionTargetsOverviewChart(nutritionData: mockNutritionData),
+            body: NutritionTargetsOverviewChart(
+              nutritionData: mockNutritionData,
+            ),
           ),
         ),
       );

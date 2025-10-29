@@ -54,11 +54,16 @@ class MiniBarChartPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height), const Radius.circular(3)),
-        backgroundPaint);
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        const Radius.circular(3),
+      ),
+      backgroundPaint,
+    );
 
     if (maxValue > 0) {
-      final totalHeightForMaxValue = size.height / 1.2; // 100% mark is 20% less than total height
+      final totalHeightForMaxValue =
+          size.height / 1.2; // 100% mark is 20% less than total height
       final barRatio = (value / maxValue).clamp(0.0, 1.10); // Clip at 110%
       final barHeight = barRatio * totalHeightForMaxValue;
 
@@ -66,20 +71,33 @@ class MiniBarChartPainter extends CustomPainter {
 
       if (finalBarHeight > 0) {
         canvas.drawRRect(
-            RRect.fromRectAndCorners(
-                Rect.fromLTWH(
-                    size.width * 0.1, size.height - finalBarHeight + 2, size.width * 0.8, finalBarHeight -2), // 10% padding on each side
-                bottomLeft: const Radius.circular(2),
-                bottomRight: const Radius.circular(2),
-                topLeft: finalBarHeight / size.height > 0.99 ? const Radius.circular(2) : Radius.zero,
-                topRight: finalBarHeight / size.height > 0.99 ? const Radius.circular(2) : Radius.zero,
-            ),
-            barPaint);
+          RRect.fromRectAndCorners(
+            Rect.fromLTWH(
+              size.width * 0.1,
+              size.height - finalBarHeight + 2,
+              size.width * 0.8,
+              finalBarHeight - 2,
+            ), // 10% padding on each side
+            bottomLeft: const Radius.circular(2),
+            bottomRight: const Radius.circular(2),
+            topLeft: finalBarHeight / size.height > 0.99
+                ? const Radius.circular(2)
+                : Radius.zero,
+            topRight: finalBarHeight / size.height > 0.99
+                ? const Radius.circular(2)
+                : Radius.zero,
+          ),
+          barPaint,
+        );
       }
 
       final y = size.height - totalHeightForMaxValue;
       if (y > 0) {
-        canvas.drawLine(Offset(size.width * 0.1, y), Offset(size.width * 0.9, y), linePaint); // 10% padding on each side
+        canvas.drawLine(
+          Offset(size.width * 0.1, y),
+          Offset(size.width * 0.9, y),
+          linePaint,
+        ); // 10% padding on each side
       }
     }
   }

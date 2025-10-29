@@ -6,14 +6,10 @@ import 'package:free_cal_counter1/models/nutrition_target.dart';
 class NutritionTargetsOverviewChart extends StatelessWidget {
   final List<NutritionTarget> nutritionData;
 
-  const NutritionTargetsOverviewChart({
-    super.key,
-    required this.nutritionData,
-  });
+  const NutritionTargetsOverviewChart({super.key, required this.nutritionData});
 
   @override
   Widget build(BuildContext context) {
-
     final weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
     return Container(
@@ -61,15 +57,15 @@ class NutritionTargetsOverviewChart extends StatelessWidget {
                           children: List.generate(nutritionData.length, (
                             nutrientIndex,
                           ) {
-                            final NutritionTarget data = nutritionData[nutrientIndex];
+                            final NutritionTarget data =
+                                nutritionData[nutrientIndex];
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 4.0,
                               ),
                               child: MiniBarChart(
                                 value:
-                                    data.dailyValues[dayIndex] *
-                                    data.maxValue,
+                                    data.dailyValues[dayIndex] * data.maxValue,
                                 maxValue: data.maxValue,
                                 color: data.color,
                               ),

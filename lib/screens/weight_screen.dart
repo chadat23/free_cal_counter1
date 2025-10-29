@@ -6,8 +6,6 @@ class WeightScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ScreenBackground(
-      child: Center(child: Text('Weight Screen')),
-    );
+    return const ScreenBackground(child: Center(child: Text('Weight Screen')));
   }
 }

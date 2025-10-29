@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/widgets/nutrition_targets_overview_chart.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
+import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 
 class OverviewScreen extends StatelessWidget {
@@ -49,12 +50,21 @@ class OverviewScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      child: ListView(
+      child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: NutritionTargetsOverviewChart(nutritionData: nutritionData),
+          Expanded(
+            child: ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: NutritionTargetsOverviewChart(
+                    nutritionData: nutritionData,
+                  ),
+                ),
+              ],
+            ),
           ),
+          const FoodSearchRibbon(),
         ],
       ),
     );

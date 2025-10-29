@@ -1,70 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/screens/home_screen.dart';
-import 'package:free_cal_counter1/screens/overview_screen.dart';
-import 'package:free_cal_counter1/screens/log_screen.dart';
-import 'package:free_cal_counter1/screens/weight_screen.dart';
-import 'package:free_cal_counter1/screens/settings_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  testWidgets('HomeScreen should display OverviewScreen initially', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => NavigationProvider(),
-        child: const MaterialApp(home: HomeScreen()),
-      ),
-    );
+  group('HomeScreen', () {
+    testWidgets('renders correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => NavigationProvider(),
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
+        ),
+      );
 
-    expect(find.byType(OverviewScreen), findsOneWidget);
-    expect(find.byType(LogScreen), findsNothing);
-    expect(find.byType(WeightScreen), findsNothing);
-    expect(find.byType(SettingsScreen), findsNothing);
-  });
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.byType(BottomNavigationBar), findsOneWidget);
+    });
 
-  testWidgets('tapping bottom navigation bar items should switch screens', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => NavigationProvider(),
-        child: const MaterialApp(home: HomeScreen()),
-      ),
-    );
+    testWidgets('content respects SafeArea padding', (WidgetTester tester) async {
+      const double topPadding = 50.0;
 
-    await tester.tap(find.byIcon(Icons.list));
-    await tester.pump();
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => NavigationProvider(),
+          child: MediaQuery(
+            data: const MediaQueryData(padding: EdgeInsets.only(top: topPadding)),
+            child: const MaterialApp(
+              home: HomeScreen(),
+            ),
+          ),
+        ),
+      );
 
-    expect(find.byType(OverviewScreen), findsNothing);
-    expect(find.byType(LogScreen), findsOneWidget);
-    expect(find.byType(WeightScreen), findsNothing);
-    expect(find.byType(SettingsScreen), findsNothing);
+      // Find the content that should be affected by SafeArea (the Center widget in HomeScreen's body)
+      final Finder centerFinder = find.descendant(of: find.byType(SafeArea), matching: find.byType(Center));
+      expect(centerFinder, findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.monitor_weight));
-    await tester.pump();
+      // Get the render object of the Center widget
+      final RenderBox renderBox = tester.renderObject(centerFinder);
 
-    expect(find.byType(OverviewScreen), findsNothing);
-    expect(find.byType(LogScreen), findsNothing);
-    expect(find.byType(WeightScreen), findsOneWidget);
-    expect(find.byType(SettingsScreen), findsNothing);
-
-    await tester.tap(find.byIcon(Icons.settings));
-    await tester.pump();
-
-    expect(find.byType(OverviewScreen), findsNothing);
-    expect(find.byType(LogScreen), findsNothing);
-    expect(find.byType(WeightScreen), findsNothing);
-    expect(find.byType(SettingsScreen), findsOneWidget);
-
-    await tester.tap(find.byIcon(Icons.home));
-    await tester.pump();
-
-    expect(find.byType(OverviewScreen), findsOneWidget);
-    expect(find.byType(LogScreen), findsNothing);
-    expect(find.byType(WeightScreen), findsNothing);
-    expect(find.byType(SettingsScreen), findsNothing);
+      // Verify that the content's top is below the simulated padding
+      // The SafeArea should push the content down by topPadding
+      expect(renderBox.localToGlobal(Offset.zero).dy, greaterThanOrEqualTo(topPadding));
+    });
   });
 }

@@ -21,8 +21,10 @@ class HomeScreen extends StatelessWidget {
     final navigationProvider = Provider.of<NavigationProvider>(context);
 
     return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(navigationProvider.selectedIndex),
+      body: SafeArea(
+        child: Center(
+          child: _widgetOptions.elementAt(navigationProvider.selectedIndex),
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[

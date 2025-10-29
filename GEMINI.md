@@ -259,6 +259,31 @@ Use flutter test --coverage to verify coverage
 Format all code with dart format .
 Test on Android emulator (API 28+) for performance
 
+## Feature Requests and Scope Control
+
+All work must stay aligned with explicitly requested features, tasks, or goals.
+
+- Do not add unrelated functionality or speculative enhancements that were not
+  requested.
+- You may implement supporting sub‑features **when they are clearly and
+  unavoidably required** for the requested feature to function as intended.
+- Use your best judgment: if the need for a small supporting change is obvious
+  and in line with the established architecture, proceed — but document the
+  rationale briefly in your explanation or code comments.
+
+### Clarifying Questions and Intent Confirmation
+
+Before beginning work, Gemini should:
+1. Confirm its understanding of the requested feature and intended outcome unless it's obvious.
+2. Ask clarifying questions only **when scope, intent, or edge conditions are
+   ambiguous.**
+3. Skip redundant clarifications when the request is sufficiently explicit or
+   the solution path is self‑evident within existing patterns.
+
+> The goal is to minimize misunderstanding — not to create bureaucracy.
+> Seek enough clarity to guarantee that new code directly supports current
+> objectives, while avoiding unnecessary hand‑holding on well‑defined tasks.
+
 ## Common Development Commands
 
 flutter test                    # Run all tests

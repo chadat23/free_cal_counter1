@@ -36,13 +36,15 @@ class NutritionTargetsOverviewChart extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Column(
                 children: List.generate(nutritionData.length, (index) {
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: SizedBox(height: 48), // Placeholder for alignment
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: SizedBox(
+                      height: 48,
+                    ), // Adjusted height to match MiniBarChart's actual height
                   );
                 }),
               ),
@@ -64,8 +66,7 @@ class NutritionTargetsOverviewChart extends StatelessWidget {
                                 vertical: 4.0,
                               ),
                               child: MiniBarChart(
-                                value:
-                                    data.dailyValues[dayIndex] * data.maxValue,
+                                value: data.dailyValues[dayIndex],
                                 maxValue: data.maxValue,
                                 color: data.color,
                               ),
@@ -94,24 +95,27 @@ class NutritionTargetsOverviewChart extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: nutritionData.map((data) {
-                  return SizedBox(
-                    height: 48,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          data.label,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: SizedBox(
+                      height: 48, // Explicitly set height to match MiniBarChart
+                      child: Transform.translate(
+                        // Added Transform.translate
+                        offset: const Offset(
+                          0,
+                          -10.0,
+                        ), // Shift upwards by 10 pixels
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '${data.value.toInt()} ${data.macroLabel}\n of ${data.maxValue.toInt()}${data.unitLabel}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        Text(
-                          data.subLabel,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      ],
+                      ),
                     ),
                   );
                 }).toList(),

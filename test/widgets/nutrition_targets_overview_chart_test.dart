@@ -11,33 +11,33 @@ void main() {
         color: Colors.blue,
         value: 2134.0,
         maxValue: 2143.0,
-        label: '2134',
-        subLabel: 'of 2143',
-        dailyValues: [0.8, 0.9, 0.85, 0.95, 0.75, 0.8, 1.0],
+        macroLabel: '🔥',
+        unitLabel: '',
+        dailyValues: [1714.4, 1928.7, 1821.55, 2035.85, 1607.25, 1714.4, 2143.0],
       ),
       NutritionTarget(
         color: Colors.red,
         value: 159.0,
         maxValue: 141.0,
-        label: '145 P',
-        subLabel: 'of 141',
-        dailyValues: [1.0, 0.9, 0.95, 1.05, 0.85, 0.9, 1.02],
+        macroLabel: 'P',
+        unitLabel: 'g',
+        dailyValues: [141.0, 126.9, 133.95, 148.05, 119.85, 126.9, 143.82],
       ),
       NutritionTarget(
         color: Colors.yellow,
         value: 70.0,
         maxValue: 71.0,
-        label: '70 F',
-        subLabel: 'of 71',
-        dailyValues: [0.9, 1.0, 1.05, 0.95, 0.8, 0.85, 0.98],
+        macroLabel: 'F',
+        unitLabel: 'g',
+        dailyValues: [63.9, 71.0, 74.55, 67.45, 56.8, 60.35, 69.58],
       ),
       NutritionTarget(
         color: Colors.green,
         value: 241.0,
         maxValue: 233.0,
-        label: '241 C',
-        subLabel: 'of 233',
-        dailyValues: [0.95, 0.85, 0.9, 1.0, 1.05, 0.8, 1.04],
+        macroLabel: 'C',
+        unitLabel: 'g',
+        dailyValues: [221.35, 198.05, 209.7, 233.0, 244.65, 186.4, 242.32],
       ),
     ];
 
@@ -87,7 +87,7 @@ void main() {
       expect(find.text('S'), findsNWidgets(2)); // Saturday and Sunday
     });
 
-    testWidgets('renders text placeholders for nutrient values', (
+    testWidgets('renders formatted nutrient values', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -100,14 +100,10 @@ void main() {
         ),
       );
 
-      expect(find.text('2134'), findsOneWidget);
-      expect(find.text('of 2143'), findsOneWidget);
-      expect(find.text('145 P'), findsOneWidget);
-      expect(find.text('of 141'), findsOneWidget);
-      expect(find.text('70 F'), findsOneWidget);
-      expect(find.text('of 71'), findsOneWidget);
-      expect(find.text('241 C'), findsOneWidget);
-      expect(find.text('of 233'), findsOneWidget);
+      expect(find.text('2134 🔥\n of 2143'), findsOneWidget);
+      expect(find.text('159 P\n of 141g'), findsOneWidget);
+      expect(find.text('70 F\n of 71g'), findsOneWidget);
+      expect(find.text('241 C\n of 233g'), findsOneWidget);
     });
 
     testWidgets('renders "Consumed" and "Remaining" buttons', (

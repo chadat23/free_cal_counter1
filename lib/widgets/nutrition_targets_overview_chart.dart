@@ -66,7 +66,7 @@ class NutritionTargetsOverviewChart extends StatelessWidget {
                                 vertical: 4.0,
                               ),
                               child: VerticalMiniBarChart(
-                                value: data.dailyValues[dayIndex],
+                                value: data.dailyAmounts[dayIndex],
                                 maxValue: data.targetAmount,
                                 color: data.color,
                               ),
@@ -108,7 +108,7 @@ class NutritionTargetsOverviewChart extends StatelessWidget {
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            '${data.amount.toInt()} ${data.macroLabel}\n of ${data.targetAmount.toInt()}${data.unitLabel}',
+                            '${data.thisAmount.toInt()} ${data.macroLabel}\n of ${data.targetAmount.toInt()}${data.unitLabel}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

@@ -4,10 +4,7 @@ import 'package:free_cal_counter1/models/nutrition_target.dart';
 class HorizontalMiniBarChart extends StatelessWidget {
   final NutritionTarget nutritionTarget;
 
-  const HorizontalMiniBarChart({
-    super.key,
-    required this.nutritionTarget,
-  });
+  const HorizontalMiniBarChart({super.key, required this.nutritionTarget});
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +48,14 @@ class HorizontalMiniBarChart extends StatelessWidget {
                 ),
               ),
               Positioned(
-                left: MediaQuery.of(context).size.width * (1 / target) * target * 0.2, // This is a bit of a hack to get the line to show up in the right place
+                left:
+                    MediaQuery.of(context).size.width *
+                    (1 / target) *
+                    target *
+                    0.2, // This is a bit of a hack to get the line to show up in the right place
                 top: -4,
                 bottom: -4,
-                child: Container(
-                  width: 2,
-                  color: Colors.white,
-                ),
+                child: Container(width: 2, color: Colors.white),
               ),
             ],
           ),

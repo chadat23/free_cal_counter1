@@ -55,19 +55,27 @@ class _LogHeaderState extends State<LogHeader> {
               IconButton(
                 icon: const Icon(Icons.chevron_left, color: Colors.white),
                 onPressed: () {
-                  widget.onDateChanged(widget.date.subtract(const Duration(days: 1)));
+                  widget.onDateChanged(
+                    widget.date.subtract(const Duration(days: 1)),
+                  );
                 },
               ),
               const SizedBox(width: 8.0),
               Text(
                 _formatDate(widget.date),
-                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(width: 8.0),
               IconButton(
                 icon: const Icon(Icons.chevron_right, color: Colors.white),
                 onPressed: () {
-                  widget.onDateChanged(widget.date.add(const Duration(days: 1)));
+                  widget.onDateChanged(
+                    widget.date.add(const Duration(days: 1)),
+                  );
                 },
               ),
             ],
@@ -99,7 +107,7 @@ class _LogHeaderState extends State<LogHeader> {
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

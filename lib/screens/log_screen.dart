@@ -3,6 +3,11 @@ import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/models/meal.dart';
+import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/widgets/meal_widget.dart';
 
 class LogScreen extends StatefulWidget {
   const LogScreen({super.key});
@@ -57,6 +62,67 @@ class _LogScreenState extends State<LogScreen> {
       ),
     ];
 
+    final meals = [
+      Meal(
+        timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+        loggedFoods: [
+          LoggedFood(
+            portion: FoodPortion(
+              food: Food(
+                id: 1,
+                name: 'Apple',
+                emoji: '🍎',
+                calories: 52,
+                protein: 0.3,
+                fat: 0.2,
+                carbs: 14,
+              ),
+              servingSize: 100,
+              servingUnit: 'g',
+            ),
+            timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+          ),
+          LoggedFood(
+            portion: FoodPortion(
+              food: Food(
+                id: 2,
+                name: 'Banana',
+                emoji: '🍌',
+                calories: 89,
+                protein: 1.1,
+                fat: 0.3,
+                carbs: 23,
+              ),
+              servingSize: 150,
+              servingUnit: 'g',
+            ),
+            timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+          ),
+        ],
+      ),
+      Meal(
+        timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+        loggedFoods: [
+          LoggedFood(
+            portion: FoodPortion(
+              food: Food(
+                id: 3,
+                name: 'Chicken Breast',
+                emoji: '🍗',
+                calories: 165,
+                protein: 31,
+                fat: 3.6,
+                carbs: 0,
+              ),
+              servingSize: 100,
+              servingUnit: 'g',
+            ),
+            timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+          ),
+        ],
+      ),
+    ];
+
     return ScreenBackground(
       child: Column(
         children: [
@@ -65,12 +131,12 @@ class _LogScreenState extends State<LogScreen> {
             onDateChanged: _handleDateChanged,
             nutritionTargets: nutritionTargets,
           ),
-          const Expanded(
-            child: Center(
-              child: Text(
-                'Log entries will go here',
-                style: TextStyle(color: Colors.white),
-              ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: meals.length,
+              itemBuilder: (context, index) {
+                return MealWidget(meal: meals[index]);
+              },
             ),
           ),
           const FoodSearchRibbon(),

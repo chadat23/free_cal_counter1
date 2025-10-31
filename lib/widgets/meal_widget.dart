@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/meal.dart';
-import 'package:free_cal_counter1/widgets/portion_widget.dart';
+import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
 import 'package:intl/intl.dart';
 
 class MealWidget extends StatelessWidget {
@@ -46,7 +46,10 @@ class MealWidget extends StatelessWidget {
               final loggedFood = entry.value;
               return Column(
                 children: [
-                  PortionWidget(portion: loggedFood.portion),
+                  SlidablePortionWidget(
+                    portion: loggedFood.portion,
+                    onDelete: () {},
+                  ),
                   if (index < meal.loggedFoods.length - 1)
                     Divider(color: Theme.of(context).cardColor.withOpacity(0.7), height: 1, indent: 16, endIndent: 16),
                 ],

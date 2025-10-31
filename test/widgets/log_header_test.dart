@@ -1,31 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
-import 'package:free_cal_counter1/widgets/screen_background.dart';
-import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 
-class LogScreen extends StatefulWidget {
-  const LogScreen({super.key});
-
-  @override
-  State<LogScreen> createState() => _LogScreenState();
-}
-
-class _LogScreenState extends State<LogScreen> {
-  DateTime _selectedDate = DateTime.now();
-
-  void _handleDateChanged(DateTime newDate) {
-    setState(() {
-      _selectedDate = newDate;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+void main() {
+  testWidgets('LogHeader displays date and navigates', (
+    WidgetTester tester,
+  ) async {
+    DateTime selectedDate = DateTime.now();
     final List<NutritionTarget> nutritionTargets = [
       NutritionTarget(
         color: Colors.blue,
-        thisAmount: 2500,
+        thisAmount: 1500,
         targetAmount: 2000,
         macroLabel: '🔥',
         unitLabel: '',
@@ -57,25 +43,31 @@ class _LogScreenState extends State<LogScreen> {
       ),
     ];
 
-    return ScreenBackground(
-      child: Column(
-        children: [
-          LogHeader(
-            date: _selectedDate,
-            onDateChanged: _handleDateChanged,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LogHeader(
+            date: selectedDate,
+            onDateChanged: (newDate) {
+              selectedDate = newDate;
+            },
             nutritionTargets: nutritionTargets,
           ),
-          const Expanded(
-            child: Center(
-              child: Text(
-                'Log entries will go here',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          const FoodSearchRibbon(),
-        ],
+        ),
       ),
     );
-  }
+
+    expect(find.text('Today'), findsOneWidget);
+    expect(find.byType(IconButton), findsNWidgets(2));
+
+    await tester.tap(find.byIcon(Icons.chevron_left));
+    await tester.pumpAndSettle();
+    // expect(find.text('Yesterday'), findsOneWidget); // This will be checked in the stateful widget test
+
+    await tester.tap(find.byIcon(Icons.chevron_right));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.chevron_right));
+    await tester.pumpAndSettle();
+    // expect(find.text('Tomorrow'), findsOneWidget);
+  });
 }

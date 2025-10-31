@@ -1,6 +1,6 @@
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/widgets/mini_bar_chart.dart';
+import 'package:free_cal_counter1/widgets/vertical_mini_bar_chart.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 
 class NutritionTargetsOverviewChart extends StatelessWidget {
@@ -65,7 +65,7 @@ class NutritionTargetsOverviewChart extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 vertical: 4.0,
                               ),
-                              child: MiniBarChart(
+                              child: VerticalMiniBarChart(
                                 value: data.dailyValues[dayIndex],
                                 maxValue: data.targetAmount,
                                 color: data.color,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:free_cal_counter1/widgets/mini_bar_chart.dart';
+import 'package:free_cal_counter1/widgets/vertical_mini_bar_chart.dart';
 import 'package:free_cal_counter1/widgets/nutrition_targets_overview_chart.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 
@@ -74,7 +74,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(MiniBarChart), findsNWidgets(28));
+      expect(find.byType(VerticalMiniBarChart), findsNWidgets(28));
     });
 
     testWidgets('renders weekday labels', (WidgetTester tester) async {

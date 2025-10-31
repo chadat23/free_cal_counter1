@@ -3,15 +3,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 // Export for testing
-export 'package:free_cal_counter1/widgets/mini_bar_chart.dart'
-    show MiniBarChartPainter;
+export 'package:free_cal_counter1/widgets/vertical_mini_bar_chart.dart'
+    show VerticalMiniBarChartPainter;
 
-class MiniBarChart extends StatelessWidget {
+class VerticalMiniBarChart extends StatelessWidget {
   final double value;
   final double maxValue;
   final Color color;
 
-  const MiniBarChart({
+  const VerticalMiniBarChart({
     super.key,
     required this.value,
     required this.maxValue,
@@ -24,7 +24,7 @@ class MiniBarChart extends StatelessWidget {
       width: 24,
       height: 48,
       child: CustomPaint(
-        painter: MiniBarChartPainter(
+        painter: VerticalMiniBarChartPainter(
           value: value,
           maxValue: maxValue,
           color: color,
@@ -34,12 +34,12 @@ class MiniBarChart extends StatelessWidget {
   }
 }
 
-class MiniBarChartPainter extends CustomPainter {
+class VerticalMiniBarChartPainter extends CustomPainter {
   final double value;
   final double maxValue;
   final Color color;
 
-  MiniBarChartPainter({
+  VerticalMiniBarChartPainter({
     required this.value,
     required this.maxValue,
     required this.color,
@@ -103,7 +103,7 @@ class MiniBarChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant MiniBarChartPainter oldDelegate) {
+  bool shouldRepaint(covariant VerticalMiniBarChartPainter oldDelegate) {
     return oldDelegate.value != value ||
         oldDelegate.maxValue != maxValue ||
         oldDelegate.color != color;

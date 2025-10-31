@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:free_cal_counter1/widgets/mini_bar_chart.dart';
+import 'package:free_cal_counter1/widgets/vertical_mini_bar_chart.dart';
 
 void main() {
   group('MiniBarChart', () {
@@ -11,12 +11,16 @@ void main() {
         const Directionality(
           textDirection: TextDirection.ltr,
           child: Center(
-            child: MiniBarChart(value: 50, maxValue: 100, color: Colors.blue),
+            child: VerticalMiniBarChart(
+              value: 50,
+              maxValue: 100,
+              color: Colors.blue,
+            ),
           ),
         ),
       );
 
-      expect(find.byType(MiniBarChart), findsOneWidget);
+      expect(find.byType(VerticalMiniBarChart), findsOneWidget);
       expect(find.byType(CustomPaint), findsOneWidget);
     });
 
@@ -29,13 +33,17 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Center(
-            child: MiniBarChart(value: value, maxValue: maxValue, color: color),
+            child: VerticalMiniBarChart(
+              value: value,
+              maxValue: maxValue,
+              color: color,
+            ),
           ),
         ),
       );
 
       final customPaint = tester.widget<CustomPaint>(find.byType(CustomPaint));
-      final painter = customPaint.painter as MiniBarChartPainter;
+      final painter = customPaint.painter as VerticalMiniBarChartPainter;
 
       expect(painter.value, value);
       expect(painter.maxValue, maxValue);
@@ -49,13 +57,17 @@ void main() {
         const Directionality(
           textDirection: TextDirection.ltr,
           child: Center(
-            child: MiniBarChart(value: -10, maxValue: 100, color: Colors.blue),
+            child: VerticalMiniBarChart(
+              value: -10,
+              maxValue: 100,
+              color: Colors.blue,
+            ),
           ),
         ),
       );
 
       final customPaint = tester.widget<CustomPaint>(find.byType(CustomPaint));
-      final painter = customPaint.painter as MiniBarChartPainter;
+      final painter = customPaint.painter as VerticalMiniBarChartPainter;
       // This is an indirect test. We are checking the value passed to the painter.
       // A more robust test would be a golden test, but this is a good start.
       expect(painter.value, -10);
@@ -68,12 +80,16 @@ void main() {
         const Directionality(
           textDirection: TextDirection.ltr,
           child: Center(
-            child: MiniBarChart(value: 110, maxValue: 100, color: Colors.blue),
+            child: VerticalMiniBarChart(
+              value: 110,
+              maxValue: 100,
+              color: Colors.blue,
+            ),
           ),
         ),
       );
       final customPaint = tester.widget<CustomPaint>(find.byType(CustomPaint));
-      final painter = customPaint.painter as MiniBarChartPainter;
+      final painter = customPaint.painter as VerticalMiniBarChartPainter;
       expect(painter.value, 110);
     });
   });

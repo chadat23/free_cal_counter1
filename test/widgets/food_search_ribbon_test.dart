@@ -4,6 +4,7 @@ import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/screens/food_search_screen.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -14,6 +15,7 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => NavigationProvider()),
+          ChangeNotifierProvider(create: (_) => LogProvider()),
         ],
         child: MaterialApp(
           navigatorKey: navigatorKey,

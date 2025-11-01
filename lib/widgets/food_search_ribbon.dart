@@ -34,16 +34,16 @@ class FoodSearchRibbon extends StatelessWidget {
           const SizedBox(width: 8.0),
           ElevatedButton(
             onPressed: () {
-              // TODO: Implement Add button functionality
+              // TODO: Implement Globe button functionality (OFF search)
             },
-            child: const Text('Search'),
+            child: const Icon(Icons.language), // Globe icon
           ),
           const SizedBox(width: 8.0),
           ElevatedButton(
             onPressed: () {
-              // TODO: Implement Globe button functionality (OFF search)
+              // TODO: Implement Add button functionality
             },
-            child: const Icon(Icons.language), // Globe icon
+            child: const Text('Log'),
           ),
         ],
       ),

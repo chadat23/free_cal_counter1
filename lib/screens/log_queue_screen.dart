@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
+import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
 import 'package:provider/provider.dart';
 
 class LogQueueScreen extends StatelessWidget {
@@ -33,10 +35,16 @@ class LogQueueScreen extends StatelessWidget {
             itemCount: logProvider.logQueue.length,
             itemBuilder: (context, index) {
               final food = logProvider.logQueue[index];
-              return ListTile(
-                leading: Text(food.emoji, style: const TextStyle(fontSize: 24)),
-                title: Text(food.name),
-                subtitle: Text('${food.calories} kcal'),
+              final foodPortion = FoodPortion(
+                food: food,
+                servingSize: 100, // Default value
+                servingUnit: 'g', // Default value
+              );
+              return SlidablePortionWidget(
+                portion: foodPortion,
+                onDelete: () {
+                  logProvider.removeFoodFromQueue(food);
+                },
               );
             },
           ),

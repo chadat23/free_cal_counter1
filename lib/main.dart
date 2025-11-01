@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -13,7 +14,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => NavigationProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => LogProvider()),
+      ],
       child: MaterialApp(
         title: 'FreeCal Counter',
         theme: ThemeData(

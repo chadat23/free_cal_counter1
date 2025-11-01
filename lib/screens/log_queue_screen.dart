@@ -1,14 +1,11 @@
-
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/config/app_router.dart';
-import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
 import 'package:provider/provider.dart';
-import 'package:free_cal_counter1/providers/log_provider.dart';
 
-class FoodSearchScreen extends StatelessWidget {
-  const FoodSearchScreen({super.key});
+class LogQueueScreen extends StatelessWidget {
+  const LogQueueScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,32 +20,25 @@ class FoodSearchScreen extends StatelessWidget {
               },
             ),
             title: LogQueueTopRibbon(
-              arrowDirection: Icons.arrow_drop_down,
+              arrowDirection: Icons.arrow_drop_up,
               onArrowPressed: () {
-                Navigator.pushNamed(context, AppRouter.logQueueRoute);
+                Navigator.pop(context);
               },
               totalCalories: logProvider.totalCalories,
               dailyTargetCalories: logProvider.dailyTargetCalories,
               logQueue: logProvider.logQueue,
             ),
           ),
-          body: Center(
-            child: ElevatedButton(
-              onPressed: () {
-                // Placeholder to add a food to the queue
-                final food = Food(
-                  id: 1,
-                  name: 'Apple',
-                  emoji: '🍎',
-                  calories: 52,
-                  protein: 0.3,
-                  fat: 0.2,
-                  carbs: 14,
-                );
-                logProvider.addFoodToQueue(food);
-              },
-              child: const Text('Add Apple to Queue'),
-            ),
+          body: ListView.builder(
+            itemCount: logProvider.logQueue.length,
+            itemBuilder: (context, index) {
+              final food = logProvider.logQueue[index];
+              return ListTile(
+                leading: Text(food.emoji, style: const TextStyle(fontSize: 24)),
+                title: Text(food.name),
+                subtitle: Text('${food.calories} kcal'),
+              );
+            },
           ),
           bottomNavigationBar: const FoodSearchRibbon(),
         );

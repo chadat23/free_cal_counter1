@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:free_cal_counter1/config/app_router.dart';
+import 'package:provider/provider.dart';
+import 'package:free_cal_counter1/providers/navigation_provider.dart';
 
 class FoodSearchRibbon extends StatelessWidget {
   const FoodSearchRibbon({super.key});
@@ -10,13 +13,21 @@ class FoodSearchRibbon extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search food...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            child: GestureDetector(
+              key: const Key('food_search_text_field'),
+              onTap: () {
+                Navigator.pushNamed(context, AppRouter.foodSearchRoute);
+              },
+              child: AbsorbPointer(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search food...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  ),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
               ),
             ),
           ),

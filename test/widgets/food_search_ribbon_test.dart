@@ -1,19 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:free_cal_counter1/config/app_router.dart';
+import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/screens/food_search_screen.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  group('FoodSearchRibbon', () {
-    testWidgets('renders search bar, add button, and globe button', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: FoodSearchRibbon())),
-      );
+  testWidgets('tapping search bar navigates to food search screen', (WidgetTester tester) async {
+    final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-      expect(find.byType(TextField), findsOneWidget);
-      expect(find.widgetWithText(ElevatedButton, 'Search'), findsOneWidget);
-      expect(find.byIcon(Icons.language), findsOneWidget);
-    });
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ],
+        child: MaterialApp(
+          navigatorKey: navigatorKey,
+          home: const Scaffold(
+            body: FoodSearchRibbon(),
+          ),
+          onGenerateRoute: (settings) {
+            if (settings.name == AppRouter.foodSearchRoute) {
+              return MaterialPageRoute(
+                builder: (_) => const FoodSearchScreen(),
+              );
+            }
+            return null;
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('food_search_text_field')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FoodSearchScreen), findsOneWidget);
   });
 }

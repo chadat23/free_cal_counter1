@@ -1,6 +1,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
+import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 
@@ -16,6 +17,12 @@ class FoodSearchProvider extends ChangeNotifier {
   List<model.Food> _searchResults = [];
   List<model.Food> get searchResults => _searchResults;
 
+  model.Food? _selectedFood;
+  model.Food? get selectedFood => _selectedFood;
+
+  List<model_unit.FoodUnit> _units = [];
+  List<model_unit.FoodUnit> get units => _units;
+
   Future<void> textSearch(String query) async {
     _searchResults = await databaseService.searchFoodsByName(query);
     notifyListeners();
@@ -23,33 +30,21 @@ class FoodSearchProvider extends ChangeNotifier {
 
   Future<void> barcodeSearch(String barcode) async {
     model.Food? food = await databaseService.getFoodByBarcode(barcode);
-    if (food == null) {
-      food = await offApiService.fetchFoodByBarcode(barcode);
-    }
+    food ??= await offApiService.fetchFoodByBarcode(barcode);
 
     _searchResults = food == null ? [] : [food];
     notifyListeners();
   }
 
-  Future<model.Food?> selectFood(model.Food food) async {
-    if (food.id == 0) { // From OFF
-      return await databaseService.saveFood(food);
-    } else { // From reference DB
-      final existing = await databaseService.getFoodBySourceFdcId(food.id);
-      if (existing != null) {
-        return existing;
-      } else {
-        final newFood = model.Food(
-          id: 0, // Save as a new food
-          name: food.name,
-          emoji: food.emoji,
-          calories: food.calories,
-          protein: food.protein,
-          fat: food.fat,
-          carbs: food.carbs,
-        );
-        return await databaseService.saveFood(newFood);
-      }
-    }
+  void clearSelection() {
+    _selectedFood = null;
+    _units = [];
+    notifyListeners();
+  }
+
+  Future<void> selectFood(model.Food food) async {
+    _selectedFood = food;
+    _units = await databaseService.getUnitsForFood(food);
+    notifyListeners();
   }
 }

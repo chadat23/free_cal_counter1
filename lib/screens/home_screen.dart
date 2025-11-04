@@ -19,29 +19,34 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navigationProvider = Provider.of<NavigationProvider>(context);
+    final selectedIndex = navigationProvider.selectedIndex;
 
     return Scaffold(
       body: Center(
-        child: _widgetOptions.elementAt(navigationProvider.selectedIndex),
+        child: (selectedIndex >= 0 && selectedIndex < _widgetOptions.length)
+            ? _widgetOptions.elementAt(selectedIndex)
+            : Container(),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Overview'),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Log'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.monitor_weight),
-            label: 'Weight',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: navigationProvider.selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        unselectedItemColor: Colors.grey,
-        onTap: (index) => navigationProvider.changeTab(index),
-      ),
+      bottomNavigationBar: (selectedIndex != -1)
+          ? BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Overview'),
+                BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Log'),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.monitor_weight),
+                  label: 'Weight',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings),
+                  label: 'Settings',
+                ),
+              ],
+              currentIndex: selectedIndex,
+              selectedItemColor: Colors.amber[800],
+              unselectedItemColor: Colors.grey,
+              onTap: (index) => navigationProvider.changeTab(index),
+            )
+          : null,
     );
   }
 }

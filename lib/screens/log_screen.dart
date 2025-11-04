@@ -70,6 +70,7 @@ class _LogScreenState extends State<LogScreen> {
             portion: FoodPortion(
               food: Food(
                 id: 1,
+                source: 'user_created',
                 name: 'Apple',
                 emoji: '🍎',
                 calories: 52,
@@ -86,6 +87,7 @@ class _LogScreenState extends State<LogScreen> {
             portion: FoodPortion(
               food: Food(
                 id: 2,
+                source: 'user_created',
                 name: 'Banana',
                 emoji: '🍌',
                 calories: 89,
@@ -107,6 +109,7 @@ class _LogScreenState extends State<LogScreen> {
             portion: FoodPortion(
               food: Food(
                 id: 3,
+                source: 'user_created',
                 name: 'Chicken Breast',
                 emoji: '🍗',
                 calories: 165,

@@ -32,7 +32,6 @@ class _WeightScreenState extends State<WeightScreen> {
     final weight = double.tryParse(_weightController.text);
     if (weight != null) {
       // TODO: Save the weight
-      print('Entered weight: $weight');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Weight saved: $weight')),
       );

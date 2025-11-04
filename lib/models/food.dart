@@ -1,5 +1,6 @@
 class Food {
   final int id;
+  final String source;
   final String name;
   final String emoji;
   final double calories;
@@ -9,6 +10,7 @@ class Food {
 
   Food({
     required this.id,
+    required this.source,
     required this.name,
     required this.emoji,
     required this.calories,

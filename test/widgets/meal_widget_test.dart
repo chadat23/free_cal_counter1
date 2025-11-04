@@ -19,6 +19,7 @@ void main() {
       protein: 0.25,
       fat: 0.2,
       carbs: 14,
+      source: 'test',
     );
     final portion1 = FoodPortion(
       food: food1,
@@ -38,6 +39,7 @@ void main() {
       protein: 1.0,
       fat: 0.3,
       carbs: 23,
+      source: 'test',
     );
     final portion2 = FoodPortion(
       food: food2,

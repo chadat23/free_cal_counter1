@@ -28,7 +28,7 @@ void main() {
     test('should return foods from database service', () async {
       // Arrange
       final mockFoods = [
-        model.Food(id: 1, name: 'Apple', emoji: '', calories: 52, protein: 0.3, fat: 0.2, carbs: 14),
+        model.Food(id: 1, name: 'Apple', emoji: '', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, source: 'test'),
       ];
       when(mockDatabaseService.searchFoodsByName(any)).thenAnswer((_) async => mockFoods);
 
@@ -58,7 +58,7 @@ void main() {
   group('barcodeSearch', () {
     test('should return food from database service if found', () async {
       // Arrange
-      final mockFood = model.Food(id: 1, name: 'Barcode Food', emoji: '', calories: 100, protein: 10, fat: 5, carbs: 15);
+      final mockFood = model.Food(id: 1, name: 'Barcode Food', emoji: '', calories: 100, protein: 10, fat: 5, carbs: 15, source: 'test');
       when(mockDatabaseService.getFoodByBarcode(any)).thenAnswer((_) async => mockFood);
 
       // Act
@@ -72,7 +72,7 @@ void main() {
 
     test('should query OffApiService if not found in database', () async {
       // Arrange
-      final mockFood = model.Food(id: 0, name: 'OFF Food', emoji: '', calories: 200, protein: 20, fat: 10, carbs: 30);
+      final mockFood = model.Food(id: 0, name: 'OFF Food', emoji: '', calories: 200, protein: 20, fat: 10, carbs: 30, source: 'off');
       when(mockDatabaseService.getFoodByBarcode(any)).thenAnswer((_) async => null);
       when(mockOffApiService.fetchFoodByBarcode(any)).thenAnswer((_) async => mockFood);
 
@@ -101,57 +101,18 @@ void main() {
   });
 
   group('selectFood', () {
-    test('should save food to live DB if from OFF and not already present', () async {
+    test('should set selected food and fetch units', () async {
       // Arrange
-      final offFood = model.Food(id: 0, name: 'OFF Food', emoji: '', calories: 200, protein: 20, fat: 10, carbs: 30);
-      final savedFood = model.Food(id: 1, name: 'OFF Food', emoji: '', calories: 200, protein: 20, fat: 10, carbs: 30);
-
-      when(mockDatabaseService.saveFood(any)).thenAnswer((_) async => savedFood);
+      final food = model.Food(id: 1, name: 'Apple', emoji: '', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, source: 'test');
+      when(mockDatabaseService.getUnitsForFood(food)).thenAnswer((_) async => []);
 
       // Act
-      final result = await foodSearchProvider.selectFood(offFood);
+      await foodSearchProvider.selectFood(food);
 
       // Assert
-      expect(result, savedFood);
-      verify(mockDatabaseService.saveFood(offFood)).called(1);
-      verifyNever(mockDatabaseService.getFoodBySourceFdcId(any));
-    });
-
-    test('should return existing food if from reference DB and already copied', () async {
-      // Arrange
-      final refFood = model.Food(id: 100, name: 'Ref Food', emoji: '', calories: 150, protein: 15, fat: 8, carbs: 20);
-      final existingLiveFood = model.Food(id: 1, name: 'Ref Food', emoji: '', calories: 150, protein: 15, fat: 8, carbs: 20);
-
-      when(mockDatabaseService.getFoodBySourceFdcId(any)).thenAnswer((_) async => existingLiveFood);
-
-      // Act
-      final result = await foodSearchProvider.selectFood(refFood);
-
-      // Assert
-      expect(result, existingLiveFood);
-      verify(mockDatabaseService.getFoodBySourceFdcId(refFood.id)).called(1);
-      verifyNever(mockDatabaseService.saveFood(any));
-    });
-
-    test('should copy food from reference DB to live DB if not already copied', () async {
-      // Arrange
-      final refFood = model.Food(id: 100, name: 'Ref Food', emoji: '', calories: 150, protein: 15, fat: 8, carbs: 20);
-      final copiedFood = model.Food(id: 1, name: 'Ref Food', emoji: '', calories: 150, protein: 15, fat: 8, carbs: 20);
-
-      when(mockDatabaseService.getFoodBySourceFdcId(any)).thenAnswer((_) async => null);
-      when(mockDatabaseService.saveFood(any)).thenAnswer((_) async => copiedFood);
-
-      // Act
-      final result = await foodSearchProvider.selectFood(refFood);
-
-      // Assert
-      expect(result, copiedFood);
-      verify(mockDatabaseService.getFoodBySourceFdcId(refFood.id)).called(1);
-      verify(mockDatabaseService.saveFood(argThat(
-        isA<model.Food>()
-            .having((f) => f.name, 'name', refFood.name)
-            .having((f) => f.id, 'id', 0), // Should be saved as a new food
-      ))).called(1);
+      expect(foodSearchProvider.selectedFood, food);
+      expect(foodSearchProvider.units, []);
+      verify(mockDatabaseService.getUnitsForFood(food)).called(1);
     });
   });
 }

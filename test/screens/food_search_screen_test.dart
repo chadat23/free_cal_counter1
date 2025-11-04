@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/screens/food_search_screen.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:mockito/annotations.dart';
@@ -11,14 +12,20 @@ import 'package:provider/provider.dart';
 
 import 'food_search_screen_test.mocks.dart';
 
-@GenerateMocks([LogProvider, NavigationProvider])
+@GenerateMocks([LogProvider, NavigationProvider, FoodSearchProvider])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
+  late MockFoodSearchProvider mockFoodSearchProvider;
 
   setUp(() {
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
+    mockFoodSearchProvider = MockFoodSearchProvider();
+    when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
+    when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
+    when(mockFoodSearchProvider.selectedFood).thenReturn(null);
+    when(mockFoodSearchProvider.searchResults).thenReturn([]);
   });
 
   Widget createTestWidget() {
@@ -26,6 +33,7 @@ void main() {
       providers: [
         ChangeNotifierProvider<LogProvider>.value(value: mockLogProvider),
         ChangeNotifierProvider<NavigationProvider>.value(value: mockNavigationProvider),
+        ChangeNotifierProvider<FoodSearchProvider>.value(value: mockFoodSearchProvider),
       ],
       child: const MaterialApp(
         home: FoodSearchScreen(),
@@ -55,7 +63,7 @@ void main() {
   });
 
   testWidgets('FoodSearchScreen displays food icons from the queue with correct styling', (WidgetTester tester) async {
-    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎');
+    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
     when(mockLogProvider.logQueue).thenReturn([food]);
     when(mockLogProvider.totalCalories).thenReturn(52.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
@@ -80,12 +88,12 @@ void main() {
     await tester.tap(find.byIcon(Icons.close));
     await tester.pumpAndSettle();
 
-    verify(mockNavigationProvider.changeTab(0)).called(1);
+    verify(mockNavigationProvider.goBack()).called(1);
     // We can't easily test popUntil here, but we verified the provider calls.
   });
 
   testWidgets('shows discard dialog when queue is not empty', (tester) async {
-    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎');
+    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
     when(mockLogProvider.logQueue).thenReturn([food]);
     when(mockLogProvider.totalCalories).thenReturn(52.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
@@ -100,7 +108,7 @@ void main() {
   });
 
   testWidgets('tapping cancel on dialog does nothing', (tester) async {
-    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎');
+    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
     when(mockLogProvider.logQueue).thenReturn([food]);
     when(mockLogProvider.totalCalories).thenReturn(52.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
@@ -119,7 +127,7 @@ void main() {
   });
 
   testWidgets('tapping discard on dialog clears queue and navigates', (tester) async {
-    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎');
+    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
     when(mockLogProvider.logQueue).thenReturn([food]);
     when(mockLogProvider.totalCalories).thenReturn(52.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
@@ -134,7 +142,7 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(mockLogProvider.clearQueue()).called(1);
-    verify(mockNavigationProvider.changeTab(0)).called(1);
+    verify(mockNavigationProvider.goBack()).called(1);
     // We can't easily test popUntil here, but we verified the provider calls.
   });
 }

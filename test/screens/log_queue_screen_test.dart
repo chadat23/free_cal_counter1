@@ -48,7 +48,7 @@ void main() {
   });
 
   testWidgets('shows discard dialog when queue is not empty', (tester) async {
-    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎');
+    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
     when(mockLogProvider.logQueue).thenReturn([food]);
     when(mockLogProvider.totalCalories).thenReturn(52.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
@@ -63,7 +63,7 @@ void main() {
   });
 
   testWidgets('tapping cancel on dialog does nothing', (tester) async {
-    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎');
+    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
     when(mockLogProvider.logQueue).thenReturn([food]);
     when(mockLogProvider.totalCalories).thenReturn(52.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
@@ -82,7 +82,7 @@ void main() {
   });
 
   testWidgets('tapping discard on dialog clears queue and navigates', (tester) async {
-    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎');
+    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
     when(mockLogProvider.logQueue).thenReturn([food]);
     when(mockLogProvider.totalCalories).thenReturn(52.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);

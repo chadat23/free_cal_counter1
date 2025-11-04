@@ -38,6 +38,7 @@ class OffApiService {
 
     return model.Food(
       id: 0, // Not from our DB
+      source: 'off',
       name: product.productName ?? 'Unknown Food',
       emoji: '', // Not available from OFF
       calories: energy,

@@ -6,8 +6,9 @@
 import 'dart:async' as _i4;
 
 import 'package:free_cal_counter1/models/food.dart' as _i2;
+import 'package:free_cal_counter1/models/food_unit.dart' as _i5;
 import 'package:free_cal_counter1/services/database_service.dart' as _i3;
-import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i5;
+import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -56,6 +57,14 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i4.Future<List<_i2.Food>>);
 
   @override
+  _i4.Future<List<_i5.FoodUnit>> getUnitsForFood(_i2.Food? food) =>
+      (super.noSuchMethod(
+            Invocation.method(#getUnitsForFood, [food]),
+            returnValue: _i4.Future<List<_i5.FoodUnit>>.value(<_i5.FoodUnit>[]),
+          )
+          as _i4.Future<List<_i5.FoodUnit>>);
+
+  @override
   _i4.Future<_i2.Food?> getFoodByBarcode(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#getFoodByBarcode, [barcode]),
@@ -85,7 +94,7 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
 /// A class which mocks [OffApiService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockOffApiService extends _i1.Mock implements _i5.OffApiService {
+class MockOffApiService extends _i1.Mock implements _i6.OffApiService {
   MockOffApiService() {
     _i1.throwOnMissingStub(this);
   }

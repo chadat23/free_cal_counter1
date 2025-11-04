@@ -145,6 +145,14 @@ class MockNavigationProvider extends _i1.Mock
           as int);
 
   @override
+  bool get shouldFocusSearch =>
+      (super.noSuchMethod(
+            Invocation.getter(#shouldFocusSearch),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -158,6 +166,12 @@ class MockNavigationProvider extends _i1.Mock
   @override
   void goToFoodSearch() => super.noSuchMethod(
     Invocation.method(#goToFoodSearch, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void resetSearchFocus() => super.noSuchMethod(
+    Invocation.method(#resetSearchFocus, []),
     returnValueForMissingStub: null,
   );
 

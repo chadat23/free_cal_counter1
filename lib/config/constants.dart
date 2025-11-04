@@ -1,38 +1,36 @@
+library constants;
 
-// lib/config/constants.dart
-
-/// Defines constant values used throughout the application.
-/// This helps maintain consistency and reduces magic strings.
+/// Defines constant values used throughout the application. This helps maintain consistency and reduces magic strings.
 
 // --- Food Sources ---
 /// Represents food data originating from the USDA Foundation Foods dataset.
-const String FOOD_SOURCE_FOUNDATION = 'foundation';
+const String foodSourceFoundation = 'foundation';
 
 /// Represents food data cached from the Open Food Facts API.
-const String FOOD_SOURCE_OFF_CACHE = 'off_cache';
+const String foodSourceOffCache = 'off_cache';
 
 /// Represents food data created and managed by the user.
-const String FOOD_SOURCE_USER_CREATED = 'user_created';
+const String foodSourceUserCreated = 'user_created';
 
 // --- Unit Names ---
 /// Represents a standard serving unit, typically used for recipes.
-const String UNIT_NAME_SERVING = 'serving';
+const String unitNameServing = 'serving';
 
 /// Represents the gram unit of mass.
-const String UNIT_NAME_GRAM = 'g';
+const String unitNameGram = 'g';
 
 /// Represents the ounce unit of mass.
-const String UNIT_NAME_OUNCE = 'oz';
+const String unitNameOunce = 'oz';
 
 // --- Nutrient Names (for consistency, e.g., in UI or data mapping) ---
-const String NUTRIENT_CALORIES = 'calories';
-const String NUTRIENT_PROTEIN = 'protein';
-const String NUTRIENT_FAT = 'fat';
-const String NUTRIENT_CARBS = 'carbs';
-const String NUTRIENT_FIBER = 'fiber';
+const String nutrientCalories = 'calories';
+const String nutrientProtein = 'protein';
+const String nutrientFat = 'fat';
+const String nutrientCarbs = 'carbs';
+const String nutrientFiber = 'fiber';
 
 // --- Meal Names (for logging) ---
-const String MEAL_BREAKFAST = 'Breakfast';
-const String MEAL_LUNCH = 'Lunch';
-const String MEAL_DINNER = 'Dinner';
-const String MEAL_SNACK = 'Snack';
+const String mealBreakfast = 'Breakfast';
+const String mealLunch = 'Lunch';
+const String mealDinner = 'Dinner';
+const String mealSnack = 'Snack';

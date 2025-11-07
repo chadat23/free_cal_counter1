@@ -30,12 +30,15 @@ def init_db(conn):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             source TEXT NOT NULL,
+            image_url TEXT,
+            calories_per_100g REAL NOT NULL,
+            protein_per_100g REAL NOT NULL,
+            fat_per_100g REAL NOT NULL,
+            carbs_per_100g REAL NOT NULL,
+            fiber_per_100g REAL NOT NULL,
             source_fdc_id INTEGER UNIQUE,
-            calories_per_100g REAL,
-            protein_per_100g REAL,
-            fat_per_100g REAL,
-            carbs_per_100g REAL,
-            fiber_per_100g REAL
+            source_barcode TEXT,
+            hidden BOOLEAN NOT NULL DEFAULT 0
         );
     """
     )
@@ -129,6 +132,10 @@ def parse_foods(data, source_name):
                 nutrients[db_col] = value
 
         # --- 2. Filter & Prune (Apply Rules) ---
+        # Ensure all nutrient values are finite numbers
+        if any(not isinstance(nutrients[key], (int, float)) or not nutrients[key] >= 0 for key in nutrients if nutrients[key] is not None):
+            continue
+
         # Require Calories, Protein, Fat, Carbs. If any are missing, skip food.
         required_macros = ["calories_per_100g", "protein_per_100g", "fat_per_100g", "carbs_per_100g"]
         if any(nutrients[macro] is None for macro in required_macros):
@@ -193,12 +200,15 @@ def upsert_foods(conn, foods):
                 """
                 UPDATE foods SET
                    name=?, source=?, calories_per_100g=?, protein_per_100g=?,
-                   fat_per_100g=?, carbs_per_100g=?, fiber_per_100g=?
+                   fat_per_100g=?, carbs_per_100g=?, fiber_per_100g=?,
+                   image_url=?, source_barcode=?, hidden=?
                 WHERE id=?
                 """,
                 (
                     f["name"], f["source"], f["calories_per_100g"], f["protein_per_100g"],
-                    f["fat_per_100g"], f["carbs_per_100g"], f["fiber_per_100g"], food_id
+                    f["fat_per_100g"], f["carbs_per_100g"], f["fiber_per_100g"],
+                    None, None, 0, # image_url, source_barcode, hidden
+                    food_id
                 ),
             )
             upsert_count += 1
@@ -208,12 +218,13 @@ def upsert_foods(conn, foods):
             cur.execute(
                 """
                 INSERT INTO foods
-                (name, source, source_fdc_id, calories_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, fiber_per_100g)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (name, source, source_fdc_id, calories_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, fiber_per_100g, image_url, source_barcode, hidden)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     f["name"], f["source"], f["source_fdc_id"], f["calories_per_100g"],
-                    f["protein_per_100g"], f["fat_per_100g"], f["carbs_per_100g"], f["fiber_per_100g"]
+                    f["protein_per_100g"], f["fat_per_100g"], f["carbs_per_100g"], f["fiber_per_100g"],
+                    None, None, 0 # image_url, source_barcode, hidden
                 ),
             )
             insert_count += 1

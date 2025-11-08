@@ -3,25 +3,26 @@ import 'package:drift/drift.dart';
 
 class Foods extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
-  TextColumn get source => text()();
-  TextColumn get imageUrl => text().nullable()();
-  RealColumn get caloriesPer100g => real()();
-  RealColumn get proteinPer100g => real()();
-  RealColumn get fatPer100g => real()();
-  RealColumn get carbsPer100g => real()();
-  RealColumn get fiberPer100g => real()();
-  IntColumn get sourceFdcId => integer().nullable()();
-  TextColumn get sourceBarcode => text().nullable()();
-  BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+  TextColumn get name => text().named('name')();
+  TextColumn get source => text().named('source')();
+  TextColumn get emoji => text().named('emoji').nullable()();
+  TextColumn get thumbnail => text().named('thumbnail').nullable()();
+  RealColumn get caloriesPer100g => real().named('caloriesPer100g')();
+  RealColumn get proteinPer100g => real().named('proteinPer100g')();
+  RealColumn get fatPer100g => real().named('fatPer100g')();
+  RealColumn get carbsPer100g => real().named('carbsPer100g')();
+  RealColumn get fiberPer100g => real().named('fiberPer100g')();
+  IntColumn get sourceFdcId => integer().named('sourceFdcId').nullable()();
+  TextColumn get sourceBarcode => text().named('sourceBarcode').nullable()();
+  BoolColumn get hidden => boolean().named('hidden').withDefault(const Constant(false))();
 }
 
 @DataClassName('FoodUnit')
 class FoodUnits extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get foodId => integer().references(Foods, #id)();
-  TextColumn get unitName => text()();
-  RealColumn get gramsPerUnit => real()();
+  IntColumn get foodId => integer().named('foodId').references(Foods, #id)();
+  TextColumn get unitName => text().named('unitName')();
+  RealColumn get gramsPerUnit => real().named('gramsPerUnit')();
 }
 
 @DataClassName('Recipe')

@@ -40,7 +40,8 @@ class OffApiService {
       id: 0, // Not from our DB
       source: 'off',
       name: product.productName ?? 'Unknown Food',
-      emoji: '', // Not available from OFF
+      emoji: null, // Not available from OFF
+      thumbnail: product.imageFrontUrl,
       calories: energy,
       protein: proteins,
       fat: fat,

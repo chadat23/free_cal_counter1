@@ -13,11 +13,11 @@ USDA_BASE = "https://fdc.nal.usda.gov/fdc-datasets/"
 
 # Nutrients we want, mapping the names found in the JSON to our DB column names
 WANTED_NUTRIENTS = {
-    "Energy": "calories_per_100g",
-    "Protein": "protein_per_100g",
-    "Total lipid (fat)": "fat_per_100g",
-    "Carbohydrate, by difference": "carbs_per_100g",
-    "Fiber, total dietary": "fiber_per_100g",
+    "Energy": "caloriesPer100g",
+    "Protein": "proteinPer100g",
+    "Total lipid (fat)": "fatPer100g",
+    "Carbohydrate, by difference": "carbsPer100g",
+    "Fiber, total dietary": "fiberPer100g",
 }
 
 def init_db(conn):
@@ -30,14 +30,15 @@ def init_db(conn):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             source TEXT NOT NULL,
-            image_url TEXT,
-            calories_per_100g REAL NOT NULL,
-            protein_per_100g REAL NOT NULL,
-            fat_per_100g REAL NOT NULL,
-            carbs_per_100g REAL NOT NULL,
-            fiber_per_100g REAL NOT NULL,
-            source_fdc_id INTEGER UNIQUE,
-            source_barcode TEXT,
+            emoji TEXT,
+            thumbnail TEXT,
+            caloriesPer100g REAL NOT NULL,
+            proteinPer100g REAL NOT NULL,
+            fatPer100g REAL NOT NULL,
+            carbsPer100g REAL NOT NULL,
+            fiberPer100g REAL NOT NULL,
+            sourceFdcId INTEGER UNIQUE,
+            sourceBarcode TEXT,
             hidden BOOLEAN NOT NULL DEFAULT 0
         );
     """
@@ -47,10 +48,10 @@ def init_db(conn):
     cur.execute("""
         CREATE TABLE IF NOT EXISTS food_units (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            food_id INTEGER NOT NULL,
-            unit_name TEXT NOT NULL,
-            grams_per_unit REAL NOT NULL,
-            FOREIGN KEY (food_id) REFERENCES foods(id)
+            foodId INTEGER NOT NULL,
+            unitName TEXT NOT NULL,
+            gramsPerUnit REAL NOT NULL,
+            FOREIGN KEY (foodId) REFERENCES foods(id)
         );
     """
     )
@@ -133,7 +134,7 @@ def parse_foods(data, source_name):
 
         # --- 2. Filter & Prune (Apply Rules) ---
         # Check required macros FIRST before any other validation
-        required_macros = ["calories_per_100g", "protein_per_100g", "fat_per_100g", "carbs_per_100g"]
+        required_macros = ["caloriesPer100g", "proteinPer100g", "fatPer100g", "carbsPer100g"]
         
         # If ANY required macro is missing, skip this food entirely
         if any(nutrients.get(macro) is None for macro in required_macros):
@@ -145,13 +146,13 @@ def parse_foods(data, source_name):
             continue
         
         # Default fiber to 0 AFTER validation ensures other macros exist
-        if nutrients["fiber_per_100g"] is None:
-            nutrients["fiber_per_100g"] = 0.0
+        if nutrients["fiberPer100g"] is None:
+            nutrients["fiberPer100g"] = 0.0
 
         # --- 3. Extract Portions ---
         portions = []
         # Always add 100g as a base unit
-        portions.append({"unit_name": "100g", "grams_per_unit": 100.0})
+        portions.append({"unitName": "100g", "gramsPerUnit": 100.0})
 
         for p in item.get("foodPortions", []):
             gram_weight = p.get("gramWeight")
@@ -172,15 +173,15 @@ def parse_foods(data, source_name):
                 unit_name = f"{unit_name}, {modifier}"
 
             portions.append({
-                "unit_name": unit_name.strip(),
-                "grams_per_unit": float(gram_weight),
+                "unitName": unit_name.strip(),
+                "gramsPerUnit": float(gram_weight),
             })
 
         # --- 4. Assemble Food Record ---
         foods.append({
             "name": description.title(), # Title case for consistency
             "source": source_name,
-            "source_fdc_id": fdc_id,
+            "sourceFdcId": fdc_id,
             **nutrients,
             "units": portions,
         })
@@ -193,8 +194,8 @@ def upsert_foods(conn, foods):
     insert_count = 0
 
     for f in foods:
-        # Check if food exists by source_fdc_id
-        cur.execute("SELECT id FROM foods WHERE source_fdc_id=?", (f["source_fdc_id"],))
+        # Check if food exists by sourceFdcId
+        cur.execute("SELECT id FROM foods WHERE sourceFdcId=?", (f["sourceFdcId"],))
         result = cur.fetchone()
         food_id = result[0] if result else None
 
@@ -202,32 +203,32 @@ def upsert_foods(conn, foods):
             cur.execute(
                 """
                 UPDATE foods SET
-                   name=?, source=?, calories_per_100g=?, protein_per_100g=?,
-                   fat_per_100g=?, carbs_per_100g=?, fiber_per_100g=?,
-                   image_url=?, source_barcode=?, hidden=?
+                   name=?, source=?, caloriesPer100g=?, proteinPer100g=?,
+                   fatPer100g=?, carbsPer100g=?, fiberPer100g=?,
+                   emoji=?, thumbnail=?, sourceBarcode=?, hidden=?
                 WHERE id=?
                 """,
                 (
-                    f["name"], f["source"], f["calories_per_100g"], f["protein_per_100g"],
-                    f["fat_per_100g"], f["carbs_per_100g"], f["fiber_per_100g"],
-                    None, None, 0, # image_url, source_barcode, hidden
+                    f["name"], f["source"], f["caloriesPer100g"], f["proteinPer100g"],
+                    f["fatPer100g"], f["carbsPer100g"], f["fiberPer100g"],
+                    None, None, None, 0, # emoji, thumbnail, sourceBarcode, hidden
                     food_id
                 ),
             )
             upsert_count += 1
             # Clear old units before inserting new ones
-            cur.execute("DELETE FROM food_units WHERE food_id=?", (food_id,))
+            cur.execute("DELETE FROM food_units WHERE foodId=?", (food_id,))
         else: # Insert new food
             cur.execute(
                 """
                 INSERT INTO foods
-                (name, source, source_fdc_id, calories_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, fiber_per_100g, image_url, source_barcode, hidden)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (name, source, sourceFdcId, caloriesPer100g, proteinPer100g, fatPer100g, carbsPer100g, fiberPer100g, emoji, thumbnail, sourceBarcode, hidden)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    f["name"], f["source"], f["source_fdc_id"], f["calories_per_100g"],
-                    f["protein_per_100g"], f["fat_per_100g"], f["carbs_per_100g"], f["fiber_per_100g"],
-                    None, None, 0 # image_url, source_barcode, hidden
+                    f["name"], f["source"], f["sourceFdcId"], f["caloriesPer100g"],
+                    f["proteinPer100g"], f["fatPer100g"], f["carbsPer100g"], f["fiberPer100g"],
+                    None, None, None, 0 # emoji, thumbnail, sourceBarcode, hidden
                 ),
             )
             insert_count += 1
@@ -236,8 +237,8 @@ def upsert_foods(conn, foods):
         # Insert units for the food
         for u in f["units"]:
             cur.execute(
-                "INSERT INTO food_units (food_id, unit_name, grams_per_unit) VALUES (?, ?, ?)",
-                (food_id, u["unit_name"], u["grams_per_unit"]),
+                "INSERT INTO food_units (foodId, unitName, gramsPerUnit) VALUES (?, ?, ?)",
+                (food_id, u["unitName"], u["gramsPerUnit"]),
             )
 
     conn.commit()

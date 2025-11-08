@@ -12,7 +12,7 @@ class PortionWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
         children: [
-          Text(portion.food.emoji, style: const TextStyle(fontSize: 24)),
+          Text(portion.food.emoji ?? '', style: const TextStyle(fontSize: 24)),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

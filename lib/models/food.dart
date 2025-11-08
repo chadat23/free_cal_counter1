@@ -2,7 +2,8 @@ class Food {
   final int id;
   final String source;
   final String name;
-  final String emoji;
+  final String? emoji;
+  final String? thumbnail;
   final double calories;
   final double protein;
   final double fat;
@@ -12,7 +13,8 @@ class Food {
     required this.id,
     required this.source,
     required this.name,
-    required this.emoji,
+    this.emoji,
+    this.thumbnail,
     required this.calories,
     required this.protein,
     required this.fat,

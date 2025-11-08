@@ -132,16 +132,19 @@ def parse_foods(data, source_name):
                 nutrients[db_col] = value
 
         # --- 2. Filter & Prune (Apply Rules) ---
-        # Ensure all nutrient values are finite numbers
-        if any(not isinstance(nutrients[key], (int, float)) or not nutrients[key] >= 0 for key in nutrients if nutrients[key] is not None):
-            continue
-
-        # Require Calories, Protein, Fat, Carbs. If any are missing, skip food.
+        # Check required macros FIRST before any other validation
         required_macros = ["calories_per_100g", "protein_per_100g", "fat_per_100g", "carbs_per_100g"]
-        if any(nutrients[macro] is None for macro in required_macros):
-            continue 
-
-        # If Fiber is missing, default to 0
+        
+        # If ANY required macro is missing, skip this food entirely
+        if any(nutrients.get(macro) is None for macro in required_macros):
+            continue
+        
+        # Now validate all nutrients are valid numbers (including fiber which might still be None)
+        if any(not (isinstance(v, (int, float)) and v >= 0 and v != float('inf')) 
+               for v in nutrients.values() if v is not None):
+            continue
+        
+        # Default fiber to 0 AFTER validation ensures other macros exist
         if nutrients["fiber_per_100g"] is None:
             nutrients["fiber_per_100g"] = 0.0
 

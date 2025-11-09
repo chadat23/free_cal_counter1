@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
@@ -91,3 +90,4 @@ class FoodSearchProvider extends ChangeNotifier {
     _units = await databaseService.getUnitsForFood(food);
     notifyListeners();
   }
+}

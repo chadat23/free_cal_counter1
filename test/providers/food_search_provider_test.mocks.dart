@@ -106,4 +106,12 @@ class MockOffApiService extends _i1.Mock implements _i6.OffApiService {
             returnValue: _i4.Future<_i2.Food?>.value(),
           )
           as _i4.Future<_i2.Food?>);
+
+  @override
+  _i4.Future<List<_i2.Food>> searchFoodsByName(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchFoodsByName, [query]),
+            returnValue: _i4.Future<List<_i2.Food>>.value(<_i2.Food>[]),
+          )
+          as _i4.Future<List<_i2.Food>>);
 }

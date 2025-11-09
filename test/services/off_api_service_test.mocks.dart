@@ -30,6 +30,11 @@ class _FakeProductResultV3_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+class _FakeSearchResult_1 extends _i1.SmartFake implements _i2.SearchResult {
+  _FakeSearchResult_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [OffApiClientWrapper].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -53,4 +58,20 @@ class MockOffApiClientWrapper extends _i1.Mock
             ),
           )
           as _i4.Future<_i2.ProductResultV3>);
+
+  @override
+  _i4.Future<_i2.SearchResult> searchProducts(
+    _i2.User? user,
+    _i2.ProductSearchQueryConfiguration? configuration,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchProducts, [user, configuration]),
+            returnValue: _i4.Future<_i2.SearchResult>.value(
+              _FakeSearchResult_1(
+                this,
+                Invocation.method(#searchProducts, [user, configuration]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.SearchResult>);
 }

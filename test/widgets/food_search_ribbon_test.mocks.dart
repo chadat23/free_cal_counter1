@@ -6,10 +6,10 @@
 import 'dart:async' as _i10;
 import 'dart:ui' as _i6;
 
-import 'package:free_cal_counter1/models/food.dart' as _i4;
+import 'package:free_cal_counter1/models/food.dart' as _i5;
 import 'package:free_cal_counter1/models/food_unit.dart' as _i9;
 import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i8;
-import 'package:free_cal_counter1/providers/log_provider.dart' as _i5;
+import 'package:free_cal_counter1/providers/log_provider.dart' as _i4;
 import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i7;
 import 'package:free_cal_counter1/services/database_service.dart' as _i2;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i3;
@@ -41,15 +41,10 @@ class _FakeOffApiService_1 extends _i1.SmartFake implements _i3.OffApiService {
     : super(parent, parentInvocation);
 }
 
-class _FakeFood_2 extends _i1.SmartFake implements _i4.Food {
-  _FakeFood_2(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
 /// A class which mocks [LogProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
+class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
   MockLogProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -78,12 +73,12 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
           as double);
 
   @override
-  List<_i4.Food> get logQueue =>
+  List<_i5.Food> get logQueue =>
       (super.noSuchMethod(
             Invocation.getter(#logQueue),
-            returnValue: <_i4.Food>[],
+            returnValue: <_i5.Food>[],
           )
-          as List<_i4.Food>);
+          as List<_i5.Food>);
 
   @override
   bool get hasListeners =>
@@ -109,13 +104,13 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
   );
 
   @override
-  void addFoodToQueue(_i4.Food? food) => super.noSuchMethod(
+  void addFoodToQueue(_i5.Food? food) => super.noSuchMethod(
     Invocation.method(#addFoodToQueue, [food]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeFoodFromQueue(_i4.Food? food) => super.noSuchMethod(
+  void removeFoodFromQueue(_i5.Food? food) => super.noSuchMethod(
     Invocation.method(#removeFoodFromQueue, [food]),
     returnValueForMissingStub: null,
   );
@@ -259,12 +254,12 @@ class MockFoodSearchProvider extends _i1.Mock
           as _i3.OffApiService);
 
   @override
-  List<_i4.Food> get searchResults =>
+  List<_i5.Food> get searchResults =>
       (super.noSuchMethod(
             Invocation.getter(#searchResults),
-            returnValue: <_i4.Food>[],
+            returnValue: <_i5.Food>[],
           )
-          as List<_i4.Food>);
+          as List<_i5.Food>);
 
   @override
   List<_i9.FoodUnit> get units =>
@@ -275,9 +270,28 @@ class MockFoodSearchProvider extends _i1.Mock
           as List<_i9.FoodUnit>);
 
   @override
+  bool get isOffSearchActive =>
+      (super.noSuchMethod(
+            Invocation.getter(#isOffSearchActive),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get isLoading =>
+      (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
+
+  @override
+  void toggleOffSearch(bool? isActive) => super.noSuchMethod(
+    Invocation.method(#toggleOffSearch, [isActive]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   _i10.Future<void> textSearch(String? query) =>
@@ -304,7 +318,7 @@ class MockFoodSearchProvider extends _i1.Mock
   );
 
   @override
-  _i10.Future<void> selectFood(_i4.Food? food) =>
+  _i10.Future<void> selectFood(_i5.Food? food) =>
       (super.noSuchMethod(
             Invocation.method(#selectFood, [food]),
             returnValue: _i10.Future<void>.value(),
@@ -335,83 +349,4 @@ class MockFoodSearchProvider extends _i1.Mock
     Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
-}
-
-/// A class which mocks [DatabaseService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockDatabaseService extends _i1.Mock implements _i2.DatabaseService {
-  MockDatabaseService() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i10.Future<void> init() =>
-      (super.noSuchMethod(
-            Invocation.method(#init, []),
-            returnValue: _i10.Future<void>.value(),
-            returnValueForMissingStub: _i10.Future<void>.value(),
-          )
-          as _i10.Future<void>);
-
-  @override
-  _i10.Future<List<_i4.Food>> searchFoodsByName(String? query) =>
-      (super.noSuchMethod(
-            Invocation.method(#searchFoodsByName, [query]),
-            returnValue: _i10.Future<List<_i4.Food>>.value(<_i4.Food>[]),
-          )
-          as _i10.Future<List<_i4.Food>>);
-
-  @override
-  _i10.Future<List<_i9.FoodUnit>> getUnitsForFood(_i4.Food? food) =>
-      (super.noSuchMethod(
-            Invocation.method(#getUnitsForFood, [food]),
-            returnValue: _i10.Future<List<_i9.FoodUnit>>.value(
-              <_i9.FoodUnit>[],
-            ),
-          )
-          as _i10.Future<List<_i9.FoodUnit>>);
-
-  @override
-  _i10.Future<_i4.Food?> getFoodByBarcode(String? barcode) =>
-      (super.noSuchMethod(
-            Invocation.method(#getFoodByBarcode, [barcode]),
-            returnValue: _i10.Future<_i4.Food?>.value(),
-          )
-          as _i10.Future<_i4.Food?>);
-
-  @override
-  _i10.Future<_i4.Food?> getFoodBySourceFdcId(int? fdcId) =>
-      (super.noSuchMethod(
-            Invocation.method(#getFoodBySourceFdcId, [fdcId]),
-            returnValue: _i10.Future<_i4.Food?>.value(),
-          )
-          as _i10.Future<_i4.Food?>);
-
-  @override
-  _i10.Future<_i4.Food> saveFood(_i4.Food? food) =>
-      (super.noSuchMethod(
-            Invocation.method(#saveFood, [food]),
-            returnValue: _i10.Future<_i4.Food>.value(
-              _FakeFood_2(this, Invocation.method(#saveFood, [food])),
-            ),
-          )
-          as _i10.Future<_i4.Food>);
-}
-
-/// A class which mocks [OffApiService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockOffApiService extends _i1.Mock implements _i3.OffApiService {
-  MockOffApiService() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i10.Future<_i4.Food?> fetchFoodByBarcode(String? barcode) =>
-      (super.noSuchMethod(
-            Invocation.method(#fetchFoodByBarcode, [barcode]),
-            returnValue: _i10.Future<_i4.Food?>.value(),
-          )
-          as _i10.Future<_i4.Food?>);
 }

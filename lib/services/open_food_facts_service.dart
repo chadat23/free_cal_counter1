@@ -48,4 +48,64 @@ class OffApiService {
       carbs: carbs,
     );
   }
+
+  Future<List<model.Food>> searchFoodsByName(String query) async {
+    final ProductSearchQueryConfiguration configuration =
+        ProductSearchQueryConfiguration(
+      parametersList: <Parameter>[ // Reverted to parametersList
+        SearchTerms(terms: [query]),
+        PageSize(size: 20),
+      ],
+      language: OpenFoodFactsLanguage.ENGLISH,
+      // country: OpenFoodFactsCountry.UNITED_STATES, // Temporarily removed due to compilation issues
+      fields: [
+        ProductField.NAME,
+        ProductField.BARCODE,
+        ProductField.IMAGE_FRONT_URL,
+        ProductField.NUTRIMENTS,
+      ],
+      version: ProductQueryVersion.v3,
+    );
+
+    final SearchResult searchResult = await _apiWrapper.searchProducts(
+      null, // User can be null for public searches
+      configuration,
+    );
+
+                if (searchResult.products == null || searchResult.products!.isEmpty) {
+                  return [];
+                }
+          
+                final List<model.Food> foods = [];
+                for (final Product product in searchResult.products!) {
+                  final nutriments = product.nutriments;
+          
+                  if (nutriments == null) {
+                    continue; // Skip products without nutrition data
+                  }
+          
+                  final energy = nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams);
+                  final proteins = nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams);
+                  final fat = nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams);
+                  final carbs = nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams);
+          
+                  if (energy == null || proteins == null || fat == null || carbs == null) {
+                    continue; // Skip products with incomplete nutrition data
+                  }      foods.add(
+        model.Food(
+          id: 0, // Not from our DB
+          source: 'off',
+          name: product.productName ?? product.genericName ?? 'Unknown Food',
+          emoji: null, // Not available from OFF
+          thumbnail: product.imageFrontUrl,
+          calories: energy,
+          protein: proteins,
+          fat: fat,
+          carbs: carbs,
+        ),
+      );
+    }
+
+    return foods;
+  }
 }

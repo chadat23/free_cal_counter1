@@ -270,9 +270,28 @@ class MockFoodSearchProvider extends _i1.Mock
           as List<_i9.FoodUnit>);
 
   @override
+  bool get isOffSearchActive =>
+      (super.noSuchMethod(
+            Invocation.getter(#isOffSearchActive),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get isLoading =>
+      (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
+
+  @override
+  void toggleOffSearch(bool? isActive) => super.noSuchMethod(
+    Invocation.method(#toggleOffSearch, [isActive]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   _i10.Future<void> textSearch(String? query) =>

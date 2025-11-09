@@ -6,10 +6,15 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:provider/provider.dart';
+import 'package:openfoodfacts/openfoodfacts.dart'; // Import openfoodfacts
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseService.instance.init();
+
+  // Set user agent for OpenFoodFacts API
+  OpenFoodAPIConfiguration.userAgent = UserAgent(name: 'FreeCalCounter', version: '1.0');
+
   runApp(const MyApp());
 }
 

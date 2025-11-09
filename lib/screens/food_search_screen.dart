@@ -90,6 +90,20 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           ),
           body: Consumer<FoodSearchProvider>(
             builder: (context, foodSearchProvider, child) {
+              if (foodSearchProvider.errorMessage != null) {
+                return Center(
+                  child: Text(
+                    foodSearchProvider.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+
+              if (foodSearchProvider.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
               if (foodSearchProvider.selectedFood != null) {
                 return FoodLoggingWidget(
                   food: foodSearchProvider.selectedFood!,

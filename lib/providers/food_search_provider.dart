@@ -23,17 +23,61 @@ class FoodSearchProvider extends ChangeNotifier {
   List<model_unit.FoodUnit> _units = [];
   List<model_unit.FoodUnit> get units => _units;
 
-  Future<void> textSearch(String query) async {
-    _searchResults = await databaseService.searchFoodsByName(query);
+  bool _isOffSearchActive = false;
+  bool get isOffSearchActive => _isOffSearchActive;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  void _clearErrorMessage() {
+    _errorMessage = null;
+  }
+
+  void toggleOffSearch(bool isActive) {
+    _isOffSearchActive = isActive;
     notifyListeners();
   }
 
-  Future<void> barcodeSearch(String barcode) async {
-    model.Food? food = await databaseService.getFoodByBarcode(barcode);
-    food ??= await offApiService.fetchFoodByBarcode(barcode);
+  Future<void> textSearch(String query) async {
+    _isLoading = true;
+    _clearErrorMessage(); // Clear any previous error
+    notifyListeners(); // Notify listeners about loading state change
 
-    _searchResults = food == null ? [] : [food];
-    notifyListeners();
+    try {
+      if (_isOffSearchActive) {
+        _searchResults = await offApiService.searchFoodsByName(query);
+      } else {
+        _searchResults = await databaseService.searchFoodsByName(query);
+      }
+    } catch (e) {
+      _errorMessage = 'Failed to search for food: ${e.toString()}';
+      _searchResults = []; // Clear results on error
+    } finally {
+      _isLoading = false;
+      notifyListeners(); // Notify listeners about search results and loading state change
+    }
+  }
+
+  Future<void> barcodeSearch(String barcode) async {
+    _isLoading = true;
+    _clearErrorMessage(); // Clear any previous error
+    notifyListeners(); // Notify listeners about loading state change
+
+    try {
+      model.Food? food = await databaseService.getFoodByBarcode(barcode);
+      food ??= await offApiService.fetchFoodByBarcode(barcode);
+
+      _searchResults = food == null ? [] : [food];
+    } catch (e) {
+      _errorMessage = 'Failed to search by barcode: ${e.toString()}';
+      _searchResults = []; // Clear results on error
+    } finally {
+      _isLoading = false;
+      notifyListeners(); // Notify listeners about search results and loading state change
+    }
   }
 
   void clearSelection() {
@@ -47,4 +91,3 @@ class FoodSearchProvider extends ChangeNotifier {
     _units = await databaseService.getUnitsForFood(food);
     notifyListeners();
   }
-}

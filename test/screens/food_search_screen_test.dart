@@ -26,6 +26,8 @@ void main() {
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
     when(mockFoodSearchProvider.selectedFood).thenReturn(null);
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
+    when(mockFoodSearchProvider.isLoading).thenReturn(false); // Default stub for isLoading
+    when(mockFoodSearchProvider.errorMessage).thenReturn(null); // Default stub for errorMessage
   });
 
   Widget createTestWidget() {
@@ -41,10 +43,38 @@ void main() {
     );
   }
 
+  testWidgets('FoodSearchScreen displays error message when errorMessage is not null', (WidgetTester tester) async {
+    when(mockLogProvider.logQueue).thenReturn([]);
+    when(mockLogProvider.totalCalories).thenReturn(0.0);
+    when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    when(mockFoodSearchProvider.isLoading).thenReturn(false);
+    when(mockFoodSearchProvider.errorMessage).thenReturn('Test Error Message');
+
+    await tester.pumpWidget(createTestWidget());
+
+    expect(find.text('Test Error Message'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing); // Ensure loading indicator is not shown
+    expect(find.text('Search for a food to begin'), findsNothing); // Ensure empty state is not shown
+  });
+
+  testWidgets('FoodSearchScreen displays a CircularProgressIndicator when loading', (WidgetTester tester) async {
+    when(mockLogProvider.logQueue).thenReturn([]);
+    when(mockLogProvider.totalCalories).thenReturn(0.0);
+    when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    when(mockFoodSearchProvider.isLoading).thenReturn(true); // Simulate loading state
+
+    await tester.pumpWidget(createTestWidget());
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ListView), findsNothing); // Ensure search results are not shown
+    expect(find.text('Search for a food to begin'), findsNothing); // Ensure empty state is not shown
+  });
+
   testWidgets('FoodSearchScreen has a close button and calorie display', (WidgetTester tester) async {
     when(mockLogProvider.logQueue).thenReturn([]);
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    when(mockFoodSearchProvider.isLoading).thenReturn(false); // Ensure not loading
 
     await tester.pumpWidget(createTestWidget());
 

@@ -44,7 +44,7 @@ dependencies:
   path: ^1.9.0
 
   # API integration
-  openfoodfacts: ^2.7.0
+  openfoodfacts: ^3.27.0
 
   # Image caching
   cached_network_image: ^3.3.1

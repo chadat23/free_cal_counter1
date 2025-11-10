@@ -20,6 +20,44 @@ WANTED_NUTRIENTS = {
     "Fiber, total dietary": "fiberPer100g",
 }
 
+# Whitelist of food categories to include.
+# This helps filter out processed foods, meals, and snacks.
+ALLOWED_CATEGORIES = {
+    "Vegetables and Vegetable Products",
+    "Fruits and Fruit Juices",
+    "Legumes and Legume Products",
+    "Poultry Products",
+    "Pork Products",
+    "Beef Products",
+    "Finfish and Shellfish Products",
+    "Dairy and Egg Products",
+    "Cereal Grains and Pasta",
+    "Spices and Herbs",
+    "Nut and Seed Products",
+}
+
+# Blacklist of keywords. If a food's description contains any of these, it's excluded.
+# This is applied more strictly to SR Legacy than to Foundation data.
+EXCLUDED_KEYWORDS = [
+    # Preparation
+    "canned", "pickled", "fermented", "fried", "roasted", "baked", "cooked",
+    "grilled", "broiled", "powder", "instant", "ready-to-eat", "microwaved",
+    "toasted", "steamed", "stewed", "scrambled",
+
+    # Additives/Commercial types
+    "sweetened", "syrup", "dressing", "sauce", "low-fat",
+    "reduced-fat", "fat-free", "low-sodium", "unsweetened", "no sugar added",
+    "added sugar", "in water", "in oil",
+
+    # Product types
+    "bar", "cookie", "cake", "pie", "pastry", "ice cream", "candy", "beverage",
+    "shake", "cereal", "infant formula", "toddler formula", "soup", "juice",
+    "bread", "roll", "biscuit", "muffin", "pancake", "waffle", "cracker",
+    "chips", "snack", "fast food", "restaurant", "entree", "meal", "dinner",
+    "breakfast", "lunch",
+]
+
+
 def init_db(conn):
     """Creates the database schema based on the application's requirements."""
     cur = conn.cursor()
@@ -104,7 +142,7 @@ def download_and_extract(url):
 
     raise FileNotFoundError(f"No valid JSON food data found in the zip from {url}")
 
-def parse_foods(data, source_name):
+def parse_foods(data, source_name, strict_filtering=False):
     """Parses the raw JSON data into a structured list of food dictionaries."""
     foods = []
     for item in data:
@@ -113,7 +151,19 @@ def parse_foods(data, source_name):
         if not fdc_id or not description:
             continue # Skip if essential ID or description is missing
 
-        # --- 1. Extract Nutrients ---
+        # --- 1. Filter & Prune (Apply Rules) ---
+        # Rule 1: Category Whitelist (applied to all sources)
+        category = item.get("foodCategory", {}).get("description")
+        if category not in ALLOWED_CATEGORIES:
+            continue
+
+        # Rule 2: Keyword Blacklist (applied only with strict_filtering)
+        if strict_filtering:
+            description_lower = description.lower()
+            if any(keyword in description_lower for keyword in EXCLUDED_KEYWORDS):
+                continue
+
+        # --- 2. Extract Nutrients ---
         # Initialize all wanted nutrients to None
         nutrients = {db_col: None for db_col in WANTED_NUTRIENTS.values()}
         
@@ -132,7 +182,7 @@ def parse_foods(data, source_name):
                 
                 nutrients[db_col] = value
 
-        # --- 2. Filter & Prune (Apply Rules) ---
+        # --- 3. Validate Nutrients ---
         # Check required macros FIRST before any other validation
         required_macros = ["caloriesPer100g", "proteinPer100g", "fatPer100g", "carbsPer100g"]
         
@@ -149,7 +199,7 @@ def parse_foods(data, source_name):
         if nutrients["fiberPer100g"] is None:
             nutrients["fiberPer100g"] = 0.0
 
-        # --- 3. Extract Portions ---
+        # --- 4. Extract Portions ---
         portions = []
         # Always add 100g as a base unit
         portions.append({"unitName": "100g", "gramsPerUnit": 100.0})
@@ -177,7 +227,7 @@ def parse_foods(data, source_name):
                 "gramsPerUnit": float(gram_weight),
             })
 
-        # --- 4. Assemble Food Record ---
+        # --- 5. Assemble Food Record ---
         foods.append({
             "name": description.title(), # Title case for consistency
             "source": source_name,
@@ -257,9 +307,11 @@ def main():
     foundation_url = input("\nEnter the FOUNDATION dataset URL: ").strip()
     sr_url = input("Enter the SR LEGACY dataset URL: ").strip()
 
+    # We process SR Legacy first with strict filtering, then Foundation with loose filtering.
+    # This ensures high-quality Foundation data overwrites any SR Legacy entries if needed.
     datasets = {
-        "FOUNDATION": foundation_url,
-        "SR_LEGACY": sr_url,
+        "SR_LEGACY": {"url": sr_url, "strict": True},
+        "FOUNDATION": {"url": foundation_url, "strict": False},
     }
     
     output_dir = os.path.dirname(DB_FILE)
@@ -274,7 +326,10 @@ def main():
     conn = sqlite3.connect(DB_FILE)
     init_db(conn)
 
-    for source, url in datasets.items():
+    for source, config in datasets.items():
+        url = config["url"]
+        strict_filtering = config["strict"]
+
         if not url:
             print(f"Skipping {source} due to empty URL.")
             continue
@@ -285,8 +340,8 @@ def main():
         
         try:
             data = download_and_extract(url)
-            foods = parse_foods(data, source)
-            print(f"Found {len(foods)} valid foods in {source}.")
+            foods = parse_foods(data, source, strict_filtering=strict_filtering)
+            print(f"Found {len(foods)} valid foods in {source} after filtering.")
             upsert_foods(conn, foods)
         except Exception as e:
             print(f"❌ Failed to process {source} from {url}. Error: {e}")

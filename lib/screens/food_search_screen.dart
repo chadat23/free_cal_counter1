@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 
@@ -27,7 +26,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     _focusNode = FocusNode();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final navProvider = Provider.of<NavigationProvider>(context, listen: false);
+      final navProvider = Provider.of<NavigationProvider>(
+        context,
+        listen: false,
+      );
       if (navProvider.shouldFocusSearch) {
         _focusNode.requestFocus();
         navProvider.resetSearchFocus();
@@ -50,10 +52,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             leading: IconButton(
               icon: const Icon(Icons.close),
               onPressed: () async {
-                final logProvider =
-                    Provider.of<LogProvider>(context, listen: false);
-                final navProvider =
-                    Provider.of<NavigationProvider>(context, listen: false);
+                final logProvider = Provider.of<LogProvider>(
+                  context,
+                  listen: false,
+                );
+                final navProvider = Provider.of<NavigationProvider>(
+                  context,
+                  listen: false,
+                );
 
                 bool shouldPop = false;
                 if (logProvider.logQueue.isNotEmpty) {
@@ -129,7 +135,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                   return ListTile(
                     title: Text(food.name),
                     subtitle: Text(
-                        '${food.calories.round()} kcal, P: ${food.protein.round()}g, F: ${food.fat.round()}g, C: ${food.carbs.round()}g'),
+                      '${food.calories.round()} kcal, P: ${food.protein.round()}g, F: ${food.fat.round()}g, C: ${food.carbs.round()}g',
+                    ),
                     onTap: () {
                       foodSearchProvider.selectFood(food);
                     },
@@ -143,8 +150,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             focusNode: _focusNode,
             onChanged: (query) {
               if (query.isNotEmpty) {
-                Provider.of<FoodSearchProvider>(context, listen: false)
-                    .textSearch(query);
+                Provider.of<FoodSearchProvider>(
+                  context,
+                  listen: false,
+                ).textSearch(query);
               } else {
                 // Optionally clear results
               }

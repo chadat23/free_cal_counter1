@@ -30,7 +30,10 @@ class HomeScreen extends StatelessWidget {
       bottomNavigationBar: (selectedIndex != -1)
           ? BottomNavigationBar(
               items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Overview'),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Overview',
+                ),
                 BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Log'),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.monitor_weight),

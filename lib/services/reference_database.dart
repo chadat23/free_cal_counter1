@@ -1,4 +1,3 @@
-
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +24,9 @@ Future<QueryExecutor> openReferenceConnection() async {
   if (!await file.exists()) {
     final blob = await rootBundle.load('assets/reference.db');
     final buffer = blob.buffer;
-    await file.writeAsBytes(buffer.asUint8List(blob.offsetInBytes, blob.lengthInBytes));
+    await file.writeAsBytes(
+      buffer.asUint8List(blob.offsetInBytes, blob.lengthInBytes),
+    );
   }
 
   return NativeDatabase(file);

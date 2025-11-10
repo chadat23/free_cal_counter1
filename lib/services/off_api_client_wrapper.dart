@@ -1,8 +1,9 @@
-
 import 'package:openfoodfacts/openfoodfacts.dart';
 
 class OffApiClientWrapper {
-  Future<ProductResultV3> getProductV3(ProductQueryConfiguration configuration) {
+  Future<ProductResultV3> getProductV3(
+    ProductQueryConfiguration configuration,
+  ) {
     return OpenFoodAPIClient.getProductV3(configuration);
   }
 
@@ -10,9 +11,6 @@ class OffApiClientWrapper {
     User? user,
     ProductSearchQueryConfiguration configuration,
   ) {
-    return OpenFoodAPIClient.searchProducts(
-      user,
-      configuration,
-    );
+    return OpenFoodAPIClient.searchProducts(user, configuration);
   }
 }

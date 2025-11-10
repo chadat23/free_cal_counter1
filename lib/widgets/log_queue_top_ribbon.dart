@@ -37,16 +37,18 @@ class LogQueueTopRibbon extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: logQueue
-                    .map((food) => Text(food.emoji ?? '', style: const TextStyle(fontSize: 20)))
+                    .map(
+                      (food) => Text(
+                        food.emoji ?? '',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    )
                     .toList(),
               ),
             ),
           ),
         ),
-        IconButton(
-          icon: Icon(arrowDirection),
-          onPressed: onArrowPressed,
-        ),
+        IconButton(icon: Icon(arrowDirection), onPressed: onArrowPressed),
       ],
     );
   }

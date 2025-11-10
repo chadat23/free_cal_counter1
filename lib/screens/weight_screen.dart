@@ -32,9 +32,9 @@ class _WeightScreenState extends State<WeightScreen> {
     final weight = double.tryParse(_weightController.text);
     if (weight != null) {
       // TODO: Save the weight
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Weight saved: $weight')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Weight saved: $weight')));
     }
     _weightController.clear();
   }
@@ -55,8 +55,9 @@ class _WeightScreenState extends State<WeightScreen> {
                   controller: _weightController,
                   focusNode: _focusNode,
                   autofocus: true,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Weight',
                     border: OutlineInputBorder(),

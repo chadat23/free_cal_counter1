@@ -27,8 +27,10 @@ class LogQueueScreen extends StatelessWidget {
                     logProvider.clearQueue();
                     Future.microtask(() {
                       if (context.mounted) {
-                        final navProvider =
-                            Provider.of<NavigationProvider>(context, listen: false);
+                        final navProvider = Provider.of<NavigationProvider>(
+                          context,
+                          listen: false,
+                        );
                         navProvider.changeTab(0);
                         Navigator.popUntil(context, (route) => route.isFirst);
                       }
@@ -41,7 +43,8 @@ class LogQueueScreen extends StatelessWidget {
                     }
                   });
                 }
-              },            ),
+              },
+            ),
             title: LogQueueTopRibbon(
               arrowDirection: Icons.arrow_drop_up,
               onArrowPressed: () {

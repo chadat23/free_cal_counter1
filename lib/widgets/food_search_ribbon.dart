@@ -37,7 +37,8 @@ class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FoodSearchProvider>( // Make FoodSearchRibbon a Consumer
+    return Consumer<FoodSearchProvider>(
+      // Make FoodSearchRibbon a Consumer
       builder: (context, foodSearchProvider, child) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -53,17 +54,23 @@ class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12.0),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                          ),
                         ),
                         onChanged: widget.onChanged,
                       )
                     : GestureDetector(
                         key: const Key('food_search_text_field'),
                         onTap: () {
-                          Provider.of<NavigationProvider>(context, listen: false)
-                              .goToFoodSearch();
-                          Navigator.pushNamed(context, AppRouter.foodSearchRoute);
+                          Provider.of<NavigationProvider>(
+                            context,
+                            listen: false,
+                          ).goToFoodSearch();
+                          Navigator.pushNamed(
+                            context,
+                            AppRouter.foodSearchRoute,
+                          );
                         },
                         child: AbsorbPointer(
                           child: TextField(
@@ -73,8 +80,9 @@ class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
-                              contentPadding:
-                                  const EdgeInsets.symmetric(horizontal: 12.0),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12.0,
+                              ),
                             ),
                           ),
                         ),
@@ -82,14 +90,9 @@ class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
               ),
               const SizedBox(width: 8.0),
               ElevatedButton(
-                onPressed: () {
-                  foodSearchProvider.toggleOffSearch(!foodSearchProvider.isOffSearchActive);
-                  if (widget.onChanged != null) {
-                    widget.onChanged!(_controller.text); // Re-trigger search
-                  }
-                },
+                onPressed: foodSearchProvider.performOffSearch,
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.grey),
+                  backgroundColor: WidgetStateProperty.all(Colors.grey[800]),
                 ),
                 child: const Icon(Icons.language), // Globe icon
               ),

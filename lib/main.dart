@@ -5,6 +5,7 @@ import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
+import 'package:free_cal_counter1/services/food_search_service.dart'; // ADDED
 import 'package:provider/provider.dart';
 import 'package:openfoodfacts/openfoodfacts.dart'; // Import openfoodfacts
 
@@ -13,7 +14,10 @@ void main() async {
   await DatabaseService.instance.init();
 
   // Set user agent for OpenFoodFacts API
-  OpenFoodAPIConfiguration.userAgent = UserAgent(name: 'FreeCalCounter', version: '1.0');
+  OpenFoodAPIConfiguration.userAgent = UserAgent(
+    name: 'FreeCalCounter',
+    version: '1.0',
+  );
 
   runApp(const MyApp());
 }
@@ -23,14 +27,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Instantiate services that will be injected
+    final databaseService = DatabaseService.instance;
+    final offApiService = OffApiService();
+    final foodSearchService = FoodSearchService(
+      // NEW
+      databaseService: databaseService,
+      offApiService: offApiService,
+    );
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => LogProvider()),
         ChangeNotifierProvider(
           create: (_) => FoodSearchProvider(
-            databaseService: DatabaseService.instance,
-            offApiService: OffApiService(),
+            databaseService: databaseService, // KEPT FOR BARCODE/SELECT FOOD
+            offApiService: offApiService, // KEPT FOR BARCODE
+            foodSearchService: foodSearchService, // NEW
           ),
         ),
       ],

@@ -30,10 +30,18 @@ class _FoodLoggingWidgetState extends State<FoodLoggingWidget> {
     super.initState();
     // Also add a grams unit by default
     final allUnits = [
-      model_unit.FoodUnit(id: 0, foodId: widget.food.id, unitName: 'g', gramsPerUnit: 1.0),
+      model_unit.FoodUnit(
+        id: 0,
+        foodId: widget.food.id,
+        unitName: 'g',
+        gramsPerUnit: 1.0,
+      ),
       ...widget.units,
     ];
-    _selectedUnit = allUnits.firstWhere((u) => u.unitName == 'g', orElse: () => allUnits.first);
+    _selectedUnit = allUnits.firstWhere(
+      (u) => u.unitName == 'g',
+      orElse: () => allUnits.first,
+    );
 
     _quantityController.addListener(() {
       setState(() {
@@ -50,13 +58,22 @@ class _FoodLoggingWidgetState extends State<FoodLoggingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final calories = (widget.food.calories / 100) * _selectedUnit.gramsPerUnit * _quantity;
-    final protein = (widget.food.protein / 100) * _selectedUnit.gramsPerUnit * _quantity;
-    final fat = (widget.food.fat / 100) * _selectedUnit.gramsPerUnit * _quantity;
-    final carbs = (widget.food.carbs / 100) * _selectedUnit.gramsPerUnit * _quantity;
+    final calories =
+        (widget.food.calories / 100) * _selectedUnit.gramsPerUnit * _quantity;
+    final protein =
+        (widget.food.protein / 100) * _selectedUnit.gramsPerUnit * _quantity;
+    final fat =
+        (widget.food.fat / 100) * _selectedUnit.gramsPerUnit * _quantity;
+    final carbs =
+        (widget.food.carbs / 100) * _selectedUnit.gramsPerUnit * _quantity;
 
     final allUnits = [
-      model_unit.FoodUnit(id: 0, foodId: widget.food.id, unitName: 'g', gramsPerUnit: 1.0),
+      model_unit.FoodUnit(
+        id: 0,
+        foodId: widget.food.id,
+        unitName: 'g',
+        gramsPerUnit: 1.0,
+      ),
       ...widget.units,
     ];
 
@@ -82,7 +99,10 @@ class _FoodLoggingWidgetState extends State<FoodLoggingWidget> {
                 ],
               ),
               const Spacer(),
-              IconButton(icon: const Icon(Icons.close), onPressed: widget.onCancel),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: widget.onCancel,
+              ),
             ],
           ),
           const SizedBox(height: 16),

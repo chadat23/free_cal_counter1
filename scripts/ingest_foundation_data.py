@@ -42,7 +42,7 @@ EXCLUDED_KEYWORDS = [
     # Preparation
     "canned", "pickled", "fermented", "fried", "roasted", "baked", "cooked",
     "grilled", "broiled", "powder", "instant", "ready-to-eat", "microwaved",
-    "toasted", "steamed", "stewed", "scrambled",
+    "toasted", "steamed", "stewed", "scrambled", "babyfood", "mixed"
 
     # Additives/Commercial types
     "sweetened", "syrup", "dressing", "sauce", "low-fat",
@@ -54,7 +54,7 @@ EXCLUDED_KEYWORDS = [
     "shake", "cereal", "infant formula", "toddler formula", "soup", "juice",
     "bread", "roll", "biscuit", "muffin", "pancake", "waffle", "cracker",
     "chips", "snack", "fast food", "restaurant", "entree", "meal", "dinner",
-    "breakfast", "lunch",
+    "breakfast", "lunch", "pudding"
 ]
 
 

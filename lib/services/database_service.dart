@@ -1,10 +1,10 @@
-
 import 'package:drift/drift.dart';
 
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
 import 'package:free_cal_counter1/services/live_database.dart';
-import 'package:free_cal_counter1/services/reference_database.dart' hide FoodUnit, FoodsCompanion;
+import 'package:free_cal_counter1/services/reference_database.dart'
+    hide FoodUnit, FoodsCompanion;
 
 class DatabaseService {
   late final LiveDatabase _liveDb;
@@ -14,7 +14,10 @@ class DatabaseService {
 
   DatabaseService._internal();
 
-  factory DatabaseService.forTesting(LiveDatabase liveDb, ReferenceDatabase referenceDb) {
+  factory DatabaseService.forTesting(
+    LiveDatabase liveDb,
+    ReferenceDatabase referenceDb,
+  ) {
     return DatabaseService._internal()
       .._liveDb = liveDb
       .._referenceDb = referenceDb;
@@ -22,7 +25,9 @@ class DatabaseService {
 
   Future<void> init() async {
     _liveDb = LiveDatabase(connection: openLiveConnection());
-    _referenceDb = ReferenceDatabase(connection: await openReferenceConnection());
+    _referenceDb = ReferenceDatabase(
+      connection: await openReferenceConnection(),
+    );
   }
 
   model.Food _mapFoodData(dynamic foodData, String source) {
@@ -39,18 +44,23 @@ class DatabaseService {
   }
 
   Future<List<model.Food>> searchFoodsByName(String query) async {
-    final liveFoodsData = await (_liveDb.select(_liveDb.foods)
-          ..where((f) => f.name.like('%$query%'))
-          ..limit(20))
-        .get();
+    if (query.isEmpty) return [];
+    final lowerCaseQuery = '%${query.toLowerCase()}%';
 
-    final refFoodsData = await (_referenceDb.select(_referenceDb.foods)
-          ..where((f) => f.name.like('%$query%'))
-          ..limit(20))
-        .get();
+    final liveFoodsData = await (_liveDb.select(
+      _liveDb.foods,
+    )..where((f) => f.name.lower().like(lowerCaseQuery))).get();
 
-    final liveFoods = liveFoodsData.map((f) => _mapFoodData(f, 'live')).toList();
-    final refFoods = refFoodsData.map((f) => _mapFoodData(f, 'reference')).toList();
+    final refFoodsData = await (_referenceDb.select(
+      _referenceDb.foods,
+    )..where((f) => f.name.lower().like(lowerCaseQuery))).get();
+
+    final liveFoods = liveFoodsData
+        .map((f) => _mapFoodData(f, 'live'))
+        .toList();
+    final refFoods = refFoodsData
+        .map((f) => _mapFoodData(f, 'reference'))
+        .toList();
 
     return [...liveFoods, ...refFoods];
   }
@@ -58,25 +68,38 @@ class DatabaseService {
   Future<List<model_unit.FoodUnit>> getUnitsForFood(model.Food food) async {
     List<dynamic> driftUnits;
     if (food.source == 'live') {
-      driftUnits = await (_liveDb.select(_liveDb.foodUnits)..where((u) => u.foodId.equals(food.id))).get();
-    } else { // 'reference'
-      driftUnits = await (_referenceDb.select(_referenceDb.foodUnits)..where((u) => u.foodId.equals(food.id))).get();
+      driftUnits = await (_liveDb.select(
+        _liveDb.foodUnits,
+      )..where((u) => u.foodId.equals(food.id))).get();
+    } else {
+      // 'reference'
+      driftUnits = await (_referenceDb.select(
+        _referenceDb.foodUnits,
+      )..where((u) => u.foodId.equals(food.id))).get();
     }
-    return driftUnits.map((u) => model_unit.FoodUnit(
-      id: u.id as int,
-      foodId: u.foodId as int,
-      unitName: u.unitName as String,
-      gramsPerUnit: u.gramsPerUnit as double,
-    )).toList();
+    return driftUnits
+        .map(
+          (u) => model_unit.FoodUnit(
+            id: u.id as int,
+            foodId: u.foodId as int,
+            unitName: u.unitName as String,
+            gramsPerUnit: u.gramsPerUnit as double,
+          ),
+        )
+        .toList();
   }
 
   Future<model.Food?> getFoodByBarcode(String barcode) async {
-    final food = await (_liveDb.select(_liveDb.foods)..where((f) => f.sourceBarcode.equals(barcode))).getSingleOrNull();
+    final food = await (_liveDb.select(
+      _liveDb.foods,
+    )..where((f) => f.sourceBarcode.equals(barcode))).getSingleOrNull();
     return food == null ? null : _mapFoodData(food, 'live');
   }
 
   Future<model.Food?> getFoodBySourceFdcId(int fdcId) async {
-    final food = await (_liveDb.select(_liveDb.foods)..where((f) => f.sourceFdcId.equals(fdcId))).getSingleOrNull();
+    final food = await (_liveDb.select(
+      _liveDb.foods,
+    )..where((f) => f.sourceFdcId.equals(fdcId))).getSingleOrNull();
     return food == null ? null : _mapFoodData(food, 'live');
   }
 

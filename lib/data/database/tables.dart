@@ -1,4 +1,3 @@
-
 import 'package:drift/drift.dart';
 
 class Foods extends Table {
@@ -14,7 +13,8 @@ class Foods extends Table {
   RealColumn get fiberPer100g => real().named('fiberPer100g')();
   IntColumn get sourceFdcId => integer().named('sourceFdcId').nullable()();
   TextColumn get sourceBarcode => text().named('sourceBarcode').nullable()();
-  BoolColumn get hidden => boolean().named('hidden').withDefault(const Constant(false))();
+  BoolColumn get hidden =>
+      boolean().named('hidden').withDefault(const Constant(false))();
 }
 
 @DataClassName('FoodUnit')
@@ -40,9 +40,11 @@ class RecipeItems extends Table {
   IntColumn get id => integer().autoIncrement()();
   @ReferenceName('RecipeEntries')
   IntColumn get recipeId => integer().references(Recipes, #id)();
-  IntColumn get ingredientFoodId => integer().nullable().references(Foods, #id)();
+  IntColumn get ingredientFoodId =>
+      integer().nullable().references(Foods, #id)();
   @ReferenceName('IngredientRecipes')
-  IntColumn get ingredientRecipeId => integer().nullable().references(Recipes, #id)();
+  IntColumn get ingredientRecipeId =>
+      integer().nullable().references(Recipes, #id)();
   RealColumn get quantity => real()();
   TextColumn get unitName => text()();
 }

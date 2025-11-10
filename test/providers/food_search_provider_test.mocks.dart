@@ -3,12 +3,13 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i5;
 
 import 'package:free_cal_counter1/models/food.dart' as _i2;
-import 'package:free_cal_counter1/models/food_unit.dart' as _i5;
+import 'package:free_cal_counter1/models/food_unit.dart' as _i6;
 import 'package:free_cal_counter1/services/database_service.dart' as _i3;
-import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i6;
+import 'package:free_cal_counter1/services/food_search_service.dart' as _i7;
+import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -31,6 +32,17 @@ class _FakeFood_0 extends _i1.SmartFake implements _i2.Food {
     : super(parent, parentInvocation);
 }
 
+class _FakeDatabaseService_1 extends _i1.SmartFake
+    implements _i3.DatabaseService {
+  _FakeDatabaseService_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeOffApiService_2 extends _i1.SmartFake implements _i4.OffApiService {
+  _FakeOffApiService_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [DatabaseService].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -40,78 +52,125 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
   }
 
   @override
-  _i4.Future<void> init() =>
+  _i5.Future<void> init() =>
       (super.noSuchMethod(
             Invocation.method(#init, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i4.Future<List<_i2.Food>> searchFoodsByName(String? query) =>
+  _i5.Future<List<_i2.Food>> searchFoodsByName(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#searchFoodsByName, [query]),
-            returnValue: _i4.Future<List<_i2.Food>>.value(<_i2.Food>[]),
+            returnValue: _i5.Future<List<_i2.Food>>.value(<_i2.Food>[]),
           )
-          as _i4.Future<List<_i2.Food>>);
+          as _i5.Future<List<_i2.Food>>);
 
   @override
-  _i4.Future<List<_i5.FoodUnit>> getUnitsForFood(_i2.Food? food) =>
+  _i5.Future<List<_i6.FoodUnit>> getUnitsForFood(_i2.Food? food) =>
       (super.noSuchMethod(
             Invocation.method(#getUnitsForFood, [food]),
-            returnValue: _i4.Future<List<_i5.FoodUnit>>.value(<_i5.FoodUnit>[]),
+            returnValue: _i5.Future<List<_i6.FoodUnit>>.value(<_i6.FoodUnit>[]),
           )
-          as _i4.Future<List<_i5.FoodUnit>>);
+          as _i5.Future<List<_i6.FoodUnit>>);
 
   @override
-  _i4.Future<_i2.Food?> getFoodByBarcode(String? barcode) =>
+  _i5.Future<_i2.Food?> getFoodByBarcode(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#getFoodByBarcode, [barcode]),
-            returnValue: _i4.Future<_i2.Food?>.value(),
+            returnValue: _i5.Future<_i2.Food?>.value(),
           )
-          as _i4.Future<_i2.Food?>);
+          as _i5.Future<_i2.Food?>);
 
   @override
-  _i4.Future<_i2.Food?> getFoodBySourceFdcId(int? fdcId) =>
+  _i5.Future<_i2.Food?> getFoodBySourceFdcId(int? fdcId) =>
       (super.noSuchMethod(
             Invocation.method(#getFoodBySourceFdcId, [fdcId]),
-            returnValue: _i4.Future<_i2.Food?>.value(),
+            returnValue: _i5.Future<_i2.Food?>.value(),
           )
-          as _i4.Future<_i2.Food?>);
+          as _i5.Future<_i2.Food?>);
 
   @override
-  _i4.Future<_i2.Food> saveFood(_i2.Food? food) =>
+  _i5.Future<_i2.Food> saveFood(_i2.Food? food) =>
       (super.noSuchMethod(
             Invocation.method(#saveFood, [food]),
-            returnValue: _i4.Future<_i2.Food>.value(
+            returnValue: _i5.Future<_i2.Food>.value(
               _FakeFood_0(this, Invocation.method(#saveFood, [food])),
             ),
           )
-          as _i4.Future<_i2.Food>);
+          as _i5.Future<_i2.Food>);
 }
 
 /// A class which mocks [OffApiService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockOffApiService extends _i1.Mock implements _i6.OffApiService {
+class MockOffApiService extends _i1.Mock implements _i4.OffApiService {
   MockOffApiService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Food?> fetchFoodByBarcode(String? barcode) =>
+  _i5.Future<_i2.Food?> fetchFoodByBarcode(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#fetchFoodByBarcode, [barcode]),
-            returnValue: _i4.Future<_i2.Food?>.value(),
+            returnValue: _i5.Future<_i2.Food?>.value(),
           )
-          as _i4.Future<_i2.Food?>);
+          as _i5.Future<_i2.Food?>);
 
   @override
-  _i4.Future<List<_i2.Food>> searchFoodsByName(String? query) =>
+  _i5.Future<List<_i2.Food>> searchFoodsByName(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#searchFoodsByName, [query]),
-            returnValue: _i4.Future<List<_i2.Food>>.value(<_i2.Food>[]),
+            returnValue: _i5.Future<List<_i2.Food>>.value(<_i2.Food>[]),
           )
-          as _i4.Future<List<_i2.Food>>);
+          as _i5.Future<List<_i2.Food>>);
+}
+
+/// A class which mocks [FoodSearchService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockFoodSearchService extends _i1.Mock implements _i7.FoodSearchService {
+  MockFoodSearchService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.DatabaseService get databaseService =>
+      (super.noSuchMethod(
+            Invocation.getter(#databaseService),
+            returnValue: _FakeDatabaseService_1(
+              this,
+              Invocation.getter(#databaseService),
+            ),
+          )
+          as _i3.DatabaseService);
+
+  @override
+  _i4.OffApiService get offApiService =>
+      (super.noSuchMethod(
+            Invocation.getter(#offApiService),
+            returnValue: _FakeOffApiService_2(
+              this,
+              Invocation.getter(#offApiService),
+            ),
+          )
+          as _i4.OffApiService);
+
+  @override
+  _i5.Future<List<_i2.Food>> searchLocal(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchLocal, [query]),
+            returnValue: _i5.Future<List<_i2.Food>>.value(<_i2.Food>[]),
+          )
+          as _i5.Future<List<_i2.Food>>);
+
+  @override
+  _i5.Future<List<_i2.Food>> searchOff(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchOff, [query]),
+            returnValue: _i5.Future<List<_i2.Food>>.value(<_i2.Food>[]),
+          )
+          as _i5.Future<List<_i2.Food>>);
 }

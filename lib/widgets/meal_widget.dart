@@ -51,7 +51,14 @@ class MealWidget extends StatelessWidget {
                     onDelete: () {},
                   ),
                   if (index < meal.loggedFoods.length - 1)
-                    Divider(color: Theme.of(context).cardColor.withAlpha((255 * 0.7).round()), height: 1, indent: 16, endIndent: 16),
+                    Divider(
+                      color: Theme.of(
+                        context,
+                      ).cardColor.withAlpha((255 * 0.7).round()),
+                      height: 1,
+                      indent: 16,
+                      endIndent: 16,
+                    ),
                 ],
               );
             }), // Removed .toList()

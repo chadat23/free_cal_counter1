@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/screens/weight_screen.dart';
 
 void main() {
-  testWidgets('WeightScreen UI and interaction test', (WidgetTester tester) async {
+  testWidgets('WeightScreen UI and interaction test', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MaterialApp(home: WeightScreen()));
 

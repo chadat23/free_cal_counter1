@@ -1,4 +1,3 @@
-
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/services/off_api_client_wrapper.dart';
@@ -6,17 +5,16 @@ import 'package:free_cal_counter1/services/off_api_client_wrapper.dart';
 class OffApiService {
   final OffApiClientWrapper _apiWrapper;
 
-  OffApiService({OffApiClientWrapper? apiWrapper}) : _apiWrapper = apiWrapper ?? OffApiClientWrapper();
+  OffApiService({OffApiClientWrapper? apiWrapper})
+    : _apiWrapper = apiWrapper ?? OffApiClientWrapper();
 
   Future<model.Food?> fetchFoodByBarcode(String barcode) async {
     final productResult = await _apiWrapper.getProductV3(
-      ProductQueryConfiguration(
-        barcode, 
-        version: ProductQueryVersion.v3
-      )
+      ProductQueryConfiguration(barcode, version: ProductQueryVersion.v3),
     );
 
-    if (productResult.status != ProductResultV3.statusSuccess || productResult.product == null) {
+    if (productResult.status != ProductResultV3.statusSuccess ||
+        productResult.product == null) {
       return null;
     }
 
@@ -27,10 +25,19 @@ class OffApiService {
       return null;
     }
 
-    final energy = nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams);
-    final proteins = nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams);
+    final energy = nutriments.getValue(
+      Nutrient.energyKCal,
+      PerSize.oneHundredGrams,
+    );
+    final proteins = nutriments.getValue(
+      Nutrient.proteins,
+      PerSize.oneHundredGrams,
+    );
     final fat = nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams);
-    final carbs = nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams);
+    final carbs = nutriments.getValue(
+      Nutrient.carbohydrates,
+      PerSize.oneHundredGrams,
+    );
 
     if (energy == null || proteins == null || fat == null || carbs == null) {
       return null;
@@ -50,9 +57,10 @@ class OffApiService {
   }
 
   Future<List<model.Food>> searchFoodsByName(String query) async {
-    final ProductSearchQueryConfiguration configuration =
-        ProductSearchQueryConfiguration(
-      parametersList: <Parameter>[ // Reverted to parametersList
+    final ProductSearchQueryConfiguration
+    configuration = ProductSearchQueryConfiguration(
+      parametersList: <Parameter>[
+        // Reverted to parametersList
         SearchTerms(terms: [query]),
         PageSize(size: 20),
       ],
@@ -72,26 +80,36 @@ class OffApiService {
       configuration,
     );
 
-                if (searchResult.products == null || searchResult.products!.isEmpty) {
-                  return [];
-                }
-          
-                final List<model.Food> foods = [];
-                for (final Product product in searchResult.products!) {
-                  final nutriments = product.nutriments;
-          
-                  if (nutriments == null) {
-                    continue; // Skip products without nutrition data
-                  }
-          
-                  final energy = nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams);
-                  final proteins = nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams);
-                  final fat = nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams);
-                  final carbs = nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams);
-          
-                  if (energy == null || proteins == null || fat == null || carbs == null) {
-                    continue; // Skip products with incomplete nutrition data
-                  }      foods.add(
+    if (searchResult.products == null || searchResult.products!.isEmpty) {
+      return [];
+    }
+
+    final List<model.Food> foods = [];
+    for (final Product product in searchResult.products!) {
+      final nutriments = product.nutriments;
+
+      if (nutriments == null) {
+        continue; // Skip products without nutrition data
+      }
+
+      final energy = nutriments.getValue(
+        Nutrient.energyKCal,
+        PerSize.oneHundredGrams,
+      );
+      final proteins = nutriments.getValue(
+        Nutrient.proteins,
+        PerSize.oneHundredGrams,
+      );
+      final fat = nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams);
+      final carbs = nutriments.getValue(
+        Nutrient.carbohydrates,
+        PerSize.oneHundredGrams,
+      );
+
+      if (energy == null || proteins == null || fat == null || carbs == null) {
+        continue; // Skip products with incomplete nutrition data
+      }
+      foods.add(
         model.Food(
           id: 0, // Not from our DB
           source: 'off',

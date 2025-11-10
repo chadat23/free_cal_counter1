@@ -3,15 +3,16 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i10;
-import 'dart:ui' as _i6;
+import 'dart:async' as _i11;
+import 'dart:ui' as _i7;
 
-import 'package:free_cal_counter1/models/food.dart' as _i5;
-import 'package:free_cal_counter1/models/food_unit.dart' as _i9;
-import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i8;
-import 'package:free_cal_counter1/providers/log_provider.dart' as _i4;
-import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i7;
+import 'package:free_cal_counter1/models/food.dart' as _i6;
+import 'package:free_cal_counter1/models/food_unit.dart' as _i10;
+import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i9;
+import 'package:free_cal_counter1/providers/log_provider.dart' as _i5;
+import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i8;
 import 'package:free_cal_counter1/services/database_service.dart' as _i2;
+import 'package:free_cal_counter1/services/food_search_service.dart' as _i4;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -41,10 +42,16 @@ class _FakeOffApiService_1 extends _i1.SmartFake implements _i3.OffApiService {
     : super(parent, parentInvocation);
 }
 
+class _FakeFoodSearchService_2 extends _i1.SmartFake
+    implements _i4.FoodSearchService {
+  _FakeFoodSearchService_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [LogProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
+class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
   MockLogProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -73,12 +80,12 @@ class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
           as double);
 
   @override
-  List<_i5.Food> get logQueue =>
+  List<_i6.Food> get logQueue =>
       (super.noSuchMethod(
             Invocation.getter(#logQueue),
-            returnValue: <_i5.Food>[],
+            returnValue: <_i6.Food>[],
           )
-          as List<_i5.Food>);
+          as List<_i6.Food>);
 
   @override
   bool get hasListeners =>
@@ -104,13 +111,13 @@ class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
   );
 
   @override
-  void addFoodToQueue(_i5.Food? food) => super.noSuchMethod(
+  void addFoodToQueue(_i6.Food? food) => super.noSuchMethod(
     Invocation.method(#addFoodToQueue, [food]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeFoodFromQueue(_i5.Food? food) => super.noSuchMethod(
+  void removeFoodFromQueue(_i6.Food? food) => super.noSuchMethod(
     Invocation.method(#removeFoodFromQueue, [food]),
     returnValueForMissingStub: null,
   );
@@ -122,13 +129,13 @@ class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
   );
 
   @override
-  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -150,7 +157,7 @@ class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNavigationProvider extends _i1.Mock
-    implements _i7.NavigationProvider {
+    implements _i8.NavigationProvider {
   MockNavigationProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -198,13 +205,13 @@ class MockNavigationProvider extends _i1.Mock
   );
 
   @override
-  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -226,7 +233,7 @@ class MockNavigationProvider extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockFoodSearchProvider extends _i1.Mock
-    implements _i8.FoodSearchProvider {
+    implements _i9.FoodSearchProvider {
   MockFoodSearchProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -254,28 +261,31 @@ class MockFoodSearchProvider extends _i1.Mock
           as _i3.OffApiService);
 
   @override
-  List<_i5.Food> get searchResults =>
+  _i4.FoodSearchService get foodSearchService =>
+      (super.noSuchMethod(
+            Invocation.getter(#foodSearchService),
+            returnValue: _FakeFoodSearchService_2(
+              this,
+              Invocation.getter(#foodSearchService),
+            ),
+          )
+          as _i4.FoodSearchService);
+
+  @override
+  List<_i6.Food> get searchResults =>
       (super.noSuchMethod(
             Invocation.getter(#searchResults),
-            returnValue: <_i5.Food>[],
+            returnValue: <_i6.Food>[],
           )
-          as List<_i5.Food>);
+          as List<_i6.Food>);
 
   @override
-  List<_i9.FoodUnit> get units =>
+  List<_i10.FoodUnit> get units =>
       (super.noSuchMethod(
             Invocation.getter(#units),
-            returnValue: <_i9.FoodUnit>[],
+            returnValue: <_i10.FoodUnit>[],
           )
-          as List<_i9.FoodUnit>);
-
-  @override
-  bool get isOffSearchActive =>
-      (super.noSuchMethod(
-            Invocation.getter(#isOffSearchActive),
-            returnValue: false,
-          )
-          as bool);
+          as List<_i10.FoodUnit>);
 
   @override
   bool get isLoading =>
@@ -288,28 +298,31 @@ class MockFoodSearchProvider extends _i1.Mock
           as bool);
 
   @override
-  void toggleOffSearch(bool? isActive) => super.noSuchMethod(
-    Invocation.method(#toggleOffSearch, [isActive]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  _i10.Future<void> textSearch(String? query) =>
+  _i11.Future<void> textSearch(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#textSearch, [query]),
-            returnValue: _i10.Future<void>.value(),
-            returnValueForMissingStub: _i10.Future<void>.value(),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
           )
-          as _i10.Future<void>);
+          as _i11.Future<void>);
 
   @override
-  _i10.Future<void> barcodeSearch(String? barcode) =>
+  _i11.Future<void> performOffSearch() =>
+      (super.noSuchMethod(
+            Invocation.method(#performOffSearch, []),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
+  _i11.Future<void> barcodeSearch(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#barcodeSearch, [barcode]),
-            returnValue: _i10.Future<void>.value(),
-            returnValueForMissingStub: _i10.Future<void>.value(),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
           )
-          as _i10.Future<void>);
+          as _i11.Future<void>);
 
   @override
   void clearSelection() => super.noSuchMethod(
@@ -318,22 +331,22 @@ class MockFoodSearchProvider extends _i1.Mock
   );
 
   @override
-  _i10.Future<void> selectFood(_i5.Food? food) =>
+  _i11.Future<void> selectFood(_i6.Food? food) =>
       (super.noSuchMethod(
             Invocation.method(#selectFood, [food]),
-            returnValue: _i10.Future<void>.value(),
-            returnValueForMissingStub: _i10.Future<void>.value(),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
           )
-          as _i10.Future<void>);
+          as _i11.Future<void>);
 
   @override
-  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

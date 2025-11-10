@@ -1,7 +1,3 @@
-library constants;
-
-/// Defines constant values used throughout the application. This helps maintain consistency and reduces magic strings.
-
 // --- Food Sources ---
 /// Represents food data originating from the USDA Foundation Foods dataset.
 const String foodSourceFoundation = 'foundation';

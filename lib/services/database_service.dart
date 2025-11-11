@@ -30,10 +30,10 @@ class DatabaseService {
     );
   }
 
-  model.Food _mapFoodData(dynamic foodData, String source) {
+  model.Food _mapFoodData(dynamic foodData) {
     return model.Food(
       id: foodData.id,
-      source: source,
+      source: foodData.source,
       name: foodData.name,
       emoji: '', // Not available in the database
       calories: foodData.caloriesPer100g,
@@ -56,10 +56,10 @@ class DatabaseService {
     )..where((f) => f.name.lower().like(lowerCaseQuery))).get();
 
     final liveFoods = liveFoodsData
-        .map((f) => _mapFoodData(f, 'live'))
+        .map((f) => _mapFoodData(f))
         .toList();
     final refFoods = refFoodsData
-        .map((f) => _mapFoodData(f, 'reference'))
+        .map((f) => _mapFoodData(f))
         .toList();
 
     return [...liveFoods, ...refFoods];
@@ -93,14 +93,14 @@ class DatabaseService {
     final food = await (_liveDb.select(
       _liveDb.foods,
     )..where((f) => f.sourceBarcode.equals(barcode))).getSingleOrNull();
-    return food == null ? null : _mapFoodData(food, 'live');
+    return food == null ? null : _mapFoodData(food);
   }
 
   Future<model.Food?> getFoodBySourceFdcId(int fdcId) async {
     final food = await (_liveDb.select(
       _liveDb.foods,
     )..where((f) => f.sourceFdcId.equals(fdcId))).getSingleOrNull();
-    return food == null ? null : _mapFoodData(food, 'live');
+    return food == null ? null : _mapFoodData(food);
   }
 
   Future<model.Food> saveFood(model.Food food) async {
@@ -115,6 +115,6 @@ class DatabaseService {
       sourceFdcId: Value(food.id == 0 ? null : food.id),
     );
     final newFoodData = await _liveDb.into(_liveDb.foods).insert(companion);
-    return _mapFoodData(newFoodData, 'live');
+    return _mapFoodData(newFoodData);
   }
 }

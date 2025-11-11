@@ -333,6 +333,10 @@ Before accepting any generated code:
 3. Run regression tests and confirm that no core use cases are broken.
 4. The update becomes effective once approved by maintainers.
 
+### GIT
+Git can be used to investage stuff but not to stage, commit, or push.
+If it's an appropreate time to commit stuff, feel free to make a suggestion to the user but there's no obligation to do so.
+
 Gemini should continue following the latest committed version of this file.
 
 Last Updated: October 2025

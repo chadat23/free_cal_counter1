@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 
 class FoodSearchScreen extends StatefulWidget {
@@ -132,11 +133,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                 itemCount: foodSearchProvider.searchResults.length,
                 itemBuilder: (context, index) {
                   final food = foodSearchProvider.searchResults[index];
-                  return ListTile(
-                    title: Text(food.name),
-                    subtitle: Text(
-                      '${food.calories.round()} kcal, P: ${food.protein.round()}g, F: ${food.fat.round()}g, C: ${food.carbs.round()}g',
-                    ),
+                  return FoodSearchResultTile(
+                    food: food,
                     onTap: () {
                       foodSearchProvider.selectFood(food);
                     },

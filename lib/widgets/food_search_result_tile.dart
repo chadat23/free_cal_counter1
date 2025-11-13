@@ -44,15 +44,12 @@ class FoodSearchResultTile extends StatelessWidget {
                   errorWidget: (context, url, error) => const Icon(Icons.fastfood),
                   fit: BoxFit.cover,
                 )
-              : Text(
-                  emoji ?? '🍽️', // Default emoji if no specific one is found
-                  style: const TextStyle(fontSize: 24),
-                ),
+              : const Icon(Icons.fastfood), // Default icon if no thumbnail
         ),
       ),
-      title: Text(food.name),
+      title: Text('${emoji ?? ''} ${food.name}'),
       subtitle: Text(
-        '${food.calories.round()} kcal, P: ${food.protein.round()}g, F: ${food.fat.round()}g, C: ${food.carbs.round()}g',
+        '${food.calories.round()} kcal • ${food.protein.toStringAsFixed(1)}g P • ${food.fat.toStringAsFixed(1)}g F • ${food.carbs.toStringAsFixed(1)}g C',
       ),
       onTap: onTap,
     );

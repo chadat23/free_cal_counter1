@@ -1,4 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:drift/drift.dart';
+import 'package:flutter_test/flutter_test.dart' hide isNotNull;
+import 'package:matcher/matcher.dart' as matcher;
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart' as ref;
@@ -86,5 +88,57 @@ void main() {
       // Assert
       expect(results.isEmpty, isTrue);
     });
+
+    test(
+      'should return Food objects with populated units list',
+      () async {
+        // Arrange
+        // Insert a food with associated units into the reference database
+        // For now, we'll simulate this by directly inserting into the reference database
+        // and assume a food with ID 1 will be returned.
+        // This part will need to be refined once the actual unit table is identified.
+        await referenceDatabase.into(referenceDatabase.foods).insert(
+              ref.FoodsCompanion.insert(
+                id: Value(1), // Assign an ID for linking units
+                name: 'Reference Apple',
+                source: 'foundation',
+                caloriesPer100g: 52,
+                proteinPer100g: 0.3,
+                fatPer100g: 0.2,
+                carbsPer100g: 14,
+                fiberPer100g: 2.4,
+              ),
+            );
+        // Assuming a units table exists and we can insert into it
+        // This will cause a compile error until FoodUnit and the units table are properly integrated
+        // and the Food model is updated.
+        await referenceDatabase.into(referenceDatabase.foodUnits).insert(
+              ref.FoodUnitsCompanion.insert(
+                foodId: 1,
+                unitName: '1 medium',
+                gramsPerUnit: 182.0,
+              ),
+            );
+        await referenceDatabase.into(referenceDatabase.foodUnits).insert(
+              ref.FoodUnitsCompanion.insert(
+                foodId: 1,
+                unitName: '1 cup sliced',
+                gramsPerUnit: 109.0,
+              ),
+            );
+
+        // Act
+        final results = await databaseService.searchFoodsByName('Apple');
+
+        // Assert
+        expect(results, isA<List<model.Food>>());
+        expect(results.length, greaterThan(0));
+        final appleFood = results.firstWhere((f) => f.name == 'Reference Apple');
+        expect(appleFood.units, matcher.isNotNull);
+        expect(appleFood.units.isNotEmpty, matcher.isTrue);
+        expect(appleFood.units.length, 2);
+        expect(appleFood.units.any((unit) => unit.name == '1 medium' && unit.grams == 182.0), matcher.isTrue);
+      },
+    );
   });
 }

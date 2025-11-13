@@ -30,7 +30,7 @@ class DatabaseService {
     );
   }
 
-  model.Food _mapFoodData(dynamic foodData) {
+  model.Food _mapFoodData(dynamic foodData, List<model_unit.FoodUnit> units) {
     return model.Food(
       id: foodData.id,
       source: foodData.source,
@@ -40,6 +40,7 @@ class DatabaseService {
       protein: foodData.proteinPer100g,
       fat: foodData.fatPer100g,
       carbs: foodData.carbsPer100g,
+      units: units,
     );
   }
 
@@ -55,35 +56,40 @@ class DatabaseService {
       _referenceDb.foods,
     )..where((f) => f.name.lower().like(lowerCaseQuery))).get();
 
-    final liveFoods = liveFoodsData
-        .map((f) => _mapFoodData(f))
-        .toList();
-    final refFoods = refFoodsData
-        .map((f) => _mapFoodData(f))
-        .toList();
+    final List<model.Food> liveFoods = [];
+    for (final foodData in liveFoodsData) {
+      final units = await getUnitsForFood(foodData.id, foodData.source);
+      liveFoods.add(_mapFoodData(foodData, units));
+    }
+
+    final List<model.Food> refFoods = [];
+    for (final foodData in refFoodsData) {
+      final units = await getUnitsForFood(foodData.id, foodData.source);
+      refFoods.add(_mapFoodData(foodData, units));
+    }
 
     return [...liveFoods, ...refFoods];
   }
 
-  Future<List<model_unit.FoodUnit>> getUnitsForFood(model.Food food) async {
+  Future<List<model_unit.FoodUnit>> getUnitsForFood(int foodId, String foodSource) async {
     List<dynamic> driftUnits;
-    if (food.source == 'live') {
+    if (foodSource == 'live') {
       driftUnits = await (_liveDb.select(
         _liveDb.foodUnits,
-      )..where((u) => u.foodId.equals(food.id))).get();
+      )..where((u) => u.foodId.equals(foodId))).get();
     } else {
-      // 'reference'
+      // 'foundation' or 'reference'
       driftUnits = await (_referenceDb.select(
         _referenceDb.foodUnits,
-      )..where((u) => u.foodId.equals(food.id))).get();
+      )..where((u) => u.foodId.equals(foodId))).get();
     }
     return driftUnits
         .map(
           (u) => model_unit.FoodUnit(
             id: u.id as int,
             foodId: u.foodId as int,
-            unitName: u.unitName as String,
-            gramsPerUnit: u.gramsPerUnit as double,
+            name: u.unitName as String,
+            grams: u.gramsPerUnit as double,
           ),
         )
         .toList();
@@ -93,14 +99,14 @@ class DatabaseService {
     final food = await (_liveDb.select(
       _liveDb.foods,
     )..where((f) => f.sourceBarcode.equals(barcode))).getSingleOrNull();
-    return food == null ? null : _mapFoodData(food);
+    return food == null ? null : _mapFoodData(food, []);
   }
 
   Future<model.Food?> getFoodBySourceFdcId(int fdcId) async {
     final food = await (_liveDb.select(
       _liveDb.foods,
     )..where((f) => f.sourceFdcId.equals(fdcId))).getSingleOrNull();
-    return food == null ? null : _mapFoodData(food);
+    return food == null ? null : _mapFoodData(food, []);
   }
 
   Future<model.Food> saveFood(model.Food food) async {
@@ -115,6 +121,6 @@ class DatabaseService {
       sourceFdcId: Value(food.id == 0 ? null : food.id),
     );
     final newFoodData = await _liveDb.into(_liveDb.foods).insert(companion);
-    return _mapFoodData(newFoodData);
+    return _mapFoodData(newFoodData, []);
   }
 }

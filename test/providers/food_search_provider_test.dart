@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart' hide isNotNull;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
@@ -6,6 +6,8 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
+import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
+import 'package:matcher/matcher.dart' as matcher;
 
 import 'food_search_provider_test.mocks.dart';
 
@@ -171,8 +173,12 @@ void main() {
   });
 
   group('selectFood', () {
-    test('should set selected food and fetch units', () async {
+    test('should set selected food with its units', () async {
       // Arrange
+      final List<model_unit.FoodUnit> mockUnits = [
+        model_unit.FoodUnit(id: 1, foodId: 1, name: '1 medium', grams: 182.0),
+        model_unit.FoodUnit(id: 2, foodId: 1, name: '1 cup sliced', grams: 109.0),
+      ];
       final food = model.Food(
         id: 1,
         name: 'Apple',
@@ -182,18 +188,17 @@ void main() {
         fat: 0.2,
         carbs: 14,
         source: 'test',
+        units: mockUnits, // Food object now comes with units
       );
-      when(
-        mockDatabaseService.getUnitsForFood(food),
-      ).thenAnswer((_) async => []);
 
       // Act
-      await foodSearchProvider.selectFood(food);
+      foodSearchProvider.selectFood(food);
 
       // Assert
       expect(foodSearchProvider.selectedFood, food);
-      expect(foodSearchProvider.units, []);
-      verify(mockDatabaseService.getUnitsForFood(food)).called(1);
+      expect(foodSearchProvider.selectedFood!.units, mockUnits);
+      expect(foodSearchProvider.selectedFood!.units.length, 2);
+      expect(foodSearchProvider.selectedFood!.units.first.name, '1 medium');
     });
   });
 }

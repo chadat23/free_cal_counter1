@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
-import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
@@ -21,9 +20,6 @@ class FoodSearchProvider extends ChangeNotifier {
 
   model.Food? _selectedFood;
   model.Food? get selectedFood => _selectedFood;
-
-  List<model_unit.FoodUnit> _units = [];
-  List<model_unit.FoodUnit> get units => _units;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -95,13 +91,11 @@ class FoodSearchProvider extends ChangeNotifier {
 
   void clearSelection() {
     _selectedFood = null;
-    _units = [];
     notifyListeners();
   }
 
-  Future<void> selectFood(model.Food food) async {
+  void selectFood(model.Food food) {
     _selectedFood = food;
-    _units = await databaseService.getUnitsForFood(food);
     notifyListeners();
   }
 }

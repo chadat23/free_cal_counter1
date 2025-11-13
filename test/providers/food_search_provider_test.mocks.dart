@@ -69,9 +69,12 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i5.Future<List<_i2.Food>>);
 
   @override
-  _i5.Future<List<_i6.FoodUnit>> getUnitsForFood(_i2.Food? food) =>
+  _i5.Future<List<_i6.FoodUnit>> getUnitsForFood(
+    int? foodId,
+    String? foodSource,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(#getUnitsForFood, [food]),
+            Invocation.method(#getUnitsForFood, [foodId, foodSource]),
             returnValue: _i5.Future<List<_i6.FoodUnit>>.value(<_i6.FoodUnit>[]),
           )
           as _i5.Future<List<_i6.FoodUnit>>);

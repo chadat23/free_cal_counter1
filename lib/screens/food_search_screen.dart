@@ -114,7 +114,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
               if (foodSearchProvider.selectedFood != null) {
                 return FoodLoggingWidget(
                   food: foodSearchProvider.selectedFood!,
-                  units: foodSearchProvider.units,
+                  units: foodSearchProvider.selectedFood!.units,
                   onCancel: () {
                     foodSearchProvider.clearSelection();
                   },

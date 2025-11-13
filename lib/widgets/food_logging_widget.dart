@@ -33,13 +33,13 @@ class _FoodLoggingWidgetState extends State<FoodLoggingWidget> {
       model_unit.FoodUnit(
         id: 0,
         foodId: widget.food.id,
-        unitName: 'g',
-        gramsPerUnit: 1.0,
+        name: 'g',
+        grams: 1.0,
       ),
       ...widget.units,
     ];
     _selectedUnit = allUnits.firstWhere(
-      (u) => u.unitName == 'g',
+      (u) => u.name == 'g',
       orElse: () => allUnits.first,
     );
 
@@ -59,20 +59,20 @@ class _FoodLoggingWidgetState extends State<FoodLoggingWidget> {
   @override
   Widget build(BuildContext context) {
     final calories =
-        (widget.food.calories / 100) * _selectedUnit.gramsPerUnit * _quantity;
+        (widget.food.calories / 100) * _selectedUnit.grams * _quantity;
     final protein =
-        (widget.food.protein / 100) * _selectedUnit.gramsPerUnit * _quantity;
+        (widget.food.protein / 100) * _selectedUnit.grams * _quantity;
     final fat =
-        (widget.food.fat / 100) * _selectedUnit.gramsPerUnit * _quantity;
+        (widget.food.fat / 100) * _selectedUnit.grams * _quantity;
     final carbs =
-        (widget.food.carbs / 100) * _selectedUnit.gramsPerUnit * _quantity;
+        (widget.food.carbs / 100) * _selectedUnit.grams * _quantity;
 
     final allUnits = [
       model_unit.FoodUnit(
         id: 0,
         foodId: widget.food.id,
-        unitName: 'g',
-        gramsPerUnit: 1.0,
+        name: 'g',
+        grams: 1.0,
       ),
       ...widget.units,
     ];
@@ -127,7 +127,7 @@ class _FoodLoggingWidgetState extends State<FoodLoggingWidget> {
                   items: allUnits.map((unit) {
                     return DropdownMenuItem(
                       value: unit,
-                      child: Text(unit.unitName),
+                      child: Text(unit.name),
                     );
                   }).toList(),
                   onChanged: (unit) {

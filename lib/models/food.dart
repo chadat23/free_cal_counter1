@@ -1,3 +1,5 @@
+import 'package:free_cal_counter1/models/food_unit.dart';
+
 class Food {
   final int id;
   final String source;
@@ -8,6 +10,7 @@ class Food {
   final double protein;
   final double fat;
   final double carbs;
+  final List<FoodUnit> units;
 
   Food({
     required this.id,
@@ -19,5 +22,6 @@ class Food {
     required this.protein,
     required this.fat,
     required this.carbs,
+    this.units = const [], // Initialize with an empty list
   });
 }

@@ -54,18 +54,11 @@ class FoodSearchService {
         .map((e) => e['food'] as model.Food)
         .toList();
 
-    print('Tiered Search Query: "$query"');
-    print('Tiered Search Candidates: ${foods.length}');
-    print(
-      'Tiered Search Top 5 Results: ${sortedFoods.take(5).map((f) => f.name).toList()}',
-    );
-
     // Map back to list of foods and limit to a reasonable number
     return sortedFoods.take(50).toList();
   }
 
   Future<List<model.Food>> searchLocal(String query) async {
-    print('--- EXECUTING LOCAL SEARCH ---');
     if (query.isEmpty) {
       return [];
     }
@@ -74,7 +67,6 @@ class FoodSearchService {
   }
 
   Future<List<model.Food>> searchOff(String query) async {
-    print('--- EXECUTING OFF SEARCH ---');
     if (query.isEmpty) {
       return [];
     }

@@ -1,10 +1,12 @@
-class FoodUnit {
+import 'package:equatable/equatable.dart';
+
+class FoodUnit extends Equatable {
   final int? id;
   final int foodId;
   final String name;
   final double grams;
 
-  FoodUnit({
+  const FoodUnit({
     this.id,
     required this.foodId,
     required this.name,
@@ -30,4 +32,7 @@ class FoodUnit {
       'grams': grams,
     };
   }
+
+  @override
+  List<Object?> get props => [name, grams];
 }

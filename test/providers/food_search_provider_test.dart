@@ -7,7 +7,6 @@ import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
-import 'package:matcher/matcher.dart' as matcher;
 
 import 'food_search_provider_test.mocks.dart';
 

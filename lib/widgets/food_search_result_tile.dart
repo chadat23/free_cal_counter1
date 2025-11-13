@@ -2,9 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
 import 'package:free_cal_counter1/services/emoji_service.dart';
 
-class FoodSearchResultTile extends StatelessWidget {
+class FoodSearchResultTile extends StatefulWidget {
   final Food food;
   final VoidCallback onTap;
 
@@ -14,8 +15,24 @@ class FoodSearchResultTile extends StatelessWidget {
     required this.onTap,
   });
 
+  @override
+  State<FoodSearchResultTile> createState() => _FoodSearchResultTileState();
+}
+
+class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
+  late model_unit.FoodUnit _selectedUnit;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedUnit = widget.food.units.firstWhere(
+      (u) => u.name == '100g',
+      orElse: () => widget.food.units.first,
+    );
+  }
+
   Color _getBackgroundColor(BuildContext context) {
-    switch (food.source) {
+    switch (widget.food.source) {
       case 'FOUNDATION':
         return AppColors.searchResultBetter;
       case 'SR_LEGACY':
@@ -29,7 +46,12 @@ class FoodSearchResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final emoji = emojiForFoodName(food.name);
+    final emoji = emojiForFoodName(widget.food.name);
+
+    final calories = (widget.food.calories / 100) * _selectedUnit.grams;
+    final protein = (widget.food.protein / 100) * _selectedUnit.grams;
+    final fat = (widget.food.fat / 100) * _selectedUnit.grams;
+    final carbs = (widget.food.carbs / 100) * _selectedUnit.grams;
 
     return ListTile(
       tileColor: _getBackgroundColor(context),
@@ -37,21 +59,42 @@ class FoodSearchResultTile extends StatelessWidget {
         width: 40,
         height: 40,
         child: Center(
-          child: food.thumbnail != null
+          child: widget.food.thumbnail != null
               ? CachedNetworkImage(
-                  imageUrl: food.thumbnail!,
-                  placeholder: (context, url) => const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => const Icon(Icons.fastfood),
+                  imageUrl: widget.food.thumbnail!,
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.fastfood),
                   fit: BoxFit.cover,
                 )
               : const Icon(Icons.fastfood), // Default icon if no thumbnail
         ),
       ),
-      title: Text('${emoji ?? ''} ${food.name}'),
-      subtitle: Text(
-        '${food.calories.round()} kcal • ${food.protein.toStringAsFixed(1)}g P • ${food.fat.toStringAsFixed(1)}g F • ${food.carbs.toStringAsFixed(1)}g C',
+      title: Text('${emoji ?? ''} ${widget.food.name}'),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${calories.round()} kcal • ${protein.toStringAsFixed(1)}g P • ${fat.toStringAsFixed(1)}g F • ${carbs.toStringAsFixed(1)}g C',
+          ),
+          if (widget.food.units.length > 1)
+            DropdownButton<model_unit.FoodUnit>(
+              value: _selectedUnit,
+              items: widget.food.units.map((unit) {
+                return DropdownMenuItem(value: unit, child: Text(unit.name));
+              }).toList(),
+              onChanged: (unit) {
+                if (unit != null) {
+                  setState(() {
+                    _selectedUnit = unit;
+                  });
+                }
+              },
+            ),
+        ],
       ),
-      onTap: onTap,
+      onTap: widget.onTap,
     );
   }
 }

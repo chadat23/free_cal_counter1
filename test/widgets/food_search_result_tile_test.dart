@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
+import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
 import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
 
 void main() {
   group('FoodSearchResultTile', () {
-    testWidgets('displays food name and per 100g nutritional info', (tester) async {
+    testWidgets('displays food name and nutritional info with unit dropdown', (tester) async {
+      final mockUnits = [
+        model_unit.FoodUnit(id: 1, foodId: 1, name: '100g', grams: 100.0),
+        model_unit.FoodUnit(id: 2, foodId: 1, name: '1 medium', grams: 182.0),
+        model_unit.FoodUnit(id: 3, foodId: 1, name: '1 cup sliced', grams: 109.0),
+      ];
       final food = model.Food(
         id: 1,
         name: 'Apple',
@@ -15,7 +21,7 @@ void main() {
         fat: 0.2, // per 100g
         carbs: 14, // per 100g
         source: 'test',
-        units: [], // Units are not displayed in this minimal version
+        units: mockUnits,
       );
 
       await tester.pumpWidget(
@@ -29,8 +35,36 @@ void main() {
       // Verify food name is displayed
       expect(find.text('🍎 Apple'), findsOneWidget);
 
-      // Verify per 100g nutritional info is displayed
+      // Verify initial nutritional info (should be for 100g by default)
       expect(find.text('52 kcal • 0.3g P • 0.2g F • 14.0g C'), findsOneWidget);
+
+      // Open the dropdown
+      await tester.tap(find.byType(DropdownButton<model_unit.FoodUnit>));
+      await tester.pumpAndSettle();
+
+      // Select '1 medium' unit
+      await tester.tap(find.text('1 medium').last); // Use .last because the initial display also has '1 medium'
+      await tester.pumpAndSettle();
+
+      // Verify nutritional info updates for '1 medium' (182g)
+      // Calories: (52 / 100) * 182 = 94.64
+      // Protein: (0.3 / 100) * 182 = 0.546
+      // Fat: (0.2 / 100) * 182 = 0.364
+      // Carbs: (14 / 100) * 182 = 25.48
+      expect(find.text('95 kcal • 0.5g P • 0.4g F • 25.5g C'), findsOneWidget);
+
+      // Select '1 cup sliced' unit
+      await tester.tap(find.byType(DropdownButton<model_unit.FoodUnit>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('1 cup sliced').last);
+      await tester.pumpAndSettle();
+
+      // Verify nutritional info updates for '1 cup sliced' (109g)
+      // Calories: (52 / 100) * 109 = 56.68
+      // Protein: (0.3 / 100) * 109 = 0.327
+      // Fat: (0.2 / 100) * 109 = 0.218
+      // Carbs: (14 / 100) * 109 = 15.26
+      expect(find.text('57 kcal • 0.3g P • 0.2g F • 15.3g C'), findsOneWidget);
     });
   });
 }

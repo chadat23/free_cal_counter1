@@ -6,8 +6,8 @@
 import 'dart:async' as _i11;
 import 'dart:ui' as _i7;
 
-import 'package:free_cal_counter1/models/food.dart' as _i6;
-import 'package:free_cal_counter1/models/food_unit.dart' as _i10;
+import 'package:free_cal_counter1/models/food.dart' as _i10;
+import 'package:free_cal_counter1/models/food_portion.dart' as _i6;
 import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i9;
 import 'package:free_cal_counter1/providers/log_provider.dart' as _i5;
 import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i8;
@@ -80,12 +80,12 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
           as double);
 
   @override
-  List<_i6.Food> get logQueue =>
+  List<_i6.FoodPortion> get logQueue =>
       (super.noSuchMethod(
             Invocation.getter(#logQueue),
-            returnValue: <_i6.Food>[],
+            returnValue: <_i6.FoodPortion>[],
           )
-          as List<_i6.Food>);
+          as List<_i6.FoodPortion>);
 
   @override
   bool get hasListeners =>
@@ -111,14 +111,14 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
   );
 
   @override
-  void addFoodToQueue(_i6.Food? food) => super.noSuchMethod(
-    Invocation.method(#addFoodToQueue, [food]),
+  void addFoodToQueue(_i6.FoodPortion? portion) => super.noSuchMethod(
+    Invocation.method(#addFoodToQueue, [portion]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeFoodFromQueue(_i6.Food? food) => super.noSuchMethod(
-    Invocation.method(#removeFoodFromQueue, [food]),
+  void removeFoodFromQueue(_i6.FoodPortion? portion) => super.noSuchMethod(
+    Invocation.method(#removeFoodFromQueue, [portion]),
     returnValueForMissingStub: null,
   );
 
@@ -272,20 +272,12 @@ class MockFoodSearchProvider extends _i1.Mock
           as _i4.FoodSearchService);
 
   @override
-  List<_i6.Food> get searchResults =>
+  List<_i10.Food> get searchResults =>
       (super.noSuchMethod(
             Invocation.getter(#searchResults),
-            returnValue: <_i6.Food>[],
+            returnValue: <_i10.Food>[],
           )
-          as List<_i6.Food>);
-
-  @override
-  List<_i10.FoodUnit> get units =>
-      (super.noSuchMethod(
-            Invocation.getter(#units),
-            returnValue: <_i10.FoodUnit>[],
-          )
-          as List<_i10.FoodUnit>);
+          as List<_i10.Food>);
 
   @override
   bool get isLoading =>
@@ -331,13 +323,10 @@ class MockFoodSearchProvider extends _i1.Mock
   );
 
   @override
-  _i11.Future<void> selectFood(_i6.Food? food) =>
-      (super.noSuchMethod(
-            Invocation.method(#selectFood, [food]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
-          )
-          as _i11.Future<void>);
+  void selectFood(_i10.Food? food) => super.noSuchMethod(
+    Invocation.method(#selectFood, [food]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(

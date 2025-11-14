@@ -24,7 +24,6 @@ void main() {
     mockFoodSearchProvider = MockFoodSearchProvider(); // Use the mock
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
-    when(mockFoodSearchProvider.selectedFood).thenReturn(null);
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
     when(mockFoodSearchProvider.errorMessage).thenReturn(null); // ADDED
     when(mockFoodSearchProvider.isLoading).thenReturn(false); // ADDED

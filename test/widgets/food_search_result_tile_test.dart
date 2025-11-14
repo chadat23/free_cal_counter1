@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
+import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 
+import 'food_search_result_tile_test.mocks.dart';
+
+@GenerateMocks([LogProvider])
 void main() {
   group('FoodSearchResultTile', () {
     testWidgets('displays food name and nutritional info with unit dropdown', (tester) async {
@@ -65,6 +72,45 @@ void main() {
       // Fat: (0.2 / 100) * 109 = 0.218
       // Carbs: (14 / 100) * 109 = 15.26
       expect(find.text('57 kcal • 0.3g P • 0.2g F • 15.3g C'), findsOneWidget);
+    });
+
+    testWidgets('should have an add button that adds the food to the log queue', (tester) async {
+      final mockLogProvider = MockLogProvider();
+      final mockUnits = [
+        model_unit.FoodUnit(id: 1, foodId: 1, name: '100g', grams: 100.0),
+      ];
+      final food = model.Food(
+        id: 1,
+        name: 'Apple',
+        emoji: '🍎',
+        calories: 52,
+        protein: 0.3,
+        fat: 0.2,
+        carbs: 14,
+        source: 'test',
+        units: mockUnits,
+      );
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<LogProvider>.value(
+          value: mockLogProvider,
+          child: MaterialApp(
+            home: Scaffold(
+              body: FoodSearchResultTile(food: food, onTap: () {}),
+            ),
+          ),
+        ),
+      );
+
+      // Verify the add button exists
+      expect(find.byIcon(Icons.add), findsOneWidget);
+
+      // Tap the add button
+      await tester.tap(find.byIcon(Icons.add));
+      await tester.pump();
+
+      // Verify that addFoodToQueue was called with the correct FoodPortion
+      verify(mockLogProvider.addFoodToQueue(any)).called(1);
     });
   });
 }

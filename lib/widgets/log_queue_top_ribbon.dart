@@ -1,12 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 
 class LogQueueTopRibbon extends StatelessWidget {
   final IconData arrowDirection;
   final VoidCallback onArrowPressed;
   final double totalCalories;
   final double dailyTargetCalories;
-  final List<Food> logQueue;
+  final List<FoodPortion> logQueue;
 
   const LogQueueTopRibbon({
     super.key,
@@ -36,14 +37,31 @@ class LogQueueTopRibbon extends StatelessWidget {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: logQueue
-                    .map(
-                      (food) => Text(
-                        food.emoji ?? '',
-                        style: const TextStyle(fontSize: 20),
+                children: logQueue.map((portion) {
+                  if (portion.food.thumbnail != null) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                      child: CachedNetworkImage(
+                        imageUrl: portion.food.thumbnail!,
+                        width: 26,
+                        height: 26,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const SizedBox(
+                          width: 26,
+                          height: 26,
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            Text(portion.food.emoji ?? '🍴'),
                       ),
-                    )
-                    .toList(),
+                    );
+                  } else {
+                    return Text(
+                      portion.food.emoji ?? '🍴',
+                      style: const TextStyle(fontSize: 20),
+                    );
+                  }
+                }).toList(),
               ),
             ),
           ),

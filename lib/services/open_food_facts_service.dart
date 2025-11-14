@@ -1,3 +1,4 @@
+import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
@@ -176,11 +177,12 @@ class OffApiService {
       } else {
         // This is an abstract unit, try to bridge its grams using caloriesPerGram
         final servingEnergy = nutriments.getValue(Nutrient.energyKCal, PerSize.serving);
-                  if (servingEnergy != null && caloriesPerGram > 0) {
-                    final bridgedGrams = servingEnergy / caloriesPerGram;
-                    // Only add if it has calorie data for serving (as per latest clarification)
-                    units.add(model_unit.FoodUnit(id: null, foodId: 0, name: servingSizeText, grams: bridgedGrams));
-                  }      }
+        if (servingEnergy != null && caloriesPerGram > 0) {
+          final bridgedGrams = servingEnergy / caloriesPerGram;
+          // Only add if it has calorie data for serving (as per latest clarification)
+          units.add(model_unit.FoodUnit(id: null, foodId: 0, name: servingSizeText, grams: bridgedGrams));
+        }
+      }
     }
 
     // Ensure units list is not empty
@@ -188,11 +190,14 @@ class OffApiService {
       return null;
     }
 
+    final foodName = product.productName ?? product.genericName ?? 'Unknown Food';
+    final emoji = emojiForFoodName(foodName);
+
     return model.Food(
       id: 0, // Not from our DB
       source: 'off',
-      name: product.productName ?? product.genericName ?? 'Unknown Food',
-      emoji: null, // Not available from OFF
+      name: foodName,
+      emoji: emoji,
       thumbnail: product.imageFrontUrl,
       calories: baseEnergyPer100g,
       protein: baseProteinPer100g,
@@ -202,3 +207,4 @@ class OffApiService {
     );
   }
 }
+

@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart' hide isNotNull;
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
@@ -42,7 +42,7 @@ void main() {
 
         when(
           product.productName,
-        ).thenReturn('Skippy Extra Crunchy Peanut Butter');
+        ).thenReturn('peanut butter');
         when(
           nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams),
         ).thenReturn(1910); // Updated from new JSON
@@ -71,10 +71,11 @@ void main() {
         // Assert
         expect(result, isA<List<model.Food>>());
         expect(result, hasLength(1));
-        expect(result.first.name, 'Skippy Extra Crunchy Peanut Butter');
+        expect(result.first.name, 'peanut butter');
         expect(result.first.calories, 1910);
         expect(result.first.protein, 68.4);
         expect(result.first.carbs, 58.6);
+        expect(result.first.emoji, '🥜');
       },
     );
 
@@ -149,7 +150,7 @@ void main() {
         final searchResult = MockSearchResult();
 
         // Mock a product with NO per 100g data
-        when(product.productName).thenReturn('Soy Sauce (Volume)');
+        when(product.productName).thenReturn('soy sauce');
         when(nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams))
             .thenReturn(null);
         when(nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams))
@@ -201,6 +202,7 @@ void main() {
         expect(food.fat, closeTo(0.0, 0.01));
         // 2g carbs / 15g = 0.1333 g/g => 13.33 g/100g
         expect(food.carbs, closeTo(13.33, 0.01));
+        expect(food.emoji, '🍴');
 
         // Verify units list
         expect(food.units, matcher.isNotNull);
@@ -221,7 +223,7 @@ void main() {
         final searchResult = MockSearchResult();
 
         // Mock a product with complete per 100g data (primary anchor)
-        when(product.productName).thenReturn('Chocolate Chip Cookie');
+        when(product.productName).thenReturn('cookie');
         when(nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams))
             .thenReturn(500.0); // 500 kcal/100g
         when(nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams))
@@ -269,6 +271,7 @@ void main() {
         expect(food.protein, closeTo(5.0, 0.01));
         expect(food.fat, closeTo(25.0, 0.01));
         expect(food.carbs, closeTo(60.0, 0.01));
+        expect(food.emoji, '🍪');
 
         // Verify units list
         expect(food.units, matcher.isNotNull);
@@ -294,7 +297,7 @@ void main() {
         final searchResult = MockSearchResult();
 
         // Mock a product with complete per 100g data (primary anchor)
-        when(product.productName).thenReturn('Prioritized Food');
+        when(product.productName).thenReturn('pizza');
         when(nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams))
             .thenReturn(200.0); // 200 kcal/100g
         when(nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams))
@@ -330,7 +333,7 @@ void main() {
         ).thenAnswer((_) async => searchResult);
 
         // Act
-        final result = await offApiService.searchFoodsByName('prioritized food');
+        final result = await offApiService.searchFoodsByName('pizza');
 
         // Assert
         expect(result, isA<List<model.Food>>());
@@ -342,6 +345,7 @@ void main() {
         expect(food.protein, closeTo(10.0, 0.01));
         expect(food.fat, closeTo(5.0, 0.01));
         expect(food.carbs, closeTo(20.0, 0.01));
+        expect(food.emoji, '🍕');
 
         // Verify units list contains both 100g and serving unit
         expect(food.units, matcher.isNotNull);
@@ -365,7 +369,7 @@ void main() {
         final searchResult = MockSearchResult();
 
         // Mock a product with complete per 100g data
-        when(product.productName).thenReturn('Redundant Units Food');
+        when(product.productName).thenReturn('bread');
         when(nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams))
             .thenReturn(100.0);
         when(nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams))
@@ -398,7 +402,7 @@ void main() {
         ).thenAnswer((_) async => searchResult);
 
         // Act
-        final result = await offApiService.searchFoodsByName('redundant units');
+        final result = await offApiService.searchFoodsByName('bread');
 
         // Assert
         expect(result, isA<List<model.Food>>());
@@ -410,6 +414,7 @@ void main() {
         expect(food.protein, closeTo(10.0, 0.01));
         expect(food.fat, closeTo(5.0, 0.01));
         expect(food.carbs, closeTo(15.0, 0.01));
+        expect(food.emoji, '🍞');
 
         // Verify units list contains 100g and "1 oz (28g)"
         expect(food.units, matcher.isNotNull);

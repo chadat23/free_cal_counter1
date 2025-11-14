@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/widgets/discard_dialog.dart';
@@ -58,16 +57,11 @@ class LogQueueScreen extends StatelessWidget {
           body: ListView.builder(
             itemCount: logProvider.logQueue.length,
             itemBuilder: (context, index) {
-              final food = logProvider.logQueue[index];
-              final foodPortion = FoodPortion(
-                food: food,
-                servingSize: 100, // Default value
-                servingUnit: 'g', // Default value
-              );
+              final foodPortion = logProvider.logQueue[index];
               return SlidablePortionWidget(
                 portion: foodPortion,
                 onDelete: () {
-                  logProvider.removeFoodFromQueue(food);
+                  logProvider.removeFoodFromQueue(foodPortion);
                 },
               );
             },

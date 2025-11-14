@@ -18,9 +18,6 @@ class FoodSearchProvider extends ChangeNotifier {
   List<model.Food> _searchResults = [];
   List<model.Food> get searchResults => _searchResults;
 
-  model.Food? _selectedFood;
-  model.Food? get selectedFood => _selectedFood;
-
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -87,15 +84,5 @@ class FoodSearchProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
-  }
-
-  void clearSelection() {
-    _selectedFood = null;
-    notifyListeners();
-  }
-
-  void selectFood(model.Food food) {
-    _selectedFood = food;
-    notifyListeners();
   }
 }

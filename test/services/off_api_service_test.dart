@@ -70,9 +70,9 @@ void main() {
         expect(result, isA<List<model.Food>>());
         expect(result, hasLength(1));
         expect(result.first.name, 'peanut');
-        expect(result.first.calories, 1910);
-        expect(result.first.protein, 68.4);
-        expect(result.first.carbs, 58.6);
+        expect(result.first.calories, 19.10);
+        expect(result.first.protein, 0.684);
+        expect(result.first.carbs, 0.586);
         expect(result.first.emoji, '🥜');
       },
     );
@@ -203,15 +203,15 @@ void main() {
         expect(result, hasLength(1));
         final food = result.first;
 
-        // Verify calculated per 100g values (based on 15ml ~ 15g)
-        // 15 kcal / 15g = 1 kcal/g => 100 kcal/100g
-        expect(food.calories, closeTo(100.0, 0.01));
-        // 1g protein / 15g = 0.0666 g/g => 6.67 g/100g
-        expect(food.protein, closeTo(6.67, 0.01));
-        // 0g fat / 15g = 0 g/g => 0 g/100g
+        // Verify calculated per gram values (based on 15ml ~ 15g)
+        // 15 kcal / 15g = 1 kcal/g
+        expect(food.calories, closeTo(1.0, 0.01));
+        // 1g protein / 15g = 0.0666 g/g
+        expect(food.protein, closeTo(0.0667, 0.0001));
+        // 0g fat / 15g = 0 g/g
         expect(food.fat, closeTo(0.0, 0.01));
-        // 2g carbs / 15g = 0.1333 g/g => 13.33 g/100g
-        expect(food.carbs, closeTo(13.33, 0.01));
+        // 2g carbs / 15g = 0.1333 g/g
+        expect(food.carbs, closeTo(0.1333, 0.0001));
         expect(food.emoji, '🍴');
 
         // Verify units list
@@ -227,9 +227,9 @@ void main() {
           ),
           matcher.isTrue,
         );
-        // Also expect a 100g unit to be generated
+        // Also expect a 'g' unit to be generated
         expect(
-          food.units.any((unit) => unit.name == '100g' && unit.grams == 100.0),
+          food.units.any((unit) => unit.name == 'g' && unit.grams == 1.0),
           matcher.isTrue,
         );
       },
@@ -294,21 +294,21 @@ void main() {
         expect(result, hasLength(1));
         final food = result.first;
 
-        // Verify baseline per 100g values are from the 100g anchor
-        expect(food.calories, closeTo(500.0, 0.01));
-        expect(food.protein, closeTo(5.0, 0.01));
-        expect(food.fat, closeTo(25.0, 0.01));
-        expect(food.carbs, closeTo(60.0, 0.01));
+        // Verify baseline per gram values are from the 100g anchor
+        expect(food.calories, closeTo(5.0, 0.01));
+        expect(food.protein, closeTo(0.05, 0.001));
+        expect(food.fat, closeTo(0.25, 0.001));
+        expect(food.carbs, closeTo(0.60, 0.001));
         expect(food.emoji, '🍪');
 
         // Verify units list
         expect(food.units, matcher.isNotNull);
         expect(food.units.isNotEmpty, matcher.isTrue);
-        expect(food.units.length, greaterThanOrEqualTo(2)); // 100g and 1 cookie
+        expect(food.units.length, greaterThanOrEqualTo(2)); // 'g' and '1 cookie'
 
-        // Verify 100g unit
+        // Verify 'g' unit
         expect(
-          food.units.any((unit) => unit.name == '100g' && unit.grams == 100.0),
+          food.units.any((unit) => unit.name == 'g' && unit.grams == 1.0),
           matcher.isTrue,
         );
 
@@ -385,21 +385,21 @@ void main() {
         expect(result, hasLength(1));
         final food = result.first;
 
-        // Verify baseline per 100g values are from the NATIVE 100g anchor, NOT the serving size
-        expect(food.calories, closeTo(200.0, 0.01));
-        expect(food.protein, closeTo(10.0, 0.01));
-        expect(food.fat, closeTo(5.0, 0.01));
-        expect(food.carbs, closeTo(20.0, 0.01));
+        // Verify baseline per gram values are from the NATIVE 100g anchor, NOT the serving size
+        expect(food.calories, closeTo(2.0, 0.01));
+        expect(food.protein, closeTo(0.10, 0.001));
+        expect(food.fat, closeTo(0.05, 0.001));
+        expect(food.carbs, closeTo(0.20, 0.001));
         expect(food.emoji, '🍕');
 
-        // Verify units list contains both 100g and serving unit
+        // Verify units list contains both 'g' and serving unit
         expect(food.units, matcher.isNotNull);
         expect(food.units.isNotEmpty, matcher.isTrue);
         expect(food.units.length, greaterThanOrEqualTo(2));
 
-        // Verify 100g unit
+        // Verify 'g' unit
         expect(
-          food.units.any((unit) => unit.name == '100g' && unit.grams == 100.0),
+          food.units.any((unit) => unit.name == 'g' && unit.grams == 1.0),
           matcher.isTrue,
         );
 
@@ -463,21 +463,21 @@ void main() {
       expect(result, hasLength(1));
       final food = result.first;
 
-      // Verify baseline per 100g values
-      expect(food.calories, closeTo(100.0, 0.01));
-      expect(food.protein, closeTo(10.0, 0.01));
-      expect(food.fat, closeTo(5.0, 0.01));
-      expect(food.carbs, closeTo(15.0, 0.01));
+      // Verify baseline per gram values
+      expect(food.calories, closeTo(1.0, 0.01));
+      expect(food.protein, closeTo(0.1, 0.001));
+      expect(food.fat, closeTo(0.05, 0.001));
+      expect(food.carbs, closeTo(0.15, 0.001));
       expect(food.emoji, '🍞');
 
-      // Verify units list contains 100g and "1 oz (28g)"
+      // Verify units list contains 'g' and "1 oz (28g)"
       expect(food.units, matcher.isNotNull);
       expect(food.units.isNotEmpty, matcher.isTrue);
-      expect(food.units.length, greaterThanOrEqualTo(2)); // 100g and 1 oz (28g)
+      expect(food.units.length, greaterThanOrEqualTo(2)); // 'g' and '1 oz (28g)'
 
-      // Verify 100g unit
+      // Verify 'g' unit
       expect(
-        food.units.any((unit) => unit.name == '100g' && unit.grams == 100.0),
+        food.units.any((unit) => unit.name == 'g' && unit.grams == 1.0),
         matcher.isTrue,
       );
 

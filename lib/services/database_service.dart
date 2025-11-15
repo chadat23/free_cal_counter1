@@ -36,10 +36,10 @@ class DatabaseService {
       source: foodData.source,
       name: foodData.name,
       emoji: '', // Not available in the database
-      calories: foodData.caloriesPer100g,
-      protein: foodData.proteinPer100g,
-      fat: foodData.fatPer100g,
-      carbs: foodData.carbsPer100g,
+      calories: foodData.caloriesPerGram,
+      protein: foodData.proteinPerGram,
+      fat: foodData.fatPerGram,
+      carbs: foodData.carbsPerGram,
       units: units,
     );
   }
@@ -113,11 +113,11 @@ class DatabaseService {
     final companion = FoodsCompanion.insert(
       name: food.name,
       source: food.id == 0 ? 'off_cache' : 'user_created',
-      caloriesPer100g: food.calories,
-      proteinPer100g: food.protein,
-      fatPer100g: food.fat,
-      carbsPer100g: food.carbs,
-      fiberPer100g: 0, // Default value
+      caloriesPerGram: food.calories,
+      proteinPerGram: food.protein,
+      fatPerGram: food.fat,
+      carbsPerGram: food.carbs,
+      fiberPerGram: 0, // Default value
       sourceFdcId: Value(food.id == 0 ? null : food.id),
     );
     final newFoodData = await _liveDb.into(_liveDb.foods).insert(companion);

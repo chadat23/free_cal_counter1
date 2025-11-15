@@ -59,56 +59,56 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _caloriesPer100gMeta = const VerificationMeta(
-    'caloriesPer100g',
+  static const VerificationMeta _caloriesPerGramMeta = const VerificationMeta(
+    'caloriesPerGram',
   );
   @override
-  late final GeneratedColumn<double> caloriesPer100g = GeneratedColumn<double>(
-    'caloriesPer100g',
+  late final GeneratedColumn<double> caloriesPerGram = GeneratedColumn<double>(
+    'caloriesPerGram',
     aliasedName,
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _proteinPer100gMeta = const VerificationMeta(
-    'proteinPer100g',
+  static const VerificationMeta _proteinPerGramMeta = const VerificationMeta(
+    'proteinPerGram',
   );
   @override
-  late final GeneratedColumn<double> proteinPer100g = GeneratedColumn<double>(
-    'proteinPer100g',
+  late final GeneratedColumn<double> proteinPerGram = GeneratedColumn<double>(
+    'proteinPerGram',
     aliasedName,
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _fatPer100gMeta = const VerificationMeta(
-    'fatPer100g',
+  static const VerificationMeta _fatPerGramMeta = const VerificationMeta(
+    'fatPerGram',
   );
   @override
-  late final GeneratedColumn<double> fatPer100g = GeneratedColumn<double>(
-    'fatPer100g',
+  late final GeneratedColumn<double> fatPerGram = GeneratedColumn<double>(
+    'fatPerGram',
     aliasedName,
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _carbsPer100gMeta = const VerificationMeta(
-    'carbsPer100g',
+  static const VerificationMeta _carbsPerGramMeta = const VerificationMeta(
+    'carbsPerGram',
   );
   @override
-  late final GeneratedColumn<double> carbsPer100g = GeneratedColumn<double>(
-    'carbsPer100g',
+  late final GeneratedColumn<double> carbsPerGram = GeneratedColumn<double>(
+    'carbsPerGram',
     aliasedName,
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _fiberPer100gMeta = const VerificationMeta(
-    'fiberPer100g',
+  static const VerificationMeta _fiberPerGramMeta = const VerificationMeta(
+    'fiberPerGram',
   );
   @override
-  late final GeneratedColumn<double> fiberPer100g = GeneratedColumn<double>(
-    'fiberPer100g',
+  late final GeneratedColumn<double> fiberPerGram = GeneratedColumn<double>(
+    'fiberPerGram',
     aliasedName,
     false,
     type: DriftSqlType.double,
@@ -156,11 +156,11 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
     source,
     emoji,
     thumbnail,
-    caloriesPer100g,
-    proteinPer100g,
-    fatPer100g,
-    carbsPer100g,
-    fiberPer100g,
+    caloriesPerGram,
+    proteinPerGram,
+    fatPerGram,
+    carbsPerGram,
+    fiberPerGram,
     sourceFdcId,
     sourceBarcode,
     hidden,
@@ -208,57 +208,57 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
         thumbnail.isAcceptableOrUnknown(data['thumbnail']!, _thumbnailMeta),
       );
     }
-    if (data.containsKey('caloriesPer100g')) {
+    if (data.containsKey('caloriesPerGram')) {
       context.handle(
-        _caloriesPer100gMeta,
-        caloriesPer100g.isAcceptableOrUnknown(
-          data['caloriesPer100g']!,
-          _caloriesPer100gMeta,
+        _caloriesPerGramMeta,
+        caloriesPerGram.isAcceptableOrUnknown(
+          data['caloriesPerGram']!,
+          _caloriesPerGramMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_caloriesPer100gMeta);
+      context.missing(_caloriesPerGramMeta);
     }
-    if (data.containsKey('proteinPer100g')) {
+    if (data.containsKey('proteinPerGram')) {
       context.handle(
-        _proteinPer100gMeta,
-        proteinPer100g.isAcceptableOrUnknown(
-          data['proteinPer100g']!,
-          _proteinPer100gMeta,
+        _proteinPerGramMeta,
+        proteinPerGram.isAcceptableOrUnknown(
+          data['proteinPerGram']!,
+          _proteinPerGramMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_proteinPer100gMeta);
+      context.missing(_proteinPerGramMeta);
     }
-    if (data.containsKey('fatPer100g')) {
+    if (data.containsKey('fatPerGram')) {
       context.handle(
-        _fatPer100gMeta,
-        fatPer100g.isAcceptableOrUnknown(data['fatPer100g']!, _fatPer100gMeta),
+        _fatPerGramMeta,
+        fatPerGram.isAcceptableOrUnknown(data['fatPerGram']!, _fatPerGramMeta),
       );
     } else if (isInserting) {
-      context.missing(_fatPer100gMeta);
+      context.missing(_fatPerGramMeta);
     }
-    if (data.containsKey('carbsPer100g')) {
+    if (data.containsKey('carbsPerGram')) {
       context.handle(
-        _carbsPer100gMeta,
-        carbsPer100g.isAcceptableOrUnknown(
-          data['carbsPer100g']!,
-          _carbsPer100gMeta,
+        _carbsPerGramMeta,
+        carbsPerGram.isAcceptableOrUnknown(
+          data['carbsPerGram']!,
+          _carbsPerGramMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_carbsPer100gMeta);
+      context.missing(_carbsPerGramMeta);
     }
-    if (data.containsKey('fiberPer100g')) {
+    if (data.containsKey('fiberPerGram')) {
       context.handle(
-        _fiberPer100gMeta,
-        fiberPer100g.isAcceptableOrUnknown(
-          data['fiberPer100g']!,
-          _fiberPer100gMeta,
+        _fiberPerGramMeta,
+        fiberPerGram.isAcceptableOrUnknown(
+          data['fiberPerGram']!,
+          _fiberPerGramMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_fiberPer100gMeta);
+      context.missing(_fiberPerGramMeta);
     }
     if (data.containsKey('sourceFdcId')) {
       context.handle(
@@ -313,25 +313,25 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
         DriftSqlType.string,
         data['${effectivePrefix}thumbnail'],
       ),
-      caloriesPer100g: attachedDatabase.typeMapping.read(
+      caloriesPerGram: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}caloriesPer100g'],
+        data['${effectivePrefix}caloriesPerGram'],
       )!,
-      proteinPer100g: attachedDatabase.typeMapping.read(
+      proteinPerGram: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}proteinPer100g'],
+        data['${effectivePrefix}proteinPerGram'],
       )!,
-      fatPer100g: attachedDatabase.typeMapping.read(
+      fatPerGram: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}fatPer100g'],
+        data['${effectivePrefix}fatPerGram'],
       )!,
-      carbsPer100g: attachedDatabase.typeMapping.read(
+      carbsPerGram: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}carbsPer100g'],
+        data['${effectivePrefix}carbsPerGram'],
       )!,
-      fiberPer100g: attachedDatabase.typeMapping.read(
+      fiberPerGram: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}fiberPer100g'],
+        data['${effectivePrefix}fiberPerGram'],
       )!,
       sourceFdcId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -360,11 +360,11 @@ class Food extends DataClass implements Insertable<Food> {
   final String source;
   final String? emoji;
   final String? thumbnail;
-  final double caloriesPer100g;
-  final double proteinPer100g;
-  final double fatPer100g;
-  final double carbsPer100g;
-  final double fiberPer100g;
+  final double caloriesPerGram;
+  final double proteinPerGram;
+  final double fatPerGram;
+  final double carbsPerGram;
+  final double fiberPerGram;
   final int? sourceFdcId;
   final String? sourceBarcode;
   final bool hidden;
@@ -374,11 +374,11 @@ class Food extends DataClass implements Insertable<Food> {
     required this.source,
     this.emoji,
     this.thumbnail,
-    required this.caloriesPer100g,
-    required this.proteinPer100g,
-    required this.fatPer100g,
-    required this.carbsPer100g,
-    required this.fiberPer100g,
+    required this.caloriesPerGram,
+    required this.proteinPerGram,
+    required this.fatPerGram,
+    required this.carbsPerGram,
+    required this.fiberPerGram,
     this.sourceFdcId,
     this.sourceBarcode,
     required this.hidden,
@@ -395,11 +395,11 @@ class Food extends DataClass implements Insertable<Food> {
     if (!nullToAbsent || thumbnail != null) {
       map['thumbnail'] = Variable<String>(thumbnail);
     }
-    map['caloriesPer100g'] = Variable<double>(caloriesPer100g);
-    map['proteinPer100g'] = Variable<double>(proteinPer100g);
-    map['fatPer100g'] = Variable<double>(fatPer100g);
-    map['carbsPer100g'] = Variable<double>(carbsPer100g);
-    map['fiberPer100g'] = Variable<double>(fiberPer100g);
+    map['caloriesPerGram'] = Variable<double>(caloriesPerGram);
+    map['proteinPerGram'] = Variable<double>(proteinPerGram);
+    map['fatPerGram'] = Variable<double>(fatPerGram);
+    map['carbsPerGram'] = Variable<double>(carbsPerGram);
+    map['fiberPerGram'] = Variable<double>(fiberPerGram);
     if (!nullToAbsent || sourceFdcId != null) {
       map['sourceFdcId'] = Variable<int>(sourceFdcId);
     }
@@ -421,11 +421,11 @@ class Food extends DataClass implements Insertable<Food> {
       thumbnail: thumbnail == null && nullToAbsent
           ? const Value.absent()
           : Value(thumbnail),
-      caloriesPer100g: Value(caloriesPer100g),
-      proteinPer100g: Value(proteinPer100g),
-      fatPer100g: Value(fatPer100g),
-      carbsPer100g: Value(carbsPer100g),
-      fiberPer100g: Value(fiberPer100g),
+      caloriesPerGram: Value(caloriesPerGram),
+      proteinPerGram: Value(proteinPerGram),
+      fatPerGram: Value(fatPerGram),
+      carbsPerGram: Value(carbsPerGram),
+      fiberPerGram: Value(fiberPerGram),
       sourceFdcId: sourceFdcId == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceFdcId),
@@ -447,11 +447,11 @@ class Food extends DataClass implements Insertable<Food> {
       source: serializer.fromJson<String>(json['source']),
       emoji: serializer.fromJson<String?>(json['emoji']),
       thumbnail: serializer.fromJson<String?>(json['thumbnail']),
-      caloriesPer100g: serializer.fromJson<double>(json['caloriesPer100g']),
-      proteinPer100g: serializer.fromJson<double>(json['proteinPer100g']),
-      fatPer100g: serializer.fromJson<double>(json['fatPer100g']),
-      carbsPer100g: serializer.fromJson<double>(json['carbsPer100g']),
-      fiberPer100g: serializer.fromJson<double>(json['fiberPer100g']),
+      caloriesPerGram: serializer.fromJson<double>(json['caloriesPerGram']),
+      proteinPerGram: serializer.fromJson<double>(json['proteinPerGram']),
+      fatPerGram: serializer.fromJson<double>(json['fatPerGram']),
+      carbsPerGram: serializer.fromJson<double>(json['carbsPerGram']),
+      fiberPerGram: serializer.fromJson<double>(json['fiberPerGram']),
       sourceFdcId: serializer.fromJson<int?>(json['sourceFdcId']),
       sourceBarcode: serializer.fromJson<String?>(json['sourceBarcode']),
       hidden: serializer.fromJson<bool>(json['hidden']),
@@ -466,11 +466,11 @@ class Food extends DataClass implements Insertable<Food> {
       'source': serializer.toJson<String>(source),
       'emoji': serializer.toJson<String?>(emoji),
       'thumbnail': serializer.toJson<String?>(thumbnail),
-      'caloriesPer100g': serializer.toJson<double>(caloriesPer100g),
-      'proteinPer100g': serializer.toJson<double>(proteinPer100g),
-      'fatPer100g': serializer.toJson<double>(fatPer100g),
-      'carbsPer100g': serializer.toJson<double>(carbsPer100g),
-      'fiberPer100g': serializer.toJson<double>(fiberPer100g),
+      'caloriesPerGram': serializer.toJson<double>(caloriesPerGram),
+      'proteinPerGram': serializer.toJson<double>(proteinPerGram),
+      'fatPerGram': serializer.toJson<double>(fatPerGram),
+      'carbsPerGram': serializer.toJson<double>(carbsPerGram),
+      'fiberPerGram': serializer.toJson<double>(fiberPerGram),
       'sourceFdcId': serializer.toJson<int?>(sourceFdcId),
       'sourceBarcode': serializer.toJson<String?>(sourceBarcode),
       'hidden': serializer.toJson<bool>(hidden),
@@ -483,11 +483,11 @@ class Food extends DataClass implements Insertable<Food> {
     String? source,
     Value<String?> emoji = const Value.absent(),
     Value<String?> thumbnail = const Value.absent(),
-    double? caloriesPer100g,
-    double? proteinPer100g,
-    double? fatPer100g,
-    double? carbsPer100g,
-    double? fiberPer100g,
+    double? caloriesPerGram,
+    double? proteinPerGram,
+    double? fatPerGram,
+    double? carbsPerGram,
+    double? fiberPerGram,
     Value<int?> sourceFdcId = const Value.absent(),
     Value<String?> sourceBarcode = const Value.absent(),
     bool? hidden,
@@ -497,11 +497,11 @@ class Food extends DataClass implements Insertable<Food> {
     source: source ?? this.source,
     emoji: emoji.present ? emoji.value : this.emoji,
     thumbnail: thumbnail.present ? thumbnail.value : this.thumbnail,
-    caloriesPer100g: caloriesPer100g ?? this.caloriesPer100g,
-    proteinPer100g: proteinPer100g ?? this.proteinPer100g,
-    fatPer100g: fatPer100g ?? this.fatPer100g,
-    carbsPer100g: carbsPer100g ?? this.carbsPer100g,
-    fiberPer100g: fiberPer100g ?? this.fiberPer100g,
+    caloriesPerGram: caloriesPerGram ?? this.caloriesPerGram,
+    proteinPerGram: proteinPerGram ?? this.proteinPerGram,
+    fatPerGram: fatPerGram ?? this.fatPerGram,
+    carbsPerGram: carbsPerGram ?? this.carbsPerGram,
+    fiberPerGram: fiberPerGram ?? this.fiberPerGram,
     sourceFdcId: sourceFdcId.present ? sourceFdcId.value : this.sourceFdcId,
     sourceBarcode: sourceBarcode.present
         ? sourceBarcode.value
@@ -515,21 +515,21 @@ class Food extends DataClass implements Insertable<Food> {
       source: data.source.present ? data.source.value : this.source,
       emoji: data.emoji.present ? data.emoji.value : this.emoji,
       thumbnail: data.thumbnail.present ? data.thumbnail.value : this.thumbnail,
-      caloriesPer100g: data.caloriesPer100g.present
-          ? data.caloriesPer100g.value
-          : this.caloriesPer100g,
-      proteinPer100g: data.proteinPer100g.present
-          ? data.proteinPer100g.value
-          : this.proteinPer100g,
-      fatPer100g: data.fatPer100g.present
-          ? data.fatPer100g.value
-          : this.fatPer100g,
-      carbsPer100g: data.carbsPer100g.present
-          ? data.carbsPer100g.value
-          : this.carbsPer100g,
-      fiberPer100g: data.fiberPer100g.present
-          ? data.fiberPer100g.value
-          : this.fiberPer100g,
+      caloriesPerGram: data.caloriesPerGram.present
+          ? data.caloriesPerGram.value
+          : this.caloriesPerGram,
+      proteinPerGram: data.proteinPerGram.present
+          ? data.proteinPerGram.value
+          : this.proteinPerGram,
+      fatPerGram: data.fatPerGram.present
+          ? data.fatPerGram.value
+          : this.fatPerGram,
+      carbsPerGram: data.carbsPerGram.present
+          ? data.carbsPerGram.value
+          : this.carbsPerGram,
+      fiberPerGram: data.fiberPerGram.present
+          ? data.fiberPerGram.value
+          : this.fiberPerGram,
       sourceFdcId: data.sourceFdcId.present
           ? data.sourceFdcId.value
           : this.sourceFdcId,
@@ -548,11 +548,11 @@ class Food extends DataClass implements Insertable<Food> {
           ..write('source: $source, ')
           ..write('emoji: $emoji, ')
           ..write('thumbnail: $thumbnail, ')
-          ..write('caloriesPer100g: $caloriesPer100g, ')
-          ..write('proteinPer100g: $proteinPer100g, ')
-          ..write('fatPer100g: $fatPer100g, ')
-          ..write('carbsPer100g: $carbsPer100g, ')
-          ..write('fiberPer100g: $fiberPer100g, ')
+          ..write('caloriesPerGram: $caloriesPerGram, ')
+          ..write('proteinPerGram: $proteinPerGram, ')
+          ..write('fatPerGram: $fatPerGram, ')
+          ..write('carbsPerGram: $carbsPerGram, ')
+          ..write('fiberPerGram: $fiberPerGram, ')
           ..write('sourceFdcId: $sourceFdcId, ')
           ..write('sourceBarcode: $sourceBarcode, ')
           ..write('hidden: $hidden')
@@ -567,11 +567,11 @@ class Food extends DataClass implements Insertable<Food> {
     source,
     emoji,
     thumbnail,
-    caloriesPer100g,
-    proteinPer100g,
-    fatPer100g,
-    carbsPer100g,
-    fiberPer100g,
+    caloriesPerGram,
+    proteinPerGram,
+    fatPerGram,
+    carbsPerGram,
+    fiberPerGram,
     sourceFdcId,
     sourceBarcode,
     hidden,
@@ -585,11 +585,11 @@ class Food extends DataClass implements Insertable<Food> {
           other.source == this.source &&
           other.emoji == this.emoji &&
           other.thumbnail == this.thumbnail &&
-          other.caloriesPer100g == this.caloriesPer100g &&
-          other.proteinPer100g == this.proteinPer100g &&
-          other.fatPer100g == this.fatPer100g &&
-          other.carbsPer100g == this.carbsPer100g &&
-          other.fiberPer100g == this.fiberPer100g &&
+          other.caloriesPerGram == this.caloriesPerGram &&
+          other.proteinPerGram == this.proteinPerGram &&
+          other.fatPerGram == this.fatPerGram &&
+          other.carbsPerGram == this.carbsPerGram &&
+          other.fiberPerGram == this.fiberPerGram &&
           other.sourceFdcId == this.sourceFdcId &&
           other.sourceBarcode == this.sourceBarcode &&
           other.hidden == this.hidden);
@@ -601,11 +601,11 @@ class FoodsCompanion extends UpdateCompanion<Food> {
   final Value<String> source;
   final Value<String?> emoji;
   final Value<String?> thumbnail;
-  final Value<double> caloriesPer100g;
-  final Value<double> proteinPer100g;
-  final Value<double> fatPer100g;
-  final Value<double> carbsPer100g;
-  final Value<double> fiberPer100g;
+  final Value<double> caloriesPerGram;
+  final Value<double> proteinPerGram;
+  final Value<double> fatPerGram;
+  final Value<double> carbsPerGram;
+  final Value<double> fiberPerGram;
   final Value<int?> sourceFdcId;
   final Value<String?> sourceBarcode;
   final Value<bool> hidden;
@@ -615,11 +615,11 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     this.source = const Value.absent(),
     this.emoji = const Value.absent(),
     this.thumbnail = const Value.absent(),
-    this.caloriesPer100g = const Value.absent(),
-    this.proteinPer100g = const Value.absent(),
-    this.fatPer100g = const Value.absent(),
-    this.carbsPer100g = const Value.absent(),
-    this.fiberPer100g = const Value.absent(),
+    this.caloriesPerGram = const Value.absent(),
+    this.proteinPerGram = const Value.absent(),
+    this.fatPerGram = const Value.absent(),
+    this.carbsPerGram = const Value.absent(),
+    this.fiberPerGram = const Value.absent(),
     this.sourceFdcId = const Value.absent(),
     this.sourceBarcode = const Value.absent(),
     this.hidden = const Value.absent(),
@@ -630,32 +630,32 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     required String source,
     this.emoji = const Value.absent(),
     this.thumbnail = const Value.absent(),
-    required double caloriesPer100g,
-    required double proteinPer100g,
-    required double fatPer100g,
-    required double carbsPer100g,
-    required double fiberPer100g,
+    required double caloriesPerGram,
+    required double proteinPerGram,
+    required double fatPerGram,
+    required double carbsPerGram,
+    required double fiberPerGram,
     this.sourceFdcId = const Value.absent(),
     this.sourceBarcode = const Value.absent(),
     this.hidden = const Value.absent(),
   }) : name = Value(name),
        source = Value(source),
-       caloriesPer100g = Value(caloriesPer100g),
-       proteinPer100g = Value(proteinPer100g),
-       fatPer100g = Value(fatPer100g),
-       carbsPer100g = Value(carbsPer100g),
-       fiberPer100g = Value(fiberPer100g);
+       caloriesPerGram = Value(caloriesPerGram),
+       proteinPerGram = Value(proteinPerGram),
+       fatPerGram = Value(fatPerGram),
+       carbsPerGram = Value(carbsPerGram),
+       fiberPerGram = Value(fiberPerGram);
   static Insertable<Food> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? source,
     Expression<String>? emoji,
     Expression<String>? thumbnail,
-    Expression<double>? caloriesPer100g,
-    Expression<double>? proteinPer100g,
-    Expression<double>? fatPer100g,
-    Expression<double>? carbsPer100g,
-    Expression<double>? fiberPer100g,
+    Expression<double>? caloriesPerGram,
+    Expression<double>? proteinPerGram,
+    Expression<double>? fatPerGram,
+    Expression<double>? carbsPerGram,
+    Expression<double>? fiberPerGram,
     Expression<int>? sourceFdcId,
     Expression<String>? sourceBarcode,
     Expression<bool>? hidden,
@@ -666,11 +666,11 @@ class FoodsCompanion extends UpdateCompanion<Food> {
       if (source != null) 'source': source,
       if (emoji != null) 'emoji': emoji,
       if (thumbnail != null) 'thumbnail': thumbnail,
-      if (caloriesPer100g != null) 'caloriesPer100g': caloriesPer100g,
-      if (proteinPer100g != null) 'proteinPer100g': proteinPer100g,
-      if (fatPer100g != null) 'fatPer100g': fatPer100g,
-      if (carbsPer100g != null) 'carbsPer100g': carbsPer100g,
-      if (fiberPer100g != null) 'fiberPer100g': fiberPer100g,
+      if (caloriesPerGram != null) 'caloriesPerGram': caloriesPerGram,
+      if (proteinPerGram != null) 'proteinPerGram': proteinPerGram,
+      if (fatPerGram != null) 'fatPerGram': fatPerGram,
+      if (carbsPerGram != null) 'carbsPerGram': carbsPerGram,
+      if (fiberPerGram != null) 'fiberPerGram': fiberPerGram,
       if (sourceFdcId != null) 'sourceFdcId': sourceFdcId,
       if (sourceBarcode != null) 'sourceBarcode': sourceBarcode,
       if (hidden != null) 'hidden': hidden,
@@ -683,11 +683,11 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     Value<String>? source,
     Value<String?>? emoji,
     Value<String?>? thumbnail,
-    Value<double>? caloriesPer100g,
-    Value<double>? proteinPer100g,
-    Value<double>? fatPer100g,
-    Value<double>? carbsPer100g,
-    Value<double>? fiberPer100g,
+    Value<double>? caloriesPerGram,
+    Value<double>? proteinPerGram,
+    Value<double>? fatPerGram,
+    Value<double>? carbsPerGram,
+    Value<double>? fiberPerGram,
     Value<int?>? sourceFdcId,
     Value<String?>? sourceBarcode,
     Value<bool>? hidden,
@@ -698,11 +698,11 @@ class FoodsCompanion extends UpdateCompanion<Food> {
       source: source ?? this.source,
       emoji: emoji ?? this.emoji,
       thumbnail: thumbnail ?? this.thumbnail,
-      caloriesPer100g: caloriesPer100g ?? this.caloriesPer100g,
-      proteinPer100g: proteinPer100g ?? this.proteinPer100g,
-      fatPer100g: fatPer100g ?? this.fatPer100g,
-      carbsPer100g: carbsPer100g ?? this.carbsPer100g,
-      fiberPer100g: fiberPer100g ?? this.fiberPer100g,
+      caloriesPerGram: caloriesPerGram ?? this.caloriesPerGram,
+      proteinPerGram: proteinPerGram ?? this.proteinPerGram,
+      fatPerGram: fatPerGram ?? this.fatPerGram,
+      carbsPerGram: carbsPerGram ?? this.carbsPerGram,
+      fiberPerGram: fiberPerGram ?? this.fiberPerGram,
       sourceFdcId: sourceFdcId ?? this.sourceFdcId,
       sourceBarcode: sourceBarcode ?? this.sourceBarcode,
       hidden: hidden ?? this.hidden,
@@ -727,20 +727,20 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     if (thumbnail.present) {
       map['thumbnail'] = Variable<String>(thumbnail.value);
     }
-    if (caloriesPer100g.present) {
-      map['caloriesPer100g'] = Variable<double>(caloriesPer100g.value);
+    if (caloriesPerGram.present) {
+      map['caloriesPerGram'] = Variable<double>(caloriesPerGram.value);
     }
-    if (proteinPer100g.present) {
-      map['proteinPer100g'] = Variable<double>(proteinPer100g.value);
+    if (proteinPerGram.present) {
+      map['proteinPerGram'] = Variable<double>(proteinPerGram.value);
     }
-    if (fatPer100g.present) {
-      map['fatPer100g'] = Variable<double>(fatPer100g.value);
+    if (fatPerGram.present) {
+      map['fatPerGram'] = Variable<double>(fatPerGram.value);
     }
-    if (carbsPer100g.present) {
-      map['carbsPer100g'] = Variable<double>(carbsPer100g.value);
+    if (carbsPerGram.present) {
+      map['carbsPerGram'] = Variable<double>(carbsPerGram.value);
     }
-    if (fiberPer100g.present) {
-      map['fiberPer100g'] = Variable<double>(fiberPer100g.value);
+    if (fiberPerGram.present) {
+      map['fiberPerGram'] = Variable<double>(fiberPerGram.value);
     }
     if (sourceFdcId.present) {
       map['sourceFdcId'] = Variable<int>(sourceFdcId.value);
@@ -762,11 +762,11 @@ class FoodsCompanion extends UpdateCompanion<Food> {
           ..write('source: $source, ')
           ..write('emoji: $emoji, ')
           ..write('thumbnail: $thumbnail, ')
-          ..write('caloriesPer100g: $caloriesPer100g, ')
-          ..write('proteinPer100g: $proteinPer100g, ')
-          ..write('fatPer100g: $fatPer100g, ')
-          ..write('carbsPer100g: $carbsPer100g, ')
-          ..write('fiberPer100g: $fiberPer100g, ')
+          ..write('caloriesPerGram: $caloriesPerGram, ')
+          ..write('proteinPerGram: $proteinPerGram, ')
+          ..write('fatPerGram: $fatPerGram, ')
+          ..write('carbsPerGram: $carbsPerGram, ')
+          ..write('fiberPerGram: $fiberPerGram, ')
           ..write('sourceFdcId: $sourceFdcId, ')
           ..write('sourceBarcode: $sourceBarcode, ')
           ..write('hidden: $hidden')
@@ -1100,11 +1100,11 @@ typedef $$FoodsTableCreateCompanionBuilder =
       required String source,
       Value<String?> emoji,
       Value<String?> thumbnail,
-      required double caloriesPer100g,
-      required double proteinPer100g,
-      required double fatPer100g,
-      required double carbsPer100g,
-      required double fiberPer100g,
+      required double caloriesPerGram,
+      required double proteinPerGram,
+      required double fatPerGram,
+      required double carbsPerGram,
+      required double fiberPerGram,
       Value<int?> sourceFdcId,
       Value<String?> sourceBarcode,
       Value<bool> hidden,
@@ -1116,11 +1116,11 @@ typedef $$FoodsTableUpdateCompanionBuilder =
       Value<String> source,
       Value<String?> emoji,
       Value<String?> thumbnail,
-      Value<double> caloriesPer100g,
-      Value<double> proteinPer100g,
-      Value<double> fatPer100g,
-      Value<double> carbsPer100g,
-      Value<double> fiberPer100g,
+      Value<double> caloriesPerGram,
+      Value<double> proteinPerGram,
+      Value<double> fatPerGram,
+      Value<double> carbsPerGram,
+      Value<double> fiberPerGram,
       Value<int?> sourceFdcId,
       Value<String?> sourceBarcode,
       Value<bool> hidden,
@@ -1183,28 +1183,28 @@ class $$FoodsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get caloriesPer100g => $composableBuilder(
-    column: $table.caloriesPer100g,
+  ColumnFilters<double> get caloriesPerGram => $composableBuilder(
+    column: $table.caloriesPerGram,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get proteinPer100g => $composableBuilder(
-    column: $table.proteinPer100g,
+  ColumnFilters<double> get proteinPerGram => $composableBuilder(
+    column: $table.proteinPerGram,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get fatPer100g => $composableBuilder(
-    column: $table.fatPer100g,
+  ColumnFilters<double> get fatPerGram => $composableBuilder(
+    column: $table.fatPerGram,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get carbsPer100g => $composableBuilder(
-    column: $table.carbsPer100g,
+  ColumnFilters<double> get carbsPerGram => $composableBuilder(
+    column: $table.carbsPerGram,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get fiberPer100g => $composableBuilder(
-    column: $table.fiberPer100g,
+  ColumnFilters<double> get fiberPerGram => $composableBuilder(
+    column: $table.fiberPerGram,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1283,28 +1283,28 @@ class $$FoodsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get caloriesPer100g => $composableBuilder(
-    column: $table.caloriesPer100g,
+  ColumnOrderings<double> get caloriesPerGram => $composableBuilder(
+    column: $table.caloriesPerGram,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get proteinPer100g => $composableBuilder(
-    column: $table.proteinPer100g,
+  ColumnOrderings<double> get proteinPerGram => $composableBuilder(
+    column: $table.proteinPerGram,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get fatPer100g => $composableBuilder(
-    column: $table.fatPer100g,
+  ColumnOrderings<double> get fatPerGram => $composableBuilder(
+    column: $table.fatPerGram,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get carbsPer100g => $composableBuilder(
-    column: $table.carbsPer100g,
+  ColumnOrderings<double> get carbsPerGram => $composableBuilder(
+    column: $table.carbsPerGram,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get fiberPer100g => $composableBuilder(
-    column: $table.fiberPer100g,
+  ColumnOrderings<double> get fiberPerGram => $composableBuilder(
+    column: $table.fiberPerGram,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1348,28 +1348,28 @@ class $$FoodsTableAnnotationComposer
   GeneratedColumn<String> get thumbnail =>
       $composableBuilder(column: $table.thumbnail, builder: (column) => column);
 
-  GeneratedColumn<double> get caloriesPer100g => $composableBuilder(
-    column: $table.caloriesPer100g,
+  GeneratedColumn<double> get caloriesPerGram => $composableBuilder(
+    column: $table.caloriesPerGram,
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get proteinPer100g => $composableBuilder(
-    column: $table.proteinPer100g,
+  GeneratedColumn<double> get proteinPerGram => $composableBuilder(
+    column: $table.proteinPerGram,
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get fatPer100g => $composableBuilder(
-    column: $table.fatPer100g,
+  GeneratedColumn<double> get fatPerGram => $composableBuilder(
+    column: $table.fatPerGram,
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get carbsPer100g => $composableBuilder(
-    column: $table.carbsPer100g,
+  GeneratedColumn<double> get carbsPerGram => $composableBuilder(
+    column: $table.carbsPerGram,
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get fiberPer100g => $composableBuilder(
-    column: $table.fiberPer100g,
+  GeneratedColumn<double> get fiberPerGram => $composableBuilder(
+    column: $table.fiberPerGram,
     builder: (column) => column,
   );
 
@@ -1445,11 +1445,11 @@ class $$FoodsTableTableManager
                 Value<String> source = const Value.absent(),
                 Value<String?> emoji = const Value.absent(),
                 Value<String?> thumbnail = const Value.absent(),
-                Value<double> caloriesPer100g = const Value.absent(),
-                Value<double> proteinPer100g = const Value.absent(),
-                Value<double> fatPer100g = const Value.absent(),
-                Value<double> carbsPer100g = const Value.absent(),
-                Value<double> fiberPer100g = const Value.absent(),
+                Value<double> caloriesPerGram = const Value.absent(),
+                Value<double> proteinPerGram = const Value.absent(),
+                Value<double> fatPerGram = const Value.absent(),
+                Value<double> carbsPerGram = const Value.absent(),
+                Value<double> fiberPerGram = const Value.absent(),
                 Value<int?> sourceFdcId = const Value.absent(),
                 Value<String?> sourceBarcode = const Value.absent(),
                 Value<bool> hidden = const Value.absent(),
@@ -1459,11 +1459,11 @@ class $$FoodsTableTableManager
                 source: source,
                 emoji: emoji,
                 thumbnail: thumbnail,
-                caloriesPer100g: caloriesPer100g,
-                proteinPer100g: proteinPer100g,
-                fatPer100g: fatPer100g,
-                carbsPer100g: carbsPer100g,
-                fiberPer100g: fiberPer100g,
+                caloriesPerGram: caloriesPerGram,
+                proteinPerGram: proteinPerGram,
+                fatPerGram: fatPerGram,
+                carbsPerGram: carbsPerGram,
+                fiberPerGram: fiberPerGram,
                 sourceFdcId: sourceFdcId,
                 sourceBarcode: sourceBarcode,
                 hidden: hidden,
@@ -1475,11 +1475,11 @@ class $$FoodsTableTableManager
                 required String source,
                 Value<String?> emoji = const Value.absent(),
                 Value<String?> thumbnail = const Value.absent(),
-                required double caloriesPer100g,
-                required double proteinPer100g,
-                required double fatPer100g,
-                required double carbsPer100g,
-                required double fiberPer100g,
+                required double caloriesPerGram,
+                required double proteinPerGram,
+                required double fatPerGram,
+                required double carbsPerGram,
+                required double fiberPerGram,
                 Value<int?> sourceFdcId = const Value.absent(),
                 Value<String?> sourceBarcode = const Value.absent(),
                 Value<bool> hidden = const Value.absent(),
@@ -1489,11 +1489,11 @@ class $$FoodsTableTableManager
                 source: source,
                 emoji: emoji,
                 thumbnail: thumbnail,
-                caloriesPer100g: caloriesPer100g,
-                proteinPer100g: proteinPer100g,
-                fatPer100g: fatPer100g,
-                carbsPer100g: carbsPer100g,
-                fiberPer100g: fiberPer100g,
+                caloriesPerGram: caloriesPerGram,
+                proteinPerGram: proteinPerGram,
+                fatPerGram: fatPerGram,
+                carbsPerGram: carbsPerGram,
+                fiberPerGram: fiberPerGram,
                 sourceFdcId: sourceFdcId,
                 sourceBarcode: sourceBarcode,
                 hidden: hidden,

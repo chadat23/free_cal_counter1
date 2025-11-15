@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 class FoodSearchResultTile extends StatefulWidget {
   final Food food;
-  final VoidCallback onTap;
+  final void Function(model_unit.FoodUnit) onTap;
 
   const FoodSearchResultTile({
     super.key,
@@ -29,7 +29,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
   void initState() {
     super.initState();
     _selectedUnit = widget.food.units.firstWhere(
-      (u) => u.name == '100g',
+      (u) => u.name == 'g',
       orElse: () => widget.food.units.first,
     );
   }
@@ -51,10 +51,10 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
   Widget build(BuildContext context) {
     final emoji = emojiForFoodName(widget.food.name);
 
-    final calories = (widget.food.calories / 100) * _selectedUnit.grams;
-    final protein = (widget.food.protein / 100) * _selectedUnit.grams;
-    final fat = (widget.food.fat / 100) * _selectedUnit.grams;
-    final carbs = (widget.food.carbs / 100) * _selectedUnit.grams;
+    final calories = widget.food.calories * _selectedUnit.grams;
+    final protein = widget.food.protein * _selectedUnit.grams;
+    final fat = widget.food.fat * _selectedUnit.grams;
+    final carbs = widget.food.carbs * _selectedUnit.grams;
 
     return ListTile(
       tileColor: _getBackgroundColor(context),
@@ -109,7 +109,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
           logProvider.addFoodToQueue(portion);
         },
       ),
-      onTap: widget.onTap,
+      onTap: () => widget.onTap(_selectedUnit),
     );
   }
 }

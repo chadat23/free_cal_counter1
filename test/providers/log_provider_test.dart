@@ -17,10 +17,10 @@ void main() {
       final food = Food(
         id: 1,
         name: 'Apple',
-        calories: 52,
-        protein: 0.3,
-        fat: 0.2,
-        carbs: 14,
+        calories: 0.52, // per gram
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
         source: 'test',
         units: [FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0)],
       );
@@ -30,6 +30,7 @@ void main() {
       logProvider.addFoodToQueue(portion);
 
       // Assert
+      // 0.52 calories/g * 1.0 g/unit * 100 units = 52 calories
       expect(logProvider.logQueue.length, 1);
       expect(logProvider.logQueue.first, portion);
       expect(logProvider.queuedCalories, 52);
@@ -40,10 +41,10 @@ void main() {
       final food = Food(
         id: 1,
         name: 'Apple',
-        calories: 52,
-        protein: 0.3,
-        fat: 0.2,
-        carbs: 14,
+        calories: 0.52, // per gram
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
         source: 'test',
         units: [FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0)],
       );
@@ -63,10 +64,10 @@ void main() {
       final food = Food(
         id: 1,
         name: 'Apple',
-        calories: 52,
-        protein: 0.3,
-        fat: 0.2,
-        carbs: 14,
+        calories: 0.52, // per gram
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
         source: 'test',
         units: [FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0)],
       );
@@ -86,10 +87,10 @@ void main() {
       final food = Food(
         id: 1,
         name: 'Apple',
-        calories: 52, // per 100g
-        protein: 0.3,
-        fat: 0.2,
-        carbs: 14,
+        calories: 0.52, // per gram
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
         source: 'test',
         units: [
           FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0),
@@ -103,7 +104,7 @@ void main() {
 
       // Assert
       // 2 slices * 10g/slice = 20g
-      // (52 calories / 100g) * 20g = 10.4 calories
+      // 0.52 calories/g * 20g = 10.4 calories
       expect(logProvider.queuedCalories, 10.4);
     });
   });

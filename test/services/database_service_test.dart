@@ -39,11 +39,11 @@ void main() {
               FoodsCompanion.insert(
                 name: 'Live Apple',
                 source: 'user_created',
-                caloriesPer100g: 52,
-                proteinPer100g: 0.3,
-                fatPer100g: 0.2,
-                carbsPer100g: 14,
-                fiberPer100g: 2.4,
+                caloriesPerGram: 0.52,
+                proteinPerGram: 0.003,
+                fatPerGram: 0.002,
+                carbsPerGram: 0.14,
+                fiberPerGram: 0.024,
               ),
             );
         await referenceDatabase
@@ -52,11 +52,11 @@ void main() {
               ref.FoodsCompanion.insert(
                 name: 'Reference Apple',
                 source: 'foundation',
-                caloriesPer100g: 52,
-                proteinPer100g: 0.3,
-                fatPer100g: 0.2,
-                carbsPer100g: 14,
-                fiberPer100g: 2.4,
+                caloriesPerGram: 0.52,
+                proteinPerGram: 0.003,
+                fatPerGram: 0.002,
+                carbsPerGram: 0.14,
+                fiberPerGram: 0.024,
               ),
             );
 
@@ -102,11 +102,11 @@ void main() {
                 id: Value(1), // Assign an ID for linking units
                 name: 'Reference Apple',
                 source: 'foundation',
-                caloriesPer100g: 52,
-                proteinPer100g: 0.3,
-                fatPer100g: 0.2,
-                carbsPer100g: 14,
-                fiberPer100g: 2.4,
+                caloriesPerGram: 0.52,
+                proteinPerGram: 0.003,
+                fatPerGram: 0.002,
+                carbsPerGram: 0.14,
+                fiberPerGram: 0.024,
               ),
             );
         // Assuming a units table exists and we can insert into it

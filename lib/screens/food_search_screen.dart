@@ -123,11 +123,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
               final food = foodSearchProvider.searchResults[index];
               return FoodSearchResultTile(
                 food: food,
-                onTap: () {
+                onTap: (selectedUnit) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PortionEditScreen(food: food),
+                      builder: (context) => PortionEditScreen(
+                        food: food,
+                        initialUnit: selectedUnit,
+                      ),
                     ),
                   );
                 },

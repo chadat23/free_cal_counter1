@@ -7,8 +7,13 @@ import 'package:provider/provider.dart';
 
 class PortionEditScreen extends StatefulWidget {
   final Food food;
+  final model_unit.FoodUnit? initialUnit;
 
-  const PortionEditScreen({super.key, required this.food});
+  const PortionEditScreen({
+    super.key,
+    required this.food,
+    this.initialUnit,
+  });
 
   @override
   State<PortionEditScreen> createState() => _PortionEditScreenState();
@@ -21,7 +26,7 @@ class _PortionEditScreenState extends State<PortionEditScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedUnit = widget.food.units.first;
+    _selectedUnit = widget.initialUnit ?? widget.food.units.first;
     _amountController = TextEditingController(text: '1');
   }
 

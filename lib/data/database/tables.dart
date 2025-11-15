@@ -6,11 +6,11 @@ class Foods extends Table {
   TextColumn get source => text().named('source')();
   TextColumn get emoji => text().named('emoji').nullable()();
   TextColumn get thumbnail => text().named('thumbnail').nullable()();
-  RealColumn get caloriesPer100g => real().named('caloriesPer100g')();
-  RealColumn get proteinPer100g => real().named('proteinPer100g')();
-  RealColumn get fatPer100g => real().named('fatPer100g')();
-  RealColumn get carbsPer100g => real().named('carbsPer100g')();
-  RealColumn get fiberPer100g => real().named('fiberPer100g')();
+  RealColumn get caloriesPerGram => real().named('caloriesPerGram')();
+  RealColumn get proteinPerGram => real().named('proteinPerGram')();
+  RealColumn get fatPerGram => real().named('fatPerGram')();
+  RealColumn get carbsPerGram => real().named('carbsPerGram')();
+  RealColumn get fiberPerGram => real().named('fiberPerGram')();
   IntColumn get sourceFdcId => integer().named('sourceFdcId').nullable()();
   TextColumn get sourceBarcode => text().named('sourceBarcode').nullable()();
   BoolColumn get hidden =>

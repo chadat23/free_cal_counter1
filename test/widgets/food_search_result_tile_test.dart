@@ -15,7 +15,7 @@ void main() {
   group('FoodSearchResultTile', () {
     testWidgets('displays food name and nutritional info with unit dropdown', (tester) async {
       final mockUnits = [
-        model_unit.FoodUnit(id: 1, foodId: 1, name: '100g', grams: 100.0),
+        model_unit.FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0),
         model_unit.FoodUnit(id: 2, foodId: 1, name: '1 medium', grams: 182.0),
         model_unit.FoodUnit(id: 3, foodId: 1, name: '1 cup sliced', grams: 109.0),
       ];
@@ -23,10 +23,10 @@ void main() {
         id: 1,
         name: 'Apple',
         emoji: '🍎',
-        calories: 52, // per 100g
-        protein: 0.3, // per 100g
-        fat: 0.2, // per 100g
-        carbs: 14, // per 100g
+        calories: 0.52, // per gram
+        protein: 0.003, // per gram
+        fat: 0.002, // per gram
+        carbs: 0.14, // per gram
         source: 'test',
         units: mockUnits,
       );
@@ -34,7 +34,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: FoodSearchResultTile(food: food, onTap: () {}),
+            body: FoodSearchResultTile(food: food, onTap: (_) {}),
           ),
         ),
       );
@@ -42,22 +42,23 @@ void main() {
       // Verify food name is displayed
       expect(find.text('🍎 Apple'), findsOneWidget);
 
-      // Verify initial nutritional info (should be for 100g by default)
-      expect(find.text('52 kcal • 0.3g P • 0.2g F • 14.0g C'), findsOneWidget);
+      // Verify initial nutritional info (should be for 1g by default)
+      // Calories: 0.52 * 1 = 0.52
+      expect(find.text('1 kcal • 0.0g P • 0.0g F • 0.1g C'), findsOneWidget);
 
       // Open the dropdown
       await tester.tap(find.byType(DropdownButton<model_unit.FoodUnit>));
       await tester.pumpAndSettle();
 
       // Select '1 medium' unit
-      await tester.tap(find.text('1 medium').last); // Use .last because the initial display also has '1 medium'
+      await tester.tap(find.text('1 medium').last);
       await tester.pumpAndSettle();
 
       // Verify nutritional info updates for '1 medium' (182g)
-      // Calories: (52 / 100) * 182 = 94.64
-      // Protein: (0.3 / 100) * 182 = 0.546
-      // Fat: (0.2 / 100) * 182 = 0.364
-      // Carbs: (14 / 100) * 182 = 25.48
+      // Calories: 0.52 * 182 = 94.64
+      // Protein: 0.003 * 182 = 0.546
+      // Fat: 0.002 * 182 = 0.364
+      // Carbs: 0.14 * 182 = 25.48
       expect(find.text('95 kcal • 0.5g P • 0.4g F • 25.5g C'), findsOneWidget);
 
       // Select '1 cup sliced' unit
@@ -67,26 +68,26 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify nutritional info updates for '1 cup sliced' (109g)
-      // Calories: (52 / 100) * 109 = 56.68
-      // Protein: (0.3 / 100) * 109 = 0.327
-      // Fat: (0.2 / 100) * 109 = 0.218
-      // Carbs: (14 / 100) * 109 = 15.26
+      // Calories: 0.52 * 109 = 56.68
+      // Protein: 0.003 * 109 = 0.327
+      // Fat: 0.002 * 109 = 0.218
+      // Carbs: 0.14 * 109 = 15.26
       expect(find.text('57 kcal • 0.3g P • 0.2g F • 15.3g C'), findsOneWidget);
     });
 
     testWidgets('should have an add button that adds the food to the log queue', (tester) async {
       final mockLogProvider = MockLogProvider();
       final mockUnits = [
-        model_unit.FoodUnit(id: 1, foodId: 1, name: '100g', grams: 100.0),
+        model_unit.FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0),
       ];
       final food = model.Food(
         id: 1,
         name: 'Apple',
         emoji: '🍎',
-        calories: 52,
-        protein: 0.3,
-        fat: 0.2,
-        carbs: 14,
+        calories: 0.52,
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
         source: 'test',
         units: mockUnits,
       );
@@ -96,7 +97,7 @@ void main() {
           value: mockLogProvider,
           child: MaterialApp(
             home: Scaffold(
-              body: FoodSearchResultTile(food: food, onTap: () {}),
+              body: FoodSearchResultTile(food: food, onTap: (_) {}),
             ),
           ),
         ),

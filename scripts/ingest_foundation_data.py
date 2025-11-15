@@ -13,11 +13,11 @@ USDA_BASE = "https://fdc.nal.usda.gov/fdc-datasets/"
 
 # Nutrients we want, mapping the names found in the JSON to our DB column names
 WANTED_NUTRIENTS = {
-    "Energy": "caloriesPer100g",
-    "Protein": "proteinPer100g",
-    "Total lipid (fat)": "fatPer100g",
-    "Carbohydrate, by difference": "carbsPer100g",
-    "Fiber, total dietary": "fiberPer100g",
+    "Energy": "caloriesPerGram",
+    "Protein": "proteinPerGram",
+    "Total lipid (fat)": "fatPerGram",
+    "Carbohydrate, by difference": "carbsPerGram",
+    "Fiber, total dietary": "fiberPerGram",
 }
 
 # Whitelist of food categories to include.
@@ -70,11 +70,11 @@ def init_db(conn):
             source TEXT NOT NULL,
             emoji TEXT,
             thumbnail TEXT,
-            caloriesPer100g REAL NOT NULL,
-            proteinPer100g REAL NOT NULL,
-            fatPer100g REAL NOT NULL,
-            carbsPer100g REAL NOT NULL,
-            fiberPer100g REAL NOT NULL,
+            caloriesPerGram REAL NOT NULL,
+            proteinPerGram REAL NOT NULL,
+            fatPerGram REAL NOT NULL,
+            carbsPerGram REAL NOT NULL,
+            fiberPerGram REAL NOT NULL,
             sourceFdcId INTEGER UNIQUE,
             sourceBarcode TEXT,
             hidden BOOLEAN NOT NULL DEFAULT 0
@@ -180,11 +180,14 @@ def parse_foods(data, source_name, strict_filtering=False):
                 if nutrient_name == "Energy" and unit == "kJ":
                     value /= 4.184  # 1 kcal = 4.184 kJ
                 
+                # Convert from per-100g to per-gram
+                value /= 100.0
+
                 nutrients[db_col] = value
 
         # --- 3. Validate Nutrients ---
         # Check required macros FIRST before any other validation
-        required_macros = ["caloriesPer100g", "proteinPer100g", "fatPer100g", "carbsPer100g"]
+        required_macros = ["caloriesPerGram", "proteinPerGram", "fatPerGram", "carbsPerGram"]
         
         # If ANY required macro is missing, skip this food entirely
         if any(nutrients.get(macro) is None for macro in required_macros):
@@ -196,13 +199,13 @@ def parse_foods(data, source_name, strict_filtering=False):
             continue
         
         # Default fiber to 0 AFTER validation ensures other macros exist
-        if nutrients["fiberPer100g"] is None:
-            nutrients["fiberPer100g"] = 0.0
+        if nutrients["fiberPerGram"] is None:
+            nutrients["fiberPerGram"] = 0.0
 
         # --- 4. Extract Portions ---
         portions = []
-        # Always add 100g as a base unit
-        portions.append({"unitName": "100g", "gramsPerUnit": 100.0})
+        # Always add 'g' as a base unit
+        portions.append({"unitName": "g", "gramsPerUnit": 1.0})
 
         for p in item.get("foodPortions", []):
             gram_weight = p.get("gramWeight")
@@ -253,14 +256,14 @@ def upsert_foods(conn, foods):
             cur.execute(
                 """
                 UPDATE foods SET
-                   name=?, source=?, caloriesPer100g=?, proteinPer100g=?,
-                   fatPer100g=?, carbsPer100g=?, fiberPer100g=?,
+                   name=?, source=?, caloriesPerGram=?, proteinPerGram=?,
+                   fatPerGram=?, carbsPerGram=?, fiberPerGram=?,
                    emoji=?, thumbnail=?, sourceBarcode=?, hidden=?
                 WHERE id=?
                 """,
                 (
-                    f["name"], f["source"], f["caloriesPer100g"], f["proteinPer100g"],
-                    f["fatPer100g"], f["carbsPer100g"], f["fiberPer100g"],
+                    f["name"], f["source"], f["caloriesPerGram"], f["proteinPerGram"],
+                    f["fatPerGram"], f["carbsPerGram"], f["fiberPerGram"],
                     None, None, None, 0, # emoji, thumbnail, sourceBarcode, hidden
                     food_id
                 ),
@@ -272,12 +275,12 @@ def upsert_foods(conn, foods):
             cur.execute(
                 """
                 INSERT INTO foods
-                (name, source, sourceFdcId, caloriesPer100g, proteinPer100g, fatPer100g, carbsPer100g, fiberPer100g, emoji, thumbnail, sourceBarcode, hidden)
+                (name, source, sourceFdcId, caloriesPerGram, proteinPerGram, fatPerGram, carbsPerGram, fiberPerGram, emoji, thumbnail, sourceBarcode, hidden)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    f["name"], f["source"], f["sourceFdcId"], f["caloriesPer100g"],
-                    f["proteinPer100g"], f["fatPer100g"], f["carbsPer100g"], f["fiberPer100g"],
+                    f["name"], f["source"], f["sourceFdcId"], f["caloriesPerGram"],
+                    f["proteinPerGram"], f["fatPerGram"], f["carbsPerGram"], f["fiberPerGram"],
                     None, None, None, 0 # emoji, thumbnail, sourceBarcode, hidden
                 ),
             )

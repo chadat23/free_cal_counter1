@@ -68,39 +68,36 @@ class OffApiService {
       return null;
     }
 
-    // --- Step 1: Determine the best anchor and calculate baseline per 100g values ---
-    double? baseEnergyPer100g;
-    double? baseProteinPer100g;
-    double? baseFatPer100g;
-    double? baseCarbsPer100g;
-    double? caloriesPerGram; // This will be our bridging ratio
+    // --- Step 1: Determine the best anchor and calculate baseline per gram values ---
+    double? baseEnergyPerGram;
+    double? baseProteinPerGram;
+    double? baseFatPerGram;
+    double? baseCarbsPerGram;
 
     // Option A: Direct per 100g data (highest priority anchor)
-    baseEnergyPer100g = nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams);
-    baseProteinPer100g = nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams);
-    baseFatPer100g = nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams);
-    baseCarbsPer100g = nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams);
+    final energy100g = nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams);
+    final protein100g = nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams);
+    final fat100g = nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams);
+    final carbs100g = nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams);
 
-    if (baseEnergyPer100g != null && baseProteinPer100g != null && baseFatPer100g != null && baseCarbsPer100g != null) {
-      caloriesPerGram = baseEnergyPer100g / 100.0;
+    if (energy100g != null && protein100g != null && fat100g != null && carbs100g != null) {
+      baseEnergyPerGram = energy100g / 100.0;
+      baseProteinPerGram = protein100g / 100.0;
+      baseFatPerGram = fat100g / 100.0;
+      baseCarbsPerGram = carbs100g / 100.0;
     } else {
       // Option B: Serving size with explicit grams or volume (secondary anchor)
-      // This part needs to be more robust. OpenFoodFacts has 'portions' field, but it's often empty.
-      // We'll rely on parsing servingSize and servingQuantity for now.
-
       double? servingGrams;
       final servingSizeText = product.servingSize;
       final servingQuantity = product.servingQuantity;
 
       if (servingSizeText != null && servingQuantity != null) {
-        // Try to extract grams from servingSize (e.g., "30g")
         final RegExp gramRegex = RegExp(r'(\d+(\.\d+)?)\s*g');
         final gramMatch = gramRegex.firstMatch(servingSizeText);
         if (gramMatch != null) {
           servingGrams = double.tryParse(gramMatch.group(1)!);
         }
 
-        // Try to extract ml from servingSize (e.g., "15ml") and use 1ml=1g heuristic
         if (servingGrams == null) {
           final RegExp mlRegex = RegExp(r'(\d+(\.\d+)?)\s*ml');
           final mlMatch = mlRegex.firstMatch(servingSizeText);
@@ -109,7 +106,6 @@ class OffApiService {
           }
         }
 
-        // Fallback to servingQuantity if it seems like a gram value
         if (servingGrams == null && servingQuantity > 0 && servingQuantity < 1000) {
           servingGrams = servingQuantity;
         }
@@ -122,42 +118,38 @@ class OffApiService {
         final servingCarbs = nutriments.getValue(Nutrient.carbohydrates, PerSize.serving);
 
         if (servingEnergy != null && servingProtein != null && servingFat != null && servingCarbs != null) {
-          // Calculate per 100g values from this serving anchor
-          final double ratio = 100.0 / servingGrams;
-          baseEnergyPer100g = servingEnergy * ratio;
-          baseProteinPer100g = servingProtein * ratio;
-          baseFatPer100g = servingFat * ratio;
-          baseCarbsPer100g = servingCarbs * ratio;
-          caloriesPerGram = servingEnergy / servingGrams;
+          // Calculate per gram values from this serving anchor
+          final double ratio = 1.0 / servingGrams;
+          baseEnergyPerGram = servingEnergy * ratio;
+          baseProteinPerGram = servingProtein * ratio;
+          baseFatPerGram = servingFat * ratio;
+          baseCarbsPerGram = servingCarbs * ratio;
         }
       }
     }
 
-    // If we still don't have complete per 100g data, we can't proceed
-    if (baseEnergyPer100g == null || baseProteinPer100g == null || baseFatPer100g == null || baseCarbsPer100g == null || caloriesPerGram == null) {
+    // If we still don't have complete per gram data, we can't proceed
+    if (baseEnergyPerGram == null || baseProteinPerGram == null || baseFatPerGram == null || baseCarbsPerGram == null) {
       return null;
     }
 
-    // --- Step 2: Populate the units list using the established baseline and bridging ratio ---
+    // --- Step 2: Populate the units list ---
     List<model_unit.FoodUnit> units = [];
+    final caloriesPerGram = baseEnergyPerGram; // Bridging ratio
 
-    // Always add the 100g unit
-    units.add(model_unit.FoodUnit(id: null, foodId: 0, name: '100g', grams: 100.0));
+    // Always add the 'g' unit now that our base is per-gram
+    units.add(model_unit.FoodUnit(id: null, foodId: 0, name: 'g', grams: 1.0));
 
-    // Add serving size unit if available and not already covered by 100g
+    // Add serving size unit if available
     final servingSizeText = product.servingSize;
-    // final servingQuantity = product.servingQuantity; // No longer strictly required for abstract units
-
-    if (servingSizeText != null) { // Check only servingSizeText for now
+    if (servingSizeText != null) {
       double? currentServingGrams;
-      // Try to extract grams from servingSize (e.g., "30g")
       final RegExp gramRegex = RegExp(r'(\d+(\.\d+)?)\s*g');
       final gramMatch = gramRegex.firstMatch(servingSizeText);
       if (gramMatch != null) {
         currentServingGrams = double.tryParse(gramMatch.group(1)!);
       }
 
-      // Try to extract ml from servingSize (e.g., "15ml") and use 1ml=1g heuristic
       if (currentServingGrams == null) {
         final RegExp mlRegex = RegExp(r'(\d+(\.\d+)?)\s*ml');
         final mlMatch = mlRegex.firstMatch(servingSizeText);
@@ -166,20 +158,20 @@ class OffApiService {
         }
       }
 
-      // Fallback to product.servingQuantity if it seems like a gram value
       if (currentServingGrams == null && product.servingQuantity != null && product.servingQuantity! > 0 && product.servingQuantity! < 1000) {
         currentServingGrams = product.servingQuantity;
       }
 
       if (currentServingGrams != null && currentServingGrams > 0) {
-        // If we have explicit grams for this serving, add it
-        units.add(model_unit.FoodUnit(id: null, foodId: 0, name: servingSizeText, grams: currentServingGrams));
+        // If we have explicit grams for this serving, add it, but only if it's not 'g' or '1g'
+        if (servingSizeText.toLowerCase() != 'g' && servingSizeText.toLowerCase() != '1g') {
+            units.add(model_unit.FoodUnit(id: null, foodId: 0, name: servingSizeText, grams: currentServingGrams));
+        }
       } else {
         // This is an abstract unit, try to bridge its grams using caloriesPerGram
         final servingEnergy = nutriments.getValue(Nutrient.energyKCal, PerSize.serving);
         if (servingEnergy != null && caloriesPerGram > 0) {
           final bridgedGrams = servingEnergy / caloriesPerGram;
-          // Only add if it has calorie data for serving (as per latest clarification)
           units.add(model_unit.FoodUnit(id: null, foodId: 0, name: servingSizeText, grams: bridgedGrams));
         }
       }
@@ -187,6 +179,7 @@ class OffApiService {
 
     // Ensure units list is not empty
     if (units.isEmpty) {
+      // This should be rare now that we always add 'g'
       return null;
     }
 
@@ -199,10 +192,10 @@ class OffApiService {
       name: foodName,
       emoji: emoji,
       thumbnail: product.imageFrontUrl,
-      calories: baseEnergyPer100g,
-      protein: baseProteinPer100g,
-      fat: baseFatPer100g,
-      carbs: baseCarbsPer100g,
+      calories: baseEnergyPerGram,
+      protein: baseProteinPerGram,
+      fat: baseFatPerGram,
+      carbs: baseCarbsPerGram,
       units: units,
     );
   }

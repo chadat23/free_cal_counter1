@@ -18,7 +18,7 @@ String emojiForFoodName(String foodName) {
     // Check each key against this phrase
     for (final key in sortedKeys) {
       if (_phraseMatchesKey(phrase, key)) {
-        return foodEmojiMap[key]!;
+        return foodEmojiMap[key] ?? '🍴';
       }
     }
   }

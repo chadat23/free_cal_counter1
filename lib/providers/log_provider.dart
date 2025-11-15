@@ -55,7 +55,7 @@ class LogProvider extends ChangeNotifier {
         (u) => u.name == portion.servingUnit,
         orElse: () => food.units.first, // Fallback, though should not happen
       );
-      final caloriesForPortion = (food.calories / 100) * unit.grams * portion.servingSize;
+      final caloriesForPortion = food.calories * unit.grams * portion.servingSize;
       return sum + caloriesForPortion;
     });
   }

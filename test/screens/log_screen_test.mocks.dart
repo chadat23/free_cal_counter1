@@ -317,18 +317,6 @@ class MockFoodSearchProvider extends _i1.Mock
           as _i11.Future<void>);
 
   @override
-  void clearSelection() => super.noSuchMethod(
-    Invocation.method(#clearSelection, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void selectFood(_i10.Food? food) => super.noSuchMethod(
-    Invocation.method(#selectFood, [food]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
   void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,

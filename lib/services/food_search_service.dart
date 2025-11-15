@@ -6,10 +6,12 @@ import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 class FoodSearchService {
   final DatabaseService databaseService;
   final OffApiService offApiService;
+  final String Function(String) emojiForFoodName;
 
   FoodSearchService({
     required this.databaseService,
     required this.offApiService,
+    required this.emojiForFoodName,
   });
 
   // Helper function to apply fuzzy matching and sorting
@@ -63,7 +65,10 @@ class FoodSearchService {
       return [];
     }
     final localResults = await databaseService.searchFoodsByName(query);
-    return _applyFuzzyMatching(query, localResults);
+    final resultsWithEmoji = localResults
+        .map((food) => food.copyWith(emoji: emojiForFoodName(food.name)))
+        .toList();
+    return _applyFuzzyMatching(query, resultsWithEmoji);
   }
 
   Future<List<model.Food>> searchOff(String query) async {
@@ -71,6 +76,9 @@ class FoodSearchService {
       return [];
     }
     final offResults = await offApiService.searchFoodsByName(query);
-    return _applyFuzzyMatching(query, offResults);
+    final resultsWithEmoji = offResults
+        .map((food) => food.copyWith(emoji: emojiForFoodName(food.name)))
+        .toList();
+    return _applyFuzzyMatching(query, resultsWithEmoji);
   }
 }

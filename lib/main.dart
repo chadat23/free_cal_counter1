@@ -4,6 +4,7 @@ import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart'; // ADDED
 import 'package:provider/provider.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
       // NEW
       databaseService: databaseService,
       offApiService: offApiService,
+      emojiForFoodName: emojiForFoodName,
     );
 
     return MultiProvider(

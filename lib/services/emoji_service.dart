@@ -1,61 +1,23 @@
-//import 'package:free_cal_counter1/config/emoji_map.dart';
-//
-//String emojiForFoodName(String foodName) {
-//  if (foodName.isEmpty) {
-//    return '🍴';
-//  }
-//
-//  final lowerCaseFoodName = foodName.toLowerCase();
-//  final sortedKeys = foodEmojiMap.keys.toList()
-//    ..sort((a, b) => b.length.compareTo(a.length));
-//
-//  for (final key in sortedKeys) {
-//    if (lowerCaseFoodName.contains(key)) {
-//      return foodEmojiMap[key]!;
-//    }
-//  }
-//
-//  return '🍴';
-//}
-
 import 'package:free_cal_counter1/config/emoji_map.dart';
 
-/// Returns an appropriate emoji for a given food name.
-///
-/// Matching priority:
-/// 1. Multi-word keys are matched before single-word keys
-/// 2. Longer keys take precedence within the same word count
-/// 3. Ignores descriptors after commas (e.g., ", raw")
-/// 4. Prefers matching the last words in the name ("milk chocolate" → 🍫)
-/// 5. Avoids partial matches ("watermelon" won't match "melon")
 String emojiForFoodName(String foodName) {
   if (foodName.isEmpty) {
     return '🍴';
   }
 
-  // Clean the food name by lowercasing, trimming, and removing descriptors
   final cleanedName = _cleanFoodName(foodName);
-
-  // Sort keys: multi-word phrases first, then longer strings first
   final sortedKeys = _getSortedKeys();
 
-  // Split into words to enable progressive matching
+  // Split into words and try matching from longest suffix to shortest
+  // This naturally prioritizes last words ("milk chocolate" → "chocolate")
   final words = cleanedName.split(RegExp(r'\s+'));
 
-  // Try matching progressively shorter suffixes
-  // Example: "milk chocolate" → try "milk chocolate", then "chocolate"
-  for (int startIndex = 0; startIndex < words.length; startIndex++) {
-    final phrase = words.sublist(startIndex).join(' ');
+  for (int start = 0; start < words.length; start++) {
+    final phrase = words.sublist(start).join(' ');
 
-    // First, try exact match of the entire phrase
-    if (foodEmojiMap.containsKey(phrase)) {
-      return foodEmojiMap[phrase]!;
-    }
-
-    // Then, try word boundary match to find the key within the phrase
-    // This prevents matching "melon" when "watermelon" is available
+    // Check each key against this phrase
     for (final key in sortedKeys) {
-      if (_hasWordBoundaryMatch(phrase, key)) {
+      if (_phraseMatchesKey(phrase, key)) {
         return foodEmojiMap[key]!;
       }
     }
@@ -64,47 +26,49 @@ String emojiForFoodName(String foodName) {
   return '🍴';
 }
 
-/// Cleans a food name by:
-/// - Converting to lowercase
-/// - Trimming whitespace
-/// - Removing descriptors after commas (e.g., ", raw")
-/// - Removing parenthetical content
-/// - Normalizing multiple spaces
+/// Checks if a phrase matches a key considering plurals and word boundaries
+bool _phraseMatchesKey(String phrase, String key) {
+  final escapedKey = RegExp.escape(key);
+
+  // 1. Exact match
+  if (phrase == key) return true;
+
+  // 2. Plural handling: key + 's' or 'es' (e.g., "banana" matches "bananas")
+  //    Must be at a word boundary to prevent "banana" matching "bananasplit"
+  final pluralRegex = RegExp('^$escapedKey(?:s|es)?\\b');
+  if (pluralRegex.hasMatch(phrase)) return true;
+
+  // 3. Whole word match: key appears as a complete word in the phrase
+  //    e.g., "chocolate" appears in "milk chocolate"
+  final wordRegex = RegExp(r'\b' + escapedKey + r'\b');
+  if (wordRegex.hasMatch(phrase)) return true;
+
+  return false;
+}
+
+/// Sorts keys by word count (descending), then by length (descending)
+/// This ensures "tuna roll" matches before "tuna" or "roll"
+/// and "watermelon" matches before "melon"
+List<String> _getSortedKeys() {
+  return foodEmojiMap.keys.toList()..sort((a, b) {
+    final aWords = a.split(' ').length;
+    final bWords = b.split(' ').length;
+
+    if (aWords != bWords) {
+      return bWords.compareTo(aWords); // More words first
+    }
+    return b.length.compareTo(a.length); // Longer first
+  });
+}
+
+/// Cleans food name by removing descriptors, commas, parentheses, etc.
 String _cleanFoodName(String foodName) {
   return foodName
       .toLowerCase()
       .trim()
       .split(',')
-      .first // Take only the part before the first comma
+      .first
       .trim()
-      .replaceAll(
-        RegExp(r'\s*\([^)]*\)'),
-        '',
-      ) // Remove parentheses and contents
-      .replaceAll(RegExp(r'\s+'), ' '); // Normalize to single spaces
-}
-
-/// Returns emoji map keys sorted by:
-/// 1. Word count (descending) - more words first
-/// 2. String length (descending) - longer keys first
-List<String> _getSortedKeys() {
-  return foodEmojiMap.keys.toList()..sort((a, b) {
-    final aWordCount = a.split(' ').length;
-    final bWordCount = b.split(' ').length;
-
-    // Prioritize keys with more words
-    if (aWordCount != bWordCount) {
-      return bWordCount.compareTo(aWordCount);
-    }
-
-    // For same word count, prioritize longer keys
-    return b.length.compareTo(a.length);
-  });
-}
-
-/// Checks if [key] appears as a whole word in [text] using word boundaries.
-/// Prevents partial matches like "melon" in "watermelon".
-bool _hasWordBoundaryMatch(String text, String key) {
-  final pattern = RegExp(r'\b' + RegExp.escape(key) + r'\b');
-  return pattern.hasMatch(text);
+      .replaceAll(RegExp(r'\s*\([^)]*\)'), '')
+      .replaceAll(RegExp(r'\s+'), ' ');
 }

@@ -24,4 +24,30 @@ class Food {
     required this.carbs,
     this.units = const [], // Initialize with an empty list
   });
+
+  Food copyWith({
+    int? id,
+    String? source,
+    String? name,
+    String? emoji,
+    String? thumbnail,
+    double? calories,
+    double? protein,
+    double? fat,
+    double? carbs,
+    List<FoodUnit>? units,
+  }) {
+    return Food(
+      id: id ?? this.id,
+      source: source ?? this.source,
+      name: name ?? this.name,
+      emoji: emoji ?? this.emoji,
+      thumbnail: thumbnail ?? this.thumbnail,
+      calories: calories ?? this.calories,
+      protein: protein ?? this.protein,
+      fat: fat ?? this.fat,
+      carbs: carbs ?? this.carbs,
+      units: units ?? this.units,
+    );
+  }
 }

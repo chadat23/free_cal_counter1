@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
-import 'package:free_cal_counter1/widgets/portion_widget.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/widgets/serving_widget.dart';
 
 void main() {
-  testWidgets('Portion widget displays correctly', (WidgetTester tester) async {
+  testWidgets('Serving widget displays correctly', (WidgetTester tester) async {
     // Given
     final food = Food(
       id: 1,
@@ -17,12 +17,12 @@ void main() {
       carbs: 14,
       source: 'test',
     );
-    final portion = FoodPortion(food: food, servingSize: 100, servingUnit: 'g');
+    final serving = FoodServing(food: food, servingSize: 100, servingUnit: 'g');
 
     // When
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: PortionWidget(portion: portion)),
+        home: Scaffold(body: ServingWidget(serving: serving)),
       ),
     );
 

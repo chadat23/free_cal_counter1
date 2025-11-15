@@ -202,19 +202,19 @@ def parse_foods(data, source_name, strict_filtering=False):
         if nutrients["fiberPerGram"] is None:
             nutrients["fiberPerGram"] = 0.0
 
-        # --- 4. Extract Portions ---
-        portions = []
+        # --- 4. Extract Servings ---
+        servings = []
         # Always add 'g' as a base unit
-        portions.append({"unitName": "g", "gramsPerUnit": 1.0})
+        servings.append({"unitName": "g", "gramsPerUnit": 1.0})
 
-        for p in item.get("foodPortions", []):
+        for p in item.get("foodServings", []):
             gram_weight = p.get("gramWeight")
             if gram_weight is None or gram_weight <= 0:
                 continue
             
             # Construct unit name with fallback logic
             unit_name = (
-                         p.get("portionDescription") 
+                         p.get("servingDescription") 
                          or p.get("modifier") 
                          or p.get("measureUnit", {}).get("name") 
                          or "serving"
@@ -225,7 +225,7 @@ def parse_foods(data, source_name, strict_filtering=False):
             if modifier and modifier.lower() not in unit_name.lower():
                 unit_name = f"{unit_name}, {modifier}"
 
-            portions.append({
+            servings.append({
                 "unitName": unit_name.strip(),
                 "gramsPerUnit": float(gram_weight),
             })
@@ -236,7 +236,7 @@ def parse_foods(data, source_name, strict_filtering=False):
             "source": source_name,
             "sourceFdcId": fdc_id,
             **nutrients,
-            "units": portions,
+            "units": servings,
         })
     return foods
 

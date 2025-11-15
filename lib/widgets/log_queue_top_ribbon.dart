@@ -1,13 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 
 class LogQueueTopRibbon extends StatelessWidget {
   final IconData arrowDirection;
   final VoidCallback onArrowPressed;
   final double totalCalories;
   final double dailyTargetCalories;
-  final List<FoodPortion> logQueue;
+  final List<FoodServing> logQueue;
 
   const LogQueueTopRibbon({
     super.key,
@@ -37,12 +37,12 @@ class LogQueueTopRibbon extends StatelessWidget {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: logQueue.map((portion) {
-                  if (portion.food.thumbnail != null) {
+                children: logQueue.map((serving) {
+                  if (serving.food.thumbnail != null) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 2.0),
                       child: CachedNetworkImage(
-                        imageUrl: portion.food.thumbnail!,
+                        imageUrl: serving.food.thumbnail!,
                         width: 26,
                         height: 26,
                         fit: BoxFit.cover,
@@ -52,12 +52,12 @@ class LogQueueTopRibbon extends StatelessWidget {
                           child: CircularProgressIndicator(),
                         ),
                         errorWidget: (context, url, error) =>
-                            Text(portion.food.emoji ?? '🍴'),
+                            Text(serving.food.emoji ?? '🍴'),
                       ),
                     );
                   } else {
                     return Text(
-                      portion.food.emoji ?? '🍴',
+                      serving.food.emoji ?? '🍴',
                       style: const TextStyle(fontSize: 20),
                     );
                   }

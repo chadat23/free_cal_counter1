@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 
-class PortionWidget extends StatelessWidget {
-  final FoodPortion portion;
+class ServingWidget extends StatelessWidget {
+  final FoodServing serving;
 
-  const PortionWidget({super.key, required this.portion});
+  const ServingWidget({super.key, required this.serving});
 
   @override
   Widget build(BuildContext context) {
@@ -12,20 +12,20 @@ class PortionWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
         children: [
-          Text(portion.food.emoji ?? '', style: const TextStyle(fontSize: 24)),
+          Text(serving.food.emoji ?? '', style: const TextStyle(fontSize: 24)),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                portion.food.name,
+                serving.food.name,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
-              Text('${portion.servingSize.toInt()} ${portion.servingUnit}'),
+              Text('${serving.servingSize.toInt()} ${serving.servingUnit}'),
             ],
           ),
           const Spacer(),
@@ -34,10 +34,10 @@ class PortionWidget extends StatelessWidget {
               spacing: 8.0,
               alignment: WrapAlignment.end,
               children: [
-                Text('🔥${portion.food.calories.toInt()}'),
-                Text('P: ${portion.food.protein.toStringAsFixed(1)}'),
-                Text('F: ${portion.food.fat.toStringAsFixed(1)}'),
-                Text('C: ${portion.food.carbs.toStringAsFixed(0)}'),
+                Text('🔥${serving.food.calories.toInt()}'),
+                Text('P: ${serving.food.protein.toStringAsFixed(1)}'),
+                Text('F: ${serving.food.fat.toStringAsFixed(1)}'),
+                Text('C: ${serving.food.carbs.toStringAsFixed(0)}'),
               ],
             ),
           ),

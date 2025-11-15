@@ -67,8 +67,8 @@ void main() {
 
     // testWidgets('renders a list of meals', (tester) async {
     //   final mockFood = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
-    //   final mockFoodPortion = FoodPortion(food: mockFood, servingSize: 100, servingUnit: 'g');
-    //   final mockLoggedFood = LoggedFood(portion: mockFoodPortion, timestamp: DateTime.now());
+    //   final mockFoodServing = FoodServing(food: mockFood, servingSize: 100, servingUnit: 'g');
+    //   final mockLoggedFood = LoggedFood(serving: mockFoodServing, timestamp: DateTime.now());
     //   final mockMeal = Meal(timestamp: DateTime.now(), loggedFoods: [mockLoggedFood]);
 
     //   when(mockLogProvider.mealsForDate).thenReturn([mockMeal, mockMeal]); // Stub with mock data

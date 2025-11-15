@@ -5,7 +5,7 @@ import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/logged_food.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
 
@@ -67,7 +67,7 @@ class _LogScreenState extends State<LogScreen> {
         timestamp: DateTime.now().subtract(const Duration(hours: 3)),
         loggedFoods: [
           LoggedFood(
-            portion: FoodPortion(
+            serving: FoodServing(
               food: Food(
                 id: 1,
                 source: 'user_created',
@@ -84,7 +84,7 @@ class _LogScreenState extends State<LogScreen> {
             timestamp: DateTime.now().subtract(const Duration(hours: 3)),
           ),
           LoggedFood(
-            portion: FoodPortion(
+            serving: FoodServing(
               food: Food(
                 id: 2,
                 source: 'user_created',
@@ -106,7 +106,7 @@ class _LogScreenState extends State<LogScreen> {
         timestamp: DateTime.now().subtract(const Duration(hours: 1)),
         loggedFoods: [
           LoggedFood(
-            portion: FoodPortion(
+            serving: FoodServing(
               food: Food(
                 id: 3,
                 source: 'user_created',

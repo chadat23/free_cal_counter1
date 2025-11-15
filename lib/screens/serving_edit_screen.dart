@@ -1,25 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:provider/provider.dart';
 
-class PortionEditScreen extends StatefulWidget {
+class ServingEditScreen extends StatefulWidget {
   final Food food;
   final model_unit.FoodUnit? initialUnit;
 
-  const PortionEditScreen({
-    super.key,
-    required this.food,
-    this.initialUnit,
-  });
+  const ServingEditScreen({super.key, required this.food, this.initialUnit});
 
   @override
-  State<PortionEditScreen> createState() => _PortionEditScreenState();
+  State<ServingEditScreen> createState() => _ServingEditScreenState();
 }
 
-class _PortionEditScreenState extends State<PortionEditScreen> {
+class _ServingEditScreenState extends State<ServingEditScreen> {
   late model_unit.FoodUnit _selectedUnit;
   late TextEditingController _amountController;
 
@@ -39,9 +35,7 @@ class _PortionEditScreenState extends State<PortionEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.food.name),
-      ),
+      appBar: AppBar(title: Text(widget.food.name)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -52,9 +46,7 @@ class _PortionEditScreenState extends State<PortionEditScreen> {
                   child: TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Amount',
-                    ),
+                    decoration: const InputDecoration(labelText: 'Amount'),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -91,14 +83,18 @@ class _PortionEditScreenState extends State<PortionEditScreen> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    final logProvider = Provider.of<LogProvider>(context, listen: false);
-                    final amount = double.tryParse(_amountController.text) ?? 1.0;
-                    final portion = FoodPortion(
+                    final logProvider = Provider.of<LogProvider>(
+                      context,
+                      listen: false,
+                    );
+                    final amount =
+                        double.tryParse(_amountController.text) ?? 1.0;
+                    final serving = FoodServing(
                       food: widget.food,
                       servingSize: amount,
                       servingUnit: _selectedUnit.name,
                     );
-                    logProvider.addFoodToQueue(portion);
+                    logProvider.addFoodToQueue(serving);
                     Navigator.pop(context);
                   },
                   child: const Text('Add'),

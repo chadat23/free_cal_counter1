@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/food_unit.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
@@ -37,7 +37,9 @@ void main() {
     );
   });
 
-  testWidgets('should display food portions from the log queue', (WidgetTester tester) async {
+  testWidgets('should display food servings from the log queue', (
+    WidgetTester tester,
+  ) async {
     // Arrange
     final food = Food(
       id: 1,
@@ -49,8 +51,8 @@ void main() {
       source: 'test',
       units: [FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0)],
     );
-    final portion = FoodPortion(food: food, servingSize: 100, servingUnit: 'g');
-    logProvider.addFoodToQueue(portion);
+    final serving = FoodServing(food: food, servingSize: 100, servingUnit: 'g');
+    logProvider.addFoodToQueue(serving);
 
     await tester.pumpWidget(
       MultiProvider(
@@ -59,9 +61,7 @@ void main() {
           ChangeNotifierProvider.value(value: navigationProvider),
           ChangeNotifierProvider.value(value: foodSearchProvider),
         ],
-        child: const MaterialApp(
-          home: LogQueueScreen(),
-        ),
+        child: const MaterialApp(home: LogQueueScreen()),
       ),
     );
 

@@ -3,12 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_unit.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-import 'portion_edit_screen_test.mocks.dart';
+import 'serving_edit_screen_test.mocks.dart';
 
 @GenerateMocks([LogProvider])
 void main() {
@@ -32,13 +32,13 @@ void main() {
     ],
   );
 
-  testWidgets('should display food name, amount, and unit', (WidgetTester tester) async {
+  testWidgets('should display food name, amount, and unit', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ChangeNotifierProvider<LogProvider>.value(
         value: mockLogProvider,
-        child: MaterialApp(
-          home: PortionEditScreen(food: food),
-        ),
+        child: MaterialApp(home: ServingEditScreen(food: food)),
       ),
     );
 
@@ -47,13 +47,13 @@ void main() {
     expect(find.text('g'), findsOneWidget);
   });
 
-  testWidgets('should call addFoodToQueue when Add button is tapped', (WidgetTester tester) async {
+  testWidgets('should call addFoodToQueue when Add button is tapped', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ChangeNotifierProvider<LogProvider>.value(
         value: mockLogProvider,
-        child: MaterialApp(
-          home: PortionEditScreen(food: food),
-        ),
+        child: MaterialApp(home: ServingEditScreen(food: food)),
       ),
     );
 
@@ -64,13 +64,13 @@ void main() {
     verify(mockLogProvider.addFoodToQueue(any)).called(1);
   });
 
-  testWidgets('should not call addFoodToQueue when Cancel button is tapped', (WidgetTester tester) async {
+  testWidgets('should not call addFoodToQueue when Cancel button is tapped', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ChangeNotifierProvider<LogProvider>.value(
         value: mockLogProvider,
-        child: MaterialApp(
-          home: PortionEditScreen(food: food),
-        ),
+        child: MaterialApp(home: ServingEditScreen(food: food)),
       ),
     );
 

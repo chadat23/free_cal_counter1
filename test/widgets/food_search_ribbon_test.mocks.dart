@@ -7,7 +7,7 @@ import 'dart:async' as _i11;
 import 'dart:ui' as _i7;
 
 import 'package:free_cal_counter1/models/food.dart' as _i10;
-import 'package:free_cal_counter1/models/food_portion.dart' as _i6;
+import 'package:free_cal_counter1/models/food_serving.dart' as _i6;
 import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i9;
 import 'package:free_cal_counter1/providers/log_provider.dart' as _i5;
 import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i8;
@@ -80,12 +80,12 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
           as double);
 
   @override
-  List<_i6.FoodPortion> get logQueue =>
+  List<_i6.FoodServing> get logQueue =>
       (super.noSuchMethod(
             Invocation.getter(#logQueue),
-            returnValue: <_i6.FoodPortion>[],
+            returnValue: <_i6.FoodServing>[],
           )
-          as List<_i6.FoodPortion>);
+          as List<_i6.FoodServing>);
 
   @override
   bool get hasListeners =>
@@ -111,14 +111,14 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
   );
 
   @override
-  void addFoodToQueue(_i6.FoodPortion? portion) => super.noSuchMethod(
-    Invocation.method(#addFoodToQueue, [portion]),
+  void addFoodToQueue(_i6.FoodServing? serving) => super.noSuchMethod(
+    Invocation.method(#addFoodToQueue, [serving]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeFoodFromQueue(_i6.FoodPortion? portion) => super.noSuchMethod(
-    Invocation.method(#removeFoodFromQueue, [portion]),
+  void removeFoodFromQueue(_i6.FoodServing? serving) => super.noSuchMethod(
+    Invocation.method(#removeFoodFromQueue, [serving]),
     returnValueForMissingStub: null,
   );
 

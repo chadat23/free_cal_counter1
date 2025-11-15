@@ -13,11 +13,18 @@ import 'food_search_result_tile_test.mocks.dart';
 @GenerateMocks([LogProvider])
 void main() {
   group('FoodSearchResultTile', () {
-    testWidgets('displays food name and nutritional info with unit dropdown', (tester) async {
+    testWidgets('displays food name and nutritional info with unit dropdown', (
+      tester,
+    ) async {
       final mockUnits = [
         model_unit.FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0),
         model_unit.FoodUnit(id: 2, foodId: 1, name: '1 medium', grams: 182.0),
-        model_unit.FoodUnit(id: 3, foodId: 1, name: '1 cup sliced', grams: 109.0),
+        model_unit.FoodUnit(
+          id: 3,
+          foodId: 1,
+          name: '1 cup sliced',
+          grams: 109.0,
+        ),
       ];
       final food = model.Food(
         id: 1,
@@ -75,43 +82,46 @@ void main() {
       expect(find.text('57 kcal • 0.3g P • 0.2g F • 15.3g C'), findsOneWidget);
     });
 
-    testWidgets('should have an add button that adds the food to the log queue', (tester) async {
-      final mockLogProvider = MockLogProvider();
-      final mockUnits = [
-        model_unit.FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0),
-      ];
-      final food = model.Food(
-        id: 1,
-        name: 'Apple',
-        emoji: '🍎',
-        calories: 0.52,
-        protein: 0.003,
-        fat: 0.002,
-        carbs: 0.14,
-        source: 'test',
-        units: mockUnits,
-      );
+    testWidgets(
+      'should have an add button that adds the food to the log queue',
+      (tester) async {
+        final mockLogProvider = MockLogProvider();
+        final mockUnits = [
+          model_unit.FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0),
+        ];
+        final food = model.Food(
+          id: 1,
+          name: 'Apple',
+          emoji: '🍎',
+          calories: 0.52,
+          protein: 0.003,
+          fat: 0.002,
+          carbs: 0.14,
+          source: 'test',
+          units: mockUnits,
+        );
 
-      await tester.pumpWidget(
-        ChangeNotifierProvider<LogProvider>.value(
-          value: mockLogProvider,
-          child: MaterialApp(
-            home: Scaffold(
-              body: FoodSearchResultTile(food: food, onTap: (_) {}),
+        await tester.pumpWidget(
+          ChangeNotifierProvider<LogProvider>.value(
+            value: mockLogProvider,
+            child: MaterialApp(
+              home: Scaffold(
+                body: FoodSearchResultTile(food: food, onTap: (_) {}),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Verify the add button exists
-      expect(find.byIcon(Icons.add), findsOneWidget);
+        // Verify the add button exists
+        expect(find.byIcon(Icons.add), findsOneWidget);
 
-      // Tap the add button
-      await tester.tap(find.byIcon(Icons.add));
-      await tester.pump();
+        // Tap the add button
+        await tester.tap(find.byIcon(Icons.add));
+        await tester.pump();
 
-      // Verify that addFoodToQueue was called with the correct FoodPortion
-      verify(mockLogProvider.addFoodToQueue(any)).called(1);
-    });
+        // Verify that addFoodToQueue was called with the correct FoodServing
+        verify(mockLogProvider.addFoodToQueue(any)).called(1);
+      },
+    );
   });
 }

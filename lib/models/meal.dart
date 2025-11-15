@@ -9,20 +9,20 @@ class Meal {
   double get totalCalories => loggedFoods.fold(
     0,
     (sum, item) =>
-        sum + item.portion.food.calories * item.portion.servingSize / 100,
+        sum + item.serving.food.calories * item.serving.servingSize / 100,
   );
   double get totalProtein => loggedFoods.fold(
     0,
     (sum, item) =>
-        sum + item.portion.food.protein * item.portion.servingSize / 100,
+        sum + item.serving.food.protein * item.serving.servingSize / 100,
   );
   double get totalFat => loggedFoods.fold(
     0,
-    (sum, item) => sum + item.portion.food.fat * item.portion.servingSize / 100,
+    (sum, item) => sum + item.serving.food.fat * item.serving.servingSize / 100,
   );
   double get totalCarbs => loggedFoods.fold(
     0,
     (sum, item) =>
-        sum + item.portion.food.carbs * item.portion.servingSize / 100,
+        sum + item.serving.food.carbs * item.serving.servingSize / 100,
   );
 }

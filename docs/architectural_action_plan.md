@@ -161,7 +161,7 @@ These tasks are broken down into phases. Each task is designed to be a self-cont
 *   **Prerequisites:** Task 3.2
 *   **Action:** Build the UI that allows a user to specify a `quantity` and select from the available `unit_name` options for a given food. On save, this will create a new record in the `logged_foods` table.
 *   **Testing Strategy:** Implement widget tests to verify that the UI correctly displays food data, populates the units dropdown, and calls the appropriate service method on save.
-*   **Acceptance Criteria:** A user can successfully search for a food, specify a portion, and save it. The new entry is verifiable in the `live.db`.
+*   **Acceptance Criteria:** A user can successfully search for a food, specify a serving, and save it. The new entry is verifiable in the `live.db`.
 
 ### Phase 4: Recipe Implementation
 

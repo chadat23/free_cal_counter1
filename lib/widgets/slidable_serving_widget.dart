@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
-import 'package:free_cal_counter1/widgets/portion_widget.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/widgets/serving_widget.dart';
 
-class SlidablePortionWidget extends StatefulWidget {
-  final FoodPortion portion;
+class SlidableServingWidget extends StatefulWidget {
+  final FoodServing serving;
   final VoidCallback onDelete;
 
-  const SlidablePortionWidget({
+  const SlidableServingWidget({
     super.key,
-    required this.portion,
+    required this.serving,
     required this.onDelete,
   });
 
   @override
-  State<SlidablePortionWidget> createState() => _SlidablePortionWidgetState();
+  State<SlidableServingWidget> createState() => _SlidableServingWidgetState();
 }
 
-class _SlidablePortionWidgetState extends State<SlidablePortionWidget>
+class _SlidableServingWidgetState extends State<SlidableServingWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late FocusNode _focusNode;
@@ -89,7 +89,7 @@ class _SlidablePortionWidgetState extends State<SlidablePortionWidget>
                 );
               },
               child: GestureDetector(
-                key: const Key('slidable_portion_content'),
+                key: const Key('slidable_serving_content'),
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
                   if (_controller.isCompleted) {
@@ -98,7 +98,7 @@ class _SlidablePortionWidgetState extends State<SlidablePortionWidget>
                 },
                 child: Container(
                   color: Theme.of(context).cardColor,
-                  child: PortionWidget(portion: widget.portion),
+                  child: ServingWidget(serving: widget.serving),
                 ),
               ),
             ),

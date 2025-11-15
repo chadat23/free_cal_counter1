@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/food_unit.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/screens/food_search_screen.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -54,7 +54,9 @@ void main() {
       when(mockLogProvider.totalCalories).thenReturn(0.0);
       when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
       when(mockFoodSearchProvider.isLoading).thenReturn(false);
-      when(mockFoodSearchProvider.errorMessage).thenReturn('Test Error Message');
+      when(
+        mockFoodSearchProvider.errorMessage,
+      ).thenReturn('Test Error Message');
 
       await tester.pumpWidget(createTestWidget());
 
@@ -118,9 +120,19 @@ void main() {
   });
 
   testWidgets('shows discard dialog when queue is not empty', (tester) async {
-    final food = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test', units: []);
-    final portion = FoodPortion(food: food, servingSize: 1, servingUnit: 'g');
-    when(mockLogProvider.logQueue).thenReturn([portion]);
+    final food = Food(
+      id: 1,
+      name: 'Apple',
+      calories: 52,
+      protein: 0.3,
+      fat: 0.2,
+      carbs: 14,
+      emoji: '🍎',
+      source: 'test',
+      units: [],
+    );
+    final serving = FoodServing(food: food, servingSize: 1, servingUnit: 'g');
+    when(mockLogProvider.logQueue).thenReturn([serving]);
     when(mockLogProvider.totalCalories).thenReturn(52.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
 
@@ -133,7 +145,9 @@ void main() {
     expect(find.text('Discard changes?'), findsOneWidget);
   });
 
-  testWidgets('tapping on a search result navigates to PortionEditScreen', (tester) async {
+  testWidgets('tapping on a search result navigates to ServingEditScreen', (
+    tester,
+  ) async {
     final food = Food(
       id: 1,
       name: 'Apple',
@@ -155,28 +169,31 @@ void main() {
     await tester.tap(find.text('🍎 Apple'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(PortionEditScreen), findsOneWidget);
+    expect(find.byType(ServingEditScreen), findsOneWidget);
   });
 
-  testWidgets('should display food icons in the top ribbon when queue is not empty', (tester) async {
-    final food = Food(
-      id: 1,
-      name: 'Apple',
-      calories: 52,
-      protein: 0.3,
-      fat: 0.2,
-      carbs: 14,
-      emoji: '🍎',
-      source: 'test',
-      units: [FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0)],
-    );
-    final portion = FoodPortion(food: food, servingSize: 1, servingUnit: 'g');
-    when(mockLogProvider.logQueue).thenReturn([portion]);
-    when(mockLogProvider.totalCalories).thenReturn(52.0);
-    when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+  testWidgets(
+    'should display food icons in the top ribbon when queue is not empty',
+    (tester) async {
+      final food = Food(
+        id: 1,
+        name: 'Apple',
+        calories: 52,
+        protein: 0.3,
+        fat: 0.2,
+        carbs: 14,
+        emoji: '🍎',
+        source: 'test',
+        units: [FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0)],
+      );
+      final serving = FoodServing(food: food, servingSize: 1, servingUnit: 'g');
+      when(mockLogProvider.logQueue).thenReturn([serving]);
+      when(mockLogProvider.totalCalories).thenReturn(52.0);
+      when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
 
-    await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget());
 
-    expect(find.text('🍎'), findsOneWidget);
-  });
+      expect(find.text('🍎'), findsOneWidget);
+    },
+  );
 }

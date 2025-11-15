@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
@@ -101,12 +101,12 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
         icon: const Icon(Icons.add),
         onPressed: () {
           final logProvider = Provider.of<LogProvider>(context, listen: false);
-          final portion = FoodPortion(
+          final serving = FoodServing(
             food: widget.food,
             servingSize: 1,
             servingUnit: _selectedUnit.name,
           );
-          logProvider.addFoodToQueue(portion);
+          logProvider.addFoodToQueue(serving);
         },
       ),
       onTap: () => widget.onTap(_selectedUnit),

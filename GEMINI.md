@@ -12,7 +12,7 @@ lib/
 │   └── app_router.dart          # Navigation routing configuration
 ├── models/
 │   ├── food.dart                # Food data model
-│   ├── food_portion.dart        # Food portion model  
+│   ├── food_serving.dart        # Food serving model  
 │   └── logged_food.dart         # Logged food entries
 ├── providers/
 │   ├── log_provider.dart        # Manages food log state

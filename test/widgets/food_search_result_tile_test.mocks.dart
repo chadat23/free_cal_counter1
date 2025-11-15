@@ -5,7 +5,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:ui' as _i4;
 
-import 'package:free_cal_counter1/models/food_portion.dart' as _i3;
+import 'package:free_cal_counter1/models/food_serving.dart' as _i3;
 import 'package:free_cal_counter1/providers/log_provider.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -56,12 +56,12 @@ class MockLogProvider extends _i1.Mock implements _i2.LogProvider {
           as double);
 
   @override
-  List<_i3.FoodPortion> get logQueue =>
+  List<_i3.FoodServing> get logQueue =>
       (super.noSuchMethod(
             Invocation.getter(#logQueue),
-            returnValue: <_i3.FoodPortion>[],
+            returnValue: <_i3.FoodServing>[],
           )
-          as List<_i3.FoodPortion>);
+          as List<_i3.FoodServing>);
 
   @override
   bool get hasListeners =>
@@ -87,14 +87,14 @@ class MockLogProvider extends _i1.Mock implements _i2.LogProvider {
   );
 
   @override
-  void addFoodToQueue(_i3.FoodPortion? portion) => super.noSuchMethod(
-    Invocation.method(#addFoodToQueue, [portion]),
+  void addFoodToQueue(_i3.FoodServing? serving) => super.noSuchMethod(
+    Invocation.method(#addFoodToQueue, [serving]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeFoodFromQueue(_i3.FoodPortion? portion) => super.noSuchMethod(
-    Invocation.method(#removeFoodFromQueue, [portion]),
+  void removeFoodFromQueue(_i3.FoodServing? serving) => super.noSuchMethod(
+    Invocation.method(#removeFoodFromQueue, [serving]),
     returnValueForMissingStub: null,
   );
 

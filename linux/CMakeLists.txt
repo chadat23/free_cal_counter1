@@ -57,7 +57,7 @@ pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
 # Application build; see runner/CMakeLists.txt.
 add_subdirectory("runner")
 
-# Run the Flutter tool portions of the build. This must not be removed.
+# Run the Flutter tool servings of the build. This must not be removed.
 add_dependencies(${BINARY_NAME} flutter_assemble)
 
 # Only the install-generated bundle's copy of the executable will launch

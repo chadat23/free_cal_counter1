@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
-import 'package:free_cal_counter1/models/food_unit.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
@@ -49,7 +49,9 @@ void main() {
       fat: 0.2,
       carbs: 14,
       source: 'test',
-      units: [FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0)],
+      portions: [
+        FoodPortion.FoodPortion(id: 1, foodId: 1, name: 'g', grams: 1.0),
+      ],
     );
     final serving = FoodServing(food: food, servingSize: 100, servingUnit: 'g');
     logProvider.addFoodToQueue(serving);

@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
 import 'package:free_cal_counter1/models/food.dart' as model;
-import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
+import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart'
     hide FoodUnit, FoodsCompanion;
@@ -30,7 +30,10 @@ class DatabaseService {
     );
   }
 
-  model.Food _mapFoodData(dynamic foodData, List<model_unit.FoodUnit> units) {
+  model.Food _mapFoodData(
+    dynamic foodData,
+    List<model_portion.FoodPortion> portions,
+  ) {
     return model.Food(
       id: foodData.id,
       source: foodData.source,
@@ -40,7 +43,8 @@ class DatabaseService {
       protein: foodData.proteinPerGram,
       fat: foodData.fatPerGram,
       carbs: foodData.carbsPerGram,
-      units: units,
+      fiber: foodData.fiberPerGram,
+      portions: portions,
     );
   }
 
@@ -71,7 +75,10 @@ class DatabaseService {
     return [...liveFoods, ...refFoods];
   }
 
-  Future<List<model_unit.FoodUnit>> getUnitsForFood(int foodId, String foodSource) async {
+  Future<List<model_portion.FoodPortion>> getUnitsForFood(
+    int foodId,
+    String foodSource,
+  ) async {
     List<dynamic> driftUnits;
     if (foodSource == 'live') {
       driftUnits = await (_liveDb.select(
@@ -85,11 +92,12 @@ class DatabaseService {
     }
     return driftUnits
         .map(
-          (u) => model_unit.FoodUnit(
-            id: u.id as int,
-            foodId: u.foodId as int,
-            name: u.unitName as String,
-            grams: u.gramsPerUnit as double,
+          (p) => model_portion.FoodPortion(
+            id: p.id as int,
+            foodId: p.foodId as int,
+            name: p.unitName as String,
+            grams: p.gramsPerPortion as double,
+            amount: p.amoutPerPortion as double,
           ),
         )
         .toList();

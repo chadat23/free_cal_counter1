@@ -1,4 +1,4 @@
-import 'package:free_cal_counter1/models/food_unit.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 
 class Food {
   final int id;
@@ -10,7 +10,8 @@ class Food {
   final double protein;
   final double fat;
   final double carbs;
-  final List<FoodUnit> units;
+  final double fiber;
+  final List<FoodPortion> portions;
 
   Food({
     required this.id,
@@ -22,7 +23,8 @@ class Food {
     required this.protein,
     required this.fat,
     required this.carbs,
-    this.units = const [], // Initialize with an empty list
+    required this.fiber,
+    this.portions = const [], // Initialize with an empty list
   });
 
   Food copyWith({
@@ -35,7 +37,8 @@ class Food {
     double? protein,
     double? fat,
     double? carbs,
-    List<FoodUnit>? units,
+    double? fiber,
+    List<FoodPortion>? portions,
   }) {
     return Food(
       id: id ?? this.id,
@@ -47,7 +50,8 @@ class Food {
       protein: protein ?? this.protein,
       fat: fat ?? this.fat,
       carbs: carbs ?? this.carbs,
-      units: units ?? this.units,
+      fiber: fiber ?? this.fiber,
+      portions: portions ?? this.portions,
     );
   }
 }

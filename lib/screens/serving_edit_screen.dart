@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
-import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
+import 'package:free_cal_counter1/models/food_portion.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:provider/provider.dart';
 
 class ServingEditScreen extends StatefulWidget {
   final Food food;
-  final model_unit.FoodUnit? initialUnit;
+  final model_unit.FoodPortion? initialUnit;
 
   const ServingEditScreen({super.key, required this.food, this.initialUnit});
 
@@ -16,13 +16,13 @@ class ServingEditScreen extends StatefulWidget {
 }
 
 class _ServingEditScreenState extends State<ServingEditScreen> {
-  late model_unit.FoodUnit _selectedUnit;
+  late model_unit.FoodPortion _selectedUnit;
   late TextEditingController _amountController;
 
   @override
   void initState() {
     super.initState();
-    _selectedUnit = widget.initialUnit ?? widget.food.units.first;
+    _selectedUnit = widget.initialUnit ?? widget.food.portions.first;
     _amountController = TextEditingController(text: '1');
   }
 
@@ -51,9 +51,9 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: DropdownButton<model_unit.FoodUnit>(
+                  child: DropdownButton<model_unit.FoodPortion>(
                     value: _selectedUnit,
-                    items: widget.food.units.map((unit) {
+                    items: widget.food.portions.map((unit) {
                       return DropdownMenuItem(
                         value: unit,
                         child: Text(unit.name),

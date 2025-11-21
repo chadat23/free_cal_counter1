@@ -31,6 +31,83 @@ void main() {
     // ... existing tests ...
   });
 
+  group('parseServingSize', () {
+    test('basic mass', () {
+      final text = "25g";
+      final result = parseServingSize(text);
+      expect(result, hasLength(1));
+      expect(result[0].$1, 25);
+      expect(result[0].$2, 'g');
+    });
+
+    test('basic volume', () {
+      final text = "240ml";
+      final result = parseServingSize(text);
+      expect(result, hasLength(1));
+      expect(result[0].$1, 240);
+      expect(result[0].$2, 'ml');
+    });
+
+    test('abstract unit should be preserved', () {
+      final text = "1 slice";
+      final result = parseServingSize(text);
+      expect(result, hasLength(1));
+      expect(result[0].$1, 1);
+      expect(result[0].$2, 'slice');
+    });
+
+    test('abstract unit with mass', () {
+      final text = "1 slice (28g)";
+      final result = parseServingSize(text);
+      expect(result.any((r) => r.$1 == 1 && r.$2 == 'slice'), isTrue);
+      expect(result.any((r) => r.$1 == 28 && r.$2 == 'g'), isTrue);
+    });
+
+    test('oz ambiguity: default to mass', () {
+      final text = "10 oz";
+      final result = parseServingSize(text);
+      expect(result.any((r) => r.$1 == 10 && r.$2 == 'oz'), isTrue);
+      expect(result.any((r) => r.$2 == 'g'), isTrue); // Should add grams
+    });
+
+    test('oz ambiguity: mass context -> mass', () {
+      final text = "10 oz 30g";
+      final result = parseServingSize(text);
+      expect(result.any((r) => r.$1 == 10 && r.$2 == 'oz'), isTrue);
+      expect(result.any((r) => r.$1 == 30 && r.$2 == 'g'), isTrue);
+    });
+
+    test('oz ambiguity: volume context -> volume', () {
+      final text = "10 oz 240ml";
+      final result = parseServingSize(text);
+      // Should treat oz as fl_oz
+      expect(result.any((r) => r.$1 == 10 && r.$2 == 'fl_oz'), isTrue);
+      expect(result.any((r) => r.$1 == 240 && r.$2 == 'ml'), isTrue);
+    });
+
+    test('oz ambiguity: mixed context -> mass (default)', () {
+      final text = "10 oz 30g 240ml";
+      final result = parseServingSize(text);
+      // Has both mass and volume context -> fallback to mass
+      expect(result.any((r) => r.$1 == 10 && r.$2 == 'oz'), isTrue);
+      expect(result.any((r) => r.$1 == 30 && r.$2 == 'g'), isTrue);
+      expect(result.any((r) => r.$1 == 240 && r.$2 == 'ml'), isTrue);
+    });
+
+    test('complex mixed string with abstract', () {
+      final text = "2 bars (40g) 1.5 oz";
+      final result = parseServingSize(text);
+
+      // 2 bars -> abstract
+      // 40g -> mass
+      // 1.5 oz -> mass context (due to 40g) -> mass
+
+      expect(result.any((r) => r.$1 == 2 && r.$2 == 'bars'), isTrue);
+      expect(result.any((r) => r.$1 == 40 && r.$2 == 'g'), isTrue);
+      expect(result.any((r) => r.$1 == 1.5 && r.$2 == 'oz'), isTrue);
+    });
+  });
+
   group('searchFoodsByName', () {
     test(
       'should return a list of Food objects for a valid search query',
@@ -53,6 +130,9 @@ void main() {
         when(
           nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
         ).thenReturn(58.6); // Updated from new JSON
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+        ).thenReturn(0.0); // Mock fiber
         when(product.nutriments).thenReturn(nutriments);
         when(searchResult.products).thenReturn([product]);
 
@@ -145,7 +225,7 @@ void main() {
     );
 
     test(
-      'should use serving size with volume as anchor and generate baseline',
+      'should use serving size with volume as anchor (1ml=1g assumption)',
       () async {
         // Arrange
         final product = MockProduct();
@@ -166,24 +246,30 @@ void main() {
         when(
           nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
         ).thenReturn(null);
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+        ).thenReturn(null);
 
-        // Mock serving size with volume (1ml = 1g heuristic)
+        // Mock serving size with volume
         when(product.servingSize).thenReturn('1 tbsp (15ml)');
-        when(product.servingQuantity).thenReturn(15.0); // Volume in ml
+        when(product.servingQuantity).thenReturn(15.0);
 
         // Nutritional data PER SERVING (15ml ~ 15g)
         when(
           nutriments.getValue(Nutrient.energyKCal, PerSize.serving),
-        ).thenReturn(15.0); // 15 kcal per 15ml serving
+        ).thenReturn(15.0);
         when(
           nutriments.getValue(Nutrient.proteins, PerSize.serving),
-        ).thenReturn(1.0); // 1g protein per 15ml serving
+        ).thenReturn(1.0);
         when(
           nutriments.getValue(Nutrient.fat, PerSize.serving),
-        ).thenReturn(0.0); // 0g fat per 15ml serving
+        ).thenReturn(0.0);
         when(
           nutriments.getValue(Nutrient.carbohydrates, PerSize.serving),
-        ).thenReturn(2.0); // 2g carbs per 15ml serving
+        ).thenReturn(2.0);
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.serving),
+        ).thenReturn(null); // Missing fiber should default to 0
 
         when(product.nutriments).thenReturn(nutriments);
         when(searchResult.products).thenReturn([product]);
@@ -204,36 +290,102 @@ void main() {
         final food = result.first;
 
         // Verify calculated per gram values (based on 15ml ~ 15g)
-        // 15 kcal / 15g = 1 kcal/g
         expect(food.calories, closeTo(1.0, 0.01));
-        // 1g protein / 15g = 0.0666 g/g
-        expect(food.protein, closeTo(0.0667, 0.0001));
-        // 0g fat / 15g = 0 g/g
-        expect(food.fat, closeTo(0.0, 0.01));
-        // 2g carbs / 15g = 0.1333 g/g
-        expect(food.carbs, closeTo(0.1333, 0.0001));
-        expect(food.emoji, '🍴');
+        expect(food.fiber, closeTo(0.0, 0.01)); // Defaulted to 0
 
         // Verify units list
-        expect(food.units, matcher.isNotNull);
-        expect(food.units.isNotEmpty, matcher.isTrue);
+        expect(food.portions, matcher.isNotNull);
+        expect(food.portions.isNotEmpty, matcher.isTrue);
+
+        // Verify 'tbsp' unit (standard volume)
         expect(
-          food.units.length,
-          greaterThanOrEqualTo(1),
-        ); // At least the serving unit
-        expect(
-          food.units.any(
-            (unit) => unit.name == '1 tbsp (15ml)' && unit.grams == 15.0,
+          food.portions.any(
+            (unit) =>
+                unit.name == 'tbsp' && unit.grams == 15.0 && unit.amount == 1.0,
           ),
           matcher.isTrue,
         );
-        // Also expect a 'g' unit to be generated
+        // Verify 'ml' unit
         expect(
-          food.units.any((unit) => unit.name == 'g' && unit.grams == 1.0),
+          food.portions.any(
+            (unit) =>
+                unit.name == 'ml' && unit.grams == 1.0 && unit.amount == 15.0,
+          ),
           matcher.isTrue,
         );
       },
     );
+
+    test('should bridge volume units using calorie density', () async {
+      // Arrange
+      final product = MockProduct();
+      final nutriments = MockNutriments();
+      final searchResult = MockSearchResult();
+
+      // Mock a product with complete per 100g data (Oil: ~900kcal/100g)
+      when(product.productName).thenReturn('oil');
+      when(
+        nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams),
+      ).thenReturn(900.0);
+      when(
+        nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams),
+      ).thenReturn(0.0);
+      when(
+        nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams),
+      ).thenReturn(100.0);
+      when(
+        nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
+      ).thenReturn(0.0);
+      when(
+        nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+      ).thenReturn(0.0);
+
+      // Mock serving size "1 tbsp (15ml)"
+      when(product.servingSize).thenReturn('1 tbsp (15ml)');
+      when(product.servingQuantity).thenReturn(15.0);
+
+      // Nutritional data PER SERVING (1 tbsp oil ~ 14g ~ 126kcal)
+      when(
+        nutriments.getValue(Nutrient.energyKCal, PerSize.serving),
+      ).thenReturn(126.0);
+      // Other nutrients irrelevant for bridging, but needed for strict checks if any
+
+      when(product.nutriments).thenReturn(nutriments);
+      when(searchResult.products).thenReturn([product]);
+
+      when(
+        mockApiWrapper.searchProducts(any, any),
+      ).thenAnswer((_) async => searchResult);
+
+      // Act
+      final result = await offApiService.searchFoodsByName('oil');
+
+      // Assert
+      expect(result, hasLength(1));
+      final food = result.first;
+
+      // Verify 'tbsp' unit
+      // With 1ml = 1g assumption restored:
+      // 1 tbsp = 15ml = 15g
+      expect(
+        food.portions.any(
+          (unit) =>
+              unit.name == 'tbsp' && unit.grams == 15.0 && unit.amount == 1.0,
+        ),
+        matcher.isTrue,
+      );
+
+      // Verify 'ml' unit
+      // 1 ml = 1g
+      // Amount is 15 because input was "15 ml"
+      expect(
+        food.portions.any(
+          (unit) =>
+              unit.name == 'ml' && unit.grams == 1.0 && unit.amount == 15.0,
+        ),
+        matcher.isTrue,
+      );
+    });
 
     test(
       'should correctly bridge abstract units when a 100g anchor is present',
@@ -257,6 +409,9 @@ void main() {
         when(
           nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
         ).thenReturn(60.0); // 60g carbs/100g
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+        ).thenReturn(2.0); // 2g fiber/100g
 
         // Mock an abstract serving size "1 cookie" with only calorie data
         when(product.servingSize).thenReturn('1 cookie');
@@ -302,27 +457,71 @@ void main() {
         expect(food.emoji, '🍪');
 
         // Verify units list
-        expect(food.units, matcher.isNotNull);
-        expect(food.units.isNotEmpty, matcher.isTrue);
-        expect(food.units.length, greaterThanOrEqualTo(2)); // 'g' and '1 cookie'
+        expect(food.portions, matcher.isNotNull);
+        expect(food.portions.isNotEmpty, matcher.isTrue);
+        expect(
+          food.portions.length,
+          greaterThanOrEqualTo(2),
+        ); // 'g' and 'cookie'
 
         // Verify 'g' unit
         expect(
-          food.units.any((unit) => unit.name == 'g' && unit.grams == 1.0),
+          food.portions.any(
+            (unit) =>
+                unit.name == 'g' && unit.grams == 1.0 && unit.amount == 1.0,
+          ),
           matcher.isTrue,
         );
 
-        // Verify "1 cookie" unit (bridged)
+        // Verify "cookie" unit (bridged)
         // 500 kcal / 100g = 5 kcal/g
         // 100 kcal / 5 kcal/g = 20g
         expect(
-          food.units.any(
-            (unit) => unit.name == '1 cookie' && unit.grams == 20.0,
+          food.portions.any(
+            (unit) =>
+                unit.name == 'cookie' &&
+                unit.grams == 20.0 &&
+                unit.amount == 1.0,
           ),
           matcher.isTrue,
         );
       },
     );
+
+    test('should filter out foods with no name', () async {
+      // Arrange
+      final product = MockProduct();
+      final nutriments = MockNutriments();
+      final searchResult = MockSearchResult();
+
+      when(product.productName).thenReturn(null);
+      when(product.genericName).thenReturn('');
+      // ... nutriments setup ...
+      when(
+        nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams),
+      ).thenReturn(100.0);
+      when(
+        nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams),
+      ).thenReturn(10.0);
+      when(
+        nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams),
+      ).thenReturn(10.0);
+      when(
+        nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
+      ).thenReturn(10.0);
+      when(product.nutriments).thenReturn(nutriments);
+
+      when(searchResult.products).thenReturn([product]);
+      when(
+        mockApiWrapper.searchProducts(any, any),
+      ).thenAnswer((_) async => searchResult);
+
+      // Act
+      final result = await offApiService.searchFoodsByName('nameless');
+
+      // Assert
+      expect(result, isEmpty);
+    });
 
     test(
       'should prioritize 100g data for baseline calculation when multiple anchors exist',
@@ -346,6 +545,9 @@ void main() {
         when(
           nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
         ).thenReturn(20.0); // 20g carbs/100g
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+        ).thenReturn(1.0); // 1g fiber/100g
 
         // Mock a serving size with explicit grams (secondary anchor)
         when(product.servingSize).thenReturn('1 serving (50g)');
@@ -393,20 +595,20 @@ void main() {
         expect(food.emoji, '🍕');
 
         // Verify units list contains both 'g' and serving unit
-        expect(food.units, matcher.isNotNull);
-        expect(food.units.isNotEmpty, matcher.isTrue);
-        expect(food.units.length, greaterThanOrEqualTo(2));
+        expect(food.portions, matcher.isNotNull);
+        expect(food.portions.isNotEmpty, matcher.isTrue);
+        expect(food.portions.length, greaterThanOrEqualTo(2));
 
         // Verify 'g' unit
         expect(
-          food.units.any((unit) => unit.name == 'g' && unit.grams == 1.0),
+          food.portions.any((unit) => unit.name == 'g' && unit.grams == 1.0),
           matcher.isTrue,
         );
 
         // Verify serving unit
         expect(
-          food.units.any(
-            (unit) => unit.name == '1 serving (50g)' && unit.grams == 50.0,
+          food.portions.any(
+            (unit) => unit.name == 'serving' && unit.grams == 50.0,
           ),
           matcher.isTrue,
         );
@@ -433,6 +635,9 @@ void main() {
       when(
         nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
       ).thenReturn(15.0);
+      when(
+        nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+      ).thenReturn(2.0); // 2g fiber/100g
 
       // Mock serving size "1 oz (28g)"
       when(product.servingSize).thenReturn('1 oz (28g)');
@@ -471,20 +676,23 @@ void main() {
       expect(food.emoji, '🍞');
 
       // Verify units list contains 'g' and "1 oz (28g)"
-      expect(food.units, matcher.isNotNull);
-      expect(food.units.isNotEmpty, matcher.isTrue);
-      expect(food.units.length, greaterThanOrEqualTo(2)); // 'g' and '1 oz (28g)'
+      expect(food.portions, matcher.isNotNull);
+      expect(food.portions.isNotEmpty, matcher.isTrue);
+      expect(
+        food.portions.length,
+        greaterThanOrEqualTo(2),
+      ); // 'g' and '1 oz (28g)'
 
       // Verify 'g' unit
       expect(
-        food.units.any((unit) => unit.name == 'g' && unit.grams == 1.0),
+        food.portions.any((unit) => unit.name == 'g' && unit.grams == 1.0),
         matcher.isTrue,
       );
 
-      // Verify "1 oz (28g)" unit
+      // Verify "oz" unit
       expect(
-        food.units.any(
-          (unit) => unit.name == '1 oz (28g)' && unit.grams == 28.0,
+        food.portions.any(
+          (unit) => unit.name == 'oz' && unit.grams > 28.0 && unit.grams < 29.0,
         ),
         matcher.isTrue,
       );

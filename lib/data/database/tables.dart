@@ -17,12 +17,13 @@ class Foods extends Table {
       boolean().named('hidden').withDefault(const Constant(false))();
 }
 
-@DataClassName('FoodUnit')
+@DataClassName('FoodPortion')
 class FoodUnits extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get foodId => integer().named('foodId').references(Foods, #id)();
   TextColumn get unitName => text().named('unitName')();
-  RealColumn get gramsPerUnit => real().named('gramsPerUnit')();
+  RealColumn get gramsPerPortion => real().named('gramsPerPortion')();
+  RealColumn get amountPerPortion => real().named('amountPerPortion')();
 }
 
 @DataClassName('Recipe')

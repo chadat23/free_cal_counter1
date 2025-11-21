@@ -82,13 +82,14 @@ def init_db(conn):
     """
     )
 
-    # food_units table, matching the schema expected by database_service.dart
+    # food_portions table, matching the schema expected by database_service.dart
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS food_units (
+        CREATE TABLE IF NOT EXISTS food_portions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             foodId INTEGER NOT NULL,
             unitName TEXT NOT NULL,
-            gramsPerUnit REAL NOT NULL,
+            gramsPerPortion REAL NOT NULL,
+            amountPerPortion REAL NOT NULL,
             FOREIGN KEY (foodId) REFERENCES foods(id)
         );
     """
@@ -202,32 +203,30 @@ def parse_foods(data, source_name, strict_filtering=False):
         if nutrients["fiberPerGram"] is None:
             nutrients["fiberPerGram"] = 0.0
 
-        # --- 4. Extract Servings ---
-        servings = []
-        # Always add 'g' as a base unit
-        servings.append({"unitName": "g", "gramsPerUnit": 1.0})
-
-        for p in item.get("foodServings", []):
+        # --- 4. Extract Portions ---
+        portions = []
+        for p in item.get("foodPortions", []):
             gram_weight = p.get("gramWeight")
             if gram_weight is None or gram_weight <= 0:
                 continue
             
             # Construct unit name with fallback logic
             unit_name = (
-                         p.get("servingDescription") 
-                         or p.get("modifier") 
+                         p.get("measureUnit", {}).get("abbreviation") 
                          or p.get("measureUnit", {}).get("name") 
-                         or "serving"
+                         or "portion"
                         )
             
-            # Add modifier if present and not already part of description
-            modifier = p.get("modifier")
-            if modifier and modifier.lower() not in unit_name.lower():
-                unit_name = f"{unit_name}, {modifier}"
-
-            servings.append({
+            # Construct number of units with fallback logic
+            amount = (
+                p.get("amount")
+                or 1
+            )
+            
+            portions.append({
                 "unitName": unit_name.strip(),
-                "gramsPerUnit": float(gram_weight),
+                "gramsPerPortion": float(gram_weight),
+                "amountPerPortion": amount
             })
 
         # --- 5. Assemble Food Record ---
@@ -236,7 +235,7 @@ def parse_foods(data, source_name, strict_filtering=False):
             "source": source_name,
             "sourceFdcId": fdc_id,
             **nutrients,
-            "units": servings,
+            "portions": portions,
         })
     return foods
 
@@ -270,7 +269,7 @@ def upsert_foods(conn, foods):
             )
             upsert_count += 1
             # Clear old units before inserting new ones
-            cur.execute("DELETE FROM food_units WHERE foodId=?", (food_id,))
+            cur.execute("DELETE FROM food_portions WHERE foodId=?", (food_id,))
         else: # Insert new food
             cur.execute(
                 """
@@ -287,11 +286,15 @@ def upsert_foods(conn, foods):
             insert_count += 1
             food_id = cur.lastrowid
 
-        # Insert units for the food
-        for u in f["units"]:
+        # Insert portions for the food
+        for p in f["portions"]:
             cur.execute(
-                "INSERT INTO food_units (foodId, unitName, gramsPerUnit) VALUES (?, ?, ?)",
-                (food_id, u["unitName"], u["gramsPerUnit"]),
+                """
+                INSERT INTO food_portions 
+                (foodId, unitName, gramsPerPortion, amountPerPortion) 
+                VALUES (?, ?, ?, ?)
+                """,
+                (food_id, p["unitName"], p["gramsPerPortion"], p["amountPerPortion"]),
             )
 
     conn.commit()

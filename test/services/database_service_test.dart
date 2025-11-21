@@ -89,56 +89,64 @@ void main() {
       expect(results.isEmpty, isTrue);
     });
 
-    test(
-      'should return Food objects with populated units list',
-      () async {
-        // Arrange
-        // Insert a food with associated units into the reference database
-        // For now, we'll simulate this by directly inserting into the reference database
-        // and assume a food with ID 1 will be returned.
-        // This part will need to be refined once the actual unit table is identified.
-        await referenceDatabase.into(referenceDatabase.foods).insert(
-              ref.FoodsCompanion.insert(
-                id: Value(1), // Assign an ID for linking units
-                name: 'Reference Apple',
-                source: 'foundation',
-                caloriesPerGram: 0.52,
-                proteinPerGram: 0.003,
-                fatPerGram: 0.002,
-                carbsPerGram: 0.14,
-                fiberPerGram: 0.024,
-              ),
-            );
-        // Assuming a units table exists and we can insert into it
-        // This will cause a compile error until FoodUnit and the units table are properly integrated
-        // and the Food model is updated.
-        await referenceDatabase.into(referenceDatabase.foodUnits).insert(
-              ref.FoodUnitsCompanion.insert(
-                foodId: 1,
-                unitName: '1 medium',
-                gramsPerUnit: 182.0,
-              ),
-            );
-        await referenceDatabase.into(referenceDatabase.foodUnits).insert(
-              ref.FoodUnitsCompanion.insert(
-                foodId: 1,
-                unitName: '1 cup sliced',
-                gramsPerUnit: 109.0,
-              ),
-            );
+    test('should return Food objects with populated units list', () async {
+      // Arrange
+      // Insert a food with associated units into the reference database
+      // For now, we'll simulate this by directly inserting into the reference database
+      // and assume a food with ID 1 will be returned.
+      // This part will need to be refined once the actual unit table is identified.
+      await referenceDatabase
+          .into(referenceDatabase.foods)
+          .insert(
+            ref.FoodsCompanion.insert(
+              id: Value(1), // Assign an ID for linking units
+              name: 'Reference Apple',
+              source: 'foundation',
+              caloriesPerGram: 0.52,
+              proteinPerGram: 0.003,
+              fatPerGram: 0.002,
+              carbsPerGram: 0.14,
+              fiberPerGram: 0.024,
+            ),
+          );
+      // Assuming a units table exists and we can insert into it
+      // This will cause a compile error until FoodUnit and the units table are properly integrated
+      // and the Food model is updated.
+      await referenceDatabase
+          .into(referenceDatabase.foodUnits)
+          .insert(
+            ref.FoodUnitsCompanion.insert(
+              foodId: 1,
+              unitName: '1 medium',
+              gramsPerUnit: 182.0,
+            ),
+          );
+      await referenceDatabase
+          .into(referenceDatabase.foodUnits)
+          .insert(
+            ref.FoodUnitsCompanion.insert(
+              foodId: 1,
+              unitName: '1 cup sliced',
+              gramsPerUnit: 109.0,
+            ),
+          );
 
-        // Act
-        final results = await databaseService.searchFoodsByName('Apple');
+      // Act
+      final results = await databaseService.searchFoodsByName('Apple');
 
-        // Assert
-        expect(results, isA<List<model.Food>>());
-        expect(results.length, greaterThan(0));
-        final appleFood = results.firstWhere((f) => f.name == 'Reference Apple');
-        expect(appleFood.units, matcher.isNotNull);
-        expect(appleFood.units.isNotEmpty, matcher.isTrue);
-        expect(appleFood.units.length, 2);
-        expect(appleFood.units.any((unit) => unit.name == '1 medium' && unit.grams == 182.0), matcher.isTrue);
-      },
-    );
+      // Assert
+      expect(results, isA<List<model.Food>>());
+      expect(results.length, greaterThan(0));
+      final appleFood = results.firstWhere((f) => f.name == 'Reference Apple');
+      expect(appleFood.portions, matcher.isNotNull);
+      expect(appleFood.portions.isNotEmpty, matcher.isTrue);
+      expect(appleFood.portions.length, 2);
+      expect(
+        appleFood.portions.any(
+          (unit) => unit.name == '1 medium' && unit.grams == 182.0,
+        ),
+        matcher.isTrue,
+      );
+    });
   });
 }

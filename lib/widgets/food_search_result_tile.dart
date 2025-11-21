@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
-import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
+import 'package:free_cal_counter1/models/food_portion.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:provider/provider.dart';
 
 class FoodSearchResultTile extends StatefulWidget {
   final Food food;
-  final void Function(model_unit.FoodUnit) onTap;
+  final void Function(model_unit.FoodPortion) onTap;
 
   const FoodSearchResultTile({
     super.key,
@@ -23,14 +23,14 @@ class FoodSearchResultTile extends StatefulWidget {
 }
 
 class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
-  late model_unit.FoodUnit _selectedUnit;
+  late model_unit.FoodPortion _selectedUnit;
 
   @override
   void initState() {
     super.initState();
-    _selectedUnit = widget.food.units.firstWhere(
+    _selectedUnit = widget.food.portions.firstWhere(
       (u) => u.name == 'g',
-      orElse: () => widget.food.units.first,
+      orElse: () => widget.food.portions.first,
     );
   }
 
@@ -81,10 +81,10 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
           Text(
             '${calories.round()} kcal • ${protein.toStringAsFixed(1)}g P • ${fat.toStringAsFixed(1)}g F • ${carbs.toStringAsFixed(1)}g C',
           ),
-          if (widget.food.units.length > 1)
-            DropdownButton<model_unit.FoodUnit>(
+          if (widget.food.portions.length > 1)
+            DropdownButton<model_unit.FoodPortion>(
               value: _selectedUnit,
-              items: widget.food.units.map((unit) {
+              items: widget.food.portions.map((unit) {
                 return DropdownMenuItem(value: unit, child: Text(unit.name));
               }).toList(),
               onChanged: (unit) {

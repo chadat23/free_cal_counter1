@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
-import 'package:free_cal_counter1/models/food_unit.dart' as model_unit;
+import 'package:free_cal_counter1/models/food_portion.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
 import 'package:mockito/annotations.dart';
@@ -17,9 +17,19 @@ void main() {
       tester,
     ) async {
       final mockUnits = [
-        model_unit.FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0),
-        model_unit.FoodUnit(id: 2, foodId: 1, name: '1 medium', grams: 182.0),
-        model_unit.FoodUnit(
+        model_unit.FoodPortion.FoodPortion(
+          id: 1,
+          foodId: 1,
+          name: 'g',
+          grams: 1.0,
+        ),
+        model_unit.FoodPortion.FoodPortion(
+          id: 2,
+          foodId: 1,
+          name: '1 medium',
+          grams: 182.0,
+        ),
+        model_unit.FoodPortion.FoodPortion(
           id: 3,
           foodId: 1,
           name: '1 cup sliced',
@@ -35,7 +45,7 @@ void main() {
         fat: 0.002, // per gram
         carbs: 0.14, // per gram
         source: 'test',
-        units: mockUnits,
+        portions: mockUnits,
       );
 
       await tester.pumpWidget(
@@ -54,7 +64,7 @@ void main() {
       expect(find.text('1 kcal • 0.0g P • 0.0g F • 0.1g C'), findsOneWidget);
 
       // Open the dropdown
-      await tester.tap(find.byType(DropdownButton<model_unit.FoodUnit>));
+      await tester.tap(find.byType(DropdownButton<model_unit.FoodPortion>));
       await tester.pumpAndSettle();
 
       // Select '1 medium' unit
@@ -69,7 +79,7 @@ void main() {
       expect(find.text('95 kcal • 0.5g P • 0.4g F • 25.5g C'), findsOneWidget);
 
       // Select '1 cup sliced' unit
-      await tester.tap(find.byType(DropdownButton<model_unit.FoodUnit>));
+      await tester.tap(find.byType(DropdownButton<model_unit.FoodPortion>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('1 cup sliced').last);
       await tester.pumpAndSettle();
@@ -87,7 +97,12 @@ void main() {
       (tester) async {
         final mockLogProvider = MockLogProvider();
         final mockUnits = [
-          model_unit.FoodUnit(id: 1, foodId: 1, name: 'g', grams: 1.0),
+          model_unit.FoodPortion.FoodPortion(
+            id: 1,
+            foodId: 1,
+            name: 'g',
+            grams: 1.0,
+          ),
         ];
         final food = model.Food(
           id: 1,
@@ -98,7 +113,7 @@ void main() {
           fat: 0.002,
           carbs: 0.14,
           source: 'test',
-          units: mockUnits,
+          portions: mockUnits,
         );
 
         await tester.pumpWidget(

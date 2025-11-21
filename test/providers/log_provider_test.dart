@@ -21,9 +21,10 @@ void main() {
         protein: 0.003,
         fat: 0.002,
         carbs: 0.14,
+        fiber: 0.0,
         source: 'test',
         portions: [
-          FoodPortion.FoodPortion(id: 1, foodId: 1, name: 'g', grams: 1.0),
+          FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
         ],
       );
       final serving = FoodServing(
@@ -51,9 +52,10 @@ void main() {
         protein: 0.003,
         fat: 0.002,
         carbs: 0.14,
+        fiber: 0.0,
         source: 'test',
         portions: [
-          FoodPortion.FoodPortion(id: 1, foodId: 1, name: 'g', grams: 1.0),
+          FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
         ],
       );
       final serving = FoodServing(
@@ -80,9 +82,10 @@ void main() {
         protein: 0.003,
         fat: 0.002,
         carbs: 0.14,
+        fiber: 0.0,
         source: 'test',
         portions: [
-          FoodPortion.FoodPortion(id: 1, foodId: 1, name: 'g', grams: 1.0),
+          FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
         ],
       );
       final serving = FoodServing(
@@ -111,14 +114,16 @@ void main() {
           protein: 0.003,
           fat: 0.002,
           carbs: 0.14,
+          fiber: 0.0,
           source: 'test',
           portions: [
-            FoodPortion.FoodPortion(id: 1, foodId: 1, name: 'g', grams: 1.0),
-            FoodPortion.FoodPortion(
+            FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
+            FoodPortion(
               id: 2,
               foodId: 1,
-              name: 'slice',
+              unit: 'slice',
               grams: 10.0,
+              amount: 1.0,
             ),
           ],
         );

@@ -19,6 +19,7 @@ void main() {
       protein: 0.25,
       fat: 0.2,
       carbs: 14,
+      fiber: 2.4,
       source: 'test',
     );
     final serving1 = FoodServing(
@@ -39,6 +40,7 @@ void main() {
       protein: 1.0,
       fat: 0.3,
       carbs: 23,
+      fiber: 2.6,
       source: 'test',
     );
     final serving2 = FoodServing(

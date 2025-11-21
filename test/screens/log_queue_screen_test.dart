@@ -48,9 +48,10 @@ void main() {
       protein: 0.3,
       fat: 0.2,
       carbs: 14,
+      fiber: 0.0,
       source: 'test',
       portions: [
-        FoodPortion.FoodPortion(id: 1, foodId: 1, name: 'g', grams: 1.0),
+        FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
       ],
     );
     final serving = FoodServing(food: food, servingSize: 100, servingUnit: 'g');

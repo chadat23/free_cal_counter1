@@ -17,23 +17,26 @@ void main() {
       tester,
     ) async {
       final mockUnits = [
-        model_unit.FoodPortion.FoodPortion(
+        model_unit.FoodPortion(
           id: 1,
           foodId: 1,
-          name: 'g',
+          unit: 'g',
           grams: 1.0,
+          amount: 1.0,
         ),
-        model_unit.FoodPortion.FoodPortion(
+        model_unit.FoodPortion(
           id: 2,
           foodId: 1,
-          name: '1 medium',
+          unit: '1 medium',
           grams: 182.0,
+          amount: 1.0,
         ),
-        model_unit.FoodPortion.FoodPortion(
+        model_unit.FoodPortion(
           id: 3,
           foodId: 1,
-          name: '1 cup sliced',
+          unit: '1 cup sliced',
           grams: 109.0,
+          amount: 1.0,
         ),
       ];
       final food = model.Food(
@@ -44,6 +47,7 @@ void main() {
         protein: 0.003, // per gram
         fat: 0.002, // per gram
         carbs: 0.14, // per gram
+        fiber: 0.024, // per gram
         source: 'test',
         portions: mockUnits,
       );
@@ -97,11 +101,12 @@ void main() {
       (tester) async {
         final mockLogProvider = MockLogProvider();
         final mockUnits = [
-          model_unit.FoodPortion.FoodPortion(
+          model_unit.FoodPortion(
             id: 1,
             foodId: 1,
-            name: 'g',
+            unit: 'g',
             grams: 1.0,
+            amount: 1.0,
           ),
         ];
         final food = model.Food(
@@ -112,6 +117,7 @@ void main() {
           protein: 0.003,
           fat: 0.002,
           carbs: 0.14,
+          fiber: 0.024,
           source: 'test',
           portions: mockUnits,
         );

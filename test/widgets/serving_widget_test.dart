@@ -15,6 +15,7 @@ void main() {
       protein: 0.3,
       fat: 0.2,
       carbs: 14,
+      fiber: 2.4,
       source: 'test',
     );
     final serving = FoodServing(food: food, servingSize: 100, servingUnit: 'g');

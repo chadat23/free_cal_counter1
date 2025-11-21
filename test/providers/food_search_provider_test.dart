@@ -39,6 +39,7 @@ void main() {
           protein: 0.3,
           fat: 0.2,
           carbs: 14,
+          fiber: 2.4,
           source: 'test',
         ),
       ];
@@ -93,6 +94,7 @@ void main() {
             protein: 25,
             fat: 50,
             carbs: 20,
+            fiber: 2.0,
             source: 'off',
           ),
         ];
@@ -151,6 +153,7 @@ void main() {
         protein: 20,
         fat: 10,
         carbs: 30,
+        fiber: 0.0,
         source: 'off',
       );
       when(

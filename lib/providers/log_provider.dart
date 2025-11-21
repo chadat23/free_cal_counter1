@@ -52,7 +52,7 @@ class LogProvider extends ChangeNotifier {
     _queuedCalories = _logQueue.fold(0.0, (sum, serving) {
       final food = serving.food;
       final unit = food.portions.firstWhere(
-        (u) => u.name == serving.servingUnit,
+        (u) => u.unit == serving.servingUnit,
         orElse: () => food.portions.first, // Fallback, though should not happen
       );
       final caloriesForServing =

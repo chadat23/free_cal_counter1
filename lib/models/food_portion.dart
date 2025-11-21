@@ -3,14 +3,14 @@ import 'package:equatable/equatable.dart';
 class FoodPortion extends Equatable {
   final int? id;
   final int foodId;
-  final String name;
+  final String unit;
   final double grams;
   final double amount; // number of units per portion
 
   const FoodPortion({
     this.id,
     required this.foodId,
-    required this.name,
+    required this.unit,
     required this.grams,
     required this.amount,
   });
@@ -20,7 +20,7 @@ class FoodPortion extends Equatable {
     return FoodPortion(
       id: json['id'],
       foodId: json['food_id'],
-      name: json['name'],
+      unit: json['unit'],
       grams: json['grams'],
       amount: json['amount'],
     );
@@ -31,12 +31,12 @@ class FoodPortion extends Equatable {
     return {
       'id': id,
       'food_id': foodId,
-      'name': name,
+      'unit': unit,
       'grams': grams,
       'amount': amount,
     };
   }
 
   @override
-  List<Object?> get props => [name, grams, amount];
+  List<Object?> get props => [unit, grams, amount];
 }

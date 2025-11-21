@@ -34,7 +34,7 @@ void main() {
   group('parseServingSize', () {
     test('basic mass', () {
       final text = "25g";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
       expect(result, hasLength(1));
       expect(result[0].$1, 25);
       expect(result[0].$2, 'g');
@@ -42,7 +42,7 @@ void main() {
 
     test('basic volume', () {
       final text = "240ml";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
       expect(result, hasLength(1));
       expect(result[0].$1, 240);
       expect(result[0].$2, 'ml');
@@ -50,7 +50,7 @@ void main() {
 
     test('abstract unit should be preserved', () {
       final text = "1 slice";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
       expect(result, hasLength(1));
       expect(result[0].$1, 1);
       expect(result[0].$2, 'slice');
@@ -58,28 +58,28 @@ void main() {
 
     test('abstract unit with mass', () {
       final text = "1 slice (28g)";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
       expect(result.any((r) => r.$1 == 1 && r.$2 == 'slice'), isTrue);
       expect(result.any((r) => r.$1 == 28 && r.$2 == 'g'), isTrue);
     });
 
     test('oz ambiguity: default to mass', () {
       final text = "10 oz";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
       expect(result.any((r) => r.$1 == 10 && r.$2 == 'oz'), isTrue);
       expect(result.any((r) => r.$2 == 'g'), isTrue); // Should add grams
     });
 
     test('oz ambiguity: mass context -> mass', () {
       final text = "10 oz 30g";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
       expect(result.any((r) => r.$1 == 10 && r.$2 == 'oz'), isTrue);
       expect(result.any((r) => r.$1 == 30 && r.$2 == 'g'), isTrue);
     });
 
     test('oz ambiguity: volume context -> volume', () {
       final text = "10 oz 240ml";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
       // Should treat oz as fl_oz
       expect(result.any((r) => r.$1 == 10 && r.$2 == 'fl_oz'), isTrue);
       expect(result.any((r) => r.$1 == 240 && r.$2 == 'ml'), isTrue);
@@ -87,7 +87,7 @@ void main() {
 
     test('oz ambiguity: mixed context -> mass (default)', () {
       final text = "10 oz 30g 240ml";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
       // Has both mass and volume context -> fallback to mass
       expect(result.any((r) => r.$1 == 10 && r.$2 == 'oz'), isTrue);
       expect(result.any((r) => r.$1 == 30 && r.$2 == 'g'), isTrue);
@@ -96,7 +96,7 @@ void main() {
 
     test('complex mixed string with abstract', () {
       final text = "2 bars (40g) 1.5 oz";
-      final result = parseServingSize(text);
+      final result = parsePortionSize(text);
 
       // 2 bars -> abstract
       // 40g -> mass
@@ -301,7 +301,7 @@ void main() {
         expect(
           food.portions.any(
             (unit) =>
-                unit.name == 'tbsp' && unit.grams == 15.0 && unit.amount == 1.0,
+                unit.unit == 'tbsp' && unit.grams == 15.0 && unit.amount == 1.0,
           ),
           matcher.isTrue,
         );
@@ -309,7 +309,7 @@ void main() {
         expect(
           food.portions.any(
             (unit) =>
-                unit.name == 'ml' && unit.grams == 1.0 && unit.amount == 15.0,
+                unit.unit == 'ml' && unit.grams == 1.0 && unit.amount == 15.0,
           ),
           matcher.isTrue,
         );
@@ -370,7 +370,7 @@ void main() {
       expect(
         food.portions.any(
           (unit) =>
-              unit.name == 'tbsp' && unit.grams == 15.0 && unit.amount == 1.0,
+              unit.unit == 'tbsp' && unit.grams == 15.0 && unit.amount == 1.0,
         ),
         matcher.isTrue,
       );
@@ -381,7 +381,7 @@ void main() {
       expect(
         food.portions.any(
           (unit) =>
-              unit.name == 'ml' && unit.grams == 1.0 && unit.amount == 15.0,
+              unit.unit == 'ml' && unit.grams == 1.0 && unit.amount == 15.0,
         ),
         matcher.isTrue,
       );
@@ -468,7 +468,7 @@ void main() {
         expect(
           food.portions.any(
             (unit) =>
-                unit.name == 'g' && unit.grams == 1.0 && unit.amount == 1.0,
+                unit.unit == 'g' && unit.grams == 1.0 && unit.amount == 1.0,
           ),
           matcher.isTrue,
         );
@@ -479,8 +479,117 @@ void main() {
         expect(
           food.portions.any(
             (unit) =>
-                unit.name == 'cookie' &&
+                unit.unit == 'cookie' &&
                 unit.grams == 20.0 &&
+                unit.amount == 1.0,
+          ),
+          matcher.isTrue,
+        );
+      },
+    );
+
+    test(
+      'should filter out food with abstract serving and no way to bridge (no serving calories)',
+      () async {
+        // Arrange
+        final product = MockProduct();
+        final nutriments = MockNutriments();
+        final searchResult = MockSearchResult();
+
+        // 100g data exists (so baseline is established)
+        when(product.productName).thenReturn('Mystery Bread');
+        when(
+          nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams),
+        ).thenReturn(250.0);
+        when(
+          nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams),
+        ).thenReturn(10.0);
+        when(
+          nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams),
+        ).thenReturn(5.0);
+        when(
+          nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
+        ).thenReturn(40.0);
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+        ).thenReturn(2.0);
+
+        // Serving is abstract "1 slice" with NO mass/volume
+        when(product.servingSize).thenReturn('1 slice');
+        when(product.servingQuantity).thenReturn(null);
+
+        // NO serving calories -> Cannot bridge
+        when(
+          nutriments.getValue(Nutrient.energyKCal, PerSize.serving),
+        ).thenReturn(null);
+
+        when(product.nutriments).thenReturn(nutriments);
+        when(searchResult.products).thenReturn([product]);
+        when(
+          mockApiWrapper.searchProducts(any, any),
+        ).thenAnswer((_) async => searchResult);
+
+        // Act
+        final result = await offApiService.searchFoodsByName('Mystery Bread');
+
+        // Assert
+        // Should be filtered because we can't quantify "1 slice"
+        expect(result, isEmpty);
+      },
+    );
+
+    test(
+      'should keep food with abstract serving if bridging is possible',
+      () async {
+        // Arrange
+        final product = MockProduct();
+        final nutriments = MockNutriments();
+        final searchResult = MockSearchResult();
+
+        // 100g data exists
+        when(product.productName).thenReturn('Bridged Bread');
+        when(
+          nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams),
+        ).thenReturn(250.0); // 2.5 kcal/g
+        when(
+          nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams),
+        ).thenReturn(10.0);
+        when(
+          nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams),
+        ).thenReturn(5.0);
+        when(
+          nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
+        ).thenReturn(40.0);
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+        ).thenReturn(2.0);
+
+        // Serving is abstract "1 slice"
+        when(product.servingSize).thenReturn('1 slice');
+        when(product.servingQuantity).thenReturn(null);
+
+        // Serving calories EXIST -> Can bridge
+        when(
+          nutriments.getValue(Nutrient.energyKCal, PerSize.serving),
+        ).thenReturn(100.0); // 100 kcal / 2.5 = 40g
+
+        when(product.nutriments).thenReturn(nutriments);
+        when(searchResult.products).thenReturn([product]);
+        when(
+          mockApiWrapper.searchProducts(any, any),
+        ).thenAnswer((_) async => searchResult);
+
+        // Act
+        final result = await offApiService.searchFoodsByName('Bridged Bread');
+
+        // Assert
+        expect(result, hasLength(1));
+        final food = result.first;
+        expect(
+          food.portions.any(
+            (unit) =>
+                unit.unit == 'slice' &&
+                closeTo(unit.grams, 0.1).matches(40.0, {}) &&
                 unit.amount == 1.0,
           ),
           matcher.isTrue,
@@ -601,14 +710,14 @@ void main() {
 
         // Verify 'g' unit
         expect(
-          food.portions.any((unit) => unit.name == 'g' && unit.grams == 1.0),
+          food.portions.any((unit) => unit.unit == 'g' && unit.grams == 1.0),
           matcher.isTrue,
         );
 
         // Verify serving unit
         expect(
           food.portions.any(
-            (unit) => unit.name == 'serving' && unit.grams == 50.0,
+            (unit) => unit.unit == 'serving' && unit.grams == 50.0,
           ),
           matcher.isTrue,
         );
@@ -685,14 +794,14 @@ void main() {
 
       // Verify 'g' unit
       expect(
-        food.portions.any((unit) => unit.name == 'g' && unit.grams == 1.0),
+        food.portions.any((unit) => unit.unit == 'g' && unit.grams == 1.0),
         matcher.isTrue,
       );
 
       // Verify "oz" unit
       expect(
         food.portions.any(
-          (unit) => unit.name == 'oz' && unit.grams > 28.0 && unit.grams < 29.0,
+          (unit) => unit.unit == 'oz' && unit.grams > 28.0 && unit.grams < 29.0,
         ),
         matcher.isTrue,
       );

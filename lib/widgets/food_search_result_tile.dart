@@ -29,7 +29,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
   void initState() {
     super.initState();
     _selectedUnit = widget.food.portions.firstWhere(
-      (u) => u.name == 'g',
+      (u) => u.unit == 'g',
       orElse: () => widget.food.portions.first,
     );
   }
@@ -85,7 +85,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
             DropdownButton<model_unit.FoodPortion>(
               value: _selectedUnit,
               items: widget.food.portions.map((unit) {
-                return DropdownMenuItem(value: unit, child: Text(unit.name));
+                return DropdownMenuItem(value: unit, child: Text(unit.unit));
               }).toList(),
               onChanged: (unit) {
                 if (unit != null) {
@@ -104,7 +104,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
           final serving = FoodServing(
             food: widget.food,
             servingSize: 1,
-            servingUnit: _selectedUnit.name,
+            servingUnit: _selectedUnit.unit,
           );
           logProvider.addFoodToQueue(serving);
         },

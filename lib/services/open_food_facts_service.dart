@@ -109,73 +109,68 @@ class OffApiService {
     }
 
     // Option B: Serving size with explicit grams or volume (secondary anchor)
-    // Option B: Serving size with explicit grams or volume (secondary anchor)
-    double? servingGrams;
-    final servingSizeText = product.servingSize;
+    double? portionGrams;
+    final portionSizeText = product.servingSize;
 
     // Parse serving size text using our robust parser
-    final parsedServingItems = parseServingSize(servingSizeText);
+    final parsedPortionItems = parsePortionSize(portionSizeText);
 
     // Try to find a mass or volume in the parsed items to use as servingGrams
     // Priority: Mass (g) > Volume (ml)
     // We can assume 1 ml = 1 g for the purpose of establishing a baseline if no mass is present.
 
     // 1. Look for explicit mass
-    for (final item in parsedServingItems) {
+    for (final item in parsedPortionItems) {
       // Check if unit is a mass unit (we can check if it converts to grams)
       final grams = toGrams(item.$1, item.$2);
       if (grams != null) {
-        servingGrams = grams;
+        portionGrams = grams;
         break;
       }
     }
 
     // 2. If no mass, look for explicit volume
-    // 2. If no mass, look for explicit volume
-    if (servingGrams == null) {
-      for (final item in parsedServingItems) {
+    if (portionGrams == null) {
+      for (final item in parsedPortionItems) {
         final ml = toMilliliters(item.$1, item.$2);
         if (ml != null) {
           // Assume 1ml = 1g for baseline calculation
-          servingGrams = ml;
+          portionGrams = ml;
           break;
         }
       }
     }
 
     // 3. Fallback to servingQuantity if still null
-    // 3. Fallback to servingQuantity if still null
-    // REMOVED: servingQuantity is often unitless or matches volume.
-    // We avoid assuming it represents grams.
 
-    if (servingGrams != null && servingGrams > 0) {
-      final servingEnergy = nutriments.getValue(
+    if (portionGrams != null && portionGrams > 0) {
+      final portionEnergy = nutriments.getValue(
         Nutrient.energyKCal,
         PerSize.serving,
       );
-      final servingProtein = nutriments.getValue(
+      final portionProtein = nutriments.getValue(
         Nutrient.proteins,
         PerSize.serving,
       );
-      final servingFat = nutriments.getValue(Nutrient.fat, PerSize.serving);
-      final servingCarbs = nutriments.getValue(
+      final portionFat = nutriments.getValue(Nutrient.fat, PerSize.serving);
+      final portionCarbs = nutriments.getValue(
         Nutrient.carbohydrates,
         PerSize.serving,
       );
       final servingFiber = nutriments.getValue(Nutrient.fiber, PerSize.serving);
 
-      if (servingEnergy != null &&
-          servingProtein != null &&
-          servingFat != null &&
-          servingCarbs != null &&
+      if (portionEnergy != null &&
+          portionProtein != null &&
+          portionFat != null &&
+          portionCarbs != null &&
           baseEnergyPerGram == null) {
         // Calculate per gram values from this serving anchor
         // Only if we haven't already established a baseline from 100g data
-        final double ratio = 1.0 / servingGrams;
-        baseEnergyPerGram = servingEnergy * ratio;
-        baseProteinPerGram = servingProtein * ratio;
-        baseFatPerGram = servingFat * ratio;
-        baseCarbsPerGram = servingCarbs * ratio;
+        final double ratio = 1.0 / portionGrams;
+        baseEnergyPerGram = portionEnergy * ratio;
+        baseProteinPerGram = portionProtein * ratio;
+        baseFatPerGram = portionFat * ratio;
+        baseCarbsPerGram = portionCarbs * ratio;
         baseFiberPerGram = (servingFiber ?? 0.0) * ratio;
       }
     }
@@ -199,40 +194,40 @@ class OffApiService {
       model_unit.FoodPortion(
         id: null,
         foodId: 0,
-        name: 'g',
+        unit: 'g',
         grams: 1.0,
         amount: 1.0,
       ),
     );
 
     // Add units from parsed serving size
-    for (final item in parsedServingItems) {
+    for (final item in parsedPortionItems) {
       final amount = item.$1;
       final unitName = item.$2;
 
-      double? gramsPerUnit;
+      double? gramsPerPortion;
 
       // Check if it's a known mass unit
       final massGrams = toGrams(1.0, unitName);
       if (massGrams != null) {
-        gramsPerUnit = massGrams;
+        gramsPerPortion = massGrams;
       } else {
         // Check if it's a known volume unit
         final volMl = toMilliliters(1.0, unitName);
         if (volMl != null) {
-          gramsPerUnit = volMl; // 1ml ~ 1g
+          gramsPerPortion = volMl; // 1ml ~ 1g
         }
       }
 
-      if (gramsPerUnit != null) {
+      if (gramsPerPortion != null) {
         // It's a standard unit (e.g. oz, cup). Add it.
-        if (!units.any((u) => u.name == unitName)) {
+        if (!units.any((u) => u.unit == unitName)) {
           units.add(
             model_unit.FoodPortion(
               id: null,
               foodId: 0,
-              name: unitName,
-              grams: gramsPerUnit,
+              unit: unitName,
+              grams: gramsPerPortion,
               amount: amount,
             ),
           );
@@ -245,14 +240,14 @@ class OffApiService {
         // So "1 slice (28g)" -> 1 slice = 28g.
         // "2 cookies (50g)" -> 2 cookies = 50g -> 1 cookie = 25g.
 
-        if (servingGrams != null && servingGrams > 0) {
-          final calculatedGrams = servingGrams / amount;
-          if (!units.any((u) => u.name == unitName)) {
+        if (portionGrams != null && portionGrams > 0) {
+          final calculatedGrams = portionGrams / amount;
+          if (!units.any((u) => u.unit == unitName)) {
             units.add(
               model_unit.FoodPortion(
                 id: null,
                 foodId: 0,
-                name: unitName,
+                unit: unitName,
                 grams: calculatedGrams,
                 amount: amount,
               ),
@@ -260,19 +255,19 @@ class OffApiService {
           }
         } else {
           // Try calorie bridging if servingGrams wasn't found (e.g. only 100g anchor)
-          final servingEnergy = nutriments.getValue(
+          final portionEnergy = nutriments.getValue(
             Nutrient.energyKCal,
             PerSize.serving,
           );
-          if (servingEnergy != null && caloriesPerGram > 0) {
-            final bridgedGrams = servingEnergy / caloriesPerGram;
+          if (portionEnergy != null && caloriesPerGram > 0) {
+            final bridgedGrams = portionEnergy / caloriesPerGram;
             final perUnitGrams = bridgedGrams / amount;
-            if (!units.any((u) => u.name == unitName)) {
+            if (!units.any((u) => u.unit == unitName)) {
               units.add(
                 model_unit.FoodPortion(
                   id: null,
                   foodId: 0,
-                  name: unitName,
+                  unit: unitName,
                   grams: perUnitGrams,
                   amount: amount,
                 ),
@@ -286,6 +281,12 @@ class OffApiService {
     // Ensure units list is not empty
     if (units.isEmpty) {
       // This should be rare now that we always add 'g'
+      return null;
+    }
+
+    // Filter out foods where we parsed a serving size but failed to resolve it to grams
+    // (e.g. "1 slice" with no mass/volume and no bridging possible)
+    if (parsedPortionItems.isNotEmpty && units.length == 1) {
       return null;
     }
 
@@ -310,8 +311,8 @@ class OffApiService {
   }
 }
 
-List<(double, String)> parseServingSize(String? servingSizeText) {
-  if (servingSizeText == null || servingSizeText.isEmpty) return const [];
+List<(double, String)> parsePortionSize(String? portionSizeText) {
+  if (portionSizeText == null || portionSizeText.isEmpty) return const [];
 
   // Regex to capture number and unit.
   // Matches: "25g", "1.5 cup", "1/2 cup" (simplified to decimal for now based on previous code, but let's stick to the plan's regex)
@@ -328,7 +329,7 @@ List<(double, String)> parseServingSize(String? servingSizeText) {
     r'(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+(?:\s+[a-zA-Z]+)?)',
   );
 
-  final matches = robustPattern.allMatches(servingSizeText);
+  final matches = robustPattern.allMatches(portionSizeText);
 
   if (matches.isEmpty) return const [];
 

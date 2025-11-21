@@ -95,7 +95,7 @@ class DatabaseService {
           (p) => model_portion.FoodPortion(
             id: p.id as int,
             foodId: p.foodId as int,
-            name: p.unitName as String,
+            unit: p.unitName as String,
             grams: p.gramsPerPortion as double,
             amount: p.amoutPerPortion as double,
           ),

@@ -143,7 +143,7 @@ void main() {
       expect(appleFood.portions.length, 2);
       expect(
         appleFood.portions.any(
-          (unit) => unit.name == '1 medium' && unit.grams == 182.0,
+          (unit) => unit.unit == '1 medium' && unit.grams == 182.0,
         ),
         matcher.isTrue,
       );

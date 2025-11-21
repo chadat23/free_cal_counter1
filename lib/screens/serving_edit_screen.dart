@@ -56,7 +56,7 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                     items: widget.food.portions.map((unit) {
                       return DropdownMenuItem(
                         value: unit,
-                        child: Text(unit.name),
+                        child: Text(unit.unit),
                       );
                     }).toList(),
                     onChanged: (unit) {
@@ -92,7 +92,7 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                     final serving = FoodServing(
                       food: widget.food,
                       servingSize: amount,
-                      servingUnit: _selectedUnit.name,
+                      servingUnit: _selectedUnit.unit,
                     );
                     logProvider.addFoodToQueue(serving);
                     Navigator.pop(context);

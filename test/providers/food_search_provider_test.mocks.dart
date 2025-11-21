@@ -6,7 +6,7 @@
 import 'dart:async' as _i5;
 
 import 'package:free_cal_counter1/models/food.dart' as _i2;
-import 'package:free_cal_counter1/models/food_portion.dart' as _i6;
+import 'package:free_cal_counter1/models/food_serving.dart' as _i6;
 import 'package:free_cal_counter1/services/database_service.dart' as _i3;
 import 'package:free_cal_counter1/services/food_search_service.dart' as _i7;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i4;
@@ -70,17 +70,17 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i5.Future<List<_i2.Food>>);
 
   @override
-  _i5.Future<List<_i6.FoodPortion>> getUnitsForFood(
+  _i5.Future<List<_i6.FoodServing>> getServingsForFood(
     int? foodId,
     String? foodSource,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#getUnitsForFood, [foodId, foodSource]),
-            returnValue: _i5.Future<List<_i6.FoodPortion>>.value(
-              <_i6.FoodPortion>[],
+            Invocation.method(#getServingsForFood, [foodId, foodSource]),
+            returnValue: _i5.Future<List<_i6.FoodServing>>.value(
+              <_i6.FoodServing>[],
             ),
           )
-          as _i5.Future<List<_i6.FoodPortion>>);
+          as _i5.Future<List<_i6.FoodServing>>);
 
   @override
   _i5.Future<_i2.Food?> getFoodByBarcode(String? barcode) =>

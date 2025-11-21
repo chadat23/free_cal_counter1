@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart';
 
 import 'package:free_cal_counter1/models/food.dart' as model;
-import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
+import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart'
-    hide FoodUnit, FoodsCompanion;
+    hide FoodPortion, FoodsCompanion;
 
 class DatabaseService {
   late final LiveDatabase _liveDb;
@@ -32,7 +32,7 @@ class DatabaseService {
 
   model.Food _mapFoodData(
     dynamic foodData,
-    List<model_portion.FoodPortion> portions,
+    List<model_serving.FoodServing> servings,
   ) {
     return model.Food(
       id: foodData.id,
@@ -44,7 +44,7 @@ class DatabaseService {
       fat: foodData.fatPerGram,
       carbs: foodData.carbsPerGram,
       fiber: foodData.fiberPerGram,
-      portions: portions,
+      servings: servings,
     );
   }
 
@@ -62,42 +62,42 @@ class DatabaseService {
 
     final List<model.Food> liveFoods = [];
     for (final foodData in liveFoodsData) {
-      final units = await getUnitsForFood(foodData.id, foodData.source);
-      liveFoods.add(_mapFoodData(foodData, units));
+      final servings = await getServingsForFood(foodData.id, foodData.source);
+      liveFoods.add(_mapFoodData(foodData, servings));
     }
 
     final List<model.Food> refFoods = [];
     for (final foodData in refFoodsData) {
-      final units = await getUnitsForFood(foodData.id, foodData.source);
-      refFoods.add(_mapFoodData(foodData, units));
+      final servings = await getServingsForFood(foodData.id, foodData.source);
+      refFoods.add(_mapFoodData(foodData, servings));
     }
 
     return [...liveFoods, ...refFoods];
   }
 
-  Future<List<model_portion.FoodPortion>> getUnitsForFood(
+  Future<List<model_serving.FoodServing>> getServingsForFood(
     int foodId,
     String foodSource,
   ) async {
-    List<dynamic> driftUnits;
+    List<dynamic> driftServings;
     if (foodSource == 'live') {
-      driftUnits = await (_liveDb.select(
-        _liveDb.foodUnits,
-      )..where((u) => u.foodId.equals(foodId))).get();
+      driftServings = await (_liveDb.select(
+        _liveDb.foodPortions,
+      )..where((s) => s.foodId.equals(foodId))).get();
     } else {
       // 'foundation' or 'reference'
-      driftUnits = await (_referenceDb.select(
-        _referenceDb.foodUnits,
-      )..where((u) => u.foodId.equals(foodId))).get();
+      driftServings = await (_referenceDb.select(
+        _referenceDb.foodPortions,
+      )..where((s) => s.foodId.equals(foodId))).get();
     }
-    return driftUnits
+    return driftServings
         .map(
-          (p) => model_portion.FoodPortion(
-            id: p.id as int,
-            foodId: p.foodId as int,
-            unit: p.unitName as String,
-            grams: p.gramsPerPortion as double,
-            amount: p.amoutPerPortion as double,
+          (s) => model_serving.FoodServing(
+            id: s.id as int,
+            foodId: s.foodId as int,
+            unit: s.unit as String,
+            grams: s.grams as double,
+            quantity: s.quantity as double,
           ),
         )
         .toList();
@@ -125,7 +125,7 @@ class DatabaseService {
       proteinPerGram: food.protein,
       fatPerGram: food.fat,
       carbsPerGram: food.carbs,
-      fiberPerGram: 0, // Default value
+      fiberPerGram: food.fiber,
       sourceFdcId: Value(food.id == 0 ? null : food.id),
     );
     final newFoodData = await _liveDb.into(_liveDb.foods).insert(companion);

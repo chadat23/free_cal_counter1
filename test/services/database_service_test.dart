@@ -113,21 +113,23 @@ void main() {
       // This will cause a compile error until FoodUnit and the units table are properly integrated
       // and the Food model is updated.
       await referenceDatabase
-          .into(referenceDatabase.foodUnits)
+          .into(referenceDatabase.foodPortions)
           .insert(
-            ref.FoodUnitsCompanion.insert(
+            ref.FoodPortionsCompanion.insert(
               foodId: 1,
-              unitName: '1 medium',
-              gramsPerUnit: 182.0,
+              unit: '1 medium',
+              grams: 182.0,
+              quantity: 1.0,
             ),
           );
       await referenceDatabase
-          .into(referenceDatabase.foodUnits)
+          .into(referenceDatabase.foodPortions)
           .insert(
-            ref.FoodUnitsCompanion.insert(
+            ref.FoodPortionsCompanion.insert(
               foodId: 1,
-              unitName: '1 cup sliced',
-              gramsPerUnit: 109.0,
+              unit: '1 cup sliced',
+              grams: 109.0,
+              quantity: 1.0,
             ),
           );
 
@@ -138,11 +140,11 @@ void main() {
       expect(results, isA<List<model.Food>>());
       expect(results.length, greaterThan(0));
       final appleFood = results.firstWhere((f) => f.name == 'Reference Apple');
-      expect(appleFood.portions, matcher.isNotNull);
-      expect(appleFood.portions.isNotEmpty, matcher.isTrue);
-      expect(appleFood.portions.length, 2);
+      expect(appleFood.servings, matcher.isNotNull);
+      expect(appleFood.servings.isNotEmpty, matcher.isTrue);
+      expect(appleFood.servings.length, 2);
       expect(
-        appleFood.portions.any(
+        appleFood.servings.any(
           (unit) => unit.unit == '1 medium' && unit.grams == 182.0,
         ),
         matcher.isTrue,

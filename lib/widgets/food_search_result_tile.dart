@@ -2,15 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
-import 'package:free_cal_counter1/models/food_portion.dart' as model_unit;
+import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:provider/provider.dart';
 
 class FoodSearchResultTile extends StatefulWidget {
   final Food food;
-  final void Function(model_unit.FoodPortion) onTap;
+  final void Function(model_unit.FoodServing) onTap;
 
   const FoodSearchResultTile({
     super.key,
@@ -23,14 +23,14 @@ class FoodSearchResultTile extends StatefulWidget {
 }
 
 class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
-  late model_unit.FoodPortion _selectedUnit;
+  late model_unit.FoodServing _selectedUnit;
 
   @override
   void initState() {
     super.initState();
-    _selectedUnit = widget.food.portions.firstWhere(
+    _selectedUnit = widget.food.servings.firstWhere(
       (u) => u.unit == 'g',
-      orElse: () => widget.food.portions.first,
+      orElse: () => widget.food.servings.first,
     );
   }
 
@@ -81,10 +81,10 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
           Text(
             '${calories.round()} kcal • ${protein.toStringAsFixed(1)}g P • ${fat.toStringAsFixed(1)}g F • ${carbs.toStringAsFixed(1)}g C',
           ),
-          if (widget.food.portions.length > 1)
-            DropdownButton<model_unit.FoodPortion>(
+          if (widget.food.servings.length > 1)
+            DropdownButton<model_unit.FoodServing>(
               value: _selectedUnit,
-              items: widget.food.portions.map((unit) {
+              items: widget.food.servings.map((unit) {
                 return DropdownMenuItem(value: unit, child: Text(unit.unit));
               }).toList(),
               onChanged: (unit) {
@@ -101,10 +101,10 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
         icon: const Icon(Icons.add),
         onPressed: () {
           final logProvider = Provider.of<LogProvider>(context, listen: false);
-          final serving = FoodServing(
+          final serving = FoodPortion(
             food: widget.food,
-            servingSize: 1,
-            servingUnit: _selectedUnit.unit,
+            grams: 1,
+            unit: _selectedUnit.unit,
           );
           logProvider.addFoodToQueue(serving);
         },

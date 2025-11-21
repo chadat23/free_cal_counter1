@@ -3,10 +3,10 @@ import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
-import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
 
 class LogScreen extends StatefulWidget {
@@ -67,7 +67,7 @@ class _LogScreenState extends State<LogScreen> {
         timestamp: DateTime.now().subtract(const Duration(hours: 3)),
         loggedFoods: [
           LoggedFood(
-            serving: FoodServing(
+            portion: FoodPortion(
               food: Food(
                 id: 1,
                 source: 'user_created',
@@ -79,13 +79,13 @@ class _LogScreenState extends State<LogScreen> {
                 carbs: 14,
                 fiber: 0.1,
               ),
-              servingSize: 100,
-              servingUnit: 'g',
+              grams: 100,
+              unit: 'g',
             ),
             timestamp: DateTime.now().subtract(const Duration(hours: 3)),
           ),
           LoggedFood(
-            serving: FoodServing(
+            portion: FoodPortion(
               food: Food(
                 id: 2,
                 source: 'user_created',
@@ -97,8 +97,8 @@ class _LogScreenState extends State<LogScreen> {
                 carbs: 23,
                 fiber: 0.4,
               ),
-              servingSize: 150,
-              servingUnit: 'g',
+              grams: 150,
+              unit: 'g',
             ),
             timestamp: DateTime.now().subtract(const Duration(hours: 3)),
           ),
@@ -108,7 +108,7 @@ class _LogScreenState extends State<LogScreen> {
         timestamp: DateTime.now().subtract(const Duration(hours: 1)),
         loggedFoods: [
           LoggedFood(
-            serving: FoodServing(
+            portion: FoodPortion(
               food: Food(
                 id: 3,
                 source: 'user_created',
@@ -120,8 +120,8 @@ class _LogScreenState extends State<LogScreen> {
                 carbs: 0,
                 fiber: 0.2,
               ),
-              servingSize: 100,
-              servingUnit: 'g',
+              grams: 100,
+              unit: 'g',
             ),
             timestamp: DateTime.now().subtract(const Duration(hours: 1)),
           ),

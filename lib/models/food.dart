@@ -1,4 +1,4 @@
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 
 class Food {
   final int id;
@@ -11,7 +11,7 @@ class Food {
   final double fat;
   final double carbs;
   final double fiber;
-  final List<FoodPortion> portions;
+  final List<FoodServing> servings;
 
   Food({
     required this.id,
@@ -24,7 +24,7 @@ class Food {
     required this.fat,
     required this.carbs,
     required this.fiber,
-    this.portions = const [], // Initialize with an empty list
+    this.servings = const [], // Initialize with an empty list
   });
 
   Food copyWith({
@@ -38,7 +38,7 @@ class Food {
     double? fat,
     double? carbs,
     double? fiber,
-    List<FoodPortion>? portions,
+    List<FoodServing>? servings,
   }) {
     return Food(
       id: id ?? this.id,
@@ -51,7 +51,7 @@ class Food {
       fat: fat ?? this.fat,
       carbs: carbs ?? this.carbs,
       fiber: fiber ?? this.fiber,
-      portions: portions ?? this.portions,
+      servings: servings ?? this.servings,
     );
   }
 }

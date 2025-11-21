@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 
 class LogProvider extends ChangeNotifier {
   // Placeholder values for now
   double _loggedCalories = 0.0;
   double _queuedCalories = 0.0;
   double _dailyTargetCalories = 2000.0; // Example target
-  final List<FoodServing> _logQueue = [];
+  final List<FoodPortion> _logQueue = [];
 
   double get loggedCalories => _loggedCalories;
   double get queuedCalories => _queuedCalories;
   double get totalCalories => _loggedCalories + _queuedCalories;
   double get dailyTargetCalories => _dailyTargetCalories;
-  List<FoodServing> get logQueue => _logQueue;
+  List<FoodPortion> get logQueue => _logQueue;
 
   // Methods to update these values will be added later
   void updateLoggedCalories(double calories) {
@@ -30,13 +30,13 @@ class LogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addFoodToQueue(FoodServing serving) {
+  void addFoodToQueue(FoodPortion serving) {
     _logQueue.add(serving);
     _recalculateQueuedCalories();
     notifyListeners();
   }
 
-  void removeFoodFromQueue(FoodServing serving) {
+  void removeFoodFromQueue(FoodPortion serving) {
     _logQueue.remove(serving);
     _recalculateQueuedCalories();
     notifyListeners();
@@ -51,12 +51,11 @@ class LogProvider extends ChangeNotifier {
   void _recalculateQueuedCalories() {
     _queuedCalories = _logQueue.fold(0.0, (sum, serving) {
       final food = serving.food;
-      final unit = food.portions.firstWhere(
-        (u) => u.unit == serving.servingUnit,
-        orElse: () => food.portions.first, // Fallback, though should not happen
+      final unit = food.servings.firstWhere(
+        (u) => u.unit == serving.unit,
+        orElse: () => food.servings.first, // Fallback, though should not happen
       );
-      final caloriesForServing =
-          food.calories * unit.grams * serving.servingSize;
+      final caloriesForServing = food.calories * unit.grams * serving.grams;
       return sum + caloriesForServing;
     });
   }

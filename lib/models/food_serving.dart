@@ -1,13 +1,42 @@
-import 'package:free_cal_counter1/models/food.dart';
+import 'package:equatable/equatable.dart';
 
-class FoodServing {
-  final Food food;
-  final double servingSize;
-  final String servingUnit;
+class FoodServing extends Equatable {
+  final int? id;
+  final int foodId;
+  final String unit;
+  final double grams;
+  final double quantity; // number of units per serving
 
-  FoodServing({
-    required this.food,
-    required this.servingSize,
-    required this.servingUnit,
+  const FoodServing({
+    this.id,
+    required this.foodId,
+    required this.unit,
+    required this.grams,
+    required this.quantity,
   });
+
+  // fromJson constructor
+  factory FoodServing.fromJson(Map<String, dynamic> json) {
+    return FoodServing(
+      id: json['id'],
+      foodId: json['food_id'],
+      unit: json['unit'],
+      grams: json['grams'],
+      quantity: json['quantity'],
+    );
+  }
+
+  // toJson method
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'food_id': foodId,
+      'unit': unit,
+      'grams': grams,
+      'quantity': quantity,
+    };
+  }
+
+  @override
+  List<Object?> get props => [unit, grams, quantity];
 }

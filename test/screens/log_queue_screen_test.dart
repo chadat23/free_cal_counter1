@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
@@ -50,11 +50,11 @@ void main() {
       carbs: 14,
       fiber: 0.0,
       source: 'test',
-      portions: [
-        FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
+      servings: [
+        FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
       ],
     );
-    final serving = FoodServing(food: food, servingSize: 100, servingUnit: 'g');
+    final serving = FoodPortion(food: food, grams: 100, unit: 'g');
     logProvider.addFoodToQueue(serving);
 
     await tester.pumpWidget(

@@ -47,7 +47,7 @@ class MealWidget extends StatelessWidget {
               return Column(
                 children: [
                   SlidableServingWidget(
-                    serving: loggedFood.serving,
+                    serving: loggedFood.portion,
                     onDelete: () {},
                   ),
                   if (index < meal.loggedFoods.length - 1)

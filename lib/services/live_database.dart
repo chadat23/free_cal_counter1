@@ -8,7 +8,7 @@ import 'package:free_cal_counter1/data/database/tables.dart';
 
 part 'live_database.g.dart';
 
-@DriftDatabase(tables: [Foods, FoodUnits, Recipes, RecipeItems, LoggedFoods])
+@DriftDatabase(tables: [Foods, FoodPortions, Recipes, RecipeItems, LoggedFoods])
 class LiveDatabase extends _$LiveDatabase {
   LiveDatabase({required QueryExecutor connection}) : super(connection);
 

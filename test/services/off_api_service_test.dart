@@ -294,22 +294,24 @@ void main() {
         expect(food.fiber, closeTo(0.0, 0.01)); // Defaulted to 0
 
         // Verify units list
-        expect(food.portions, matcher.isNotNull);
-        expect(food.portions.isNotEmpty, matcher.isTrue);
+        expect(food.servings, matcher.isNotNull);
+        expect(food.servings.isNotEmpty, matcher.isTrue);
 
         // Verify 'tbsp' unit (standard volume)
         expect(
-          food.portions.any(
+          food.servings.any(
             (unit) =>
-                unit.unit == 'tbsp' && unit.grams == 15.0 && unit.amount == 1.0,
+                unit.unit == 'tbsp' &&
+                unit.grams == 15.0 &&
+                unit.quantity == 1.0,
           ),
           matcher.isTrue,
         );
         // Verify 'ml' unit
         expect(
-          food.portions.any(
+          food.servings.any(
             (unit) =>
-                unit.unit == 'ml' && unit.grams == 1.0 && unit.amount == 15.0,
+                unit.unit == 'ml' && unit.grams == 1.0 && unit.quantity == 15.0,
           ),
           matcher.isTrue,
         );
@@ -368,9 +370,9 @@ void main() {
       // With 1ml = 1g assumption restored:
       // 1 tbsp = 15ml = 15g
       expect(
-        food.portions.any(
+        food.servings.any(
           (unit) =>
-              unit.unit == 'tbsp' && unit.grams == 15.0 && unit.amount == 1.0,
+              unit.unit == 'tbsp' && unit.grams == 15.0 && unit.quantity == 1.0,
         ),
         matcher.isTrue,
       );
@@ -379,9 +381,9 @@ void main() {
       // 1 ml = 1g
       // Amount is 15 because input was "15 ml"
       expect(
-        food.portions.any(
+        food.servings.any(
           (unit) =>
-              unit.unit == 'ml' && unit.grams == 1.0 && unit.amount == 15.0,
+              unit.unit == 'ml' && unit.grams == 1.0 && unit.quantity == 15.0,
         ),
         matcher.isTrue,
       );
@@ -457,18 +459,18 @@ void main() {
         expect(food.emoji, '🍪');
 
         // Verify units list
-        expect(food.portions, matcher.isNotNull);
-        expect(food.portions.isNotEmpty, matcher.isTrue);
+        expect(food.servings, matcher.isNotNull);
+        expect(food.servings.isNotEmpty, matcher.isTrue);
         expect(
-          food.portions.length,
+          food.servings.length,
           greaterThanOrEqualTo(2),
         ); // 'g' and 'cookie'
 
         // Verify 'g' unit
         expect(
-          food.portions.any(
+          food.servings.any(
             (unit) =>
-                unit.unit == 'g' && unit.grams == 1.0 && unit.amount == 1.0,
+                unit.unit == 'g' && unit.grams == 1.0 && unit.quantity == 1.0,
           ),
           matcher.isTrue,
         );
@@ -477,11 +479,11 @@ void main() {
         // 500 kcal / 100g = 5 kcal/g
         // 100 kcal / 5 kcal/g = 20g
         expect(
-          food.portions.any(
+          food.servings.any(
             (unit) =>
                 unit.unit == 'cookie' &&
                 unit.grams == 20.0 &&
-                unit.amount == 1.0,
+                unit.quantity == 1.0,
           ),
           matcher.isTrue,
         );
@@ -586,11 +588,11 @@ void main() {
         expect(result, hasLength(1));
         final food = result.first;
         expect(
-          food.portions.any(
+          food.servings.any(
             (unit) =>
                 unit.unit == 'slice' &&
                 closeTo(unit.grams, 0.1).matches(40.0, {}) &&
-                unit.amount == 1.0,
+                unit.quantity == 1.0,
           ),
           matcher.isTrue,
         );
@@ -704,19 +706,19 @@ void main() {
         expect(food.emoji, '🍕');
 
         // Verify units list contains both 'g' and serving unit
-        expect(food.portions, matcher.isNotNull);
-        expect(food.portions.isNotEmpty, matcher.isTrue);
-        expect(food.portions.length, greaterThanOrEqualTo(2));
+        expect(food.servings, matcher.isNotNull);
+        expect(food.servings.isNotEmpty, matcher.isTrue);
+        expect(food.servings.length, greaterThanOrEqualTo(2));
 
         // Verify 'g' unit
         expect(
-          food.portions.any((unit) => unit.unit == 'g' && unit.grams == 1.0),
+          food.servings.any((unit) => unit.unit == 'g' && unit.grams == 1.0),
           matcher.isTrue,
         );
 
         // Verify serving unit
         expect(
-          food.portions.any(
+          food.servings.any(
             (unit) => unit.unit == 'serving' && unit.grams == 50.0,
           ),
           matcher.isTrue,
@@ -785,22 +787,22 @@ void main() {
       expect(food.emoji, '🍞');
 
       // Verify units list contains 'g' and "1 oz (28g)"
-      expect(food.portions, matcher.isNotNull);
-      expect(food.portions.isNotEmpty, matcher.isTrue);
+      expect(food.servings, matcher.isNotNull);
+      expect(food.servings.isNotEmpty, matcher.isTrue);
       expect(
-        food.portions.length,
+        food.servings.length,
         greaterThanOrEqualTo(2),
       ); // 'g' and '1 oz (28g)'
 
       // Verify 'g' unit
       expect(
-        food.portions.any((unit) => unit.unit == 'g' && unit.grams == 1.0),
+        food.servings.any((unit) => unit.unit == 'g' && unit.grams == 1.0),
         matcher.isTrue,
       );
 
       // Verify "oz" unit
       expect(
-        food.portions.any(
+        food.servings.any(
           (unit) => unit.unit == 'oz' && unit.grams > 28.0 && unit.grams < 29.0,
         ),
         matcher.isTrue,

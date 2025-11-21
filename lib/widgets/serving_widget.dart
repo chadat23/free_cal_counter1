@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 
 class ServingWidget extends StatelessWidget {
-  final FoodServing serving;
+  final FoodPortion serving;
 
   const ServingWidget({super.key, required this.serving});
 
@@ -25,7 +25,7 @@ class ServingWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text('${serving.servingSize.toInt()} ${serving.servingUnit}'),
+              Text('${serving.grams.toInt()} ${serving.unit}'),
             ],
           ),
           const Spacer(),

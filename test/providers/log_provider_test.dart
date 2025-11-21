@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 
 void main() {
@@ -23,23 +23,19 @@ void main() {
         carbs: 0.14,
         fiber: 0.0,
         source: 'test',
-        portions: [
-          FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
+        servings: [
+          FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
         ],
       );
-      final serving = FoodServing(
-        food: food,
-        servingSize: 100,
-        servingUnit: 'g',
-      );
+      final portion = FoodPortion(food: food, grams: 100, unit: 'g');
 
       // Act
-      logProvider.addFoodToQueue(serving);
+      logProvider.addFoodToQueue(portion);
 
       // Assert
       // 0.52 calories/g * 1.0 g/unit * 100 units = 52 calories
       expect(logProvider.logQueue.length, 1);
-      expect(logProvider.logQueue.first, serving);
+      expect(logProvider.logQueue.first, portion);
       expect(logProvider.queuedCalories, 52);
     });
 
@@ -54,19 +50,15 @@ void main() {
         carbs: 0.14,
         fiber: 0.0,
         source: 'test',
-        portions: [
-          FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
+        servings: [
+          FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
         ],
       );
-      final serving = FoodServing(
-        food: food,
-        servingSize: 100,
-        servingUnit: 'g',
-      );
-      logProvider.addFoodToQueue(serving);
+      final portion = FoodPortion(food: food, grams: 100, unit: 'g');
+      logProvider.addFoodToQueue(portion);
 
       // Act
-      logProvider.removeFoodFromQueue(serving);
+      logProvider.removeFoodFromQueue(portion);
 
       // Assert
       expect(logProvider.logQueue.length, 0);
@@ -84,15 +76,11 @@ void main() {
         carbs: 0.14,
         fiber: 0.0,
         source: 'test',
-        portions: [
-          FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
+        servings: [
+          FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
         ],
       );
-      final serving = FoodServing(
-        food: food,
-        servingSize: 100,
-        servingUnit: 'g',
-      );
+      final serving = FoodPortion(food: food, grams: 100, unit: 'g');
       logProvider.addFoodToQueue(serving);
 
       // Act
@@ -116,22 +104,18 @@ void main() {
           carbs: 0.14,
           fiber: 0.0,
           source: 'test',
-          portions: [
-            FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
-            FoodPortion(
+          servings: [
+            FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
+            FoodServing(
               id: 2,
               foodId: 1,
               unit: 'slice',
               grams: 10.0,
-              amount: 1.0,
+              quantity: 1.0,
             ),
           ],
         );
-        final serving = FoodServing(
-          food: food,
-          servingSize: 2,
-          servingUnit: 'slice',
-        );
+        final serving = FoodPortion(food: food, grams: 2, unit: 'slice');
 
         // Act
         logProvider.addFoodToQueue(serving);

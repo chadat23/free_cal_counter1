@@ -9,7 +9,7 @@ import 'package:free_cal_counter1/data/database/tables.dart';
 
 part 'reference_database.g.dart';
 
-@DriftDatabase(tables: [Foods, FoodUnits])
+@DriftDatabase(tables: [Foods, FoodPortions])
 class ReferenceDatabase extends _$ReferenceDatabase {
   ReferenceDatabase({required QueryExecutor connection}) : super(connection);
 

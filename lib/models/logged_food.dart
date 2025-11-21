@@ -1,8 +1,8 @@
-import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 
 class LoggedFood {
-  final FoodServing serving;
+  final FoodPortion portion;
   final DateTime timestamp;
 
-  LoggedFood({required this.serving, required this.timestamp});
+  LoggedFood({required this.portion, required this.timestamp});
 }

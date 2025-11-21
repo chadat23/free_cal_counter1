@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
 import 'package:mockito/annotations.dart';
@@ -27,9 +27,9 @@ void main() {
     carbs: 14,
     fiber: 0.0,
     source: 'test',
-    portions: [
-      FoodPortion(id: 1, foodId: 1, unit: 'g', grams: 1.0, amount: 1.0),
-      FoodPortion(id: 2, foodId: 1, unit: 'slice', grams: 10.0, amount: 1.0),
+    servings: [
+      FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
+      FoodServing(id: 2, foodId: 1, unit: 'slice', grams: 10.0, quantity: 1.0),
     ],
   );
 

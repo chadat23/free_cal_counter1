@@ -1,13 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 
 class LogQueueTopRibbon extends StatelessWidget {
   final IconData arrowDirection;
   final VoidCallback onArrowPressed;
   final double totalCalories;
   final double dailyTargetCalories;
-  final List<FoodServing> logQueue;
+  final List<FoodPortion> logQueue;
 
   const LogQueueTopRibbon({
     super.key,

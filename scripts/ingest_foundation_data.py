@@ -214,17 +214,23 @@ def parse_foods(data, source_name, strict_filtering=False):
             unit_name = (
                          p.get("measureUnit", {}).get("abbreviation") 
                          or p.get("measureUnit", {}).get("name") 
-                         or "portion"
+                         or None
                         )
             
-            # Construct number of units with fallback logic
-            amount = (
-                p.get("amount")
-                or 1
-            )
+            # If we got "undetermined" or nothing, use modifier
+            if not unit_name or unit_name == "undetermined":
+                unit_name = p.get("modifier") or "portion"
+            unit_name = unit_name.strip()
+            
+            # Handle amount with safe fallback
+            raw_amount = p.get("amount")
+            try:
+                amount = float(raw_amount) if raw_amount not in (None, "", "NULL") else 1.0
+            except (TypeError, ValueError):
+                amount = 1.0
             
             portions.append({
-                "unitName": unit_name.strip(),
+                "unitName": unit_name,
                 "gramsPerPortion": float(gram_weight),
                 "amountPerPortion": amount
             })

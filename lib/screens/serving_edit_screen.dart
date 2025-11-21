@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
-import 'package:free_cal_counter1/models/food_portion.dart' as model_unit;
+import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:provider/provider.dart';
 
 class ServingEditScreen extends StatefulWidget {
   final Food food;
-  final model_unit.FoodPortion? initialUnit;
+  final model_unit.FoodServing? initialUnit;
 
   const ServingEditScreen({super.key, required this.food, this.initialUnit});
 
@@ -16,13 +16,13 @@ class ServingEditScreen extends StatefulWidget {
 }
 
 class _ServingEditScreenState extends State<ServingEditScreen> {
-  late model_unit.FoodPortion _selectedUnit;
+  late model_unit.FoodServing _selectedUnit;
   late TextEditingController _amountController;
 
   @override
   void initState() {
     super.initState();
-    _selectedUnit = widget.initialUnit ?? widget.food.portions.first;
+    _selectedUnit = widget.initialUnit ?? widget.food.servings.first;
     _amountController = TextEditingController(text: '1');
   }
 
@@ -51,9 +51,9 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: DropdownButton<model_unit.FoodPortion>(
+                  child: DropdownButton<model_unit.FoodServing>(
                     value: _selectedUnit,
-                    items: widget.food.portions.map((unit) {
+                    items: widget.food.servings.map((unit) {
                       return DropdownMenuItem(
                         value: unit,
                         child: Text(unit.unit),
@@ -89,10 +89,10 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                     );
                     final amount =
                         double.tryParse(_amountController.text) ?? 1.0;
-                    final serving = FoodServing(
+                    final serving = FoodPortion(
                       food: widget.food,
-                      servingSize: amount,
-                      servingUnit: _selectedUnit.unit,
+                      grams: amount,
+                      unit: _selectedUnit.unit,
                     );
                     logProvider.addFoodToQueue(serving);
                     Navigator.pop(context);

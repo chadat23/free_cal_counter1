@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/logged_food.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
@@ -15,20 +15,16 @@ void main() {
       id: 1,
       name: 'Apple',
       emoji: '🍎',
-      calories: 52,
-      protein: 0.25,
-      fat: 0.2,
-      carbs: 14,
-      fiber: 2.4,
+      calories: 0.52,
+      protein: 0.0025,
+      fat: 0.002,
+      carbs: 0.14,
+      fiber: 0.024,
       source: 'test',
     );
-    final serving1 = FoodServing(
-      food: food1,
-      servingSize: 100,
-      servingUnit: 'g',
-    );
+    final serving1 = FoodPortion(food: food1, grams: 100, unit: 'g');
     final loggedFood1 = LoggedFood(
-      serving: serving1,
+      portion: serving1,
       timestamp: DateTime.now(),
     );
 
@@ -36,20 +32,16 @@ void main() {
       id: 2,
       name: 'Banana',
       emoji: '🍌',
-      calories: 89,
-      protein: 1.0,
-      fat: 0.3,
-      carbs: 23,
-      fiber: 2.6,
+      calories: 0.89,
+      protein: 0.01,
+      fat: 0.003,
+      carbs: 0.23,
+      fiber: 0.026,
       source: 'test',
     );
-    final serving2 = FoodServing(
-      food: food2,
-      servingSize: 150,
-      servingUnit: 'g',
-    );
+    final serving2 = FoodPortion(food: food2, grams: 150, unit: 'g');
     final loggedFood2 = LoggedFood(
-      serving: serving2,
+      portion: serving2,
       timestamp: DateTime.now(),
     );
 

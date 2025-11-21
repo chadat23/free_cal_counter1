@@ -1,7 +1,7 @@
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
-import 'package:free_cal_counter1/models/food_portion.dart' as model_unit;
+import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:free_cal_counter1/services/off_api_client_wrapper.dart';
 
 class OffApiService {
@@ -186,34 +186,34 @@ class OffApiService {
     baseFiberPerGram ??= 0.0;
 
     // --- Step 2: Populate the units list ---
-    List<model_unit.FoodPortion> units = [];
+    List<model_unit.FoodServing> units = [];
     final caloriesPerGram = baseEnergyPerGram; // Bridging ratio
 
     // Always add the 'g' unit now that our base is per-gram
     units.add(
-      model_unit.FoodPortion(
+      model_unit.FoodServing(
         id: null,
         foodId: 0,
         unit: 'g',
         grams: 1.0,
-        amount: 1.0,
+        quantity: 1.0,
       ),
     );
 
     // Add units from parsed serving size
     for (final item in parsedPortionItems) {
-      final amount = item.$1;
-      final unitName = item.$2;
+      final quantity = item.$1;
+      final unit = item.$2;
 
       double? gramsPerPortion;
 
       // Check if it's a known mass unit
-      final massGrams = toGrams(1.0, unitName);
+      final massGrams = toGrams(1.0, unit);
       if (massGrams != null) {
         gramsPerPortion = massGrams;
       } else {
         // Check if it's a known volume unit
-        final volMl = toMilliliters(1.0, unitName);
+        final volMl = toMilliliters(1.0, unit);
         if (volMl != null) {
           gramsPerPortion = volMl; // 1ml ~ 1g
         }
@@ -221,14 +221,14 @@ class OffApiService {
 
       if (gramsPerPortion != null) {
         // It's a standard unit (e.g. oz, cup). Add it.
-        if (!units.any((u) => u.unit == unitName)) {
+        if (!units.any((u) => u.unit == unit)) {
           units.add(
-            model_unit.FoodPortion(
+            model_unit.FoodServing(
               id: null,
               foodId: 0,
-              unit: unitName,
+              unit: unit,
               grams: gramsPerPortion,
-              amount: amount,
+              quantity: quantity,
             ),
           );
         }
@@ -241,15 +241,15 @@ class OffApiService {
         // "2 cookies (50g)" -> 2 cookies = 50g -> 1 cookie = 25g.
 
         if (portionGrams != null && portionGrams > 0) {
-          final calculatedGrams = portionGrams / amount;
-          if (!units.any((u) => u.unit == unitName)) {
+          final calculatedGrams = portionGrams / quantity;
+          if (!units.any((u) => u.unit == unit)) {
             units.add(
-              model_unit.FoodPortion(
+              model_unit.FoodServing(
                 id: null,
                 foodId: 0,
-                unit: unitName,
+                unit: unit,
                 grams: calculatedGrams,
-                amount: amount,
+                quantity: quantity,
               ),
             );
           }
@@ -261,15 +261,15 @@ class OffApiService {
           );
           if (portionEnergy != null && caloriesPerGram > 0) {
             final bridgedGrams = portionEnergy / caloriesPerGram;
-            final perUnitGrams = bridgedGrams / amount;
-            if (!units.any((u) => u.unit == unitName)) {
+            final perUnitGrams = bridgedGrams / quantity;
+            if (!units.any((u) => u.unit == unit)) {
               units.add(
-                model_unit.FoodPortion(
+                model_unit.FoodServing(
                   id: null,
                   foodId: 0,
-                  unit: unitName,
+                  unit: unit,
                   grams: perUnitGrams,
-                  amount: amount,
+                  quantity: quantity,
                 ),
               );
             }
@@ -306,7 +306,7 @@ class OffApiService {
       fat: baseFatPerGram,
       carbs: baseCarbsPerGram,
       fiber: baseFiberPerGram,
-      portions: units,
+      servings: units,
     );
   }
 }

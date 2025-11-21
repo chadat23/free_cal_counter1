@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 
 import 'package:free_cal_counter1/widgets/slidable_serving_widget.dart';
 
@@ -22,11 +22,7 @@ void main() {
         fiber: 2.4,
         source: 'test',
       );
-      final serving = FoodServing(
-        food: food,
-        servingSize: 100,
-        servingUnit: 'g',
-      );
+      final serving = FoodPortion(food: food, grams: 100, unit: 'g');
 
       await tester.pumpWidget(
         MaterialApp(

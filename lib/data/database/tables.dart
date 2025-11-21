@@ -18,12 +18,12 @@ class Foods extends Table {
 }
 
 @DataClassName('FoodPortion')
-class FoodUnits extends Table {
+class FoodPortions extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get foodId => integer().named('foodId').references(Foods, #id)();
-  TextColumn get unitName => text().named('unitName')();
-  RealColumn get gramsPerPortion => real().named('gramsPerPortion')();
-  RealColumn get amountPerPortion => real().named('amountPerPortion')();
+  TextColumn get unit => text().named('unitName')();
+  RealColumn get grams => real().named('gramsPerPortion')();
+  RealColumn get quantity => real().named('amountPerPortion')();
 }
 
 @DataClassName('Recipe')
@@ -46,17 +46,16 @@ class RecipeItems extends Table {
   @ReferenceName('IngredientRecipes')
   IntColumn get ingredientRecipeId =>
       integer().nullable().references(Recipes, #id)();
-  RealColumn get quantity => real()();
-  TextColumn get unitName => text()();
+  RealColumn get grams => real()();
+  TextColumn get unit => text()();
 }
 
 @DataClassName('LoggedFood')
 class LoggedFoods extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get logTimestamp => integer()();
-  TextColumn get mealName => text()();
   IntColumn get foodId => integer().nullable().references(Foods, #id)();
   IntColumn get recipeId => integer().nullable().references(Recipes, #id)();
-  RealColumn get quantity => real()();
-  TextColumn get unitName => text()();
+  RealColumn get grams => real()();
+  TextColumn get unit => text()();
 }

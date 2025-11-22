@@ -24,13 +24,30 @@ class FoodSearchResultTile extends StatefulWidget {
 
 class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
   late model_unit.FoodServing _selectedUnit;
+  late List<model_unit.FoodServing> _availableServings;
 
   @override
   void initState() {
     super.initState();
-    _selectedUnit = widget.food.servings.firstWhere(
+    _availableServings = List.of(widget.food.servings);
+
+    // Ensure 'g' is always an option
+    final hasGrams = _availableServings.any((s) => s.unit == 'g');
+    if (!hasGrams) {
+      _availableServings.add(
+        model_unit.FoodServing(
+          foodId: widget.food.id,
+          unit: 'g',
+          grams: 1.0,
+          quantity: 1.0,
+        ),
+      );
+    }
+
+    // Default to 'g' if available, otherwise the first option
+    _selectedUnit = _availableServings.firstWhere(
       (u) => u.unit == 'g',
-      orElse: () => widget.food.servings.first,
+      orElse: () => _availableServings.first,
     );
   }
 
@@ -81,20 +98,19 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
           Text(
             '${calories.round()} kcal • ${protein.toStringAsFixed(1)}g P • ${fat.toStringAsFixed(1)}g F • ${carbs.toStringAsFixed(1)}g C',
           ),
-          if (widget.food.servings.length > 1)
-            DropdownButton<model_unit.FoodServing>(
-              value: _selectedUnit,
-              items: widget.food.servings.map((unit) {
-                return DropdownMenuItem(value: unit, child: Text(unit.unit));
-              }).toList(),
-              onChanged: (unit) {
-                if (unit != null) {
-                  setState(() {
-                    _selectedUnit = unit;
-                  });
-                }
-              },
-            ),
+          DropdownButton<model_unit.FoodServing>(
+            value: _selectedUnit,
+            items: _availableServings.map((unit) {
+              return DropdownMenuItem(value: unit, child: Text(unit.unit));
+            }).toList(),
+            onChanged: (unit) {
+              if (unit != null) {
+                setState(() {
+                  _selectedUnit = unit;
+                });
+              }
+            },
+          ),
         ],
       ),
       trailing: IconButton(

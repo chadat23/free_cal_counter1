@@ -144,5 +144,42 @@ void main() {
         verify(mockLogProvider.addFoodToQueue(any)).called(1);
       },
     );
+    testWidgets('renders correctly when food has no servings', (tester) async {
+      final food = model.Food(
+        id: 1,
+        name: 'Apple',
+        emoji: '🍎',
+        calories: 0.52,
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
+        fiber: 0.024,
+        source: 'test',
+        servings: [],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: FoodSearchResultTile(food: food, onTap: (_) {}),
+          ),
+        ),
+      );
+
+      // Verify food name is displayed
+      expect(find.text('🍎 Apple'), findsOneWidget);
+
+      // Verify nutritional info (should be for 1g by default)
+      expect(find.text('1 kcal • 0.0g P • 0.0g F • 0.1g C'), findsOneWidget);
+
+      // Verify dropdown IS displayed (it should auto-add 'g')
+      expect(
+        find.byType(DropdownButton<model_unit.FoodServing>),
+        findsOneWidget,
+      );
+
+      // Verify 'g' is the selected unit
+      expect(find.text('g'), findsOneWidget);
+    });
   });
 }

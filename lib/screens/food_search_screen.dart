@@ -122,6 +122,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             itemBuilder: (context, index) {
               final food = foodSearchProvider.searchResults[index];
               return FoodSearchResultTile(
+                key: ValueKey(food.id),
                 food: food,
                 onTap: (selectedUnit) {
                   Navigator.push(

@@ -90,7 +90,7 @@ class DatabaseService {
         _referenceDb.foodPortions,
       )..where((s) => s.foodId.equals(foodId))).get();
     }
-    return driftServings
+    final servings = driftServings
         .map(
           (s) => model_serving.FoodServing(
             id: s.id as int,
@@ -101,6 +101,20 @@ class DatabaseService {
           ),
         )
         .toList();
+
+    // Ensure 'g' is always an option
+    if (!servings.any((s) => s.unit == 'g')) {
+      servings.add(
+        model_serving.FoodServing(
+          foodId: foodId,
+          unit: 'g',
+          grams: 1.0,
+          quantity: 1.0,
+        ),
+      );
+    }
+
+    return servings;
   }
 
   Future<model.Food?> getFoodByBarcode(String barcode) async {

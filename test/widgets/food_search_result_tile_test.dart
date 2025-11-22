@@ -155,7 +155,14 @@ void main() {
         carbs: 0.14,
         fiber: 0.024,
         source: 'test',
-        servings: [],
+        servings: [
+          model_unit.FoodServing(
+            foodId: 1,
+            unit: 'g',
+            grams: 1.0,
+            quantity: 1.0,
+          ),
+        ],
       );
 
       await tester.pumpWidget(

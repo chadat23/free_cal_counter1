@@ -24,30 +24,14 @@ class FoodSearchResultTile extends StatefulWidget {
 
 class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
   late model_unit.FoodServing _selectedUnit;
-  late List<model_unit.FoodServing> _availableServings;
 
   @override
   void initState() {
     super.initState();
-    _availableServings = List.of(widget.food.servings);
-
-    // Ensure 'g' is always an option
-    final hasGrams = _availableServings.any((s) => s.unit == 'g');
-    if (!hasGrams) {
-      _availableServings.add(
-        model_unit.FoodServing(
-          foodId: widget.food.id,
-          unit: 'g',
-          grams: 1.0,
-          quantity: 1.0,
-        ),
-      );
-    }
-
-    // Default to 'g' if available, otherwise the first option
-    _selectedUnit = _availableServings.firstWhere(
+    // 'g' is guaranteed to be present by the service layer
+    _selectedUnit = widget.food.servings.firstWhere(
       (u) => u.unit == 'g',
-      orElse: () => _availableServings.first,
+      orElse: () => widget.food.servings.first,
     );
   }
 
@@ -100,7 +84,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
           ),
           DropdownButton<model_unit.FoodServing>(
             value: _selectedUnit,
-            items: _availableServings.map((unit) {
+            items: widget.food.servings.map((unit) {
               return DropdownMenuItem(value: unit, child: Text(unit.unit));
             }).toList(),
             onChanged: (unit) {

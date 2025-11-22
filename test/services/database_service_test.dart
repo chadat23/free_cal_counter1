@@ -142,11 +142,16 @@ void main() {
       final appleFood = results.firstWhere((f) => f.name == 'Reference Apple');
       expect(appleFood.servings, matcher.isNotNull);
       expect(appleFood.servings.isNotEmpty, matcher.isTrue);
-      expect(appleFood.servings.length, 2);
+      expect(appleFood.servings.length, 3);
       expect(
         appleFood.servings.any(
           (unit) => unit.unit == '1 medium' && unit.grams == 182.0,
         ),
+        matcher.isTrue,
+      );
+      // Verify 'g' unit is automatically added
+      expect(
+        appleFood.servings.any((unit) => unit.unit == 'g' && unit.grams == 1.0),
         matcher.isTrue,
       );
     });

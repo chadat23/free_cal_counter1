@@ -235,6 +235,14 @@ def parse_foods(data, source_name, strict_filtering=False):
                 "amountPerPortion": amount
             })
 
+        # Ensure 'g' unit is always present
+        if not any(p["unitName"] == "g" for p in portions):
+            portions.append({
+                "unitName": "g",
+                "gramsPerPortion": 1.0,
+                "amountPerPortion": 1.0
+            })
+
         # --- 5. Assemble Food Record ---
         foods.append({
             "name": description.title(), # Title case for consistency

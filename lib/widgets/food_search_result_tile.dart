@@ -5,6 +5,7 @@ import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:provider/provider.dart';
 
@@ -24,15 +25,45 @@ class FoodSearchResultTile extends StatefulWidget {
 
 class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
   late model_unit.FoodServing _selectedUnit;
+  late List<model_unit.FoodServing> _availableServings;
 
   @override
   void initState() {
     super.initState();
+    _availableServings = List.of(widget.food.servings);
+
     // 'g' is guaranteed to be present by the service layer
-    _selectedUnit = widget.food.servings.firstWhere(
+    _selectedUnit = _availableServings.firstWhere(
       (u) => u.unit == 'g',
-      orElse: () => widget.food.servings.first,
+      orElse: () => _availableServings.first,
     );
+
+    if (widget.food.id != 0) {
+      _loadLastLoggedUnit();
+    }
+  }
+
+  Future<void> _loadLastLoggedUnit() async {
+    try {
+      final lastUnit = await DatabaseService.instance.getLastLoggedUnit(
+        widget.food.id,
+      );
+      if (lastUnit != null && mounted) {
+        final servingIndex = _availableServings.indexWhere(
+          (s) => s.unit == lastUnit,
+        );
+        if (servingIndex != -1) {
+          setState(() {
+            final serving = _availableServings.removeAt(servingIndex);
+            _availableServings.insert(0, serving);
+            _selectedUnit = serving;
+          });
+        }
+      }
+    } catch (e) {
+      // Ignore DB errors in UI
+      debugPrint('Error loading last logged unit: $e');
+    }
   }
 
   Color _getBackgroundColor(BuildContext context) {
@@ -84,8 +115,11 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
           ),
           DropdownButton<model_unit.FoodServing>(
             value: _selectedUnit,
-            items: widget.food.servings.map((unit) {
-              return DropdownMenuItem(value: unit, child: Text(unit.unit));
+            items: _availableServings.map((unit) {
+              return DropdownMenuItem(
+                value: unit,
+                child: Text('${unit.quantity} ${unit.unit}'),
+              );
             }).toList(),
             onChanged: (unit) {
               if (unit != null) {

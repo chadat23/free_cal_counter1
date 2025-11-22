@@ -8,10 +8,22 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import 'package:drift/native.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/services/live_database.dart';
+import 'package:free_cal_counter1/services/reference_database.dart';
+
 import 'food_search_result_tile_test.mocks.dart';
 
 @GenerateMocks([LogProvider])
 void main() {
+  setUpAll(() async {
+    // Initialize DatabaseService with in-memory databases for testing
+    final liveDb = LiveDatabase(connection: NativeDatabase.memory());
+    final refDb = ReferenceDatabase(connection: NativeDatabase.memory());
+    DatabaseService.forTesting(liveDb, refDb);
+  });
+
   group('FoodSearchResultTile', () {
     testWidgets('displays food name and nutritional info with unit dropdown', (
       tester,
@@ -72,7 +84,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Select '1 medium' unit
-      await tester.tap(find.text('1 medium').last);
+      await tester.tap(find.text('1.0 1 medium').last);
       await tester.pumpAndSettle();
 
       // Verify nutritional info updates for '1 medium' (182g)
@@ -85,7 +97,7 @@ void main() {
       // Select '1 cup sliced' unit
       await tester.tap(find.byType(DropdownButton<model_unit.FoodServing>));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('1 cup sliced').last);
+      await tester.tap(find.text('1.0 1 cup sliced').last);
       await tester.pumpAndSettle();
 
       // Verify nutritional info updates for '1 cup sliced' (109g)
@@ -186,7 +198,7 @@ void main() {
       );
 
       // Verify 'g' is the selected unit
-      expect(find.text('g'), findsOneWidget);
+      expect(find.text('1.0 g'), findsOneWidget);
     });
   });
 }

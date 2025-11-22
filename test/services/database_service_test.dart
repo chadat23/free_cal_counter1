@@ -156,4 +156,58 @@ void main() {
       );
     });
   });
+
+  group('getLastLoggedUnit', () {
+    test('should return null if no logs exist for the food', () async {
+      final unit = await databaseService.getLastLoggedUnit(1);
+      expect(unit, matcher.isNull);
+    });
+
+    test('should return the unit from the most recent log', () async {
+      // Arrange
+      // Insert a food first to satisfy foreign key constraint
+      await liveDatabase
+          .into(liveDatabase.foods)
+          .insert(
+            FoodsCompanion.insert(
+              id: const Value(1),
+              name: 'Test Food',
+              source: 'user_created',
+              caloriesPerGram: 1.0,
+              proteinPerGram: 0.0,
+              fatPerGram: 0.0,
+              carbsPerGram: 0.0,
+              fiberPerGram: 0.0,
+            ),
+          );
+
+      // Insert logs with different timestamps
+      await liveDatabase
+          .into(liveDatabase.loggedFoods)
+          .insert(
+            LoggedFoodsCompanion.insert(
+              logTimestamp: 1000,
+              foodId: const Value(1),
+              grams: 100,
+              unit: 'old_unit',
+            ),
+          );
+      await liveDatabase
+          .into(liveDatabase.loggedFoods)
+          .insert(
+            LoggedFoodsCompanion.insert(
+              logTimestamp: 2000,
+              foodId: const Value(1),
+              grams: 100,
+              unit: 'new_unit',
+            ),
+          );
+
+      // Act
+      final unit = await databaseService.getLastLoggedUnit(1);
+
+      // Assert
+      expect(unit, 'new_unit');
+    });
+  });
 }

@@ -117,6 +117,19 @@ class DatabaseService {
     return servings;
   }
 
+  Future<String?> getLastLoggedUnit(int foodId) async {
+    final query = _liveDb.select(_liveDb.loggedFoods)
+      ..where((l) => l.foodId.equals(foodId))
+      ..orderBy([
+        (l) =>
+            OrderingTerm(expression: l.logTimestamp, mode: OrderingMode.desc),
+      ])
+      ..limit(1);
+
+    final lastLog = await query.getSingleOrNull();
+    return lastLog?.unit;
+  }
+
   Future<model.Food?> getFoodByBarcode(String barcode) async {
     final food = await (_liveDb.select(
       _liveDb.foods,

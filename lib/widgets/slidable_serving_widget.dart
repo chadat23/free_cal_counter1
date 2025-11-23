@@ -1,4 +1,3 @@
-```dart
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/widgets/serving_widget.dart';
@@ -18,4 +17,3 @@ class SlidableServingWidget extends StatelessWidget {
     return ServingWidget(serving: serving);
   }
 }
-```

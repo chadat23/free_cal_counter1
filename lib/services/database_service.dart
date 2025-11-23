@@ -23,6 +23,14 @@ class DatabaseService {
       .._referenceDb = referenceDb;
   }
 
+  static void initSingletonForTesting(
+    LiveDatabase liveDb,
+    ReferenceDatabase referenceDb,
+  ) {
+    instance._liveDb = liveDb;
+    instance._referenceDb = referenceDb;
+  }
+
   Future<void> init() async {
     _liveDb = LiveDatabase(connection: openLiveConnection());
     _referenceDb = ReferenceDatabase(

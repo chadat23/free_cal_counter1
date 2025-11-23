@@ -61,7 +61,7 @@ class MealWidget extends StatelessWidget {
                     ),
                 ],
               );
-            }), // Removed .toList()
+            }),
           ],
         ),
       ),

@@ -22,7 +22,7 @@ void main() {
     // Initialize DatabaseService with in-memory databases for testing
     final liveDb = LiveDatabase(connection: NativeDatabase.memory());
     final refDb = ReferenceDatabase(connection: NativeDatabase.memory());
-    DatabaseService.forTesting(liveDb, refDb);
+    DatabaseService.initSingletonForTesting(liveDb, refDb);
   });
 
   group('FoodSearchResultTile', () {

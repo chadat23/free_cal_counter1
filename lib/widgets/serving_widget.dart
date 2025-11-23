@@ -8,6 +8,17 @@ class ServingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final unit = serving.food.servings.firstWhere(
+      (u) => u.unit == serving.unit,
+      orElse: () => serving.food.servings.first,
+    );
+    final totalGrams = unit.grams * serving.grams;
+
+    final calories = serving.food.calories * totalGrams;
+    final protein = serving.food.protein * totalGrams;
+    final fat = serving.food.fat * totalGrams;
+    final carbs = serving.food.carbs * totalGrams;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
@@ -25,7 +36,7 @@ class ServingWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text('${serving.grams.toInt()} ${serving.unit}'),
+              Text('${serving.grams} ${serving.unit}'),
             ],
           ),
           const Spacer(),
@@ -34,10 +45,10 @@ class ServingWidget extends StatelessWidget {
               spacing: 8.0,
               alignment: WrapAlignment.end,
               children: [
-                Text('🔥${serving.food.calories.toInt()}'),
-                Text('P: ${serving.food.protein.toStringAsFixed(1)}'),
-                Text('F: ${serving.food.fat.toStringAsFixed(1)}'),
-                Text('C: ${serving.food.carbs.toStringAsFixed(0)}'),
+                Text('🔥${calories.round()}'),
+                Text('P: ${protein.toStringAsFixed(1)}'),
+                Text('F: ${fat.toStringAsFixed(1)}'),
+                Text('C: ${carbs.toStringAsFixed(0)}'),
               ],
             ),
           ),

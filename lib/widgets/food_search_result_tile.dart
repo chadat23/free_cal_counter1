@@ -137,7 +137,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
           final logProvider = Provider.of<LogProvider>(context, listen: false);
           final serving = FoodPortion(
             food: widget.food,
-            grams: 1,
+            grams: _selectedUnit.quantity,
             unit: _selectedUnit.unit,
           );
           logProvider.addFoodToQueue(serving);

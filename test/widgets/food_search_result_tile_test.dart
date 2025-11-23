@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
+import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
 import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
@@ -117,8 +118,8 @@ void main() {
             id: 1,
             foodId: 1,
             unit: 'g',
-            grams: 1.0,
-            quantity: 1.0,
+            grams: 100.0, // Use non-1.0 value to verify fix
+            quantity: 100.0,
           ),
         ];
         final food = model.Food(
@@ -153,7 +154,17 @@ void main() {
         await tester.pump();
 
         // Verify that addFoodToQueue was called with the correct FoodServing
-        verify(mockLogProvider.addFoodToQueue(any)).called(1);
+        verify(
+          mockLogProvider.addFoodToQueue(
+            argThat(
+              isA<model_portion.FoodPortion>().having(
+                (p) => (p as model_portion.FoodPortion).grams,
+                'grams',
+                100.0,
+              ),
+            ),
+          ),
+        ).called(1);
       },
     );
     testWidgets('renders correctly when food has no servings', (tester) async {

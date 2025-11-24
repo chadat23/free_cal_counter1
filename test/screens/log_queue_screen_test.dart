@@ -70,6 +70,6 @@ void main() {
 
     // Assert
     expect(find.text('Apple'), findsOneWidget);
-    expect(find.text('100 g'), findsOneWidget);
+    expect(find.text('100.0 g'), findsOneWidget);
   });
 }

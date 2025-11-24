@@ -5,8 +5,10 @@ import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/logged_food.dart';
 import 'package:free_cal_counter1/models/meal.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
 import 'package:free_cal_counter1/widgets/serving_widget.dart';
+import 'package:free_cal_counter1/widgets/slidable_serving_widget.dart';
 
 void main() {
   testWidgets('Meal widget displays correctly', (WidgetTester tester) async {
@@ -21,6 +23,7 @@ void main() {
       carbs: 0.14,
       fiber: 0.024,
       source: 'test',
+      servings: [FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0)],
     );
     final serving1 = FoodPortion(food: food1, grams: 100, unit: 'g');
     final loggedFood1 = LoggedFood(
@@ -38,6 +41,7 @@ void main() {
       carbs: 0.23,
       fiber: 0.026,
       source: 'test',
+      servings: [FoodServing(foodId: 2, unit: 'g', grams: 1.0, quantity: 1.0)],
     );
     final serving2 = FoodPortion(food: food2, grams: 150, unit: 'g');
     final loggedFood2 = LoggedFood(
@@ -63,6 +67,6 @@ void main() {
     expect(find.text('P: 1.8'), findsOneWidget);
     expect(find.text('F: 0.7'), findsOneWidget);
     expect(find.text('C: 48.5'), findsOneWidget);
-    expect(find.byType(ServingWidget), findsNWidgets(2));
+    expect(find.byType(SlidableServingWidget), findsNWidgets(2));
   });
 }

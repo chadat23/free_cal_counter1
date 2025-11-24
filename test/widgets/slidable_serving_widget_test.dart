@@ -41,17 +41,17 @@ void main() {
         ),
       );
 
-      // When
+      // When - Slide to reveal
       await tester.drag(
         find.byType(SlidableServingWidget),
-        const Offset(-100, 0),
+        const Offset(-100, 0), // Drag enough to reveal
       );
       await tester.pumpAndSettle();
 
       // Then
       expect(find.byIcon(Icons.delete), findsOneWidget);
 
-      // When
+      // When - Tap delete
       await tester.tap(find.byIcon(Icons.delete));
       await tester.pumpAndSettle();
 

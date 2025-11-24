@@ -6,6 +6,7 @@ import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
 
@@ -78,6 +79,9 @@ class _LogScreenState extends State<LogScreen> {
                 fat: 0.2,
                 carbs: 14,
                 fiber: 0.1,
+                servings: [
+                  FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
+                ],
               ),
               grams: 100,
               unit: 'g',
@@ -96,6 +100,9 @@ class _LogScreenState extends State<LogScreen> {
                 fat: 0.3,
                 carbs: 23,
                 fiber: 0.4,
+                servings: [
+                  FoodServing(foodId: 2, unit: 'g', grams: 1.0, quantity: 1.0),
+                ],
               ),
               grams: 150,
               unit: 'g',
@@ -119,6 +126,9 @@ class _LogScreenState extends State<LogScreen> {
                 fat: 3.6,
                 carbs: 0,
                 fiber: 0.2,
+                servings: [
+                  FoodServing(foodId: 3, unit: 'g', grams: 1.0, quantity: 1.0),
+                ],
               ),
               grams: 100,
               unit: 'g',

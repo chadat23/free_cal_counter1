@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/widgets/serving_widget.dart';
 
 void main() {
@@ -11,12 +12,13 @@ void main() {
       id: 1,
       name: 'Apple',
       emoji: '🍎',
-      calories: 52,
-      protein: 0.3,
-      fat: 0.2,
-      carbs: 14,
-      fiber: 2.4,
+      calories: 0.52, // 52 kcal per 100g
+      protein: 0.003, // 0.3g per 100g
+      fat: 0.002, // 0.2g per 100g
+      carbs: 0.14, // 14g per 100g
+      fiber: 0.024, // 2.4g per 100g
       source: 'test',
+      servings: [FoodServing(foodId: 1, quantity: 1.0, unit: 'g', grams: 1.0)],
     );
     final serving = FoodPortion(food: food, grams: 100, unit: 'g');
 
@@ -30,11 +32,8 @@ void main() {
     // Then
     expect(find.text('🍎'), findsOneWidget);
     expect(find.text('Apple'), findsOneWidget);
-    expect(find.text('🔥52'), findsOneWidget);
-    expect(find.text('P: 0.3'), findsOneWidget);
-    expect(find.text('F: 0.2'), findsOneWidget);
-    expect(find.text('C: 14'), findsOneWidget);
-    expect(find.text('100 g'), findsOneWidget);
+    expect(find.text('52 kcal • 0.3g P • 0.2g F • 14.0g C'), findsOneWidget);
+    expect(find.text('100.0 g'), findsOneWidget);
     expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
   });
 }

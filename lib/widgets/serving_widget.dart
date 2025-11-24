@@ -49,7 +49,7 @@ class ServingWidget extends StatelessWidget {
       ),
       title: Text(serving.food.name),
       subtitle: Text(
-        '${calories.round()} kcal • ${protein.toStringAsFixed(1)}g P • ${fat.toStringAsFixed(1)}g F • ${carbs.toStringAsFixed(1)}g C',
+        '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C',
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

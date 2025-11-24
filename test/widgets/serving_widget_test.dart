@@ -32,7 +32,7 @@ void main() {
     // Then
     expect(find.text('🍎'), findsOneWidget);
     expect(find.text('Apple'), findsOneWidget);
-    expect(find.text('52 kcal • 0.3g P • 0.2g F • 14.0g C'), findsOneWidget);
+    expect(find.text('52🔥 • 0.3P • 0.2F • 14.0C'), findsOneWidget);
     expect(find.text('100.0 g'), findsOneWidget);
     expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
   });

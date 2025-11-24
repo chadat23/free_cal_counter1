@@ -111,7 +111,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${calories.round()} kcal • ${protein.toStringAsFixed(1)}g P • ${fat.toStringAsFixed(1)}g F • ${carbs.toStringAsFixed(1)}g C',
+            '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C',
           ),
           DropdownButton<model_unit.FoodServing>(
             value: _selectedUnit,

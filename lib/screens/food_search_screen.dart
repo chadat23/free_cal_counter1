@@ -31,6 +31,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         context,
         listen: false,
       );
+
+      // Clear previous search state
+      Provider.of<FoodSearchProvider>(context, listen: false).clearSearch();
+
       if (navProvider.shouldFocusSearch) {
         _focusNode.requestFocus();
         navProvider.resetSearchFocus();

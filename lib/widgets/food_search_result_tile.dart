@@ -87,6 +87,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
     final protein = widget.food.protein * _selectedUnit.grams;
     final fat = widget.food.fat * _selectedUnit.grams;
     final carbs = widget.food.carbs * _selectedUnit.grams;
+    final fiber = widget.food.fiber * _selectedUnit.grams;
 
     return ListTile(
       tileColor: _getBackgroundColor(context),
@@ -111,7 +112,7 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C',
+            '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C • ${fiber.toStringAsFixed(1)}Fb',
           ),
           DropdownButton<model_unit.FoodServing>(
             value: _selectedUnit,

@@ -27,7 +27,6 @@ void main() {
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
     when(mockFoodSearchProvider.errorMessage).thenReturn(null); // ADDED
     when(mockFoodSearchProvider.isLoading).thenReturn(false); // ADDED
-    when(mockFoodSearchProvider.clearSearch()).thenReturn(null);
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
     when(mockLogProvider.logQueue).thenReturn([]);
@@ -85,11 +84,30 @@ void main() {
   });
 
   group('OFF Button', () {
-    testWidgets('tapping OFF button calls performOffSearch', (
+    testWidgets('tapping OFF button calls onOffSearch callback', (
       WidgetTester tester,
     ) async {
       // Arrange
-      await tester.pumpWidget(createTestWidget());
+      var offSearchCalled = false;
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<NavigationProvider>.value(
+              value: mockNavigationProvider,
+            ),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: FoodSearchRibbon(
+                onOffSearch: () {
+                  offSearchCalled = true;
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
       final offButtonFinder = find.widgetWithIcon(
         ElevatedButton,
         Icons.language,
@@ -101,7 +119,7 @@ void main() {
       await tester.pump(); // Rebuild the widget after state change
 
       // Assert
-      verify(mockFoodSearchProvider.performOffSearch()).called(1);
+      expect(offSearchCalled, isTrue);
     });
   });
 }

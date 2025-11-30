@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart'; // Import FoodSearchProvider
 
 class FoodSearchRibbon extends StatefulWidget {
   final bool isSearchActive;
   final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onOffSearch;
 
   const FoodSearchRibbon({
     super.key,
     this.isSearchActive = false,
     this.focusNode,
     this.onChanged,
+    this.onOffSearch,
   });
 
   @override
@@ -37,17 +38,37 @@ class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FoodSearchProvider>(
-      // Make FoodSearchRibbon a Consumer
-      builder: (context, foodSearchProvider, child) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: widget.isSearchActive
-                    ? TextField(
-                        focusNode: widget.focusNode,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: widget.isSearchActive
+                ? TextField(
+                    focusNode: widget.focusNode,
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      hintText: 'Search food...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                      ),
+                    ),
+                    onChanged: widget.onChanged,
+                  )
+                : GestureDetector(
+                    key: const Key('food_search_text_field'),
+                    onTap: () {
+                      Provider.of<NavigationProvider>(
+                        context,
+                        listen: false,
+                      ).goToFoodSearch();
+                      Navigator.pushNamed(context, AppRouter.foodSearchRoute);
+                    },
+                    child: AbsorbPointer(
+                      child: TextField(
                         controller: _controller,
                         decoration: InputDecoration(
                           hintText: 'Search food...',
@@ -58,55 +79,27 @@ class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
                             horizontal: 12.0,
                           ),
                         ),
-                        onChanged: widget.onChanged,
-                      )
-                    : GestureDetector(
-                        key: const Key('food_search_text_field'),
-                        onTap: () {
-                          Provider.of<NavigationProvider>(
-                            context,
-                            listen: false,
-                          ).goToFoodSearch();
-                          Navigator.pushNamed(
-                            context,
-                            AppRouter.foodSearchRoute,
-                          );
-                        },
-                        child: AbsorbPointer(
-                          child: TextField(
-                            controller: _controller,
-                            decoration: InputDecoration(
-                              hintText: 'Search food...',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12.0,
-                              ),
-                            ),
-                          ),
-                        ),
                       ),
-              ),
-              const SizedBox(width: 8.0),
-              ElevatedButton(
-                onPressed: foodSearchProvider.performOffSearch,
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.grey[800]),
-                ),
-                child: const Icon(Icons.language), // Globe icon
-              ),
-              const SizedBox(width: 8.0),
-              ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement Add button functionality
-                },
-                child: const Text('Log'),
-              ),
-            ],
+                    ),
+                  ),
           ),
-        );
-      },
+          const SizedBox(width: 8.0),
+          ElevatedButton(
+            onPressed: widget.onOffSearch,
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(Colors.grey[800]),
+            ),
+            child: const Icon(Icons.language), // Globe icon
+          ),
+          const SizedBox(width: 8.0),
+          ElevatedButton(
+            onPressed: () {
+              // TODO: Implement Add button functionality
+            },
+            child: const Text('Log'),
+          ),
+        ],
+      ),
     );
   }
 }

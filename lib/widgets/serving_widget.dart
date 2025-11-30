@@ -24,6 +24,7 @@ class ServingWidget extends StatelessWidget {
     final protein = serving.food.protein * totalGrams;
     final fat = serving.food.fat * totalGrams;
     final carbs = serving.food.carbs * totalGrams;
+    final fiber = serving.food.fiber * totalGrams;
 
     return ListTile(
       leading: SizedBox(
@@ -49,7 +50,7 @@ class ServingWidget extends StatelessWidget {
       ),
       title: Text(serving.food.name),
       subtitle: Text(
-        '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C',
+        '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C • ${fiber.toStringAsFixed(1)}Fb',
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

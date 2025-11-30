@@ -13,6 +13,11 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import 'package:drift/native.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/services/live_database.dart' as live_db;
+import 'package:free_cal_counter1/services/reference_database.dart' as ref_db;
+
 import 'food_search_screen_test.mocks.dart';
 
 @GenerateMocks([LogProvider, NavigationProvider, FoodSearchProvider])
@@ -20,6 +25,13 @@ void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
   late MockFoodSearchProvider mockFoodSearchProvider;
+
+  setUpAll(() async {
+    // Initialize DatabaseService with in-memory databases for testing
+    final liveDb = live_db.LiveDatabase(connection: NativeDatabase.memory());
+    final refDb = ref_db.ReferenceDatabase(connection: NativeDatabase.memory());
+    DatabaseService.initSingletonForTesting(liveDb, refDb);
+  });
 
   setUp(() {
     mockLogProvider = MockLogProvider();

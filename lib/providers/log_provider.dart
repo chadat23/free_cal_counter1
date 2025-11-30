@@ -53,7 +53,9 @@ class LogProvider extends ChangeNotifier {
       final food = serving.food;
       final unit = food.servings.firstWhere(
         (u) => u.unit == serving.unit,
-        orElse: () => food.servings.first, // Fallback, though should not happen
+        orElse: () => throw StateError(
+          'Data integrity error: Unit ${serving.unit} missing from ${food.name}',
+        ),
       );
       final caloriesForServing = food.calories * unit.grams * serving.grams;
       return sum + caloriesForServing;

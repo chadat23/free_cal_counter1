@@ -30,6 +30,7 @@ void main() {
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
     when(mockFoodSearchProvider.isLoading).thenReturn(false);
     when(mockFoodSearchProvider.errorMessage).thenReturn(null);
+    when(mockFoodSearchProvider.clearSearch()).thenReturn(null);
   });
 
   Widget createTestWidget() {

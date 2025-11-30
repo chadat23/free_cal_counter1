@@ -27,6 +27,7 @@ void main() {
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
     when(mockFoodSearchProvider.errorMessage).thenReturn(null); // ADDED
     when(mockFoodSearchProvider.isLoading).thenReturn(false); // ADDED
+    when(mockFoodSearchProvider.clearSearch()).thenReturn(null);
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
     when(mockLogProvider.logQueue).thenReturn([]);

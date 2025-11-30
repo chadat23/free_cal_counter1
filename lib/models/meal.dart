@@ -22,4 +22,8 @@ class Meal {
     0,
     (sum, item) => sum + item.portion.food.carbs * item.portion.grams,
   );
+  double get totalFiber => loggedFoods.fold(
+    0,
+    (sum, item) => sum + item.portion.food.fiber * item.portion.grams,
+  );
 }

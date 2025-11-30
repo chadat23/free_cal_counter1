@@ -36,6 +36,7 @@ class MealWidget extends StatelessWidget {
                     Text('P: ${meal.totalProtein.toStringAsFixed(1)}'),
                     Text('F: ${meal.totalFat.toStringAsFixed(1)}'),
                     Text('C: ${meal.totalCarbs.toStringAsFixed(1)}'),
+                    Text('Fb: ${meal.totalFiber.toStringAsFixed(1)}'),
                   ],
                 ),
               ],

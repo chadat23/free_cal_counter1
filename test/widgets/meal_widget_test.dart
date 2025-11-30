@@ -67,6 +67,7 @@ void main() {
     expect(find.text('P: 1.8'), findsOneWidget);
     expect(find.text('F: 0.7'), findsOneWidget);
     expect(find.text('C: 48.5'), findsOneWidget);
+    expect(find.text('Fb: 6.3'), findsOneWidget);
     expect(find.byType(SlidableServingWidget), findsNWidgets(2));
   });
 }

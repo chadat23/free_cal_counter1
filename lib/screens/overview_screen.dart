@@ -50,6 +50,14 @@ class OverviewScreen extends StatelessWidget {
         unitLabel: 'g',
         dailyAmounts: [221.35, 198.05, 209.7, 233.0, 244.65, 186.4, 242.32],
       ),
+      NutritionTarget(
+        color: Colors.brown,
+        thisAmount: 25.0,
+        targetAmount: 30.0,
+        macroLabel: 'Fb',
+        unitLabel: 'g',
+        dailyAmounts: [22.5, 28.0, 31.5, 25.0, 18.0, 29.0, 26.5],
+      ),
     ];
 
     return ScreenBackground(

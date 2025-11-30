@@ -47,6 +47,14 @@ void main() {
         unitLabel: 'g',
         dailyAmounts: [221.35, 198.05, 209.7, 233.0, 244.65, 186.4, 242.32],
       ),
+      NutritionTarget(
+        color: Colors.brown,
+        thisAmount: 25.0,
+        targetAmount: 30.0,
+        macroLabel: 'Fb',
+        unitLabel: 'g',
+        dailyAmounts: [22.5, 28.0, 31.5, 25.0, 18.0, 29.0, 26.5],
+      ),
     ];
 
     testWidgets('renders correctly', (WidgetTester tester) async {
@@ -63,7 +71,7 @@ void main() {
       expect(find.byType(NutritionTargetsOverviewChart), findsOneWidget);
     });
 
-    testWidgets('renders 28 mini-bar widgets', (WidgetTester tester) async {
+    testWidgets('renders 35 mini-bar widgets', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -74,7 +82,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(VerticalMiniBarChart), findsNWidgets(28));
+      expect(find.byType(VerticalMiniBarChart), findsNWidgets(35));
     });
 
     testWidgets('renders weekday labels', (WidgetTester tester) async {
@@ -112,6 +120,7 @@ void main() {
       expect(find.text('159 P\n of 141g'), findsOneWidget);
       expect(find.text('70 F\n of 71g'), findsOneWidget);
       expect(find.text('241 C\n of 233g'), findsOneWidget);
+      expect(find.text('25 Fb\n of 30g'), findsOneWidget);
     });
 
     testWidgets('renders "Consumed" and "Remaining" buttons', (

@@ -80,4 +80,25 @@ void main() {
 
     verifyNever(mockLogProvider.addFoodToQueue(any));
   });
+
+  testWidgets('should display macro charts and update values', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider<LogProvider>.value(
+        value: mockLogProvider,
+        child: MaterialApp(home: ServingEditScreen(food: food)),
+      ),
+    );
+
+    // Initial state: 1g. Calories = 52 * 1 = 52.
+    expect(find.text('52 🔥\nof 2143'), findsOneWidget);
+
+    // Change amount to 2
+    await tester.enterText(find.byType(TextField), '2');
+    await tester.pump(); // Rebuild
+
+    // New state: 2g. Calories = 52 * 2 = 104.
+    expect(find.text('104 🔥\nof 2143'), findsOneWidget);
+  });
 }

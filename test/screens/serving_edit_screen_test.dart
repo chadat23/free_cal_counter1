@@ -101,4 +101,25 @@ void main() {
     // New state: 2g. Calories = 52 * 2 = 104.
     expect(find.text('104 🔥\nof 2143'), findsOneWidget);
   });
+
+  testWidgets('should update macros when unit is changed', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider<LogProvider>.value(
+        value: mockLogProvider,
+        child: MaterialApp(home: ServingEditScreen(food: food)),
+      ),
+    );
+
+    // Initial state: 1g. Calories = 52 * 1 = 52.
+    expect(find.text('52 🔥\nof 2143'), findsOneWidget);
+
+    // Change unit to 'slice' (10g)
+    await tester.tap(find.text('slice'));
+    await tester.pump();
+
+    // New state: 1 slice (10g). Calories = 52 * 10 = 520.
+    expect(find.text('520 🔥\nof 2143'), findsOneWidget);
+  });
 }

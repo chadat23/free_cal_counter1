@@ -155,26 +155,34 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                     decoration: const InputDecoration(labelText: 'Amount'),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: DropdownButton<model_unit.FoodServing>(
-                    value: _selectedUnit,
-                    items: widget.food.servings.map((unit) {
-                      return DropdownMenuItem(
-                        value: unit,
-                        child: Text(unit.unit),
-                      );
-                    }).toList(),
-                    onChanged: (unit) {
-                      if (unit != null) {
-                        setState(() {
-                          _selectedUnit = unit;
-                        });
-                      }
-                    },
-                  ),
-                ),
               ],
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Unit',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: widget.food.servings.map((unit) {
+                final isSelected = _selectedUnit == unit;
+                return ChoiceChip(
+                  label: Text(unit.unit),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() {
+                        _selectedUnit = unit;
+                      });
+                    }
+                  },
+                );
+              }).toList(),
             ),
             const SizedBox(height: 16),
             Row(

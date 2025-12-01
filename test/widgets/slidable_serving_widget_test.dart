@@ -42,9 +42,10 @@ void main() {
       );
 
       // When - Slide to reveal
-      await tester.drag(
+      await tester.fling(
         find.byType(SlidableServingWidget),
-        const Offset(-100, 0), // Drag enough to reveal
+        const Offset(-200, 0),
+        1000,
       );
       await tester.pumpAndSettle();
 

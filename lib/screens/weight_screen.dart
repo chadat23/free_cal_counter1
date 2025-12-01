@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 
+import 'package:free_cal_counter1/utils/math_evaluator.dart';
+
 class WeightScreen extends StatefulWidget {
   const WeightScreen({super.key});
 
@@ -29,7 +31,7 @@ class _WeightScreenState extends State<WeightScreen> {
   }
 
   void _submitWeight() {
-    final weight = double.tryParse(_weightController.text);
+    final weight = MathEvaluator.evaluate(_weightController.text);
     if (weight != null) {
       // TODO: Save the weight
       ScaffoldMessenger.of(
@@ -55,9 +57,7 @@ class _WeightScreenState extends State<WeightScreen> {
                   controller: _weightController,
                   focusNode: _focusNode,
                   autofocus: true,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
+                  keyboardType: TextInputType.visiblePassword,
                   decoration: const InputDecoration(
                     labelText: 'Weight',
                     border: OutlineInputBorder(),

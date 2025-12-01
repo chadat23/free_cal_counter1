@@ -7,6 +7,8 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/widgets/vertical_mini_bar_chart.dart';
 import 'package:provider/provider.dart';
 
+import 'package:free_cal_counter1/utils/math_evaluator.dart';
+
 class ServingEditScreen extends StatefulWidget {
   final Food food;
   final model_unit.FoodServing? initialUnit;
@@ -41,7 +43,9 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
   }
 
   Widget _buildMacroDisplay() {
-    final amount = double.tryParse(_amountController.text) ?? 0.0;
+    // Use MathEvaluator to parse the text
+    final amount = MathEvaluator.evaluate(_amountController.text) ?? 0.0;
+
     // Calculate total grams based on serving unit and quantity
     // _selectedUnit.grams is grams per unit (or quantity units)
     // If quantity is 1, it's grams per unit.
@@ -151,7 +155,8 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                 Expanded(
                   child: TextField(
                     controller: _amountController,
-                    keyboardType: TextInputType.number,
+                    // Use visiblePassword to allow math symbols but avoid auto-correct
+                    keyboardType: TextInputType.visiblePassword,
                     decoration: const InputDecoration(labelText: 'Amount'),
                   ),
                 ),
@@ -201,8 +206,9 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                       context,
                       listen: false,
                     );
+                    // Evaluate the math expression
                     final amount =
-                        double.tryParse(_amountController.text) ?? 1.0;
+                        MathEvaluator.evaluate(_amountController.text) ?? 1.0;
                     final serving = FoodPortion(
                       food: widget.food,
                       grams: amount,

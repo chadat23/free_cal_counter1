@@ -4,8 +4,9 @@ import 'package:free_cal_counter1/models/food_portion.dart';
 
 class ServingWidget extends StatelessWidget {
   final FoodPortion serving;
+  final VoidCallback? onEdit;
 
-  const ServingWidget({super.key, required this.serving});
+  const ServingWidget({super.key, required this.serving, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +58,7 @@ class ServingWidget extends StatelessWidget {
         children: [
           Text('${serving.grams} ${serving.unit}'),
           const SizedBox(width: 8),
-          const Icon(Icons.edit_outlined),
+          IconButton(icon: const Icon(Icons.edit_outlined), onPressed: onEdit),
         ],
       ),
     );

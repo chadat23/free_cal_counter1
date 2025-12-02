@@ -6,6 +6,7 @@ import 'package:free_cal_counter1/widgets/discard_dialog.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
 import 'package:free_cal_counter1/widgets/slidable_serving_widget.dart';
+import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
 import 'package:provider/provider.dart';
 
 class LogQueueScreen extends StatelessWidget {
@@ -62,6 +63,20 @@ class LogQueueScreen extends StatelessWidget {
                 serving: foodServing,
                 onDelete: () {
                   logProvider.removeFoodFromQueue(foodServing);
+                },
+                onEdit: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ServingEditScreen(
+                        food: foodServing.food,
+                        initialUnit: foodServing.food.servings.firstWhere(
+                          (s) => s.unit == foodServing.unit,
+                          orElse: () => foodServing.food.servings.first,
+                        ),
+                      ),
+                    ),
+                  );
                 },
               );
             },

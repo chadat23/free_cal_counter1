@@ -6,11 +6,13 @@ import 'package:free_cal_counter1/widgets/serving_widget.dart';
 class SlidableServingWidget extends StatelessWidget {
   final FoodPortion serving;
   final VoidCallback onDelete;
+  final VoidCallback? onEdit;
 
   const SlidableServingWidget({
     super.key,
     required this.serving,
     required this.onDelete,
+    this.onEdit,
   });
 
   @override
@@ -32,7 +34,7 @@ class SlidableServingWidget extends StatelessWidget {
       ),
       child: Container(
         color: Theme.of(context).canvasColor,
-        child: ServingWidget(serving: serving),
+        child: ServingWidget(serving: serving, onEdit: onEdit),
       ),
     );
   }

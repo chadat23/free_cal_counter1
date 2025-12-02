@@ -60,4 +60,45 @@ void main() {
       expect(onDeleteCalled, isTrue);
     },
   );
+
+  testWidgets('SlidableServingWidget calls onEdit when edit button is tapped', (
+    WidgetTester tester,
+  ) async {
+    // Given
+    bool onEditCalled = false;
+    final food = Food(
+      id: 1,
+      name: 'Apple',
+      emoji: '🍎',
+      calories: 52,
+      protein: 0.3,
+      fat: 0.2,
+      carbs: 14,
+      fiber: 2.4,
+      source: 'test',
+      servings: [FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0)],
+    );
+    final serving = FoodPortion(food: food, grams: 100, unit: 'g');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SlidableServingWidget(
+            serving: serving,
+            onDelete: () {},
+            onEdit: () {
+              onEditCalled = true;
+            },
+          ),
+        ),
+      ),
+    );
+
+    // When - Tap edit button (it's visible without sliding)
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+
+    // Then
+    expect(onEditCalled, isTrue);
+  });
 }

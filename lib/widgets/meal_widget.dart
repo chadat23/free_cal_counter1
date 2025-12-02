@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/slidable_serving_widget.dart';
+import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
 import 'package:intl/intl.dart';
 
 class MealWidget extends StatelessWidget {
@@ -50,6 +51,22 @@ class MealWidget extends StatelessWidget {
                   SlidableServingWidget(
                     serving: loggedFood.portion,
                     onDelete: () {},
+                    onEdit: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ServingEditScreen(
+                            food: loggedFood.portion.food,
+                            initialUnit: loggedFood.portion.food.servings
+                                .firstWhere(
+                                  (s) => s.unit == loggedFood.portion.unit,
+                                  orElse: () =>
+                                      loggedFood.portion.food.servings.first,
+                                ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   if (index < meal.loggedFoods.length - 1)
                     Divider(

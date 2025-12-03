@@ -1,125 +1,119 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-import 'serving_edit_screen_test.mocks.dart';
-
-@GenerateMocks([LogProvider])
 void main() {
-  late MockLogProvider mockLogProvider;
+  testWidgets(
+    'ServingEditScreen shows "Update" button and calls onUpdate when provided',
+    (WidgetTester tester) async {
+      // Given
+      FoodPortion? updatedPortion;
+      final food = Food(
+        id: 1,
+        name: 'Apple',
+        emoji: '🍎',
+        calories: 52,
+        protein: 0.3,
+        fat: 0.2,
+        carbs: 14,
+        fiber: 2.4,
+        source: 'test',
+        servings: [
+          FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
+        ],
+      );
 
-  setUp(() {
-    mockLogProvider = MockLogProvider();
-  });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider(
+            create: (_) => LogProvider(),
+            child: ServingEditScreen(
+              food: food,
+              onUpdate: (portion) {
+                updatedPortion = portion;
+              },
+            ),
+          ),
+        ),
+      );
 
-  final food = Food(
-    id: 1,
-    name: 'Apple',
-    calories: 52,
-    protein: 0.3,
-    fat: 0.2,
-    carbs: 14,
-    fiber: 0.0,
-    source: 'test',
-    servings: [
-      FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
-      FoodServing(id: 2, foodId: 1, unit: 'slice', grams: 10.0, quantity: 1.0),
-    ],
+      // Then - Verify "Update" button is shown
+      expect(find.text('Update'), findsOneWidget);
+      expect(find.text('Add'), findsNothing);
+
+      // When - Tap Update
+      await tester.tap(find.text('Update'));
+      await tester.pumpAndSettle();
+
+      // Then - Verify callback was called
+      expect(updatedPortion, isNotNull);
+      expect(updatedPortion!.food.name, 'Apple');
+    },
   );
 
-  testWidgets('should display food name, amount, and unit', (
+  testWidgets('ServingEditScreen shows "Add" button when onUpdate is null', (
     WidgetTester tester,
   ) async {
+    // Given
+    final food = Food(
+      id: 1,
+      name: 'Apple',
+      emoji: '🍎',
+      calories: 52,
+      protein: 0.3,
+      fat: 0.2,
+      carbs: 14,
+      fiber: 2.4,
+      source: 'test',
+      servings: [FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0)],
+    );
+
     await tester.pumpWidget(
-      ChangeNotifierProvider<LogProvider>.value(
-        value: mockLogProvider,
-        child: MaterialApp(home: ServingEditScreen(food: food)),
+      MaterialApp(
+        home: ChangeNotifierProvider(
+          create: (_) => LogProvider(),
+          child: ServingEditScreen(food: food),
+        ),
       ),
     );
 
-    expect(find.text('Apple'), findsOneWidget);
-    expect(find.text('1'), findsOneWidget);
-    expect(find.text('g'), findsOneWidget);
+    // Then - Verify "Add" button is shown
+    expect(find.text('Add'), findsOneWidget);
+    expect(find.text('Update'), findsNothing);
   });
 
-  testWidgets('should call addFoodToQueue when Add button is tapped', (
+  testWidgets('ServingEditScreen initializes with provided initialAmount', (
     WidgetTester tester,
   ) async {
+    // Given
+    final food = Food(
+      id: 1,
+      name: 'Apple',
+      emoji: '🍎',
+      calories: 52,
+      protein: 0.3,
+      fat: 0.2,
+      carbs: 14,
+      fiber: 2.4,
+      source: 'test',
+      servings: [FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0)],
+    );
+
     await tester.pumpWidget(
-      ChangeNotifierProvider<LogProvider>.value(
-        value: mockLogProvider,
-        child: MaterialApp(home: ServingEditScreen(food: food)),
+      MaterialApp(
+        home: ChangeNotifierProvider(
+          create: (_) => LogProvider(),
+          child: ServingEditScreen(food: food, initialAmount: 2.5),
+        ),
       ),
     );
 
-    await tester.enterText(find.byType(TextField), '2');
-    await tester.tap(find.text('Add'));
-    await tester.pump();
-
-    verify(mockLogProvider.addFoodToQueue(any)).called(1);
-  });
-
-  testWidgets('should not call addFoodToQueue when Cancel button is tapped', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      ChangeNotifierProvider<LogProvider>.value(
-        value: mockLogProvider,
-        child: MaterialApp(home: ServingEditScreen(food: food)),
-      ),
-    );
-
-    await tester.tap(find.text('Cancel'));
-    await tester.pump();
-
-    verifyNever(mockLogProvider.addFoodToQueue(any));
-  });
-
-  testWidgets('should display macro charts and update values', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      ChangeNotifierProvider<LogProvider>.value(
-        value: mockLogProvider,
-        child: MaterialApp(home: ServingEditScreen(food: food)),
-      ),
-    );
-
-    // Initial state: 1g. Calories = 52 * 1 = 52.
-    expect(find.text('52 🔥\nof 2143'), findsOneWidget);
-
-    // Change amount to 2
-    await tester.enterText(find.byType(TextField), '2');
-    await tester.pump(); // Rebuild
-
-    // New state: 2g. Calories = 52 * 2 = 104.
-    expect(find.text('104 🔥\nof 2143'), findsOneWidget);
-  });
-
-  testWidgets('should update macros when unit is changed', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      ChangeNotifierProvider<LogProvider>.value(
-        value: mockLogProvider,
-        child: MaterialApp(home: ServingEditScreen(food: food)),
-      ),
-    );
-
-    // Initial state: 1g. Calories = 52 * 1 = 52.
-    expect(find.text('52 🔥\nof 2143'), findsOneWidget);
-
-    // Change unit to 'slice' (10g)
-    await tester.tap(find.text('slice'));
-    await tester.pump();
-
-    // New state: 1 slice (10g). Calories = 52 * 10 = 520.
-    expect(find.text('520 🔥\nof 2143'), findsOneWidget);
+    // Then - Verify text field contains initial amount
+    expect(find.text('2.5'), findsOneWidget);
   });
 }

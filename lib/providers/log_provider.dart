@@ -36,6 +36,14 @@ class LogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateFoodInQueue(int index, FoodPortion newPortion) {
+    if (index >= 0 && index < _logQueue.length) {
+      _logQueue[index] = newPortion;
+      _recalculateQueuedCalories();
+      notifyListeners();
+    }
+  }
+
   void removeFoodFromQueue(FoodPortion serving) {
     _logQueue.remove(serving);
     _recalculateQueuedCalories();

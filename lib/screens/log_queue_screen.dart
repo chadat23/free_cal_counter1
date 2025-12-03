@@ -74,6 +74,10 @@ class LogQueueScreen extends StatelessWidget {
                           (s) => s.unit == foodServing.unit,
                           orElse: () => foodServing.food.servings.first,
                         ),
+                        initialAmount: foodServing.grams,
+                        onUpdate: (newPortion) {
+                          logProvider.updateFoodInQueue(index, newPortion);
+                        },
                       ),
                     ),
                   );

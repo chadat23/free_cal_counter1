@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/slidable_serving_widget.dart';
 import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
+import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:intl/intl.dart';
 
 class MealWidget extends StatelessWidget {
   final Meal meal;
+  final Function(LoggedFood, FoodPortion)? onFoodUpdated;
 
-  const MealWidget({super.key, required this.meal});
+  const MealWidget({super.key, required this.meal, this.onFoodUpdated});
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +66,12 @@ class MealWidget extends StatelessWidget {
                                   orElse: () =>
                                       loggedFood.portion.food.servings.first,
                                 ),
+                            initialAmount: loggedFood.portion.grams,
+                            onUpdate: (newPortion) {
+                              if (onFoodUpdated != null) {
+                                onFoodUpdated!(loggedFood, newPortion);
+                              }
+                            },
                           ),
                         ),
                       );

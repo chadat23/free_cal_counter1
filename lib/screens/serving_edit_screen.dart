@@ -12,8 +12,16 @@ import 'package:free_cal_counter1/utils/math_evaluator.dart';
 class ServingEditScreen extends StatefulWidget {
   final Food food;
   final model_unit.FoodServing? initialUnit;
+  final double? initialAmount;
+  final Function(FoodPortion)? onUpdate;
 
-  const ServingEditScreen({super.key, required this.food, this.initialUnit});
+  const ServingEditScreen({
+    super.key,
+    required this.food,
+    this.initialUnit,
+    this.initialAmount,
+    this.onUpdate,
+  });
 
   @override
   State<ServingEditScreen> createState() => _ServingEditScreenState();
@@ -27,7 +35,9 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
   void initState() {
     super.initState();
     _selectedUnit = widget.initialUnit ?? widget.food.servings.first;
-    _amountController = TextEditingController(text: '1');
+    _amountController = TextEditingController(
+      text: widget.initialAmount?.toString() ?? '1',
+    );
     _amountController.addListener(_onAmountChanged);
   }
 
@@ -202,10 +212,6 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    final logProvider = Provider.of<LogProvider>(
-                      context,
-                      listen: false,
-                    );
                     // Evaluate the math expression
                     final amount =
                         MathEvaluator.evaluate(_amountController.text) ?? 1.0;
@@ -214,10 +220,19 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                       grams: amount,
                       unit: _selectedUnit.unit,
                     );
-                    logProvider.addFoodToQueue(serving);
+
+                    if (widget.onUpdate != null) {
+                      widget.onUpdate!(serving);
+                    } else {
+                      final logProvider = Provider.of<LogProvider>(
+                        context,
+                        listen: false,
+                      );
+                      logProvider.addFoodToQueue(serving);
+                    }
                     Navigator.pop(context);
                   },
-                  child: const Text('Add'),
+                  child: Text(widget.onUpdate != null ? 'Update' : 'Add'),
                 ),
               ],
             ),

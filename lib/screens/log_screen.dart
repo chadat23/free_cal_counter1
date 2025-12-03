@@ -63,82 +63,6 @@ class _LogScreenState extends State<LogScreen> {
       ),
     ];
 
-    final meals = [
-      Meal(
-        timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-        loggedFoods: [
-          LoggedFood(
-            portion: FoodPortion(
-              food: Food(
-                id: 1,
-                source: 'user_created',
-                name: 'Apple',
-                emoji: '🍎',
-                calories: 52,
-                protein: 0.3,
-                fat: 0.2,
-                carbs: 14,
-                fiber: 0.1,
-                servings: [
-                  FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
-                ],
-              ),
-              grams: 100,
-              unit: 'g',
-            ),
-            timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-          ),
-          LoggedFood(
-            portion: FoodPortion(
-              food: Food(
-                id: 2,
-                source: 'user_created',
-                name: 'Banana',
-                emoji: '🍌',
-                calories: 89,
-                protein: 1.1,
-                fat: 0.3,
-                carbs: 23,
-                fiber: 0.4,
-                servings: [
-                  FoodServing(foodId: 2, unit: 'g', grams: 1.0, quantity: 1.0),
-                ],
-              ),
-              grams: 150,
-              unit: 'g',
-            ),
-            timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-          ),
-        ],
-      ),
-      Meal(
-        timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-        loggedFoods: [
-          LoggedFood(
-            portion: FoodPortion(
-              food: Food(
-                id: 3,
-                source: 'user_created',
-                name: 'Chicken Breast',
-                emoji: '🍗',
-                calories: 165,
-                protein: 31,
-                fat: 3.6,
-                carbs: 0,
-                fiber: 0.2,
-                servings: [
-                  FoodServing(foodId: 3, unit: 'g', grams: 1.0, quantity: 1.0),
-                ],
-              ),
-              grams: 100,
-              unit: 'g',
-            ),
-            timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-          ),
-        ],
-      ),
-    ];
-
     return ScreenBackground(
       child: Column(
         children: [
@@ -149,9 +73,12 @@ class _LogScreenState extends State<LogScreen> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: meals.length,
+              itemCount: _meals.length,
               itemBuilder: (context, index) {
-                return MealWidget(meal: meals[index]);
+                return MealWidget(
+                  meal: _meals[index],
+                  onFoodUpdated: _updateLoggedFood,
+                );
               },
             ),
           ),
@@ -160,4 +87,97 @@ class _LogScreenState extends State<LogScreen> {
       ),
     );
   }
+
+  void _updateLoggedFood(LoggedFood oldFood, FoodPortion newPortion) {
+    setState(() {
+      for (var meal in _meals) {
+        final index = meal.loggedFoods.indexOf(oldFood);
+        if (index != -1) {
+          // Create a new LoggedFood with updated portion
+          final newLoggedFood = LoggedFood(
+            portion: newPortion,
+            timestamp: oldFood.timestamp,
+          );
+          meal.loggedFoods[index] = newLoggedFood;
+          break;
+        }
+      }
+    });
+  }
+
+  final List<Meal> _meals = [
+    Meal(
+      timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+      loggedFoods: [
+        LoggedFood(
+          portion: FoodPortion(
+            food: Food(
+              id: 1,
+              source: 'user_created',
+              name: 'Apple',
+              emoji: '🍎',
+              calories: 52,
+              protein: 0.3,
+              fat: 0.2,
+              carbs: 14,
+              fiber: 0.1,
+              servings: [
+                FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
+              ],
+            ),
+            grams: 100,
+            unit: 'g',
+          ),
+          timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+        ),
+        LoggedFood(
+          portion: FoodPortion(
+            food: Food(
+              id: 2,
+              source: 'user_created',
+              name: 'Banana',
+              emoji: '🍌',
+              calories: 89,
+              protein: 1.1,
+              fat: 0.3,
+              carbs: 23,
+              fiber: 0.4,
+              servings: [
+                FoodServing(foodId: 2, unit: 'g', grams: 1.0, quantity: 1.0),
+              ],
+            ),
+            grams: 150,
+            unit: 'g',
+          ),
+          timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+        ),
+      ],
+    ),
+    Meal(
+      timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+      loggedFoods: [
+        LoggedFood(
+          portion: FoodPortion(
+            food: Food(
+              id: 3,
+              source: 'user_created',
+              name: 'Chicken Breast',
+              emoji: '🍗',
+              calories: 165,
+              protein: 31,
+              fat: 3.6,
+              carbs: 0,
+              fiber: 0.2,
+              servings: [
+                FoodServing(foodId: 3, unit: 'g', grams: 1.0, quantity: 1.0),
+              ],
+            ),
+            grams: 100,
+            unit: 'g',
+          ),
+          timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+        ),
+      ],
+    ),
+  ];
 }

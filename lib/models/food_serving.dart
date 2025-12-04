@@ -3,8 +3,8 @@ import 'package:equatable/equatable.dart';
 class FoodServing extends Equatable {
   final int? id;
   final int foodId;
-  final String unit;
-  final double grams;
+  final String unit; // unit of measurement of a serving
+  final double grams; // weight of a serving in grams
   final double quantity; // number of units per serving
 
   const FoodServing({

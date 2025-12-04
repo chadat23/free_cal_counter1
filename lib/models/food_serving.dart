@@ -39,4 +39,18 @@ class FoodServing extends Equatable {
 
   @override
   List<Object?> get props => [unit, grams, quantity];
+
+  /// The weight of a single unit in grams.
+  double get gramsPerUnit => grams / quantity;
+
+  /// Calculates the quantity (number of units) from a total weight in grams.
+  double quantityFromGrams(double totalGrams) {
+    if (gramsPerUnit == 0) return 0;
+    return totalGrams / gramsPerUnit;
+  }
+
+  /// Calculates the total weight in grams from a quantity (number of units).
+  double gramsFromQuantity(double quantity) {
+    return quantity * gramsPerUnit;
+  }
 }

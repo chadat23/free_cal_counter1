@@ -30,14 +30,6 @@ class FoodSearchProvider extends ChangeNotifier {
     _errorMessage = null;
   }
 
-  void clearSearch() {
-    _searchResults = [];
-    _currentQuery = '';
-    _errorMessage = null;
-    _isLoading = false;
-    notifyListeners();
-  }
-
   // Always performs a local search
   Future<void> textSearch(String query) async {
     _currentQuery = query;

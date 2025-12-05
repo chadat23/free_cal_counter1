@@ -27,38 +27,6 @@ void main() {
     );
   });
 
-  group('clearSearch', () {
-    test('should reset search results, query, and error message', () async {
-      // Arrange
-      // Set some initial state
-      final mockFoods = [
-        model.Food(
-          id: 1,
-          name: 'Apple',
-          emoji: '',
-          calories: 52,
-          protein: 0.3,
-          fat: 0.2,
-          carbs: 14,
-          fiber: 2.4,
-          source: 'test',
-        ),
-      ];
-      when(
-        mockFoodSearchService.searchLocal('apple'),
-      ).thenAnswer((_) async => mockFoods);
-      await foodSearchProvider.textSearch('apple');
-
-      // Act
-      foodSearchProvider.clearSearch();
-
-      // Assert
-      expect(foodSearchProvider.searchResults, isEmpty);
-      expect(foodSearchProvider.errorMessage, isNull);
-      expect(foodSearchProvider.isLoading, isFalse);
-    });
-  });
-
   group('textSearch', () {
     test('should always call local search and update current query', () async {
       // Arrange

@@ -9,7 +9,16 @@ import 'package:matcher/matcher.dart' as matcher;
 
 import 'off_api_service_test.mocks.dart';
 
-class MockProduct extends Mock implements Product {}
+class MockProduct extends Mock implements Product {
+  @override
+  Map<String, dynamic> toJson() {
+    return super.noSuchMethod(
+      Invocation.method(#toJson, []),
+      returnValue: <String, dynamic>{},
+      returnValueForMissingStub: <String, dynamic>{},
+    );
+  }
+}
 
 class MockNutriments extends Mock implements Nutriments {}
 
@@ -722,6 +731,159 @@ void main() {
             (unit) => unit.unit == 'serving' && unit.grams == 50.0,
           ),
           matcher.isTrue,
+        );
+      },
+    );
+
+    test(
+      'should use serving_size_imported for additional unit options',
+      () async {
+        // Arrange
+        final product = MockProduct();
+        final nutriments = MockNutriments();
+        final searchResult = MockSearchResult();
+
+        // Mock a product with 100g data
+        when(product.productName).thenReturn('Soy Sauce');
+        when(
+          nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams),
+        ).thenReturn(53.0);
+        when(
+          nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams),
+        ).thenReturn(8.0);
+        when(
+          nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams),
+        ).thenReturn(0.0);
+        when(
+          nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
+        ).thenReturn(4.9);
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+        ).thenReturn(0.0);
+
+        // Mock standard serving size
+        when(product.servingSize).thenReturn('1 portion (15 ml)');
+        when(product.servingQuantity).thenReturn(15.0);
+
+        // Mock imported serving size via toJson
+        when(
+          product.toJson(),
+        ).thenReturn({'serving_size_imported': '1 Tbsp (15 ml)'});
+
+        // Serving calories
+        when(
+          nutriments.getValue(Nutrient.energyKCal, PerSize.serving),
+        ).thenReturn(8.0);
+
+        when(product.nutriments).thenReturn(nutriments);
+        when(searchResult.products).thenReturn([product]);
+        when(
+          mockApiWrapper.searchProducts(any, any),
+        ).thenAnswer((_) async => searchResult);
+
+        // Act
+        final result = await offApiService.searchFoodsByName('Soy Sauce');
+
+        // Assert
+        expect(result, hasLength(1));
+        final food = result.first;
+
+        // Should have 'g' unit
+        expect(
+          food.servings.any((u) => u.unit == 'g' && u.grams == 1.0),
+          isTrue,
+        );
+
+        // Should have 'ml' unit (from both strings, deduped)
+        expect(
+          food.servings.any(
+            (u) => u.unit == 'ml' && u.grams == 1.0 && u.quantity == 15.0,
+          ),
+          isTrue,
+        );
+
+        // Should have 'portion' unit (from servingSize)
+        expect(
+          food.servings.any(
+            (u) => u.unit == 'portion' && u.grams == 15.0 && u.quantity == 1.0,
+          ),
+          isTrue,
+        );
+
+        // Should have 'Tbsp' unit (from serving_size_imported)
+        // 1 Tbsp = 15ml = 15g (approx)
+        expect(
+          food.servings.any(
+            (u) => u.unit == 'tbsp' && u.grams == 15.0 && u.quantity == 1.0,
+          ),
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'should use servingQuantity when servingSize string is unparseable',
+      () async {
+        // Arrange
+        final product = MockProduct();
+        final nutriments = MockNutriments();
+        final searchResult = MockSearchResult();
+
+        // Mock a product with 100g data
+        when(product.productName).thenReturn('Chips');
+        when(
+          nutriments.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams),
+        ).thenReturn(500.0);
+        when(
+          nutriments.getValue(Nutrient.proteins, PerSize.oneHundredGrams),
+        ).thenReturn(5.0);
+        when(
+          nutriments.getValue(Nutrient.fat, PerSize.oneHundredGrams),
+        ).thenReturn(30.0);
+        when(
+          nutriments.getValue(Nutrient.carbohydrates, PerSize.oneHundredGrams),
+        ).thenReturn(50.0);
+        when(
+          nutriments.getValue(Nutrient.fiber, PerSize.oneHundredGrams),
+        ).thenReturn(2.0);
+
+        // Mock unparseable serving size string but valid servingQuantity
+        when(product.servingSize).thenReturn('1 bag');
+        when(product.servingQuantity).thenReturn(45.0); // 45g
+
+        // Serving calories (optional for this test if 100g is present, but good for completeness)
+        when(
+          nutriments.getValue(Nutrient.energyKCal, PerSize.serving),
+        ).thenReturn(225.0); // 45g * 5 kcal/g = 225 kcal
+
+        when(product.nutriments).thenReturn(nutriments);
+        when(searchResult.products).thenReturn([product]);
+        when(
+          mockApiWrapper.searchProducts(any, any),
+        ).thenAnswer((_) async => searchResult);
+
+        // Act
+        final result = await offApiService.searchFoodsByName('Chips');
+
+        // Assert
+        expect(result, hasLength(1));
+        final food = result.first;
+
+        // Should have 'g' unit
+        expect(
+          food.servings.any((u) => u.unit == 'g' && u.grams == 1.0),
+          isTrue,
+        );
+
+        // Should have 'bag' unit derived from servingQuantity (45g)
+        // logic: unit comes from parsing "1 bag" -> quantity=1, unit="bag"
+        // portionGrams = 45.0
+        // calculatedGrams = 45.0 / 1 = 45.0
+        expect(
+          food.servings.any(
+            (u) => u.unit == 'bag' && u.grams == 45.0 && u.quantity == 1.0,
+          ),
+          isTrue,
         );
       },
     );

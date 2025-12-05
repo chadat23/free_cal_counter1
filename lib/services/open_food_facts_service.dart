@@ -108,40 +108,55 @@ class OffApiService {
       baseFiberPerGram = fiber100g / 100.0;
     }
 
-    // Option B: Serving size with explicit grams or volume (secondary anchor)
-    double? portionGrams;
+    // --- Step 1.5: Prepare serving size data ---
     final portionSizeText = product.servingSize;
-
-    // Parse serving size text using our robust parser
     final parsedPortionItems = parsePortionSize(portionSizeText);
 
-    // Try to find a mass or volume in the parsed items to use as servingGrams
-    // Priority: Mass (g) > Volume (ml)
-    // We can assume 1 ml = 1 g for the purpose of establishing a baseline if no mass is present.
+    // Also try to parse serving_size_imported for additional options
+    // This field is not yet in the typed Product class, so we access it via JSON
+    final importedServingSize =
+        product.toJson()['serving_size_imported'] as String?;
+    final parsedImportedItems = parsePortionSize(importedServingSize);
 
-    // 1. Look for explicit mass
-    for (final item in parsedPortionItems) {
-      // Check if unit is a mass unit (we can check if it converts to grams)
-      final grams = toGrams(item.$1, item.$2);
-      if (grams != null) {
-        portionGrams = grams;
-        break;
-      }
+    // Combine items, prioritizing the main serving size text if needed,
+    // but for unit discovery we want everything.
+    final allParsedItems = [...parsedPortionItems, ...parsedImportedItems];
+
+    // Option B: Serving size (secondary anchor)
+    double? portionGrams;
+
+    // 1. Try structured data first (servingQuantity)
+    // In OpenFoodFacts, servingQuantity is typically the normalized value in grams or ml.
+    if (product.servingQuantity != null) {
+      portionGrams = product.servingQuantity;
     }
 
-    // 2. If no mass, look for explicit volume
+    // 2. Fallback to parsing serving size string if structured data failed
     if (portionGrams == null) {
-      for (final item in parsedPortionItems) {
-        final ml = toMilliliters(item.$1, item.$2);
-        if (ml != null) {
-          // Assume 1ml = 1g for baseline calculation
-          portionGrams = ml;
+      // Try to find a mass or volume in the parsed items to use as servingGrams
+      // Priority: Mass (g) > Volume (ml)
+
+      // Look for explicit mass
+      for (final item in allParsedItems) {
+        final grams = toGrams(item.$1, item.$2);
+        if (grams != null) {
+          portionGrams = grams;
           break;
         }
       }
-    }
 
-    // 3. Fallback to servingQuantity if still null
+      // If no mass, look for explicit volume
+      if (portionGrams == null) {
+        for (final item in allParsedItems) {
+          final ml = toMilliliters(item.$1, item.$2);
+          if (ml != null) {
+            // Assume 1ml = 1g for baseline calculation
+            portionGrams = ml;
+            break;
+          }
+        }
+      }
+    }
 
     if (portionGrams != null && portionGrams > 0) {
       final portionEnergy = nutriments.getValue(
@@ -200,8 +215,8 @@ class OffApiService {
       ),
     );
 
-    // Add units from parsed serving size
-    for (final item in parsedPortionItems) {
+    // Add units from parsed serving size (and imported serving size)
+    for (final item in allParsedItems) {
       final quantity = item.$1;
       final unit = item.$2;
 

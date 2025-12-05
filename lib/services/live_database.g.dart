@@ -829,7 +829,7 @@ class $FoodPortionsTable extends FoodPortions
   );
   @override
   late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
-    'amountPerPortion',
+    'quantityPerPortion',
     aliasedName,
     false,
     type: DriftSqlType.double,
@@ -876,11 +876,11 @@ class $FoodPortionsTable extends FoodPortions
     } else if (isInserting) {
       context.missing(_gramsMeta);
     }
-    if (data.containsKey('amountPerPortion')) {
+    if (data.containsKey('quantityPerPortion')) {
       context.handle(
         _quantityMeta,
         quantity.isAcceptableOrUnknown(
-          data['amountPerPortion']!,
+          data['quantityPerPortion']!,
           _quantityMeta,
         ),
       );
@@ -914,7 +914,7 @@ class $FoodPortionsTable extends FoodPortions
       )!,
       quantity: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}amountPerPortion'],
+        data['${effectivePrefix}quantityPerPortion'],
       )!,
     );
   }
@@ -945,7 +945,7 @@ class FoodPortion extends DataClass implements Insertable<FoodPortion> {
     map['foodId'] = Variable<int>(foodId);
     map['unitName'] = Variable<String>(unit);
     map['gramsPerPortion'] = Variable<double>(grams);
-    map['amountPerPortion'] = Variable<double>(quantity);
+    map['quantityPerPortion'] = Variable<double>(quantity);
     return map;
   }
 
@@ -1067,7 +1067,7 @@ class FoodPortionsCompanion extends UpdateCompanion<FoodPortion> {
       if (foodId != null) 'foodId': foodId,
       if (unit != null) 'unitName': unit,
       if (grams != null) 'gramsPerPortion': grams,
-      if (quantity != null) 'amountPerPortion': quantity,
+      if (quantity != null) 'quantityPerPortion': quantity,
     });
   }
 
@@ -1103,7 +1103,7 @@ class FoodPortionsCompanion extends UpdateCompanion<FoodPortion> {
       map['gramsPerPortion'] = Variable<double>(grams.value);
     }
     if (quantity.present) {
-      map['amountPerPortion'] = Variable<double>(quantity.value);
+      map['quantityPerPortion'] = Variable<double>(quantity.value);
     }
     return map;
   }

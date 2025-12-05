@@ -65,9 +65,9 @@ void main() {
           ),
         );
 
-    // Insert a unit with NULL amountPerPortion using raw SQL
+    // Insert a unit with NULL quantityPerPortion using raw SQL
     await liveDatabase.customStatement(
-      'INSERT INTO food_portions (foodId, unitName, gramsPerPortion, amountPerPortion) VALUES (?, ?, ?, ?)',
+      'INSERT INTO food_portions (foodId, unitName, gramsPerPortion, quantityPerPortion) VALUES (?, ?, ?, ?)',
       [1, 'medium', 182.0, 1.0],
     );
 

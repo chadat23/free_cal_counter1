@@ -89,7 +89,7 @@ def init_db(conn):
             foodId INTEGER NOT NULL,
             unitName TEXT NOT NULL,
             gramsPerPortion REAL NOT NULL,
-            amountPerPortion REAL NOT NULL,
+            quantityPerPortion REAL NOT NULL,
             FOREIGN KEY (foodId) REFERENCES foods(id)
         );
     """
@@ -232,7 +232,7 @@ def parse_foods(data, source_name, strict_filtering=False):
             portions.append({
                 "unitName": unit_name,
                 "gramsPerPortion": float(gram_weight),
-                "amountPerPortion": amount
+                "quantityPerPortion": amount
             })
 
         # Ensure 'g' unit is always present
@@ -240,7 +240,7 @@ def parse_foods(data, source_name, strict_filtering=False):
             portions.append({
                 "unitName": "g",
                 "gramsPerPortion": 1.0,
-                "amountPerPortion": 1.0
+                "quantityPerPortion": 1.0
             })
 
         # --- 5. Assemble Food Record ---
@@ -305,10 +305,10 @@ def upsert_foods(conn, foods):
             cur.execute(
                 """
                 INSERT INTO food_portions 
-                (foodId, unitName, gramsPerPortion, amountPerPortion) 
+                (foodId, unitName, gramsPerPortion, quantityPerPortion) 
                 VALUES (?, ?, ?, ?)
                 """,
-                (food_id, p["unitName"], p["gramsPerPortion"], p["amountPerPortion"]),
+                (food_id, p["unitName"], p["gramsPerPortion"], p["quantityPerPortion"]),
             )
 
     conn.commit()

@@ -93,6 +93,13 @@ class MockLogProvider extends _i1.Mock implements _i2.LogProvider {
   );
 
   @override
+  void updateFoodInQueue(int? index, _i3.FoodPortion? newPortion) =>
+      super.noSuchMethod(
+        Invocation.method(#updateFoodInQueue, [index, newPortion]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   void removeFoodFromQueue(_i3.FoodPortion? serving) => super.noSuchMethod(
     Invocation.method(#removeFoodFromQueue, [serving]),
     returnValueForMissingStub: null,

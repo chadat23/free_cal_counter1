@@ -23,7 +23,7 @@ class FoodPortions extends Table {
   IntColumn get foodId => integer().named('foodId').references(Foods, #id)();
   TextColumn get unit => text().named('unitName')();
   RealColumn get grams => real().named('gramsPerPortion')();
-  RealColumn get quantity => real().named('amountPerPortion')();
+  RealColumn get quantity => real().named('quantityPerPortion')();
 }
 
 @DataClassName('Recipe')

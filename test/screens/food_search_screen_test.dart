@@ -7,7 +7,7 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/screens/food_search_screen.dart';
-import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
+import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -158,7 +158,7 @@ void main() {
     expect(find.text('Discard changes?'), findsOneWidget);
   });
 
-  testWidgets('tapping on a search result navigates to ServingEditScreen', (
+  testWidgets('tapping on a search result navigates to PortionEditScreen', (
     tester,
   ) async {
     final food = Food(
@@ -185,7 +185,7 @@ void main() {
     await tester.tap(find.text('🍎 Apple'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(ServingEditScreen), findsOneWidget);
+    expect(find.byType(PortionEditScreen), findsOneWidget);
   });
 
   testWidgets(

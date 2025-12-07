@@ -9,42 +9,42 @@ import 'package:provider/provider.dart';
 
 import 'package:free_cal_counter1/utils/math_evaluator.dart';
 
-class ServingEditScreen extends StatefulWidget {
+class PortionEditScreen extends StatefulWidget {
   final Food food;
   final model_unit.FoodServing? initialUnit;
-  final double? initialAmount;
+  final double? initialQuantity;
   final Function(FoodPortion)? onUpdate;
 
-  const ServingEditScreen({
+  const PortionEditScreen({
     super.key,
     required this.food,
     this.initialUnit,
-    this.initialAmount,
+    this.initialQuantity,
     this.onUpdate,
   });
 
   @override
-  State<ServingEditScreen> createState() => _ServingEditScreenState();
+  State<PortionEditScreen> createState() => _PortionEditScreenState();
 }
 
-class _ServingEditScreenState extends State<ServingEditScreen> {
+class _PortionEditScreenState extends State<PortionEditScreen> {
   late model_unit.FoodServing _selectedUnit;
-  late TextEditingController _amountController;
+  late TextEditingController _portionController;
 
   @override
   void initState() {
     super.initState();
     _selectedUnit = widget.initialUnit ?? widget.food.servings.first;
-    _amountController = TextEditingController(
-      text: widget.initialAmount?.toString() ?? '1',
+    _portionController = TextEditingController(
+      text: widget.initialQuantity?.toString() ?? '1',
     );
-    _amountController.addListener(_onAmountChanged);
+    _portionController.addListener(_onAmountChanged);
   }
 
   @override
   void dispose() {
-    _amountController.removeListener(_onAmountChanged);
-    _amountController.dispose();
+    _portionController.removeListener(_onAmountChanged);
+    _portionController.dispose();
     super.dispose();
   }
 
@@ -54,17 +54,14 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
 
   Widget _buildMacroDisplay() {
     // Use MathEvaluator to parse the text
-    final amount = MathEvaluator.evaluate(_amountController.text) ?? 0.0;
+    final amount = MathEvaluator.evaluate(_portionController.text) ?? 0.0;
 
     // Calculate total grams based on serving unit and quantity
-    // _selectedUnit.grams is grams per unit (or quantity units)
-    // If quantity is 1, it's grams per unit.
-    // If quantity is > 1 (e.g. 100g), then grams is 100.
-    // We assume _selectedUnit.grams is the weight of ONE "serving" as defined by the unit.
-    // But wait, if unit is "g", usually grams=1.
-    // Let's stick to the logic: totalGrams = amount * _selectedUnit.grams
-    // This assumes 'amount' is the number of 'units'.
-    final totalGrams = amount * _selectedUnit.grams;
+    // _selectedUnit.grams is the total weight of the serving (e.g. 50g for 2 cookies)
+    // _selectedUnit.quantity is the number of units in the serving (e.g. 2)
+    // We want the weight of the amount entered by the user.
+    // totalGrams = amount * (grams / quantity)
+    final totalGrams = amount * _selectedUnit.gramsPerUnit;
 
     final calories = widget.food.calories * totalGrams;
     final protein = widget.food.protein * totalGrams;
@@ -164,7 +161,7 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: _amountController,
+                    controller: _portionController,
                     // Use visiblePassword to allow math symbols but avoid auto-correct
                     keyboardType: TextInputType.visiblePassword,
                     decoration: const InputDecoration(labelText: 'Amount'),
@@ -214,10 +211,14 @@ class _ServingEditScreenState extends State<ServingEditScreen> {
                   onPressed: () {
                     // Evaluate the math expression
                     final amount =
-                        MathEvaluator.evaluate(_amountController.text) ?? 1.0;
+                        MathEvaluator.evaluate(_portionController.text) ?? 1.0;
+
+                    // Calculate the actual weight in grams
+                    final calculatedGrams = amount * _selectedUnit.gramsPerUnit;
+
                     final serving = FoodPortion(
                       food: widget.food,
-                      grams: amount,
+                      grams: calculatedGrams,
                       unit: _selectedUnit.unit,
                     );
 

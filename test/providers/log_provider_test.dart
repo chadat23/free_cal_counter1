@@ -115,7 +115,7 @@ void main() {
             ),
           ],
         );
-        final serving = FoodPortion(food: food, grams: 2, unit: 'slice');
+        final serving = FoodPortion(food: food, grams: 20, unit: 'slice');
 
         // Act
         logProvider.addFoodToQueue(serving);

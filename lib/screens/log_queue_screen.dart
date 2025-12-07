@@ -5,8 +5,8 @@ import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/widgets/discard_dialog.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
-import 'package:free_cal_counter1/widgets/slidable_serving_widget.dart';
-import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
+import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
+import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
 import 'package:provider/provider.dart';
 
 class LogQueueScreen extends StatelessWidget {
@@ -59,7 +59,7 @@ class LogQueueScreen extends StatelessWidget {
             itemCount: logProvider.logQueue.length,
             itemBuilder: (context, index) {
               final foodServing = logProvider.logQueue[index];
-              return SlidableServingWidget(
+              return SlidablePortionWidget(
                 serving: foodServing,
                 onDelete: () {
                   logProvider.removeFoodFromQueue(foodServing);
@@ -68,13 +68,13 @@ class LogQueueScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ServingEditScreen(
+                      builder: (context) => PortionEditScreen(
                         food: foodServing.food,
                         initialUnit: foodServing.food.servings.firstWhere(
                           (s) => s.unit == foodServing.unit,
                           orElse: () => foodServing.food.servings.first,
                         ),
-                        initialAmount: foodServing.grams,
+                        initialQuantity: foodServing.grams,
                         onUpdate: (newPortion) {
                           logProvider.updateFoodInQueue(index, newPortion);
                         },

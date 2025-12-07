@@ -59,13 +59,7 @@ class LogProvider extends ChangeNotifier {
   void _recalculateQueuedCalories() {
     _queuedCalories = _logQueue.fold(0.0, (sum, serving) {
       final food = serving.food;
-      final unit = food.servings.firstWhere(
-        (u) => u.unit == serving.unit,
-        orElse: () => throw StateError(
-          'Data integrity error: Unit ${serving.unit} missing from ${food.name}',
-        ),
-      );
-      final caloriesForServing = food.calories * unit.grams * serving.grams;
+      final caloriesForServing = food.calories * serving.grams;
       return sum + caloriesForServing;
     });
   }

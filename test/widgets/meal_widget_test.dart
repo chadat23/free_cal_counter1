@@ -7,8 +7,8 @@ import 'package:free_cal_counter1/models/logged_food.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
-import 'package:free_cal_counter1/widgets/serving_widget.dart';
-import 'package:free_cal_counter1/widgets/slidable_serving_widget.dart';
+import 'package:free_cal_counter1/widgets/portion_widget.dart';
+import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
 
 void main() {
   testWidgets('Meal widget displays correctly', (WidgetTester tester) async {
@@ -68,6 +68,6 @@ void main() {
     expect(find.text('F: 0.7'), findsOneWidget);
     expect(find.text('C: 48.5'), findsOneWidget);
     expect(find.text('Fb: 6.3'), findsOneWidget);
-    expect(find.byType(SlidableServingWidget), findsNWidgets(2));
+    expect(find.byType(SlidablePortionWidget), findsNWidgets(2));
   });
 }

@@ -2,61 +2,63 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 
-class ServingWidget extends StatelessWidget {
-  final FoodPortion serving;
+class PortionWidget extends StatelessWidget {
+  final FoodPortion portion;
   final VoidCallback? onEdit;
 
-  const ServingWidget({super.key, required this.serving, this.onEdit});
+  const PortionWidget({super.key, required this.portion, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
     // Calculate totals based on the serving size
     // Note: serving.grams is actually the quantity/multiplier for the unit
     // We need to find the unit definition to get the grams per unit
-    final unitDef = serving.food.servings.firstWhere(
-      (u) => u.unit == serving.unit,
-      orElse: () => serving.food.servings.first,
+    final unitDef = portion.food.servings.firstWhere(
+      (u) => u.unit == portion.unit,
+      orElse: () => portion.food.servings.first,
     );
 
-    // Total grams = quantity * grams_per_unit
-    final totalGrams = serving.grams * unitDef.grams;
+    // serving.grams is now the actual weight in grams
+    final totalGrams = portion.grams;
 
-    final calories = serving.food.calories * totalGrams;
-    final protein = serving.food.protein * totalGrams;
-    final fat = serving.food.fat * totalGrams;
-    final carbs = serving.food.carbs * totalGrams;
-    final fiber = serving.food.fiber * totalGrams;
+    final calories = portion.food.calories * totalGrams;
+    final protein = portion.food.protein * totalGrams;
+    final fat = portion.food.fat * totalGrams;
+    final carbs = portion.food.carbs * totalGrams;
+    final fiber = portion.food.fiber * totalGrams;
 
     return ListTile(
       leading: SizedBox(
         width: 40,
         height: 40,
         child: Center(
-          child: serving.food.thumbnail != null
+          child: portion.food.thumbnail != null
               ? CachedNetworkImage(
-                  imageUrl: serving.food.thumbnail!,
+                  imageUrl: portion.food.thumbnail!,
                   placeholder: (context, url) =>
                       const CircularProgressIndicator(),
                   errorWidget: (context, url, error) => Text(
-                    serving.food.emoji ?? '🍴',
+                    portion.food.emoji ?? '🍴',
                     style: const TextStyle(fontSize: 24),
                   ),
                   fit: BoxFit.cover,
                 )
               : Text(
-                  serving.food.emoji ?? '🍴',
+                  portion.food.emoji ?? '🍴',
                   style: const TextStyle(fontSize: 24),
                 ),
         ),
       ),
-      title: Text(serving.food.name),
+      title: Text(portion.food.name),
       subtitle: Text(
         '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C • ${fiber.toStringAsFixed(1)}Fb',
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('${serving.grams} ${serving.unit}'),
+          Text(
+            '${unitDef.quantityFromGrams(totalGrams).toStringAsFixed(1)} ${unitDef.unit}',
+          ),
           const SizedBox(width: 8),
           IconButton(icon: const Icon(Icons.edit_outlined), onPressed: onEdit),
         ],

@@ -3,7 +3,7 @@ import 'package:free_cal_counter1/config/app_router.dart';
 
 import 'package:free_cal_counter1/widgets/discard_dialog.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
-import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
+import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
@@ -129,7 +129,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ServingEditScreen(
+                      builder: (context) => PortionEditScreen(
                         food: food,
                         initialUnit: selectedUnit,
                       ),

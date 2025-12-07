@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
-import 'package:free_cal_counter1/widgets/serving_widget.dart';
+import 'package:free_cal_counter1/widgets/portion_widget.dart';
 
-class SlidableServingWidget extends StatelessWidget {
+class SlidablePortionWidget extends StatelessWidget {
   final FoodPortion serving;
   final VoidCallback onDelete;
   final VoidCallback? onEdit;
 
-  const SlidableServingWidget({
+  const SlidablePortionWidget({
     super.key,
     required this.serving,
     required this.onDelete,
@@ -34,7 +34,7 @@ class SlidableServingWidget extends StatelessWidget {
       ),
       child: Container(
         color: Theme.of(context).canvasColor,
-        child: ServingWidget(serving: serving, onEdit: onEdit),
+        child: PortionWidget(portion: serving, onEdit: onEdit),
       ),
     );
   }

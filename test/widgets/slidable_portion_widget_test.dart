@@ -4,7 +4,7 @@ import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
 
-import 'package:free_cal_counter1/widgets/slidable_serving_widget.dart';
+import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
 
 void main() {
   testWidgets(
@@ -31,7 +31,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SlidableServingWidget(
+            body: SlidablePortionWidget(
               serving: serving,
               onDelete: () {
                 onDeleteCalled = true;
@@ -43,7 +43,7 @@ void main() {
 
       // When - Slide to reveal
       await tester.fling(
-        find.byType(SlidableServingWidget),
+        find.byType(SlidablePortionWidget),
         const Offset(-200, 0),
         1000,
       );
@@ -83,7 +83,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: SlidableServingWidget(
+          body: SlidablePortionWidget(
             serving: serving,
             onDelete: () {},
             onEdit: () {

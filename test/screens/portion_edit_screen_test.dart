@@ -4,12 +4,12 @@ import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
-import 'package:free_cal_counter1/screens/serving_edit_screen.dart';
+import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   testWidgets(
-    'ServingEditScreen shows "Update" button and calls onUpdate when provided',
+    'PortionEditScreen shows "Update" button and calls onUpdate when provided',
     (WidgetTester tester) async {
       // Given
       FoodPortion? updatedPortion;
@@ -32,7 +32,7 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider(
             create: (_) => LogProvider(),
-            child: ServingEditScreen(
+            child: PortionEditScreen(
               food: food,
               onUpdate: (portion) {
                 updatedPortion = portion;
@@ -56,7 +56,7 @@ void main() {
     },
   );
 
-  testWidgets('ServingEditScreen shows "Add" button when onUpdate is null', (
+  testWidgets('PortionEditScreen shows "Add" button when onUpdate is null', (
     WidgetTester tester,
   ) async {
     // Given
@@ -77,7 +77,7 @@ void main() {
       MaterialApp(
         home: ChangeNotifierProvider(
           create: (_) => LogProvider(),
-          child: ServingEditScreen(food: food),
+          child: PortionEditScreen(food: food),
         ),
       ),
     );
@@ -87,7 +87,7 @@ void main() {
     expect(find.text('Update'), findsNothing);
   });
 
-  testWidgets('ServingEditScreen initializes with provided initialAmount', (
+  testWidgets('PortionEditScreen initializes with provided initialAmount', (
     WidgetTester tester,
   ) async {
     // Given
@@ -108,7 +108,7 @@ void main() {
       MaterialApp(
         home: ChangeNotifierProvider(
           create: (_) => LogProvider(),
-          child: ServingEditScreen(food: food, initialAmount: 2.5),
+          child: PortionEditScreen(food: food, initialQuantity: 2.5),
         ),
       ),
     );

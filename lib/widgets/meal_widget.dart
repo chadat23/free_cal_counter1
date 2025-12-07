@@ -58,21 +58,26 @@ class MealWidget extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PortionEditScreen(
-                            food: loggedFood.portion.food,
-                            initialUnit: loggedFood.portion.food.servings
+                          builder: (context) {
+                            final unit = loggedFood.portion.food.servings
                                 .firstWhere(
                                   (s) => s.unit == loggedFood.portion.unit,
                                   orElse: () =>
                                       loggedFood.portion.food.servings.first,
-                                ),
-                            initialQuantity: loggedFood.portion.grams,
-                            onUpdate: (newPortion) {
-                              if (onFoodUpdated != null) {
-                                onFoodUpdated!(loggedFood, newPortion);
-                              }
-                            },
-                          ),
+                                );
+                            return PortionEditScreen(
+                              food: loggedFood.portion.food,
+                              initialUnit: unit,
+                              initialQuantity: unit.quantityFromGrams(
+                                loggedFood.portion.grams,
+                              ),
+                              onUpdate: (newPortion) {
+                                if (onFoodUpdated != null) {
+                                  onFoodUpdated!(loggedFood, newPortion);
+                                }
+                              },
+                            );
+                          },
                         ),
                       );
                     },

@@ -68,17 +68,22 @@ class LogQueueScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PortionEditScreen(
-                        food: foodServing.food,
-                        initialUnit: foodServing.food.servings.firstWhere(
+                      builder: (context) {
+                        final unit = foodServing.food.servings.firstWhere(
                           (s) => s.unit == foodServing.unit,
                           orElse: () => foodServing.food.servings.first,
-                        ),
-                        initialQuantity: foodServing.grams,
-                        onUpdate: (newPortion) {
-                          logProvider.updateFoodInQueue(index, newPortion);
-                        },
-                      ),
+                        );
+                        return PortionEditScreen(
+                          food: foodServing.food,
+                          initialUnit: unit,
+                          initialQuantity: unit.quantityFromGrams(
+                            foodServing.grams,
+                          ),
+                          onUpdate: (newPortion) {
+                            logProvider.updateFoodInQueue(index, newPortion);
+                          },
+                        );
+                      },
                     ),
                   );
                 },

@@ -78,7 +78,7 @@ void main() {
     expect(results.length, 1, reason: 'Should have found 1 result');
     expect(results.first.name, 'Apple');
     expect(results.first.servings, isNotEmpty);
-    // The amount should be defaulted to 1.0
+    // The quantity should be defaulted to 1.0
     expect(results.first.servings.first.quantity, 1.0);
   });
 }

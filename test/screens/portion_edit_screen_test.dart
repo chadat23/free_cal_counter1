@@ -87,7 +87,7 @@ void main() {
     expect(find.text('Update'), findsNothing);
   });
 
-  testWidgets('PortionEditScreen initializes with provided initialAmount', (
+  testWidgets('PortionEditScreen initializes with provided initialQuantity', (
     WidgetTester tester,
   ) async {
     // Given
@@ -113,7 +113,7 @@ void main() {
       ),
     );
 
-    // Then - Verify text field contains initial amount
+    // Then - Verify text field contains initial quantity
     expect(find.text('2.5'), findsOneWidget);
   });
 }

@@ -388,7 +388,7 @@ void main() {
 
       // Verify 'ml' unit
       // 1 ml = 1g
-      // Amount is 15 because input was "15 ml"
+      // Quantity is 15 because input was "15 ml"
       expect(
         food.servings.any(
           (unit) =>

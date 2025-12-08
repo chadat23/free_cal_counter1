@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
-import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/logged_food.dart';
-import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/utils/debug_seeder.dart';
 
 class LogScreen extends StatefulWidget {
   const LogScreen({super.key});
@@ -20,10 +21,29 @@ class LogScreen extends StatefulWidget {
 class _LogScreenState extends State<LogScreen> {
   DateTime _selectedDate = DateTime.now();
 
+  @override
+  void initState() {
+    super.initState();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    // Seed data if needed (debug only)
+    await DebugSeeder.seed();
+
+    if (mounted) {
+      // Load logs for the selected date
+      final logProvider = Provider.of<LogProvider>(context, listen: false);
+      await logProvider.loadLoggedFoodsForDate(_selectedDate);
+    }
+  }
+
   void _handleDateChanged(DateTime newDate) {
     setState(() {
       _selectedDate = newDate;
     });
+    final logProvider = Provider.of<LogProvider>(context, listen: false);
+    logProvider.loadLoggedFoodsForDate(newDate);
   }
 
   @override
@@ -72,12 +92,22 @@ class _LogScreenState extends State<LogScreen> {
             nutritionTargets: nutritionTargets,
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _meals.length,
-              itemBuilder: (context, index) {
-                return MealWidget(
-                  meal: _meals[index],
-                  onFoodUpdated: _updateLoggedFood,
+            child: Consumer<LogProvider>(
+              builder: (context, logProvider, child) {
+                final meals = _groupLogsIntoMeals(logProvider.loggedFoods);
+
+                if (meals.isEmpty) {
+                  return const Center(child: Text('No logs for this day'));
+                }
+
+                return ListView.builder(
+                  itemCount: meals.length,
+                  itemBuilder: (context, index) {
+                    return MealWidget(
+                      meal: meals[index],
+                      onFoodUpdated: _updateLoggedFood,
+                    );
+                  },
                 );
               },
             ),
@@ -88,96 +118,54 @@ class _LogScreenState extends State<LogScreen> {
     );
   }
 
-  void _updateLoggedFood(LoggedFood oldFood, FoodPortion newPortion) {
-    setState(() {
-      for (var meal in _meals) {
-        final index = meal.loggedFoods.indexOf(oldFood);
-        if (index != -1) {
-          // Create a new LoggedFood with updated portion
-          final newLoggedFood = LoggedFood(
-            portion: newPortion,
-            timestamp: oldFood.timestamp,
-          );
-          meal.loggedFoods[index] = newLoggedFood;
-          break;
-        }
+  List<Meal> _groupLogsIntoMeals(List<LoggedFood> loggedFoods) {
+    if (loggedFoods.isEmpty) return [];
+
+    // Sort by timestamp
+    loggedFoods.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    final meals = <Meal>[];
+
+    if (loggedFoods.isEmpty) return [];
+
+    var currentMealLogs = <LoggedFood>[loggedFoods.first];
+
+    for (var i = 1; i < loggedFoods.length; i++) {
+      final current = loggedFoods[i];
+      final previous = loggedFoods[i - 1];
+
+      final difference = current.timestamp
+          .difference(previous.timestamp)
+          .inMinutes
+          .abs();
+
+      if (difference > 60) {
+        // Start new meal
+        meals.add(
+          Meal(
+            timestamp: currentMealLogs.first.timestamp,
+            loggedFoods: List.from(currentMealLogs),
+          ),
+        );
+        currentMealLogs = [current];
+      } else {
+        currentMealLogs.add(current);
       }
-    });
+    }
+
+    // Add the last meal
+    meals.add(
+      Meal(
+        timestamp: currentMealLogs.first.timestamp,
+        loggedFoods: List.from(currentMealLogs),
+      ),
+    );
+
+    return meals;
   }
 
-  final List<Meal> _meals = [
-    Meal(
-      timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-      loggedFoods: [
-        LoggedFood(
-          portion: FoodPortion(
-            food: Food(
-              id: 1,
-              source: 'user_created',
-              name: 'Apple',
-              emoji: '🍎',
-              calories: 52,
-              protein: 0.3,
-              fat: 0.2,
-              carbs: 14,
-              fiber: 0.1,
-              servings: [
-                FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
-              ],
-            ),
-            grams: 100,
-            unit: 'g',
-          ),
-          timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-        ),
-        LoggedFood(
-          portion: FoodPortion(
-            food: Food(
-              id: 2,
-              source: 'user_created',
-              name: 'Banana',
-              emoji: '🍌',
-              calories: 89,
-              protein: 1.1,
-              fat: 0.3,
-              carbs: 23,
-              fiber: 0.4,
-              servings: [
-                FoodServing(foodId: 2, unit: 'g', grams: 1.0, quantity: 1.0),
-              ],
-            ),
-            grams: 150,
-            unit: 'g',
-          ),
-          timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-        ),
-      ],
-    ),
-    Meal(
-      timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-      loggedFoods: [
-        LoggedFood(
-          portion: FoodPortion(
-            food: Food(
-              id: 3,
-              source: 'user_created',
-              name: 'Chicken Breast',
-              emoji: '🍗',
-              calories: 165,
-              protein: 31,
-              fat: 3.6,
-              carbs: 0,
-              fiber: 0.2,
-              servings: [
-                FoodServing(foodId: 3, unit: 'g', grams: 1.0, quantity: 1.0),
-              ],
-            ),
-            grams: 100,
-            unit: 'g',
-          ),
-          timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-        ),
-      ],
-    ),
-  ];
+  void _updateLoggedFood(LoggedFood oldFood, FoodPortion newPortion) {
+    // TODO: Implement update logic in LogProvider/DatabaseService
+    print('Update logged food not implemented yet');
+  }
 }

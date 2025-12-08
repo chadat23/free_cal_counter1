@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
 
 class LogProvider extends ChangeNotifier {
   // Placeholder values for now
@@ -7,12 +9,14 @@ class LogProvider extends ChangeNotifier {
   double _queuedCalories = 0.0;
   double _dailyTargetCalories = 2000.0; // Example target
   final List<FoodPortion> _logQueue = [];
+  List<LoggedFood> _loggedFoods = [];
 
   double get loggedCalories => _loggedCalories;
   double get queuedCalories => _queuedCalories;
   double get totalCalories => _loggedCalories + _queuedCalories;
   double get dailyTargetCalories => _dailyTargetCalories;
   List<FoodPortion> get logQueue => _logQueue;
+  List<LoggedFood> get loggedFoods => _loggedFoods;
 
   // Methods to update these values will be added later
   void updateLoggedCalories(double calories) {
@@ -56,10 +60,34 @@ class LogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> logQueueToDatabase() async {
+    if (_logQueue.isEmpty) return;
+
+    await DatabaseService.instance.logFoods(_logQueue);
+    clearQueue();
+    await loadLoggedFoodsForDate(DateTime.now());
+  }
+
+  Future<void> loadLoggedFoodsForDate(DateTime date) async {
+    _loggedFoods = await DatabaseService.instance.getLoggedPortionsForDate(
+      date,
+    );
+    _recalculateLoggedCalories();
+    notifyListeners();
+  }
+
   void _recalculateQueuedCalories() {
     _queuedCalories = _logQueue.fold(0.0, (sum, serving) {
       final food = serving.food;
       final caloriesForServing = food.calories * serving.grams;
+      return sum + caloriesForServing;
+    });
+  }
+
+  void _recalculateLoggedCalories() {
+    _loggedCalories = _loggedFoods.fold(0.0, (sum, item) {
+      final food = item.portion.food;
+      final caloriesForServing = food.calories * item.portion.grams;
       return sum + caloriesForServing;
     });
   }

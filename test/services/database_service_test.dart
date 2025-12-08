@@ -181,25 +181,42 @@ void main() {
             ),
           );
 
-      // Insert logs with different timestamps
-      await liveDatabase
+      // Insert LoggedFood snapshot
+      final loggedFoodId = await liveDatabase
           .into(liveDatabase.loggedFoods)
           .insert(
             LoggedFoodsCompanion.insert(
+              name: 'Test Food',
+              caloriesPerGram: 1.0,
+              proteinPerGram: 0.0,
+              fatPerGram: 0.0,
+              carbsPerGram: 0.0,
+              fiberPerGram: 0.0,
+              originalFoodId: const Value(1),
+            ),
+          );
+
+      // Insert logs with different timestamps
+      await liveDatabase
+          .into(liveDatabase.loggedPortions)
+          .insert(
+            LoggedPortionsCompanion.insert(
+              loggedFoodId: loggedFoodId,
               logTimestamp: 1000,
-              foodId: const Value(1),
               grams: 100,
               unit: 'old_unit',
+              quantity: 100,
             ),
           );
       await liveDatabase
-          .into(liveDatabase.loggedFoods)
+          .into(liveDatabase.loggedPortions)
           .insert(
-            LoggedFoodsCompanion.insert(
+            LoggedPortionsCompanion.insert(
+              loggedFoodId: loggedFoodId,
               logTimestamp: 2000,
-              foodId: const Value(1),
               grams: 100,
               unit: 'new_unit',
+              quantity: 100,
             ),
           );
 

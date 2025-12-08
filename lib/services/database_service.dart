@@ -2,6 +2,8 @@ import 'package:drift/drift.dart';
 
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
+import 'package:free_cal_counter1/models/food_portion.dart' as model;
+import 'package:free_cal_counter1/models/logged_food.dart' as model;
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart'
     hide FoodPortion, FoodsCompanion;
@@ -125,17 +127,31 @@ class DatabaseService {
     return servings;
   }
 
-  Future<String?> getLastLoggedUnit(int foodId) async {
-    final query = _liveDb.select(_liveDb.loggedFoods)
-      ..where((l) => l.foodId.equals(foodId))
-      ..orderBy([
-        (l) =>
-            OrderingTerm(expression: l.logTimestamp, mode: OrderingMode.desc),
-      ])
-      ..limit(1);
+  Future<String?> getLastLoggedUnit(int originalFoodId) async {
+    // We need to find the last LoggedPortion associated with a LoggedFood
+    // that corresponds to the given originalFoodId.
+    final query =
+        _liveDb.select(_liveDb.loggedPortions).join([
+            innerJoin(
+              _liveDb.loggedFoods,
+              _liveDb.loggedFoods.id.equalsExp(
+                _liveDb.loggedPortions.loggedFoodId,
+              ),
+            ),
+          ])
+          ..where(_liveDb.loggedFoods.originalFoodId.equals(originalFoodId))
+          ..orderBy([
+            OrderingTerm(
+              expression: _liveDb.loggedPortions.logTimestamp,
+              mode: OrderingMode.desc,
+            ),
+          ])
+          ..limit(1);
 
-    final lastLog = await query.getSingleOrNull();
-    return lastLog?.unit;
+    final row = await query.getSingleOrNull();
+    if (row == null) return null;
+
+    return row.readTable(_liveDb.loggedPortions).unit;
   }
 
   Future<model.Food?> getFoodByBarcode(String barcode) async {
@@ -150,6 +166,174 @@ class DatabaseService {
       _liveDb.foods,
     )..where((f) => f.sourceFdcId.equals(fdcId))).getSingleOrNull();
     return food == null ? null : _mapFoodData(food, []);
+  }
+
+  Future<void> logFoods(
+    //    List<model.FoodPortion> portions, {
+    //    DateTime? date,
+    List<model.FoodPortion> portions,
+    DateTime logTimestamp,
+    //}) async {
+  ) async {
+    //final now = date ?? DateTime.now();
+    //final timestamp = now.millisecondsSinceEpoch;
+    final timestamp = logTimestamp.millisecondsSinceEpoch;
+
+    await _liveDb.transaction(() async {
+      for (final portion in portions) {
+        final food = portion.food;
+
+        // Check if an identical food already exists in LoggedFoods
+        // We compare name and macros.
+        // Ideally we should also compare servings, but for now name+macros is a good proxy.
+        // If the user modified the food, it should be a new entry.
+        final existingLoggedFood =
+            await (_liveDb.select(_liveDb.loggedFoods)
+                  ..where((t) => t.name.equals(food.name))
+                  ..where((t) => t.caloriesPerGram.equals(food.calories))
+                  ..where((t) => t.proteinPerGram.equals(food.protein))
+                  ..where((t) => t.fatPerGram.equals(food.fat))
+                  ..where((t) => t.carbsPerGram.equals(food.carbs))
+                  ..where((t) => t.fiberPerGram.equals(food.fiber)))
+                .getSingleOrNull();
+
+        int loggedFoodId;
+
+        if (existingLoggedFood != null) {
+          loggedFoodId = existingLoggedFood.id;
+        } else {
+          // Create new snapshot
+          final newLoggedFood = await _liveDb
+              .into(_liveDb.loggedFoods)
+              .insertReturning(
+                LoggedFoodsCompanion.insert(
+                  name: food.name,
+                  caloriesPerGram: food.calories,
+                  proteinPerGram: food.protein,
+                  fatPerGram: food.fat,
+                  carbsPerGram: food.carbs,
+                  fiberPerGram: food.fiber,
+                  originalFoodId: Value(food.id),
+                ),
+              );
+          loggedFoodId = newLoggedFood.id;
+
+          // Save servings for this snapshot
+          for (final serving in food.servings) {
+            await _liveDb
+                .into(_liveDb.loggedFoodServings)
+                .insert(
+                  LoggedFoodServingsCompanion.insert(
+                    loggedFoodId: loggedFoodId,
+                    unit: serving.unit,
+                    grams: serving.grams,
+                    quantity: serving.quantity,
+                  ),
+                );
+          }
+        }
+
+        // Create the log entry
+        await _liveDb
+            .into(_liveDb.loggedPortions)
+            .insert(
+              LoggedPortionsCompanion.insert(
+                loggedFoodId: loggedFoodId,
+                logTimestamp: timestamp,
+                grams: portion.grams,
+                unit: portion.unit,
+                quantity: portion
+                    .grams, // Placeholder, we might need to calc this back if unit != 'g'
+              ),
+            );
+      }
+    });
+  }
+
+  Future<List<model.LoggedFood>> getLoggedPortionsForDate(DateTime date) async {
+    final startOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).millisecondsSinceEpoch;
+    final endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+      999,
+    ).millisecondsSinceEpoch;
+
+    final query =
+        _liveDb.select(_liveDb.loggedPortions).join([
+          innerJoin(
+            _liveDb.loggedFoods,
+            _liveDb.loggedFoods.id.equalsExp(
+              _liveDb.loggedPortions.loggedFoodId,
+            ),
+          ),
+        ])..where(
+          _liveDb.loggedPortions.logTimestamp.isBetweenValues(
+            startOfDay,
+            endOfDay,
+          ),
+        );
+
+    final rows = await query.get();
+
+    final results = <model.LoggedFood>[];
+
+    for (final row in rows) {
+      final loggedFoodData = row.readTable(_liveDb.loggedFoods);
+      final loggedPortionData = row.readTable(_liveDb.loggedPortions);
+
+      // Fetch servings for this logged food
+      final servingsData = await (_liveDb.select(
+        _liveDb.loggedFoodServings,
+      )..where((t) => t.loggedFoodId.equals(loggedFoodData.id))).get();
+
+      final servings = servingsData
+          .map(
+            (s) => model_serving.FoodServing(
+              id: s.id,
+              foodId: loggedFoodData
+                  .id, // This is the ID in LoggedFoods, not original
+              unit: s.unit,
+              grams: s.grams,
+              quantity: s.quantity,
+            ),
+          )
+          .toList();
+
+      final food = model.Food(
+        id: loggedFoodData.id, // Using LoggedFood ID as the food ID for the UI
+        source: 'logged',
+        name: loggedFoodData.name,
+        calories: loggedFoodData.caloriesPerGram,
+        protein: loggedFoodData.proteinPerGram,
+        fat: loggedFoodData.fatPerGram,
+        carbs: loggedFoodData.carbsPerGram,
+        fiber: loggedFoodData.fiberPerGram,
+        servings: servings,
+      );
+
+      results.add(
+        model.LoggedFood(
+          portion: model.FoodPortion(
+            food: food,
+            grams: loggedPortionData.grams,
+            unit: loggedPortionData.unit,
+          ),
+          timestamp: DateTime.fromMillisecondsSinceEpoch(
+            loggedPortionData.logTimestamp,
+          ),
+        ),
+      );
+    }
+
+    return results;
   }
 
   Future<model.Food> saveFood(model.Food food) async {

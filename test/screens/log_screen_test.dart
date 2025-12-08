@@ -10,9 +10,18 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/services/live_database.dart';
+import 'package:free_cal_counter1/services/reference_database.dart';
+import 'package:drift/native.dart';
 import 'log_screen_test.mocks.dart';
 
-@GenerateMocks([LogProvider, NavigationProvider, FoodSearchProvider])
+@GenerateMocks([
+  LogProvider,
+  NavigationProvider,
+  FoodSearchProvider,
+  DatabaseService,
+])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
@@ -23,10 +32,22 @@ void main() {
     mockNavigationProvider = MockNavigationProvider();
     mockFoodSearchProvider = MockFoodSearchProvider();
 
+    // Initialize in-memory databases for testing
+    final liveDb = LiveDatabase(connection: NativeDatabase.memory());
+    final refDb = ReferenceDatabase(connection: NativeDatabase.memory());
+    DatabaseService.initSingletonForTesting(liveDb, refDb);
+
     // Stub actual LogProvider getters
     when(mockLogProvider.logQueue).thenReturn([]);
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    // Stub loadLoggedFoodsForDate to avoid null errors if called
+    when(
+      mockLogProvider.loadLoggedFoodsForDate(
+        argThat(isA<DateTime>()) as DateTime,
+      ),
+    ).thenAnswer((_) async {});
+    when(mockLogProvider.loggedFoods).thenReturn([]);
 
     // Stub NavigationProvider
     when(mockNavigationProvider.changeTab(any)).thenAnswer((_) {});

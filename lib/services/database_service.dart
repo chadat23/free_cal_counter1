@@ -168,7 +168,7 @@ class DatabaseService {
     return food == null ? null : _mapFoodData(food, []);
   }
 
-  Future<void> logFoods(
+  Future<void> logPortions(
     //    List<model.FoodPortion> portions, {
     //    DateTime? date,
     List<model.FoodPortion> portions,

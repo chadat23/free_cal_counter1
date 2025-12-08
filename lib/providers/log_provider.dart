@@ -63,7 +63,7 @@ class LogProvider extends ChangeNotifier {
   Future<void> logQueueToDatabase() async {
     if (_logQueue.isEmpty) return;
 
-    await DatabaseService.instance.logFoods(_logQueue);
+    await DatabaseService.instance.logPortions(_logQueue, DateTime.now());
     clearQueue();
     await loadLoggedFoodsForDate(DateTime.now());
   }

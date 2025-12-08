@@ -44,7 +44,8 @@ class DebugSeeder {
     // Actually, the user asked for yesterday too.
     // Let's modify logFoods to accept a date, or manually insert here.
     // Since logFoods is the "public" API, let's stick to using it for today.
-    await DatabaseService.instance.logFoods(todayPortions);
+
+    await DatabaseService.instance.logPortions(todayPortions, now);
 
     // For yesterday, we'll manually insert to avoid changing the public API just for seeding
     // OR we can make logFoods accept an optional date.
@@ -57,10 +58,10 @@ class DebugSeeder {
     // For now, I'll write this seeder assuming logFoods takes a date,
     // and then I'll go update DatabaseService.
 
-    await DatabaseService.instance.logFoods(todayPortions, date: now);
-    await DatabaseService.instance.logFoods(
+    await DatabaseService.instance.logPortions(todayPortions, now);
+    await DatabaseService.instance.logPortions(
       yesterdayPortions,
-      date: now.subtract(const Duration(days: 1)),
+      now.subtract(const Duration(days: 1)),
     );
 
     print('DebugSeeder: Seeding complete.');

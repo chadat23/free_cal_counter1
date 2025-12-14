@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
@@ -6,12 +7,17 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart'; // ADDED
+import 'package:free_cal_counter1/utils/debug_seeder.dart';
 import 'package:provider/provider.dart';
 import 'package:openfoodfacts/openfoodfacts.dart'; // Import openfoodfacts
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseService.instance.init();
+
+  if (kDebugMode) {
+    await DebugSeeder.seed();
+  }
 
   // Set user agent for OpenFoodFacts API
   OpenFoodAPIConfiguration.userAgent = UserAgent(

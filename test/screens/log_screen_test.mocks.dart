@@ -14,6 +14,7 @@ import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i8;
 import 'package:free_cal_counter1/services/database_service.dart' as _i2;
 import 'package:free_cal_counter1/services/food_search_service.dart' as _i4;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i3;
+import 'package:free_cal_counter1/models/logged_food.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -60,6 +61,14 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
   double get loggedCalories =>
       (super.noSuchMethod(Invocation.getter(#loggedCalories), returnValue: 0.0)
           as double);
+
+  @override
+  List<_i12.LoggedFood> get loggedFoods =>
+      (super.noSuchMethod(
+            Invocation.getter(#loggedFoods),
+            returnValue: <_i12.LoggedFood>[],
+          )
+          as List<_i12.LoggedFood>);
 
   @override
   double get queuedCalories =>
@@ -134,6 +143,15 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
     Invocation.method(#clearQueue, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i11.Future<void> loadLoggedFoodsForDate(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#loadLoggedFoodsForDate, [date]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
 
   @override
   void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(

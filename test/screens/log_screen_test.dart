@@ -42,11 +42,7 @@ void main() {
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
     // Stub loadLoggedFoodsForDate to avoid null errors if called
-    when(
-      mockLogProvider.loadLoggedFoodsForDate(
-        argThat(isA<DateTime>()) as DateTime,
-      ),
-    ).thenAnswer((_) async {});
+    when(mockLogProvider.loadLoggedFoodsForDate(any)).thenAnswer((_) async {});
     when(mockLogProvider.loggedFoods).thenReturn([]);
 
     // Stub NavigationProvider

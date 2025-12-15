@@ -14,6 +14,11 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart';
 import 'package:drift/native.dart';
+import 'package:free_cal_counter1/models/food.dart' as model;
+import 'package:free_cal_counter1/models/logged_food.dart' as model;
+import 'package:free_cal_counter1/models/food_portion.dart' as model;
+import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
+import 'package:free_cal_counter1/widgets/meal_widget.dart';
 import 'log_screen_test.mocks.dart';
 
 @GenerateMocks([
@@ -77,48 +82,102 @@ void main() {
       expect(find.byType(FoodSearchRibbon), findsOneWidget);
     });
 
-    // These tests are commented out because the current LogProvider and models
-    // do not support the functionality they are trying to test (meal lists, date navigation).
-    // They would require significant changes to LogProvider and associated models
-    // to be re-enabled.
+    testWidgets('groups logs with identical timestamp into one meal', (
+      tester,
+    ) async {
+      final time = DateTime(2023, 10, 20, 10, 20);
 
-    // testWidgets('renders a list of meals', (tester) async {
-    //   final mockFood = Food(id: 1, name: 'Apple', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, emoji: '🍎', source: 'test');
-    //   final mockFoodServing = FoodServing(food: mockFood, servingSize: 100, servingUnit: 'g');
-    //   final mockLoggedFood = LoggedFood(serving: mockFoodServing, timestamp: DateTime.now());
-    //   final mockMeal = Meal(timestamp: DateTime.now(), loggedFoods: [mockLoggedFood]);
+      final food = model.Food(
+        id: 1,
+        name: 'Apple',
+        calories: 100,
+        protein: 0,
+        fat: 0,
+        carbs: 20,
+        fiber: 0,
+        emoji: '🍎',
+        source: 'test',
+        servings: [
+          model_serving.FoodServing(
+            id: 1,
+            foodId: 1,
+            unit: 'g',
+            grams: 1.0,
+            quantity: 1.0,
+          ),
+        ],
+      );
 
-    //   when(mockLogProvider.mealsForDate).thenReturn([mockMeal, mockMeal]); // Stub with mock data
-    //   await tester.pumpWidget(createTestWidget());
+      final loggedFood1 = model.LoggedFood(
+        id: 1,
+        portion: model.FoodPortion(food: food, grams: 100, unit: 'g'),
+        timestamp: time,
+      );
 
-    //   expect(find.byType(MealWidget), findsNWidgets(2));
-    // });
+      final loggedFood2 = model.LoggedFood(
+        id: 2,
+        portion: model.FoodPortion(food: food, grams: 100, unit: 'g'),
+        timestamp: time,
+      );
 
-    // testWidgets('date navigation works correctly', (tester) async {
-    //   when(mockLogProvider.currentDate).thenReturn(DateTime.now()); // Stub current date
-    //   when(mockLogProvider.previousDay()).thenAnswer((_) async {});
-    //   when(mockLogProvider.nextDay()).thenAnswer((_) async {});
+      when(mockLogProvider.loggedFoods).thenReturn([loggedFood1, loggedFood2]);
 
-    //   await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget());
 
-    //   expect(find.text('Today'), findsOneWidget);
+      // Should be 1 meal containing both
+      expect(find.byType(MealWidget), findsOneWidget);
+    });
 
-    //   await tester.tap(find.byIcon(Icons.chevron_left));
-    //   await tester.pumpAndSettle();
+    testWidgets(
+      'separates logs with different timestamps into different meals',
+      (tester) async {
+        // 10:20
+        final time1 = DateTime(2023, 10, 20, 10, 20);
+        // 10:21 (Just 1 minute later)
+        final time2 = DateTime(2023, 10, 20, 10, 21);
 
-    //   // This would require more complex stubbing of currentDate to show 'Yesterday'
-    //   // For now, we just verify the method call.
-    //   verify(mockLogProvider.previousDay()).called(1);
+        final food = model.Food(
+          id: 1,
+          name: 'Apple',
+          calories: 100,
+          protein: 0,
+          fat: 0,
+          carbs: 20,
+          fiber: 0,
+          emoji: '🍎',
+          source: 'test',
+          servings: [
+            model_serving.FoodServing(
+              id: 1,
+              foodId: 1,
+              unit: 'g',
+              grams: 1.0,
+              quantity: 1.0,
+            ),
+          ],
+        );
 
-    //   await tester.tap(find.byIcon(Icons.chevron_right));
-    //   await tester.pumpAndSettle();
+        final loggedFood1 = model.LoggedFood(
+          id: 1,
+          portion: model.FoodPortion(food: food, grams: 100, unit: 'g'),
+          timestamp: time1,
+        );
 
-    //   verify(mockLogProvider.nextDay()).called(1);
+        final loggedFood2 = model.LoggedFood(
+          id: 2,
+          portion: model.FoodPortion(food: food, grams: 100, unit: 'g'),
+          timestamp: time2,
+        );
 
-    //   await tester.tap(find.byIcon(Icons.chevron_right));
-    //   await tester.pumpAndSettle();
+        when(
+          mockLogProvider.loggedFoods,
+        ).thenReturn([loggedFood1, loggedFood2]);
 
-    //   verify(mockLogProvider.nextDay()).called(2);
-    // });
+        await tester.pumpWidget(createTestWidget());
+
+        // Should be 2 distinct meals
+        expect(find.byType(MealWidget), findsNWidgets(2));
+      },
+    );
   });
 }

@@ -135,12 +135,10 @@ class _LogScreenState extends State<LogScreen> {
       final current = loggedFoods[i];
       final previous = loggedFoods[i - 1];
 
-      final difference = current.timestamp
-          .difference(previous.timestamp)
-          .inMinutes
-          .abs();
-
-      if (difference > 60) {
+      // Group essentially by exact timestamp (strict grouping)
+      // Since queue items are logged with the same timestamp, they will group.
+      // Separate logs (even 1 minute apart) will split.
+      if (!current.timestamp.isAtSameMomentAs(previous.timestamp)) {
         // Start new meal
         meals.add(
           Meal(

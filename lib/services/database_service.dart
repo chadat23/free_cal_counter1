@@ -9,8 +9,8 @@ import 'package:free_cal_counter1/services/reference_database.dart'
     hide FoodPortion, FoodsCompanion;
 
 class DatabaseService {
-  late final LiveDatabase _liveDb;
-  late final ReferenceDatabase _referenceDb;
+  late LiveDatabase _liveDb;
+  late ReferenceDatabase _referenceDb;
 
   static final DatabaseService instance = DatabaseService._internal();
 

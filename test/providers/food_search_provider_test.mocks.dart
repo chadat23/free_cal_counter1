@@ -6,12 +6,14 @@
 import 'dart:async' as _i5;
 
 import 'package:free_cal_counter1/models/food.dart' as _i2;
+import 'package:free_cal_counter1/models/food_portion.dart' as _i7;
 import 'package:free_cal_counter1/models/food_serving.dart' as _i6;
+import 'package:free_cal_counter1/models/logged_food.dart' as _i8;
 import 'package:free_cal_counter1/services/database_service.dart' as _i3;
-import 'package:free_cal_counter1/services/food_search_service.dart' as _i7;
+import 'package:free_cal_counter1/services/food_search_service.dart' as _i9;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i8;
+import 'package:mockito/src/dummies.dart' as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -83,9 +85,9 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i5.Future<List<_i6.FoodServing>>);
 
   @override
-  _i5.Future<String?> getLastLoggedUnit(int? foodId) =>
+  _i5.Future<String?> getLastLoggedUnit(int? originalFoodId) =>
       (super.noSuchMethod(
-            Invocation.method(#getLastLoggedUnit, [foodId]),
+            Invocation.method(#getLastLoggedUnit, [originalFoodId]),
             returnValue: _i5.Future<String?>.value(),
           )
           as _i5.Future<String?>);
@@ -107,6 +109,28 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i5.Future<_i2.Food?>);
 
   @override
+  _i5.Future<void> logPortions(
+    List<_i7.FoodPortion>? portions,
+    DateTime? logTimestamp,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#logPortions, [portions, logTimestamp]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<_i8.LoggedFood>> getLoggedPortionsForDate(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#getLoggedPortionsForDate, [date]),
+            returnValue: _i5.Future<List<_i8.LoggedFood>>.value(
+              <_i8.LoggedFood>[],
+            ),
+          )
+          as _i5.Future<List<_i8.LoggedFood>>);
+
+  @override
   _i5.Future<_i2.Food> saveFood(_i2.Food? food) =>
       (super.noSuchMethod(
             Invocation.method(#saveFood, [food]),
@@ -115,6 +139,15 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
             ),
           )
           as _i5.Future<_i2.Food>);
+
+  @override
+  _i5.Future<void> deleteLoggedPortion(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteLoggedPortion, [id]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 }
 
 /// A class which mocks [OffApiService].
@@ -145,7 +178,7 @@ class MockOffApiService extends _i1.Mock implements _i4.OffApiService {
 /// A class which mocks [FoodSearchService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFoodSearchService extends _i1.Mock implements _i7.FoodSearchService {
+class MockFoodSearchService extends _i1.Mock implements _i9.FoodSearchService {
   MockFoodSearchService() {
     _i1.throwOnMissingStub(this);
   }
@@ -176,7 +209,7 @@ class MockFoodSearchService extends _i1.Mock implements _i7.FoodSearchService {
   String Function(String) get emojiForFoodName =>
       (super.noSuchMethod(
             Invocation.getter(#emojiForFoodName),
-            returnValue: (String __p0) => _i8.dummyValue<String>(
+            returnValue: (String __p0) => _i10.dummyValue<String>(
               this,
               Invocation.getter(#emojiForFoodName),
             ),

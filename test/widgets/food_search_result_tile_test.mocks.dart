@@ -3,9 +3,11 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:ui' as _i4;
+import 'dart:async' as _i5;
+import 'dart:ui' as _i6;
 
 import 'package:free_cal_counter1/models/food_portion.dart' as _i3;
+import 'package:free_cal_counter1/models/logged_food.dart' as _i4;
 import 'package:free_cal_counter1/providers/log_provider.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -64,6 +66,14 @@ class MockLogProvider extends _i1.Mock implements _i2.LogProvider {
           as List<_i3.FoodPortion>);
 
   @override
+  List<_i4.LoggedFood> get loggedFoods =>
+      (super.noSuchMethod(
+            Invocation.getter(#loggedFoods),
+            returnValue: <_i4.LoggedFood>[],
+          )
+          as List<_i4.LoggedFood>);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -112,13 +122,40 @@ class MockLogProvider extends _i1.Mock implements _i2.LogProvider {
   );
 
   @override
-  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+  _i5.Future<void> logQueueToDatabase() =>
+      (super.noSuchMethod(
+            Invocation.method(#logQueueToDatabase, []),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> loadLoggedFoodsForDate(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#loadLoggedFoodsForDate, [date]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> deleteLoggedFood(_i4.LoggedFood? food) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteLoggedFood, [food]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

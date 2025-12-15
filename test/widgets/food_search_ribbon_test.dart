@@ -19,6 +19,7 @@ void main() {
   late MockFoodSearchProvider mockFoodSearchProvider;
 
   setUp(() {
+    provideDummy<Future<void>>(Future.value());
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
     mockFoodSearchProvider = MockFoodSearchProvider(); // Use the mock
@@ -95,6 +96,10 @@ void main() {
             ChangeNotifierProvider<NavigationProvider>.value(
               value: mockNavigationProvider,
             ),
+            ChangeNotifierProvider<LogProvider>.value(
+              // Added because LogProvider is now required
+              value: mockLogProvider,
+            ),
           ],
           child: MaterialApp(
             home: Scaffold(
@@ -121,5 +126,25 @@ void main() {
       // Assert
       expect(offSearchCalled, isTrue);
     });
+  });
+
+  testWidgets('tapping Log button saves queue and navigates home', (
+    WidgetTester tester,
+  ) async {
+    // Arrange
+    when(mockLogProvider.logQueueToDatabase()).thenAnswer((_) async {});
+
+    await tester.pumpWidget(createTestWidget());
+
+    final logButtonFinder = find.widgetWithText(ElevatedButton, 'Log');
+    expect(logButtonFinder, findsOneWidget);
+
+    // Act
+    await tester.tap(logButtonFinder);
+    await tester.pumpAndSettle();
+
+    // Assert
+    verify(mockLogProvider.logQueueToDatabase()).called(1);
+    verify(mockNavigationProvider.changeTab(0)).called(1);
   });
 }

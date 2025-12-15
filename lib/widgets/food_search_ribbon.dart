@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
 
 class FoodSearchRibbon extends StatefulWidget {
   final bool isSearchActive;
@@ -93,8 +94,22 @@ class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
           ),
           const SizedBox(width: 8.0),
           ElevatedButton(
-            onPressed: () {
-              // TODO: Implement Add button functionality
+            onPressed: () async {
+              final logProvider = Provider.of<LogProvider>(
+                context,
+                listen: false,
+              );
+              final navProvider = Provider.of<NavigationProvider>(
+                context,
+                listen: false,
+              );
+
+              await logProvider.logQueueToDatabase();
+
+              if (context.mounted) {
+                navProvider.changeTab(0); // Go to Overview
+                Navigator.popUntil(context, (route) => route.isFirst);
+              }
             },
             child: const Text('Log'),
           ),

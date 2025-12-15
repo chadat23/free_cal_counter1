@@ -321,6 +321,7 @@ class DatabaseService {
 
       results.add(
         model.LoggedFood(
+          id: loggedPortionData.id,
           portion: model.FoodPortion(
             food: food,
             grams: loggedPortionData.grams,
@@ -349,5 +350,11 @@ class DatabaseService {
     );
     final newFoodData = await _liveDb.into(_liveDb.foods).insert(companion);
     return _mapFoodData(newFoodData, []);
+  }
+
+  Future<void> deleteLoggedPortion(int id) async {
+    await (_liveDb.delete(
+      _liveDb.loggedPortions,
+    )..where((t) => t.id.equals(id))).go();
   }
 }

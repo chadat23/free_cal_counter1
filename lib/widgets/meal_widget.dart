@@ -9,8 +9,14 @@ import 'package:intl/intl.dart';
 class MealWidget extends StatelessWidget {
   final Meal meal;
   final Function(LoggedFood, FoodPortion)? onFoodUpdated;
+  final Function(LoggedFood)? onFoodDeleted;
 
-  const MealWidget({super.key, required this.meal, this.onFoodUpdated});
+  const MealWidget({
+    super.key,
+    required this.meal,
+    this.onFoodUpdated,
+    this.onFoodDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +58,13 @@ class MealWidget extends StatelessWidget {
               return Column(
                 children: [
                   SlidablePortionWidget(
+                    key: loggedFood.id != null ? ValueKey(loggedFood.id) : null,
                     serving: loggedFood.portion,
-                    onDelete: () {},
+                    onDelete: () {
+                      if (onFoodDeleted != null) {
+                        onFoodDeleted!(loggedFood);
+                      }
+                    },
                     onEdit: () {
                       Navigator.push(
                         context,

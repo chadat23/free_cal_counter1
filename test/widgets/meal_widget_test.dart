@@ -70,4 +70,50 @@ void main() {
     expect(find.text('Fb: 6.3'), findsOneWidget);
     expect(find.byType(SlidablePortionWidget), findsNWidgets(2));
   });
+
+  testWidgets('Meal widget triggers onFoodDeleted', (
+    WidgetTester tester,
+  ) async {
+    // Given
+    bool deleteCalled = false;
+    final food = Food(
+      id: 1,
+      name: 'Apple',
+      emoji: '🍎',
+      calories: 0.52,
+      protein: 0.0025,
+      fat: 0.002,
+      carbs: 0.14,
+      fiber: 0.024,
+      source: 'test',
+      servings: [FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0)],
+    );
+    final serving = FoodPortion(food: food, grams: 100, unit: 'g');
+    final loggedFood = LoggedFood(portion: serving, timestamp: DateTime.now());
+    final meal = Meal(timestamp: DateTime.now(), loggedFoods: [loggedFood]);
+
+    // When
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: MealWidget(
+            meal: meal,
+            onFoodDeleted: (_) => deleteCalled = true,
+          ),
+        ),
+      ),
+    );
+
+    // Act
+    await tester.drag(
+      find.byType(SlidablePortionWidget),
+      const Offset(-500.0, 0.0),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.delete));
+    await tester.pumpAndSettle();
+
+    // Then
+    expect(deleteCalled, isTrue);
+  });
 }

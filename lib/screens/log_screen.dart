@@ -106,6 +106,7 @@ class _LogScreenState extends State<LogScreen> {
                     return MealWidget(
                       meal: meals[index],
                       onFoodUpdated: _updateLoggedFood,
+                      onFoodDeleted: _deleteLoggedFood,
                     );
                   },
                 );
@@ -167,5 +168,9 @@ class _LogScreenState extends State<LogScreen> {
   void _updateLoggedFood(LoggedFood oldFood, FoodPortion newPortion) {
     // TODO: Implement update logic in LogProvider/DatabaseService
     print('Update logged food not implemented yet');
+  }
+
+  void _deleteLoggedFood(LoggedFood food) {
+    Provider.of<LogProvider>(context, listen: false).deleteLoggedFood(food);
   }
 }

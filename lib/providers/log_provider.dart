@@ -76,6 +76,16 @@ class LogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteLoggedFood(LoggedFood food) async {
+    if (food.id == null) return;
+
+    await DatabaseService.instance.deleteLoggedPortion(food.id!);
+
+    _loggedFoods.removeWhere((item) => item.id == food.id);
+    _recalculateLoggedCalories();
+    notifyListeners();
+  }
+
   void _recalculateQueuedCalories() {
     _queuedCalories = _logQueue.fold(0.0, (sum, serving) {
       final food = serving.food;

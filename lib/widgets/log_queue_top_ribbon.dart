@@ -9,12 +9,14 @@ class LogQueueTopRibbon extends StatelessWidget {
   final IconData arrowDirection;
   final VoidCallback onArrowPressed;
   final LogProvider logProvider;
+  final Widget? leading;
 
   const LogQueueTopRibbon({
     super.key,
     required this.arrowDirection,
     required this.onArrowPressed,
     required this.logProvider,
+    this.leading,
   });
 
   @override
@@ -69,6 +71,7 @@ class LogQueueTopRibbon extends StatelessWidget {
         // Row 1: Icons
         Row(
           children: [
+            if (leading != null) ...[leading!, const SizedBox(width: 8.0)],
             Expanded(
               child: Container(
                 height: 30.0,

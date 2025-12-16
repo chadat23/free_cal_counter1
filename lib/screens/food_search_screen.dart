@@ -50,44 +50,45 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 120, // Increased to accommodate charts
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () async {
-            final logProvider = Provider.of<LogProvider>(
-              context,
-              listen: false,
-            );
-            final navProvider = Provider.of<NavigationProvider>(
-              context,
-              listen: false,
-            );
-
-            bool shouldPop = false;
-            if (logProvider.logQueue.isNotEmpty) {
-              final discard = await showDiscardDialog(context);
-              if (discard == true) {
-                logProvider.clearQueue();
-                navProvider.goBack();
-                shouldPop = true;
-              }
-            } else {
-              navProvider.goBack();
-              shouldPop = true;
-            }
-
-            if (shouldPop) {
-              // Defer the pop operation to the next frame
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  Navigator.pop(context);
-                }
-              });
-            }
-          },
-        ),
+        automaticallyImplyLeading: false,
         title: Consumer<LogProvider>(
           builder: (context, logProvider, child) {
             return LogQueueTopRibbon(
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () async {
+                  final logProvider = Provider.of<LogProvider>(
+                    context,
+                    listen: false,
+                  );
+                  final navProvider = Provider.of<NavigationProvider>(
+                    context,
+                    listen: false,
+                  );
+
+                  bool shouldPop = false;
+                  if (logProvider.logQueue.isNotEmpty) {
+                    final discard = await showDiscardDialog(context);
+                    if (discard == true) {
+                      logProvider.clearQueue();
+                      navProvider.goBack();
+                      shouldPop = true;
+                    }
+                  } else {
+                    navProvider.goBack();
+                    shouldPop = true;
+                  }
+
+                  if (shouldPop) {
+                    // Defer the pop operation to the next frame
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        Navigator.pop(context);
+                      }
+                    });
+                  }
+                },
+              ),
               arrowDirection: Icons.arrow_drop_down,
               onArrowPressed: () {
                 Navigator.pushNamed(context, AppRouter.logQueueRoute);

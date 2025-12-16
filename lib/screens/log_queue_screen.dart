@@ -19,34 +19,35 @@ class LogQueueScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             toolbarHeight: 120, // Increased to accommodate charts
-            leading: IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () async {
-                if (logProvider.logQueue.isNotEmpty) {
-                  final discard = await showDiscardDialog(context);
-                  if (discard == true) {
-                    logProvider.clearQueue();
+            automaticallyImplyLeading: false,
+            title: LogQueueTopRibbon(
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () async {
+                  if (logProvider.logQueue.isNotEmpty) {
+                    final discard = await showDiscardDialog(context);
+                    if (discard == true) {
+                      logProvider.clearQueue();
+                      Future.microtask(() {
+                        if (context.mounted) {
+                          final navProvider = Provider.of<NavigationProvider>(
+                            context,
+                            listen: false,
+                          );
+                          navProvider.changeTab(0);
+                          Navigator.popUntil(context, (route) => route.isFirst);
+                        }
+                      });
+                    }
+                  } else {
                     Future.microtask(() {
                       if (context.mounted) {
-                        final navProvider = Provider.of<NavigationProvider>(
-                          context,
-                          listen: false,
-                        );
-                        navProvider.changeTab(0);
-                        Navigator.popUntil(context, (route) => route.isFirst);
+                        Navigator.pop(context);
                       }
                     });
                   }
-                } else {
-                  Future.microtask(() {
-                    if (context.mounted) {
-                      Navigator.pop(context);
-                    }
-                  });
-                }
-              },
-            ),
-            title: LogQueueTopRibbon(
+                },
+              ),
               arrowDirection: Icons.arrow_drop_up,
               onArrowPressed: () {
                 Navigator.pop(context);

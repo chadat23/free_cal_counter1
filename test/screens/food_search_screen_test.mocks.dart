@@ -81,6 +81,49 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
           as double);
 
   @override
+  double get totalProtein =>
+      (super.noSuchMethod(Invocation.getter(#totalProtein), returnValue: 0.0)
+          as double);
+  @override
+  double get totalFat =>
+      (super.noSuchMethod(Invocation.getter(#totalFat), returnValue: 0.0)
+          as double);
+  @override
+  double get totalCarbs =>
+      (super.noSuchMethod(Invocation.getter(#totalCarbs), returnValue: 0.0)
+          as double);
+  @override
+  double get totalFiber =>
+      (super.noSuchMethod(Invocation.getter(#totalFiber), returnValue: 0.0)
+          as double);
+
+  @override
+  double get dailyTargetProtein =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetProtein),
+            returnValue: 0.0,
+          )
+          as double);
+  @override
+  double get dailyTargetFat =>
+      (super.noSuchMethod(Invocation.getter(#dailyTargetFat), returnValue: 0.0)
+          as double);
+  @override
+  double get dailyTargetCarbs =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetCarbs),
+            returnValue: 0.0,
+          )
+          as double);
+  @override
+  double get dailyTargetFiber =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetFiber),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
   List<_i6.FoodPortion> get logQueue =>
       (super.noSuchMethod(
             Invocation.getter(#logQueue),
@@ -100,24 +143,6 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
-
-  @override
-  void updateLoggedCalories(double? calories) => super.noSuchMethod(
-    Invocation.method(#updateLoggedCalories, [calories]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void updateQueuedCalories(double? calories) => super.noSuchMethod(
-    Invocation.method(#updateQueuedCalories, [calories]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void updateDailyTargetCalories(double? target) => super.noSuchMethod(
-    Invocation.method(#updateDailyTargetCalories, [target]),
-    returnValueForMissingStub: null,
-  );
 
   @override
   void addFoodToQueue(_i6.FoodPortion? serving) => super.noSuchMethod(

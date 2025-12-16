@@ -5,59 +5,71 @@ import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 
 class LogProvider extends ChangeNotifier {
-  // Placeholder values for now
+  // State for macros
   double _loggedCalories = 0.0;
+  double _loggedProtein = 0.0;
+  double _loggedFat = 0.0;
+  double _loggedCarbs = 0.0;
+  double _loggedFiber = 0.0;
+
   double _queuedCalories = 0.0;
-  double _dailyTargetCalories = 2000.0; // Example target
+  double _queuedProtein = 0.0;
+  double _queuedFat = 0.0;
+  double _queuedCarbs = 0.0;
+  double _queuedFiber = 0.0;
+
+  double _dailyTargetCalories = 2000.0;
+  double _dailyTargetProtein = 150.0;
+  double _dailyTargetFat = 70.0;
+  double _dailyTargetCarbs = 250.0;
+  double _dailyTargetFiber = 30.0;
+
   final List<FoodPortion> _logQueue = [];
   List<LoggedFood> _loggedFoods = [];
 
+  // Getters
   double get loggedCalories => _loggedCalories;
   double get queuedCalories => _queuedCalories;
+
   double get totalCalories => _loggedCalories + _queuedCalories;
+  double get totalProtein => _loggedProtein + _queuedProtein;
+  double get totalFat => _loggedFat + _queuedFat;
+  double get totalCarbs => _loggedCarbs + _queuedCarbs;
+  double get totalFiber => _loggedFiber + _queuedFiber;
+
   double get dailyTargetCalories => _dailyTargetCalories;
+  double get dailyTargetProtein => _dailyTargetProtein;
+  double get dailyTargetFat => _dailyTargetFat;
+  double get dailyTargetCarbs => _dailyTargetCarbs;
+  double get dailyTargetFiber => _dailyTargetFiber;
+
   List<FoodPortion> get logQueue => _logQueue;
   List<LoggedFood> get loggedFoods => _loggedFoods;
 
-  // Methods to update these values will be added later
-  void updateLoggedCalories(double calories) {
-    _loggedCalories = calories;
-    notifyListeners();
-  }
-
-  void updateQueuedCalories(double calories) {
-    _queuedCalories = calories;
-    notifyListeners();
-  }
-
-  void updateDailyTargetCalories(double target) {
-    _dailyTargetCalories = target;
-    notifyListeners();
-  }
-
+  // Queue Operations
   void addFoodToQueue(FoodPortion serving) {
     _logQueue.add(serving);
-    _recalculateQueuedCalories();
+    _recalculateQueuedMacros();
     notifyListeners();
   }
 
   void updateFoodInQueue(int index, FoodPortion newPortion) {
     if (index >= 0 && index < _logQueue.length) {
       _logQueue[index] = newPortion;
-      _recalculateQueuedCalories();
+      _recalculateQueuedMacros();
       notifyListeners();
     }
   }
 
   void removeFoodFromQueue(FoodPortion serving) {
     _logQueue.remove(serving);
-    _recalculateQueuedCalories();
+    _recalculateQueuedMacros();
     notifyListeners();
   }
 
   void clearQueue() {
     _logQueue.clear();
-    _recalculateQueuedCalories();
+    _recalculateQueuedMacros();
     notifyListeners();
   }
 
@@ -69,11 +81,12 @@ class LogProvider extends ChangeNotifier {
     await loadLoggedFoodsForDate(DateTime.now());
   }
 
+  // Database Operations
   Future<void> loadLoggedFoodsForDate(DateTime date) async {
     _loggedFoods = await DatabaseService.instance.getLoggedPortionsForDate(
       date,
     );
-    _recalculateLoggedCalories();
+    _recalculateLoggedMacros();
     notifyListeners();
   }
 
@@ -83,24 +96,43 @@ class LogProvider extends ChangeNotifier {
     await DatabaseService.instance.deleteLoggedPortion(food.id!);
 
     _loggedFoods.removeWhere((item) => item.id == food.id);
-    _recalculateLoggedCalories();
+    _recalculateLoggedMacros();
     notifyListeners();
   }
 
-  void _recalculateQueuedCalories() {
-    _queuedCalories = _logQueue.fold(0.0, (sum, serving) {
+  // Internal Calculation Logic
+  void _recalculateQueuedMacros() {
+    _queuedCalories = 0.0;
+    _queuedProtein = 0.0;
+    _queuedFat = 0.0;
+    _queuedCarbs = 0.0;
+    _queuedFiber = 0.0;
+
+    for (var serving in _logQueue) {
       final food = serving.food;
-      final caloriesForServing = food.calories * serving.grams;
-      return sum + caloriesForServing;
-    });
+      _queuedCalories += food.calories * serving.grams;
+      _queuedProtein += food.protein * serving.grams;
+      _queuedFat += food.fat * serving.grams;
+      _queuedCarbs += food.carbs * serving.grams;
+      _queuedFiber += food.fiber * serving.grams;
+    }
   }
 
-  void _recalculateLoggedCalories() {
-    _loggedCalories = _loggedFoods.fold(0.0, (sum, item) {
+  void _recalculateLoggedMacros() {
+    _loggedCalories = 0.0;
+    _loggedProtein = 0.0;
+    _loggedFat = 0.0;
+    _loggedCarbs = 0.0;
+    _loggedFiber = 0.0;
+
+    for (var item in _loggedFoods) {
       final food = item.portion.food;
-      final caloriesForServing = food.calories * item.portion.grams;
-      return sum + caloriesForServing;
-    });
+      _loggedCalories += food.calories * item.portion.grams;
+      _loggedProtein += food.protein * item.portion.grams;
+      _loggedFat += food.fat * item.portion.grams;
+      _loggedCarbs += food.carbs * item.portion.grams;
+      _loggedFiber += food.fiber * item.portion.grams;
+    }
   }
 
   Future<List<DailyMacroStats>> getDailyMacroStats(

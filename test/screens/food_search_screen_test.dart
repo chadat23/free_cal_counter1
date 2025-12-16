@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
@@ -42,6 +43,18 @@ void main() {
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
     when(mockFoodSearchProvider.isLoading).thenReturn(false);
     when(mockFoodSearchProvider.errorMessage).thenReturn(null);
+
+    // Default mocks for macros to avoid null errors in LogQueueTopRibbon
+    when(mockLogProvider.totalCalories).thenReturn(0.0);
+    when(mockLogProvider.totalProtein).thenReturn(0.0);
+    when(mockLogProvider.totalFat).thenReturn(0.0);
+    when(mockLogProvider.totalCarbs).thenReturn(0.0);
+    when(mockLogProvider.totalFiber).thenReturn(0.0);
+    when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    when(mockLogProvider.dailyTargetProtein).thenReturn(150.0);
+    when(mockLogProvider.dailyTargetFat).thenReturn(70.0);
+    when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
+    when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
   });
 
   Widget createTestWidget() {
@@ -90,7 +103,7 @@ void main() {
     },
   );
 
-  testWidgets('FoodSearchScreen has a close button and calorie display', (
+  testWidgets('FoodSearchScreen has a close button and LogQueueTopRibbon', (
     WidgetTester tester,
   ) async {
     when(mockLogProvider.logQueue).thenReturn([]);
@@ -100,7 +113,7 @@ void main() {
     await tester.pumpWidget(createTestWidget());
 
     expect(find.byIcon(Icons.close), findsOneWidget);
-    expect(find.text('0 / 2000'), findsOneWidget);
+    expect(find.byType(LogQueueTopRibbon), findsOneWidget);
   });
 
   testWidgets('FoodSearchScreen has a FoodSearchRibbon', (

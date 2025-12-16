@@ -49,6 +49,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 120, // Increased to accommodate charts
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () async {
@@ -91,9 +92,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
               onArrowPressed: () {
                 Navigator.pushNamed(context, AppRouter.logQueueRoute);
               },
-              totalCalories: logProvider.totalCalories,
-              dailyTargetCalories: logProvider.dailyTargetCalories,
-              logQueue: logProvider.logQueue,
+              logProvider: logProvider,
             );
           },
         ),

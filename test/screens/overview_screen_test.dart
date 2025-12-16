@@ -4,6 +4,7 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/screens/overview_screen.dart';
+import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/widgets/nutrition_targets_overview_chart.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:mockito/annotations.dart';
@@ -26,6 +27,24 @@ void main() {
     // Stub LogProvider
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    when(mockLogProvider.getDailyMacroStats(any, any)).thenAnswer(
+      (_) async => List.generate(
+        7,
+        (index) => DailyMacroStats(
+          date: DateTime.now().subtract(Duration(days: 6 - index)),
+        ),
+      ),
+    );
+    when(mockLogProvider.getTodayStats()).thenAnswer(
+      (_) async => DailyMacroStats(
+        date: DateTime.now(),
+        calories: 0,
+        protein: 0,
+        fat: 0,
+        carbs: 0,
+        fiber: 0,
+      ),
+    );
 
     // Stub NavigationProvider
     when(mockNavigationProvider.changeTab(any)).thenAnswer((_) {});
@@ -56,6 +75,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
 
       expect(find.byType(NutritionTargetsOverviewChart), findsOneWidget);
       expect(find.byType(FoodSearchRibbon), findsOneWidget);

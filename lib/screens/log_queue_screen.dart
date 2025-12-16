@@ -18,6 +18,7 @@ class LogQueueScreen extends StatelessWidget {
       builder: (context, logProvider, child) {
         return Scaffold(
           appBar: AppBar(
+            toolbarHeight: 120, // Increased to accommodate charts
             leading: IconButton(
               icon: const Icon(Icons.close),
               onPressed: () async {
@@ -50,9 +51,7 @@ class LogQueueScreen extends StatelessWidget {
               onArrowPressed: () {
                 Navigator.pop(context);
               },
-              totalCalories: logProvider.totalCalories,
-              dailyTargetCalories: logProvider.dailyTargetCalories,
-              logQueue: logProvider.logQueue,
+              logProvider: logProvider,
             ),
           ),
           body: ListView.builder(

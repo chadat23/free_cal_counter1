@@ -7,6 +7,7 @@ import 'dart:async' as _i8;
 import 'dart:ui' as _i9;
 
 import 'package:free_cal_counter1/models/food.dart' as _i12;
+import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i13;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i6;
 import 'package:free_cal_counter1/models/logged_food.dart' as _i7;
 import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i11;
@@ -46,6 +47,12 @@ class _FakeOffApiService_1 extends _i1.SmartFake implements _i3.OffApiService {
 class _FakeFoodSearchService_2 extends _i1.SmartFake
     implements _i4.FoodSearchService {
   _FakeFoodSearchService_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDailyMacroStats_3 extends _i1.SmartFake
+    implements _i13.DailyMacroStats {
+  _FakeDailyMacroStats_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -102,22 +109,30 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
           as bool);
 
   @override
-  void updateLoggedCalories(double? calories) => super.noSuchMethod(
-    Invocation.method(#updateLoggedCalories, [calories]),
-    returnValueForMissingStub: null,
-  );
+  _i8.Future<List<_i13.DailyMacroStats>> getDailyMacroStats(
+    DateTime? start,
+    DateTime? end,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getDailyMacroStats, [start, end]),
+            returnValue: _i8.Future<List<_i13.DailyMacroStats>>.value(
+              <_i13.DailyMacroStats>[],
+            ),
+          )
+          as _i8.Future<List<_i13.DailyMacroStats>>);
 
   @override
-  void updateQueuedCalories(double? calories) => super.noSuchMethod(
-    Invocation.method(#updateQueuedCalories, [calories]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void updateDailyTargetCalories(double? target) => super.noSuchMethod(
-    Invocation.method(#updateDailyTargetCalories, [target]),
-    returnValueForMissingStub: null,
-  );
+  _i8.Future<_i13.DailyMacroStats> getTodayStats() =>
+      (super.noSuchMethod(
+            Invocation.method(#getTodayStats, []),
+            returnValue: _i8.Future<_i13.DailyMacroStats>.value(
+              _FakeDailyMacroStats_3(
+                this,
+                Invocation.method(#getTodayStats, []),
+              ),
+            ),
+          )
+          as _i8.Future<_i13.DailyMacroStats>);
 
   @override
   void addFoodToQueue(_i6.FoodPortion? serving) => super.noSuchMethod(

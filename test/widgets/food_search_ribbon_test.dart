@@ -29,7 +29,15 @@ void main() {
     when(mockFoodSearchProvider.errorMessage).thenReturn(null); // ADDED
     when(mockFoodSearchProvider.isLoading).thenReturn(false); // ADDED
     when(mockLogProvider.totalCalories).thenReturn(0.0);
+    when(mockLogProvider.totalProtein).thenReturn(0.0);
+    when(mockLogProvider.totalFat).thenReturn(0.0);
+    when(mockLogProvider.totalCarbs).thenReturn(0.0);
+    when(mockLogProvider.totalFiber).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    when(mockLogProvider.dailyTargetProtein).thenReturn(150.0);
+    when(mockLogProvider.dailyTargetFat).thenReturn(70.0);
+    when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
+    when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
     when(mockLogProvider.logQueue).thenReturn([]);
   });
 

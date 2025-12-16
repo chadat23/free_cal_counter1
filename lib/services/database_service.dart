@@ -5,6 +5,7 @@ import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
 import 'package:free_cal_counter1/models/food_portion.dart' as model;
 import 'package:free_cal_counter1/models/logged_food.dart' as model;
 import 'package:free_cal_counter1/services/live_database.dart';
+import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
 import 'package:free_cal_counter1/services/reference_database.dart'
     hide FoodPortion, FoodsCompanion;
 
@@ -356,5 +357,59 @@ class DatabaseService {
     await (_liveDb.delete(
       _liveDb.loggedPortions,
     )..where((t) => t.id.equals(id))).go();
+  }
+
+  Future<List<model_stats.LoggedMacroDTO>> getLoggedMacrosForDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
+    final startOfDay = DateTime(
+      start.year,
+      start.month,
+      start.day,
+    ).millisecondsSinceEpoch;
+    final endOfDay = DateTime(
+      end.year,
+      end.month,
+      end.day,
+      23,
+      59,
+      59,
+      999,
+    ).millisecondsSinceEpoch;
+
+    final query =
+        _liveDb.select(_liveDb.loggedPortions).join([
+          innerJoin(
+            _liveDb.loggedFoods,
+            _liveDb.loggedFoods.id.equalsExp(
+              _liveDb.loggedPortions.loggedFoodId,
+            ),
+          ),
+        ])..where(
+          _liveDb.loggedPortions.logTimestamp.isBetweenValues(
+            startOfDay,
+            endOfDay,
+          ),
+        );
+
+    final rows = await query.get();
+
+    return rows.map((row) {
+      final loggedFoodData = row.readTable(_liveDb.loggedFoods);
+      final loggedPortionData = row.readTable(_liveDb.loggedPortions);
+
+      return model_stats.LoggedMacroDTO(
+        logTimestamp: DateTime.fromMillisecondsSinceEpoch(
+          loggedPortionData.logTimestamp,
+        ),
+        grams: loggedPortionData.grams,
+        caloriesPerGram: loggedFoodData.caloriesPerGram,
+        proteinPerGram: loggedFoodData.proteinPerGram,
+        fatPerGram: loggedFoodData.fatPerGram,
+        carbsPerGram: loggedFoodData.carbsPerGram,
+        fiberPerGram: loggedFoodData.fiberPerGram,
+      );
+    }).toList();
   }
 }

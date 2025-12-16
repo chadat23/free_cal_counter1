@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 
 class LogProvider extends ChangeNotifier {
@@ -100,5 +101,23 @@ class LogProvider extends ChangeNotifier {
       final caloriesForServing = food.calories * item.portion.grams;
       return sum + caloriesForServing;
     });
+  }
+
+  Future<List<DailyMacroStats>> getDailyMacroStats(
+    DateTime start,
+    DateTime end,
+  ) async {
+    final dtos = await DatabaseService.instance.getLoggedMacrosForDateRange(
+      start,
+      end,
+    );
+    return DailyMacroStats.fromDTOS(dtos, start, end);
+  }
+
+  Future<DailyMacroStats> getTodayStats() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final stats = await getDailyMacroStats(today, today);
+    return stats.first;
   }
 }

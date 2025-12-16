@@ -48,18 +48,41 @@ class _LogScreenState extends State<LogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate nutrition targets from logged foods
+    final loggedFoods = Provider.of<LogProvider>(context).loggedFoods;
+
+    // We can use the helper from DailyMacroStats, but we need to map LoggedFood to DTO first
+    // OR just sum them up here since we have the full objects already.
+    // However, to be DRY and consistent, let's use the same logic if possible.
+    // Actually, LogProvider already computed _loggedFoods for us.
+    // Calculating stats for detailed views from the list is trivial:
+
+    double totalCalories = 0;
+    double totalProtein = 0;
+    double totalFat = 0;
+    double totalCarbs = 0;
+    double totalFiber = 0;
+
+    for (var food in loggedFoods) {
+      totalCalories += food.portion.food.calories * food.portion.grams;
+      totalProtein += food.portion.food.protein * food.portion.grams;
+      totalFat += food.portion.food.fat * food.portion.grams;
+      totalCarbs += food.portion.food.carbs * food.portion.grams;
+      totalFiber += food.portion.food.fiber * food.portion.grams;
+    }
+
     final List<NutritionTarget> nutritionTargets = [
       NutritionTarget(
         color: Colors.blue,
-        thisAmount: 2500,
-        targetAmount: 2000,
+        thisAmount: totalCalories,
+        targetAmount: 2000, // TODO: settings
         macroLabel: '🔥',
         unitLabel: '',
-        dailyAmounts: [],
+        dailyAmounts: [], // Not used in LogHeader yet
       ),
       NutritionTarget(
         color: Colors.red,
-        thisAmount: 100,
+        thisAmount: totalProtein,
         targetAmount: 150,
         macroLabel: 'P',
         unitLabel: 'g',
@@ -67,7 +90,7 @@ class _LogScreenState extends State<LogScreen> {
       ),
       NutritionTarget(
         color: Colors.orange,
-        thisAmount: 50,
+        thisAmount: totalFat,
         targetAmount: 70,
         macroLabel: 'F',
         unitLabel: 'g',
@@ -75,9 +98,17 @@ class _LogScreenState extends State<LogScreen> {
       ),
       NutritionTarget(
         color: Colors.green,
-        thisAmount: 200,
+        thisAmount: totalCarbs,
         targetAmount: 250,
         macroLabel: 'C',
+        unitLabel: 'g',
+        dailyAmounts: [],
+      ),
+      NutritionTarget(
+        color: Colors.brown,
+        thisAmount: totalFiber,
+        targetAmount: 30,
+        macroLabel: 'Fb',
         unitLabel: 'g',
         dailyAmounts: [],
       ),

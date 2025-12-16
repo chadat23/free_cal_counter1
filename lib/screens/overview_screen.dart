@@ -3,63 +3,109 @@ import 'package:free_cal_counter1/widgets/nutrition_targets_overview_chart.dart'
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
+import 'package:provider/provider.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 
-class OverviewScreen extends StatelessWidget {
+class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<NutritionTarget> nutritionData = [
+  State<OverviewScreen> createState() => _OverviewScreenState();
+}
+
+class _OverviewScreenState extends State<OverviewScreen> {
+  List<NutritionTarget> _nutritionData = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final start = today.subtract(const Duration(days: 6)); // Last 7 days
+
+    final logProvider = Provider.of<LogProvider>(context, listen: false);
+    final stats = await logProvider.getDailyMacroStats(start, today);
+
+    // Process stats into NutritionTargets
+    if (mounted) {
+      setState(() {
+        _nutritionData = _buildTargets(stats);
+        _isLoading = false;
+      });
+    }
+  }
+
+  List<NutritionTarget> _buildTargets(List<DailyMacroStats> stats) {
+    // Extract daily lists (ensure 7 days, index 0 is oldest, index 6 is today)
+    // DailyMacroStats.fromDTOS usually returns sorted by date
+    // We already requested 7 days, so we should map them directly mostly.
+
+    // Helper to map a field across the stats list
+    List<double> mapField(double Function(DailyMacroStats) selector) {
+      return stats.map(selector).toList();
+    }
+
+    final calories = mapField((s) => s.calories);
+    final protein = mapField((s) => s.protein);
+    final fat = mapField((s) => s.fat);
+    final carbs = mapField((s) => s.carbs);
+    final fiber = mapField((s) => s.fiber);
+
+    // Get Today's values (last in the list)
+    final todayStats = stats.last;
+
+    return [
       NutritionTarget(
         color: Colors.blue,
-        thisAmount: 2134.0,
-        targetAmount: 2143.0,
+        thisAmount: todayStats.calories,
+        targetAmount: 2000.0, // TODO: Get from settings
         macroLabel: '🔥',
         unitLabel: '',
-        dailyAmounts: [
-          2300.4,
-          1928.7,
-          1821.55,
-          2035.85,
-          1607.25,
-          1714.4,
-          2143.0,
-        ],
+        dailyAmounts: calories,
       ),
       NutritionTarget(
         color: Colors.red,
-        thisAmount: 159.0,
-        targetAmount: 141.0,
+        thisAmount: todayStats.protein,
+        targetAmount: 150.0,
         macroLabel: 'P',
         unitLabel: 'g',
-        dailyAmounts: [141.0, 126.9, 133.95, 148.05, 119.85, 126.9, 143.82],
+        dailyAmounts: protein,
       ),
       NutritionTarget(
         color: Colors.yellow,
-        thisAmount: 70.0,
-        targetAmount: 71.0,
+        thisAmount: todayStats.fat,
+        targetAmount: 70.0,
         macroLabel: 'F',
         unitLabel: 'g',
-        dailyAmounts: [63.9, 71.0, 74.55, 67.45, 56.8, 60.35, 69.58],
+        dailyAmounts: fat,
       ),
       NutritionTarget(
         color: Colors.green,
-        thisAmount: 241.0,
-        targetAmount: 233.0,
+        thisAmount: todayStats.carbs,
+        targetAmount: 250.0,
         macroLabel: 'C',
         unitLabel: 'g',
-        dailyAmounts: [221.35, 198.05, 209.7, 233.0, 244.65, 186.4, 242.32],
+        dailyAmounts: carbs,
       ),
       NutritionTarget(
         color: Colors.brown,
-        thisAmount: 25.0,
+        thisAmount: todayStats.fiber,
         targetAmount: 30.0,
         macroLabel: 'Fb',
         unitLabel: 'g',
-        dailyAmounts: [22.5, 28.0, 31.5, 25.0, 18.0, 29.0, 26.5],
+        dailyAmounts: fiber,
       ),
     ];
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return ScreenBackground(
       appBar: AppBar(
         title: const Text('Overview'),
@@ -69,16 +115,18 @@ class OverviewScreen extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: ListView(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: NutritionTargetsOverviewChart(
-                    nutritionData: nutritionData,
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: NutritionTargetsOverviewChart(
+                          nutritionData: _nutritionData,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
           const FoodSearchRibbon(),
         ],

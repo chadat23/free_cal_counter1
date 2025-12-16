@@ -6,6 +6,7 @@ import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart' as ref;
 import 'package:drift/native.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
+import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
 
 void main() {
   late DatabaseService databaseService;
@@ -225,6 +226,91 @@ void main() {
 
       // Assert
       expect(unit, 'new_unit');
+    });
+  });
+
+  group('getLoggedMacrosForDateRange', () {
+    test('should return macro DTOs for logs within range', () async {
+      // Arrange
+      await liveDatabase
+          .into(liveDatabase.loggedFoods)
+          .insert(
+            LoggedFoodsCompanion.insert(
+              id: const Value(1),
+              name: 'Test Food',
+              caloriesPerGram: 1.0,
+              proteinPerGram: 0.5,
+              fatPerGram: 0.2,
+              carbsPerGram: 0.3,
+              fiberPerGram: 0.1,
+              originalFoodId: const Value(0),
+            ),
+          );
+
+      final now = DateTime.now();
+      final todayStart = DateTime(now.year, now.month, now.day);
+
+      // Log for today
+      await liveDatabase
+          .into(liveDatabase.loggedPortions)
+          .insert(
+            LoggedPortionsCompanion.insert(
+              loggedFoodId: 1,
+              logTimestamp: todayStart
+                  .add(const Duration(hours: 12))
+                  .millisecondsSinceEpoch,
+              grams: 100,
+              unit: 'g',
+              quantity: 100,
+            ),
+          );
+
+      // Log for yesterday
+      await liveDatabase
+          .into(liveDatabase.loggedPortions)
+          .insert(
+            LoggedPortionsCompanion.insert(
+              loggedFoodId: 1,
+              logTimestamp: todayStart
+                  .subtract(const Duration(hours: 12))
+                  .millisecondsSinceEpoch,
+              grams: 50,
+              unit: 'g',
+              quantity: 50,
+            ),
+          );
+
+      // Log for tomorrow (out of range if we query today only)
+      await liveDatabase
+          .into(liveDatabase.loggedPortions)
+          .insert(
+            LoggedPortionsCompanion.insert(
+              loggedFoodId: 1,
+              logTimestamp: todayStart
+                  .add(const Duration(days: 1, hours: 12))
+                  .millisecondsSinceEpoch,
+              grams: 200,
+              unit: 'g',
+              quantity: 200,
+            ),
+          );
+
+      // Act
+      // Query for Today and Yesterday
+      final results = await databaseService.getLoggedMacrosForDateRange(
+        todayStart.subtract(const Duration(days: 1)),
+        todayStart,
+      );
+
+      // Assert
+      expect(results.length, 2);
+
+      // Verify data integrity
+      final todayLog = results.firstWhere((r) => r.grams == 100);
+      expect(todayLog.caloriesPerGram, 1.0);
+
+      final yesterdayLog = results.firstWhere((r) => r.grams == 50);
+      expect(yesterdayLog.caloriesPerGram, 1.0);
     });
   });
 }

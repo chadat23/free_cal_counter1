@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
+import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:provider/provider.dart';
 
 class LogHeader extends StatefulWidget {
   final DateTime date;
@@ -81,32 +83,57 @@ class _LogHeaderState extends State<LogHeader> {
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: HorizontalMiniBarChart(
-                  nutritionTarget: widget.nutritionTargets[0],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: HorizontalMiniBarChart(
-                  nutritionTarget: widget.nutritionTargets[1],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: HorizontalMiniBarChart(
-                  nutritionTarget: widget.nutritionTargets[2],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: HorizontalMiniBarChart(
-                  nutritionTarget: widget.nutritionTargets[3],
-                ),
-              ),
-            ],
+          Consumer<NavigationProvider>(
+            builder: (context, navProvider, child) {
+              final notInverted = navProvider.showConsumed;
+              return Row(
+                children: [
+                  Expanded(
+                    child: HorizontalMiniBarChart(
+                      consumed: widget.nutritionTargets[0].thisAmount,
+                      target: widget.nutritionTargets[0].targetAmount,
+                      color: widget.nutritionTargets[0].color,
+                      macroLabel: widget.nutritionTargets[0].macroLabel,
+                      unitLabel: widget.nutritionTargets[0].unitLabel,
+                      notInverted: notInverted,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: HorizontalMiniBarChart(
+                      consumed: widget.nutritionTargets[1].thisAmount,
+                      target: widget.nutritionTargets[1].targetAmount,
+                      color: widget.nutritionTargets[1].color,
+                      macroLabel: widget.nutritionTargets[1].macroLabel,
+                      unitLabel: widget.nutritionTargets[1].unitLabel,
+                      notInverted: notInverted,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: HorizontalMiniBarChart(
+                      consumed: widget.nutritionTargets[2].thisAmount,
+                      target: widget.nutritionTargets[2].targetAmount,
+                      color: widget.nutritionTargets[2].color,
+                      macroLabel: widget.nutritionTargets[2].macroLabel,
+                      unitLabel: widget.nutritionTargets[2].unitLabel,
+                      notInverted: notInverted,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: HorizontalMiniBarChart(
+                      consumed: widget.nutritionTargets[3].thisAmount,
+                      target: widget.nutritionTargets[3].targetAmount,
+                      color: widget.nutritionTargets[3].color,
+                      macroLabel: widget.nutritionTargets[3].macroLabel,
+                      unitLabel: widget.nutritionTargets[3].unitLabel,
+                      notInverted: notInverted,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),

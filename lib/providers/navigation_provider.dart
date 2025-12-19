@@ -4,9 +4,16 @@ class NavigationProvider extends ChangeNotifier {
   int _selectedIndex = 0;
   int _previousIndex = 0;
   bool _shouldFocusSearch = false;
+  bool _showConsumed = true;
 
   int get selectedIndex => _selectedIndex;
   bool get shouldFocusSearch => _shouldFocusSearch;
+  bool get showConsumed => _showConsumed;
+
+  void setShowConsumed(bool value) {
+    _showConsumed = value;
+    notifyListeners();
+  }
 
   void changeTab(int index) {
     _selectedIndex = index;

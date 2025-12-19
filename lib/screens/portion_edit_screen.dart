@@ -175,7 +175,11 @@ class _PortionEditScreenState extends State<PortionEditScreen> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 2.0),
                           child: HorizontalMiniBarChart(
-                            nutritionTarget: target,
+                            consumed: target.thisAmount,
+                            target: target.targetAmount,
+                            color: target.color,
+                            macroLabel: target.macroLabel,
+                            unitLabel: target.unitLabel,
                           ),
                         ),
                       ),

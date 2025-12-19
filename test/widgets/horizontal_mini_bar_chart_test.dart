@@ -1,30 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 
 void main() {
   testWidgets('HorizontalMiniBarChart renders correctly', (
     WidgetTester tester,
   ) async {
-    final nutritionTarget = NutritionTarget(
-      color: Colors.blue,
-      thisAmount: 50,
-      targetAmount: 100,
-      macroLabel: 'P',
-      unitLabel: 'g',
-      dailyAmounts: [],
-    );
+    const consumed = 50.0;
+    const target = 100.0;
+    const macroLabel = 'P';
+    const unitLabel = 'g';
+    const color = Colors.blue;
 
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
-          body: HorizontalMiniBarChart(nutritionTarget: nutritionTarget),
+          body: HorizontalMiniBarChart(
+            consumed: consumed,
+            target: target,
+            color: color,
+            macroLabel: macroLabel,
+            unitLabel: unitLabel,
+            notInverted: true,
+          ),
         ),
       ),
     );
 
-    expect(find.text('P 50 / 100'), findsOneWidget);
-    // More detailed checks can be added here, e.g., for the bar's width
+    expect(find.text('P 50 / 100g'), findsOneWidget);
+  });
+
+  testWidgets('HorizontalMiniBarChart renders inverted correctly', (
+    WidgetTester tester,
+  ) async {
+    const consumed = 30.0;
+    const target = 100.0;
+    const macroLabel = 'P';
+    const unitLabel = 'g';
+    const color = Colors.blue;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: HorizontalMiniBarChart(
+            consumed: consumed,
+            target: target,
+            color: color,
+            macroLabel: macroLabel,
+            unitLabel: unitLabel,
+            notInverted: false,
+          ),
+        ),
+      ),
+    );
+
+    // Inverted: 100 - 30 = 70
+    expect(find.text('P 70 / 100g'), findsOneWidget);
   });
 }

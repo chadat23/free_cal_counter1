@@ -7,26 +7,30 @@ export 'package:free_cal_counter1/widgets/vertical_mini_bar_chart.dart'
     show VerticalMiniBarChartPainter;
 
 class VerticalMiniBarChart extends StatelessWidget {
-  final double value;
-  final double maxValue;
+  final double consumed;
+  final double target;
   final Color color;
+  final bool notInverted;
 
   const VerticalMiniBarChart({
     super.key,
-    required this.value,
-    required this.maxValue,
+    required this.consumed,
+    required this.target,
     required this.color,
+    this.notInverted = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final double displayValue = notInverted ? consumed : (target - consumed);
+
     return SizedBox(
       width: 24,
       height: 48,
       child: CustomPaint(
         painter: VerticalMiniBarChartPainter(
-          value: value,
-          maxValue: maxValue,
+          value: displayValue,
+          maxValue: target,
           color: color,
         ),
       ),

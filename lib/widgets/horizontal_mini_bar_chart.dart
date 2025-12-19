@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/nutrition_target.dart';
 
 class HorizontalMiniBarChart extends StatelessWidget {
-  final NutritionTarget nutritionTarget;
+  final double consumed;
+  final double target;
+  final Color color;
+  final String macroLabel;
+  final String unitLabel;
+  final bool notInverted;
 
-  const HorizontalMiniBarChart({super.key, required this.nutritionTarget});
+  const HorizontalMiniBarChart({
+    super.key,
+    required this.consumed,
+    required this.target,
+    required this.color,
+    required this.macroLabel,
+    this.unitLabel = '',
+    this.notInverted = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final double value = nutritionTarget.thisAmount;
-    final double target = nutritionTarget.targetAmount;
-    final double percentage = target > 0 ? (value / target) : 0.0;
+    final double displayValue = notInverted ? consumed : (target - consumed);
+    final double percentage = target > 0 ? (displayValue / target) : 0.0;
     final double clippedPercentage = percentage.clamp(0.0, 1.1);
 
     return Container(
@@ -23,7 +34,7 @@ class HorizontalMiniBarChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${nutritionTarget.macroLabel} ${value.toStringAsFixed(0)} / ${target.toStringAsFixed(0)}',
+            '$macroLabel ${displayValue.toStringAsFixed(0)} / ${target.toStringAsFixed(0)}$unitLabel',
             style: const TextStyle(color: Colors.white, fontSize: 10),
           ),
           const SizedBox(height: 4),
@@ -42,7 +53,7 @@ class HorizontalMiniBarChart extends StatelessWidget {
                 child: Container(
                   height: 8,
                   decoration: BoxDecoration(
-                    color: nutritionTarget.color,
+                    color: color,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),

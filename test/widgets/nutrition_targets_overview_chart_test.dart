@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/widgets/vertical_mini_bar_chart.dart';
 import 'package:free_cal_counter1/widgets/nutrition_targets_overview_chart.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
+import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   group('NutritionTargetsOverviewChart', () {
@@ -57,9 +59,12 @@ void main() {
       ),
     ];
 
-    testWidgets('renders correctly', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
+    Widget buildTestWidget() {
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ],
+        child: MaterialApp(
           home: Scaffold(
             body: NutritionTargetsOverviewChart(
               nutritionData: mockNutritionData,
@@ -67,34 +72,20 @@ void main() {
           ),
         ),
       );
+    }
 
+    testWidgets('renders correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(buildTestWidget());
       expect(find.byType(NutritionTargetsOverviewChart), findsOneWidget);
     });
 
     testWidgets('renders 35 mini-bar widgets', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NutritionTargetsOverviewChart(
-              nutritionData: mockNutritionData,
-            ),
-          ),
-        ),
-      );
-
+      await tester.pumpWidget(buildTestWidget());
       expect(find.byType(VerticalMiniBarChart), findsNWidgets(35));
     });
 
     testWidgets('renders weekday labels', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NutritionTargetsOverviewChart(
-              nutritionData: mockNutritionData,
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(buildTestWidget());
 
       expect(find.text('M'), findsOneWidget);
       expect(find.text('T'), findsNWidgets(2)); // Tuesday and Thursday
@@ -106,15 +97,7 @@ void main() {
     testWidgets('renders formatted nutrient values', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NutritionTargetsOverviewChart(
-              nutritionData: mockNutritionData,
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(buildTestWidget());
 
       expect(find.text('2134 🔥\n of 2143'), findsOneWidget);
       expect(find.text('159 P\n of 141g'), findsOneWidget);
@@ -126,18 +109,38 @@ void main() {
     testWidgets('renders "Consumed" and "Remaining" buttons', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NutritionTargetsOverviewChart(
-              nutritionData: mockNutritionData,
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(buildTestWidget());
 
       expect(find.widgetWithText(TextButton, 'Consumed'), findsOneWidget);
       expect(find.widgetWithText(TextButton, 'Remaining'), findsOneWidget);
+    });
+
+    testWidgets('toggles between Consumed and Remaining views', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(buildTestWidget());
+
+      // Initially shows Consumed
+      expect(find.text('2134 🔥\n of 2143'), findsOneWidget);
+      expect(find.text('159 P\n of 141g'), findsOneWidget);
+
+      // Tap Remaining
+      await tester.tap(find.text('Remaining'));
+      await tester.pumpAndSettle();
+
+      // Should show Remaining: target - consumed
+      // 2143 - 2134 = 9
+      // 141 - 159 = -18
+      expect(find.text('9 🔥\n of 2143'), findsOneWidget);
+      expect(find.text('-18 P\n of 141g'), findsOneWidget);
+
+      // Tap Consumed
+      await tester.tap(find.text('Consumed'));
+      await tester.pumpAndSettle();
+
+      // Should show Consumed again
+      expect(find.text('2134 🔥\n of 2143'), findsOneWidget);
+      expect(find.text('159 P\n of 141g'), findsOneWidget);
     });
   });
 }

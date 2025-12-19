@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
@@ -38,7 +37,7 @@ class LogQueueTopRibbon extends StatelessWidget {
       );
     }
 
-    final targets = [
+    final projectedTargets = [
       createTarget(
         '🔥',
         logProvider.totalCalories,
@@ -64,6 +63,64 @@ class LogQueueTopRibbon extends StatelessWidget {
         Colors.green,
       ),
     ];
+
+    final queueOnlyTargets = [
+      createTarget(
+        '🔥',
+        logProvider.queuedCalories,
+        logProvider.dailyTargetCalories,
+        Colors.blue.withOpacity(0.7),
+      ),
+      createTarget(
+        'P',
+        logProvider.queuedProtein,
+        logProvider.dailyTargetProtein,
+        Colors.red.withOpacity(0.7),
+      ),
+      createTarget(
+        'F',
+        logProvider.queuedFat,
+        logProvider.dailyTargetFat,
+        Colors.orange.withOpacity(0.7),
+      ),
+      createTarget(
+        'C',
+        logProvider.queuedCarbs,
+        logProvider.dailyTargetCarbs,
+        Colors.green.withOpacity(0.7),
+      ),
+    ];
+
+    Widget buildChartRow(List<NutritionTarget> targets, String label) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, bottom: 2.0),
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Row(
+            children: targets
+                .map(
+                  (target) => Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                      child: HorizontalMiniBarChart(nutritionTarget: target),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      );
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min, // Important for AppBar usage
@@ -119,19 +176,11 @@ class LogQueueTopRibbon extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8.0),
-        // Row 2: Charts
-        Row(
-          children: targets
-              .map(
-                (target) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                    child: HorizontalMiniBarChart(nutritionTarget: target),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
+        // Row 2: Day's Charts
+        buildChartRow(projectedTargets, "Day's Macros (Projected)"),
+        const SizedBox(height: 4.0),
+        // Row 3: Queue's Charts
+        buildChartRow(queueOnlyTargets, "Queue's Macros"),
       ],
     );
   }

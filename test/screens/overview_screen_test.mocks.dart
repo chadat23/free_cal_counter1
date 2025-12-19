@@ -75,14 +75,83 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
           as double);
 
   @override
+  double get queuedProtein =>
+      (super.noSuchMethod(Invocation.getter(#queuedProtein), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedFat =>
+      (super.noSuchMethod(Invocation.getter(#queuedFat), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedCarbs =>
+      (super.noSuchMethod(Invocation.getter(#queuedCarbs), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedFiber =>
+      (super.noSuchMethod(Invocation.getter(#queuedFiber), returnValue: 0.0)
+          as double);
+
+  @override
   double get totalCalories =>
       (super.noSuchMethod(Invocation.getter(#totalCalories), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalProtein =>
+      (super.noSuchMethod(Invocation.getter(#totalProtein), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalFat =>
+      (super.noSuchMethod(Invocation.getter(#totalFat), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalCarbs =>
+      (super.noSuchMethod(Invocation.getter(#totalCarbs), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalFiber =>
+      (super.noSuchMethod(Invocation.getter(#totalFiber), returnValue: 0.0)
           as double);
 
   @override
   double get dailyTargetCalories =>
       (super.noSuchMethod(
             Invocation.getter(#dailyTargetCalories),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
+  double get dailyTargetProtein =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetProtein),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
+  double get dailyTargetFat =>
+      (super.noSuchMethod(Invocation.getter(#dailyTargetFat), returnValue: 0.0)
+          as double);
+
+  @override
+  double get dailyTargetCarbs =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetCarbs),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
+  double get dailyTargetFiber =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetFiber),
             returnValue: 0.0,
           )
           as double);

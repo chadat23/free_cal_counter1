@@ -68,6 +68,26 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
           as double);
 
   @override
+  double get queuedProtein =>
+      (super.noSuchMethod(Invocation.getter(#queuedProtein), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedFat =>
+      (super.noSuchMethod(Invocation.getter(#queuedFat), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedCarbs =>
+      (super.noSuchMethod(Invocation.getter(#queuedCarbs), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedFiber =>
+      (super.noSuchMethod(Invocation.getter(#queuedFiber), returnValue: 0.0)
+          as double);
+
+  @override
   double get totalCalories =>
       (super.noSuchMethod(Invocation.getter(#totalCalories), returnValue: 0.0)
           as double);

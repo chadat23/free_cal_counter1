@@ -26,7 +26,20 @@ void main() {
 
     // Stub LogProvider
     when(mockLogProvider.totalCalories).thenReturn(0.0);
+    when(mockLogProvider.totalProtein).thenReturn(0.0);
+    when(mockLogProvider.totalFat).thenReturn(0.0);
+    when(mockLogProvider.totalCarbs).thenReturn(0.0);
+    when(mockLogProvider.totalFiber).thenReturn(0.0);
+    when(mockLogProvider.queuedCalories).thenReturn(0.0);
+    when(mockLogProvider.queuedProtein).thenReturn(0.0);
+    when(mockLogProvider.queuedFat).thenReturn(0.0);
+    when(mockLogProvider.queuedCarbs).thenReturn(0.0);
+    when(mockLogProvider.queuedFiber).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    when(mockLogProvider.dailyTargetProtein).thenReturn(150.0);
+    when(mockLogProvider.dailyTargetFat).thenReturn(70.0);
+    when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
+    when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
     when(mockLogProvider.getDailyMacroStats(any, any)).thenAnswer(
       (_) async => List.generate(
         7,

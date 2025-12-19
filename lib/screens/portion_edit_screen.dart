@@ -4,7 +4,8 @@ import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
-import 'package:free_cal_counter1/widgets/vertical_mini_bar_chart.dart';
+import 'package:free_cal_counter1/models/nutrition_target.dart';
+import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 import 'package:provider/provider.dart';
 
 import 'package:free_cal_counter1/utils/math_evaluator.dart';
@@ -53,98 +54,156 @@ class _PortionEditScreenState extends State<PortionEditScreen> {
   }
 
   Widget _buildMacroDisplay() {
-    // Use MathEvaluator to parse the text
-    final amount = MathEvaluator.evaluate(_portionController.text) ?? 0.0;
+    return Consumer<LogProvider>(
+      builder: (context, logProvider, child) {
+        // Use MathEvaluator to parse the text
+        final amount = MathEvaluator.evaluate(_portionController.text) ?? 0.0;
 
-    // Calculate total grams based on serving unit and quantity
-    // _selectedUnit.grams is the total weight of the serving (e.g. 50g for 2 cookies)
-    // _selectedUnit.quantity is the number of units in the serving (e.g. 2)
-    // We want the weight of the amount entered by the user.
-    // totalGrams = amount * (grams / quantity)
-    final totalGrams = amount * _selectedUnit.gramsPerUnit;
+        // Calculate total grams for CURRENT portion
+        final currentGrams = amount * _selectedUnit.gramsPerUnit;
 
-    final calories = widget.food.calories * totalGrams;
-    final protein = widget.food.protein * totalGrams;
-    final fat = widget.food.fat * totalGrams;
-    final carbs = widget.food.carbs * totalGrams;
-    final fiber = widget.food.fiber * totalGrams;
+        // Calculate original grams if we are editing an existing item
+        double originalGrams = 0.0;
+        if (widget.onUpdate != null) {
+          final initQ = widget.initialQuantity ?? 1.0;
+          final initU = widget.initialUnit ?? widget.food.servings.first;
+          originalGrams = initQ * initU.gramsPerUnit;
+        }
 
-    // Hardcoded targets for now, matching OverviewScreen
-    const targetCalories = 2143.0;
-    const targetProtein = 141.0;
-    const targetFat = 71.0;
-    const targetCarbs = 233.0;
-    const targetFiber = 30.0;
+        // Helper to build list of targets
+        List<NutritionTarget> buildTargets({
+          required double calories,
+          required double protein,
+          required double fat,
+          required double carbs,
+          required double fiber,
+        }) {
+          return [
+            NutritionTarget(
+              macroLabel: '🔥',
+              thisAmount: calories,
+              targetAmount: logProvider.dailyTargetCalories,
+              unitLabel: '',
+              dailyAmounts: [],
+              color: Colors.blue,
+            ),
+            NutritionTarget(
+              macroLabel: 'P',
+              thisAmount: protein,
+              targetAmount: logProvider.dailyTargetProtein,
+              unitLabel: 'g',
+              dailyAmounts: [],
+              color: Colors.red,
+            ),
+            NutritionTarget(
+              macroLabel: 'F',
+              thisAmount: fat,
+              targetAmount: logProvider.dailyTargetFat,
+              unitLabel: 'g',
+              dailyAmounts: [],
+              color: Colors.yellow,
+            ),
+            NutritionTarget(
+              macroLabel: 'C',
+              thisAmount: carbs,
+              targetAmount: logProvider.dailyTargetCarbs,
+              unitLabel: 'g',
+              dailyAmounts: [],
+              color: Colors.green,
+            ),
+            NutritionTarget(
+              macroLabel: 'Fb',
+              thisAmount: fiber,
+              targetAmount: logProvider.dailyTargetFiber,
+              unitLabel: 'g',
+              dailyAmounts: [],
+              color: Colors.brown,
+            ),
+          ];
+        }
 
-    final macros = [
-      _MacroData(
-        value: calories,
-        target: targetCalories,
-        label: '🔥',
-        unit: '',
-        color: Colors.blue,
-      ),
-      _MacroData(
-        value: protein,
-        target: targetProtein,
-        label: 'P',
-        unit: 'g',
-        color: Colors.red,
-      ),
-      _MacroData(
-        value: fat,
-        target: targetFat,
-        label: 'F',
-        unit: 'g',
-        color: Colors.yellow,
-      ),
-      _MacroData(
-        value: carbs,
-        target: targetCarbs,
-        label: 'C',
-        unit: 'g',
-        color: Colors.green,
-      ),
-      _MacroData(
-        value: fiber,
-        target: targetFiber,
-        label: 'Fb',
-        unit: 'g',
-        color: Colors.brown,
-      ),
-    ];
+        // 1. Portion Macros
+        final portionTargets = buildTargets(
+          calories: widget.food.calories * currentGrams,
+          protein: widget.food.protein * currentGrams,
+          fat: widget.food.fat * currentGrams,
+          carbs: widget.food.carbs * currentGrams,
+          fiber: widget.food.fiber * currentGrams,
+        );
 
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      margin: const EdgeInsets.only(bottom: 16.0),
-      decoration: BoxDecoration(
-        color: AppColors.largeWidgetBackground,
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: macros.map((data) {
+        // 2. Day's Macros (Projected)
+        final projectedTargets = buildTargets(
+          calories:
+              logProvider.totalCalories -
+              (widget.food.calories * originalGrams) +
+              (widget.food.calories * currentGrams),
+          protein:
+              logProvider.totalProtein -
+              (widget.food.protein * originalGrams) +
+              (widget.food.protein * currentGrams),
+          fat:
+              logProvider.totalFat -
+              (widget.food.fat * originalGrams) +
+              (widget.food.fat * currentGrams),
+          carbs:
+              logProvider.totalCarbs -
+              (widget.food.carbs * originalGrams) +
+              (widget.food.carbs * currentGrams),
+          fiber:
+              logProvider.totalFiber -
+              (widget.food.fiber * originalGrams) +
+              (widget.food.fiber * currentGrams),
+        );
+
+        Widget buildChartRow(List<NutritionTarget> targets, String title) {
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              VerticalMiniBarChart(
-                value: data.value,
-                maxValue: data.target,
-                color: data.color,
-              ),
-              const SizedBox(height: 8),
               Text(
-                '${data.value.toInt()} ${data.label}\nof ${data.target.toInt()}${data.unit}',
-                textAlign: TextAlign.center,
+                title,
                 style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
+                  color: Colors.white70,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 8),
+              Row(
+                children: targets
+                    .map(
+                      (target) => Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                          child: HorizontalMiniBarChart(
+                            nutritionTarget: target,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
             ],
           );
-        }).toList(),
-      ),
+        }
+
+        return Container(
+          padding: const EdgeInsets.all(12.0),
+          margin: const EdgeInsets.only(bottom: 16.0),
+          decoration: BoxDecoration(
+            color: AppColors.largeWidgetBackground,
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Column(
+            children: [
+              buildChartRow(projectedTargets, "Day's Macros"),
+              const SizedBox(height: 12),
+              const Divider(color: Colors.white10, height: 1),
+              const SizedBox(height: 12),
+              buildChartRow(portionTargets, "Portion's Macros"),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -242,20 +301,4 @@ class _PortionEditScreenState extends State<PortionEditScreen> {
       ),
     );
   }
-}
-
-class _MacroData {
-  final double value;
-  final double target;
-  final String label;
-  final String unit;
-  final Color color;
-
-  _MacroData({
-    required this.value,
-    required this.target,
-    required this.label,
-    required this.unit,
-    required this.color,
-  });
 }

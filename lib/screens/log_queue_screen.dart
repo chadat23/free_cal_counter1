@@ -18,7 +18,7 @@ class LogQueueScreen extends StatelessWidget {
       builder: (context, logProvider, child) {
         return Scaffold(
           appBar: AppBar(
-            toolbarHeight: 120, // Increased to accommodate charts
+            toolbarHeight: 180, // Increased to accommodate more chart rows
             automaticallyImplyLeading: false,
             title: LogQueueTopRibbon(
               leading: IconButton(

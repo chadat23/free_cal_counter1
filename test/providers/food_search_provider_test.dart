@@ -7,6 +7,7 @@ import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 
+import 'package:free_cal_counter1/models/search_mode.dart';
 import 'food_search_provider_test.mocks.dart';
 
 @GenerateMocks([DatabaseService, OffApiService, FoodSearchService])
@@ -170,6 +171,23 @@ void main() {
       expect(foodSearchProvider.searchResults, [mockFood]);
       verify(mockDatabaseService.getFoodByBarcode('12345')).called(1);
       verify(mockOffApiService.fetchFoodByBarcode('12345')).called(1);
+    });
+  });
+  group('searchMode', () {
+    test('should default to text', () {
+      expect(foodSearchProvider.searchMode, SearchMode.text);
+    });
+
+    test('should update searchMode and notify listeners', () {
+      bool notified = false;
+      foodSearchProvider.addListener(() {
+        notified = true;
+      });
+
+      foodSearchProvider.setSearchMode(SearchMode.scan);
+
+      expect(foodSearchProvider.searchMode, SearchMode.scan);
+      expect(notified, isTrue);
     });
   });
 }

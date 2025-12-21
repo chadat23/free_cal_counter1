@@ -19,6 +19,7 @@ import 'package:free_cal_counter1/models/logged_food.dart' as model;
 import 'package:free_cal_counter1/models/food_portion.dart' as model;
 import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
+import 'package:free_cal_counter1/models/search_mode.dart';
 import 'log_screen_test.mocks.dart';
 
 @GenerateMocks([
@@ -52,11 +53,13 @@ void main() {
 
     // Stub NavigationProvider
     when(mockNavigationProvider.changeTab(any)).thenAnswer((_) {});
+    when(mockNavigationProvider.showConsumed).thenReturn(true);
 
     // Stub FoodSearchProvider
     when(mockFoodSearchProvider.errorMessage).thenReturn(null);
     when(mockFoodSearchProvider.isLoading).thenReturn(false);
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
+    when(mockFoodSearchProvider.searchMode).thenReturn(SearchMode.text);
   });
 
   Widget createTestWidget() {

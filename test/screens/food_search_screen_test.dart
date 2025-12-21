@@ -10,6 +10,7 @@ import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/screens/food_search_screen.dart';
 import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/models/search_mode.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
@@ -40,9 +41,11 @@ void main() {
     mockFoodSearchProvider = MockFoodSearchProvider();
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
+    when(mockNavigationProvider.showConsumed).thenReturn(true);
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
     when(mockFoodSearchProvider.isLoading).thenReturn(false);
     when(mockFoodSearchProvider.errorMessage).thenReturn(null);
+    when(mockFoodSearchProvider.searchMode).thenReturn(SearchMode.text);
 
     // Default mocks for macros to avoid null errors in LogQueueTopRibbon
     when(mockLogProvider.totalCalories).thenReturn(0.0);

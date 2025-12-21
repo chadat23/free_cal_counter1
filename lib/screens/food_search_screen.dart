@@ -3,13 +3,16 @@ import 'package:free_cal_counter1/config/app_router.dart';
 
 import 'package:free_cal_counter1/widgets/discard_dialog.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
-import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/models/search_mode.dart';
+import 'package:free_cal_counter1/widgets/search/search_mode_tabs.dart';
+import 'package:free_cal_counter1/widgets/search/text_search_view.dart';
+import 'package:free_cal_counter1/widgets/search/scan_search_view.dart';
+import 'package:free_cal_counter1/widgets/search/recipe_search_view.dart';
 
 class FoodSearchScreen extends StatefulWidget {
   const FoodSearchScreen({super.key});
@@ -100,44 +103,11 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       ),
       body: Consumer<FoodSearchProvider>(
         builder: (context, foodSearchProvider, child) {
-          if (foodSearchProvider.errorMessage != null) {
-            return Center(
-              child: Text(
-                foodSearchProvider.errorMessage!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-            );
-          }
-
-          if (foodSearchProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (foodSearchProvider.searchResults.isEmpty) {
-            return const Center(child: Text('Search for a food to begin'));
-          }
-
-          return ListView.builder(
-            itemCount: foodSearchProvider.searchResults.length,
-            itemBuilder: (context, index) {
-              final food = foodSearchProvider.searchResults[index];
-              return FoodSearchResultTile(
-                key: ValueKey(food.id),
-                food: food,
-                onTap: (selectedUnit) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PortionEditScreen(
-                        food: food,
-                        initialUnit: selectedUnit,
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
+          return Column(
+            children: [
+              const SearchModeTabs(),
+              Expanded(child: _buildBody(foodSearchProvider.searchMode)),
+            ],
           );
         },
       ),
@@ -162,5 +132,16 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildBody(SearchMode searchMode) {
+    switch (searchMode) {
+      case SearchMode.text:
+        return const TextSearchView();
+      case SearchMode.scan:
+        return const ScanSearchView();
+      case SearchMode.recipe:
+        return const RecipeSearchView();
+    }
   }
 }

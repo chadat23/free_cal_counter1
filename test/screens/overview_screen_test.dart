@@ -11,6 +11,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import 'package:free_cal_counter1/models/search_mode.dart';
 import 'overview_screen_test.mocks.dart';
 
 @GenerateMocks([LogProvider, NavigationProvider, FoodSearchProvider])
@@ -61,11 +62,13 @@ void main() {
 
     // Stub NavigationProvider
     when(mockNavigationProvider.changeTab(any)).thenAnswer((_) {});
+    when(mockNavigationProvider.showConsumed).thenReturn(true);
 
     // Stub FoodSearchProvider
     when(mockFoodSearchProvider.errorMessage).thenReturn(null);
     when(mockFoodSearchProvider.isLoading).thenReturn(false);
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
+    when(mockFoodSearchProvider.searchMode).thenReturn(SearchMode.text);
   });
 
   Widget createTestWidget() {

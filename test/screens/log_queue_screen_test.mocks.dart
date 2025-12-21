@@ -5,15 +5,16 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i5;
 
+import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i9;
 import 'package:free_cal_counter1/models/food.dart' as _i2;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i7;
 import 'package:free_cal_counter1/models/food_serving.dart' as _i6;
 import 'package:free_cal_counter1/models/logged_food.dart' as _i8;
 import 'package:free_cal_counter1/services/database_service.dart' as _i3;
-import 'package:free_cal_counter1/services/food_search_service.dart' as _i9;
+import 'package:free_cal_counter1/services/food_search_service.dart' as _i10;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i10;
+import 'package:mockito/src/dummies.dart' as _i11;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -148,6 +149,19 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
           as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<_i9.LoggedMacroDTO>> getLoggedMacrosForDateRange(
+    DateTime? start,
+    DateTime? end,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getLoggedMacrosForDateRange, [start, end]),
+            returnValue: _i5.Future<List<_i9.LoggedMacroDTO>>.value(
+              <_i9.LoggedMacroDTO>[],
+            ),
+          )
+          as _i5.Future<List<_i9.LoggedMacroDTO>>);
 }
 
 /// A class which mocks [OffApiService].
@@ -178,7 +192,7 @@ class MockOffApiService extends _i1.Mock implements _i4.OffApiService {
 /// A class which mocks [FoodSearchService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFoodSearchService extends _i1.Mock implements _i9.FoodSearchService {
+class MockFoodSearchService extends _i1.Mock implements _i10.FoodSearchService {
   MockFoodSearchService() {
     _i1.throwOnMissingStub(this);
   }
@@ -209,7 +223,7 @@ class MockFoodSearchService extends _i1.Mock implements _i9.FoodSearchService {
   String Function(String) get emojiForFoodName =>
       (super.noSuchMethod(
             Invocation.getter(#emojiForFoodName),
-            returnValue: (String __p0) => _i10.dummyValue<String>(
+            returnValue: (String __p0) => _i11.dummyValue<String>(
               this,
               Invocation.getter(#emojiForFoodName),
             ),

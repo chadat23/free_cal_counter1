@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
+import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 
+import 'log_header_test.mocks.dart';
+
+@GenerateMocks([NavigationProvider])
 void main() {
   testWidgets('LogHeader displays date and navigates', (
     WidgetTester tester,
@@ -43,15 +50,21 @@ void main() {
       ),
     ];
 
+    final mockNavProvider = MockNavigationProvider();
+    when(mockNavProvider.showConsumed).thenReturn(true);
+
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: LogHeader(
-            date: selectedDate,
-            onDateChanged: (newDate) {
-              selectedDate = newDate;
-            },
-            nutritionTargets: nutritionTargets,
+      ChangeNotifierProvider<NavigationProvider>.value(
+        value: mockNavProvider,
+        child: MaterialApp(
+          home: Scaffold(
+            body: LogHeader(
+              date: selectedDate,
+              onDateChanged: (newDate) {
+                selectedDate = newDate;
+              },
+              nutritionTargets: nutritionTargets,
+            ),
           ),
         ),
       ),

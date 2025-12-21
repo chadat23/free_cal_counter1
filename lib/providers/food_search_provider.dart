@@ -3,6 +3,7 @@ import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
+import 'package:free_cal_counter1/models/search_mode.dart';
 
 class FoodSearchProvider extends ChangeNotifier {
   final DatabaseService databaseService;
@@ -25,6 +26,14 @@ class FoodSearchProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   String _currentQuery = '';
+
+  SearchMode _searchMode = SearchMode.text;
+  SearchMode get searchMode => _searchMode;
+
+  void setSearchMode(SearchMode mode) {
+    _searchMode = mode;
+    notifyListeners();
+  }
 
   void _clearErrorMessage() {
     _errorMessage = null;

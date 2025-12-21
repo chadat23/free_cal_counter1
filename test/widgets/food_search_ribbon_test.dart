@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import 'package:free_cal_counter1/models/search_mode.dart';
 import 'food_search_ribbon_test.mocks.dart';
 
 @GenerateMocks([LogProvider, NavigationProvider, FoodSearchProvider])
@@ -25,9 +26,11 @@ void main() {
     mockFoodSearchProvider = MockFoodSearchProvider(); // Use the mock
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
+    when(mockNavigationProvider.showConsumed).thenReturn(true);
     when(mockFoodSearchProvider.searchResults).thenReturn([]);
     when(mockFoodSearchProvider.errorMessage).thenReturn(null); // ADDED
     when(mockFoodSearchProvider.isLoading).thenReturn(false); // ADDED
+    when(mockFoodSearchProvider.searchMode).thenReturn(SearchMode.text);
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.totalProtein).thenReturn(0.0);
     when(mockLogProvider.totalFat).thenReturn(0.0);

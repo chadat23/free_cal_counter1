@@ -149,6 +149,20 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _parentIdMeta = const VerificationMeta(
+    'parentId',
+  );
+  @override
+  late final GeneratedColumn<int> parentId = GeneratedColumn<int>(
+    'parentId',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES foods (id)',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -164,6 +178,7 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
     sourceFdcId,
     sourceBarcode,
     hidden,
+    parentId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -284,6 +299,12 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
         hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta),
       );
     }
+    if (data.containsKey('parentId')) {
+      context.handle(
+        _parentIdMeta,
+        parentId.isAcceptableOrUnknown(data['parentId']!, _parentIdMeta),
+      );
+    }
     return context;
   }
 
@@ -345,6 +366,10 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
         DriftSqlType.bool,
         data['${effectivePrefix}hidden'],
       )!,
+      parentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}parentId'],
+      ),
     );
   }
 
@@ -368,6 +393,7 @@ class Food extends DataClass implements Insertable<Food> {
   final int? sourceFdcId;
   final String? sourceBarcode;
   final bool hidden;
+  final int? parentId;
   const Food({
     required this.id,
     required this.name,
@@ -382,6 +408,7 @@ class Food extends DataClass implements Insertable<Food> {
     this.sourceFdcId,
     this.sourceBarcode,
     required this.hidden,
+    this.parentId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -407,6 +434,9 @@ class Food extends DataClass implements Insertable<Food> {
       map['sourceBarcode'] = Variable<String>(sourceBarcode);
     }
     map['hidden'] = Variable<bool>(hidden);
+    if (!nullToAbsent || parentId != null) {
+      map['parentId'] = Variable<int>(parentId);
+    }
     return map;
   }
 
@@ -433,6 +463,9 @@ class Food extends DataClass implements Insertable<Food> {
           ? const Value.absent()
           : Value(sourceBarcode),
       hidden: Value(hidden),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
     );
   }
 
@@ -455,6 +488,7 @@ class Food extends DataClass implements Insertable<Food> {
       sourceFdcId: serializer.fromJson<int?>(json['sourceFdcId']),
       sourceBarcode: serializer.fromJson<String?>(json['sourceBarcode']),
       hidden: serializer.fromJson<bool>(json['hidden']),
+      parentId: serializer.fromJson<int?>(json['parentId']),
     );
   }
   @override
@@ -474,6 +508,7 @@ class Food extends DataClass implements Insertable<Food> {
       'sourceFdcId': serializer.toJson<int?>(sourceFdcId),
       'sourceBarcode': serializer.toJson<String?>(sourceBarcode),
       'hidden': serializer.toJson<bool>(hidden),
+      'parentId': serializer.toJson<int?>(parentId),
     };
   }
 
@@ -491,6 +526,7 @@ class Food extends DataClass implements Insertable<Food> {
     Value<int?> sourceFdcId = const Value.absent(),
     Value<String?> sourceBarcode = const Value.absent(),
     bool? hidden,
+    Value<int?> parentId = const Value.absent(),
   }) => Food(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -507,6 +543,7 @@ class Food extends DataClass implements Insertable<Food> {
         ? sourceBarcode.value
         : this.sourceBarcode,
     hidden: hidden ?? this.hidden,
+    parentId: parentId.present ? parentId.value : this.parentId,
   );
   Food copyWithCompanion(FoodsCompanion data) {
     return Food(
@@ -537,6 +574,7 @@ class Food extends DataClass implements Insertable<Food> {
           ? data.sourceBarcode.value
           : this.sourceBarcode,
       hidden: data.hidden.present ? data.hidden.value : this.hidden,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
     );
   }
 
@@ -555,7 +593,8 @@ class Food extends DataClass implements Insertable<Food> {
           ..write('fiberPerGram: $fiberPerGram, ')
           ..write('sourceFdcId: $sourceFdcId, ')
           ..write('sourceBarcode: $sourceBarcode, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('parentId: $parentId')
           ..write(')'))
         .toString();
   }
@@ -575,6 +614,7 @@ class Food extends DataClass implements Insertable<Food> {
     sourceFdcId,
     sourceBarcode,
     hidden,
+    parentId,
   );
   @override
   bool operator ==(Object other) =>
@@ -592,7 +632,8 @@ class Food extends DataClass implements Insertable<Food> {
           other.fiberPerGram == this.fiberPerGram &&
           other.sourceFdcId == this.sourceFdcId &&
           other.sourceBarcode == this.sourceBarcode &&
-          other.hidden == this.hidden);
+          other.hidden == this.hidden &&
+          other.parentId == this.parentId);
 }
 
 class FoodsCompanion extends UpdateCompanion<Food> {
@@ -609,6 +650,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
   final Value<int?> sourceFdcId;
   final Value<String?> sourceBarcode;
   final Value<bool> hidden;
+  final Value<int?> parentId;
   const FoodsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -623,6 +665,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     this.sourceFdcId = const Value.absent(),
     this.sourceBarcode = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.parentId = const Value.absent(),
   });
   FoodsCompanion.insert({
     this.id = const Value.absent(),
@@ -638,6 +681,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     this.sourceFdcId = const Value.absent(),
     this.sourceBarcode = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.parentId = const Value.absent(),
   }) : name = Value(name),
        source = Value(source),
        caloriesPerGram = Value(caloriesPerGram),
@@ -659,6 +703,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     Expression<int>? sourceFdcId,
     Expression<String>? sourceBarcode,
     Expression<bool>? hidden,
+    Expression<int>? parentId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -674,6 +719,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
       if (sourceFdcId != null) 'sourceFdcId': sourceFdcId,
       if (sourceBarcode != null) 'sourceBarcode': sourceBarcode,
       if (hidden != null) 'hidden': hidden,
+      if (parentId != null) 'parentId': parentId,
     });
   }
 
@@ -691,6 +737,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     Value<int?>? sourceFdcId,
     Value<String?>? sourceBarcode,
     Value<bool>? hidden,
+    Value<int?>? parentId,
   }) {
     return FoodsCompanion(
       id: id ?? this.id,
@@ -706,6 +753,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
       sourceFdcId: sourceFdcId ?? this.sourceFdcId,
       sourceBarcode: sourceBarcode ?? this.sourceBarcode,
       hidden: hidden ?? this.hidden,
+      parentId: parentId ?? this.parentId,
     );
   }
 
@@ -751,6 +799,9 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     if (hidden.present) {
       map['hidden'] = Variable<bool>(hidden.value);
     }
+    if (parentId.present) {
+      map['parentId'] = Variable<int>(parentId.value);
+    }
     return map;
   }
 
@@ -769,7 +820,8 @@ class FoodsCompanion extends UpdateCompanion<Food> {
           ..write('fiberPerGram: $fiberPerGram, ')
           ..write('sourceFdcId: $sourceFdcId, ')
           ..write('sourceBarcode: $sourceBarcode, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('parentId: $parentId')
           ..write(')'))
         .toString();
   }
@@ -1148,6 +1200,7 @@ typedef $$FoodsTableCreateCompanionBuilder =
       Value<int?> sourceFdcId,
       Value<String?> sourceBarcode,
       Value<bool> hidden,
+      Value<int?> parentId,
     });
 typedef $$FoodsTableUpdateCompanionBuilder =
     FoodsCompanion Function({
@@ -1164,11 +1217,29 @@ typedef $$FoodsTableUpdateCompanionBuilder =
       Value<int?> sourceFdcId,
       Value<String?> sourceBarcode,
       Value<bool> hidden,
+      Value<int?> parentId,
     });
 
 final class $$FoodsTableReferences
     extends BaseReferences<_$ReferenceDatabase, $FoodsTable, Food> {
   $$FoodsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $FoodsTable _parentIdTable(_$ReferenceDatabase db) => db.foods
+      .createAlias($_aliasNameGenerator(db.foods.parentId, db.foods.id));
+
+  $$FoodsTableProcessedTableManager? get parentId {
+    final $_column = $_itemColumn<int>('parentId');
+    if ($_column == null) return null;
+    final manager = $$FoodsTableTableManager(
+      $_db,
+      $_db.foods,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_parentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static MultiTypedResultKey<$FoodPortionsTable, List<FoodPortion>>
   _foodPortionsRefsTable(_$ReferenceDatabase db) =>
@@ -1263,6 +1334,29 @@ class $$FoodsTableFilterComposer
     column: $table.hidden,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$FoodsTableFilterComposer get parentId {
+    final $$FoodsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.foods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FoodsTableFilterComposer(
+            $db: $db,
+            $table: $db.foods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<bool> foodPortionsRefs(
     Expression<bool> Function($$FoodPortionsTableFilterComposer f) f,
@@ -1363,6 +1457,29 @@ class $$FoodsTableOrderingComposer
     column: $table.hidden,
     builder: (column) => ColumnOrderings(column),
   );
+
+  $$FoodsTableOrderingComposer get parentId {
+    final $$FoodsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.foods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FoodsTableOrderingComposer(
+            $db: $db,
+            $table: $db.foods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$FoodsTableAnnotationComposer
@@ -1427,6 +1544,29 @@ class $$FoodsTableAnnotationComposer
   GeneratedColumn<bool> get hidden =>
       $composableBuilder(column: $table.hidden, builder: (column) => column);
 
+  $$FoodsTableAnnotationComposer get parentId {
+    final $$FoodsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.foods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FoodsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.foods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> foodPortionsRefs<T extends Object>(
     Expression<T> Function($$FoodPortionsTableAnnotationComposer a) f,
   ) {
@@ -1466,7 +1606,7 @@ class $$FoodsTableTableManager
           $$FoodsTableUpdateCompanionBuilder,
           (Food, $$FoodsTableReferences),
           Food,
-          PrefetchHooks Function({bool foodPortionsRefs})
+          PrefetchHooks Function({bool parentId, bool foodPortionsRefs})
         > {
   $$FoodsTableTableManager(_$ReferenceDatabase db, $FoodsTable table)
     : super(
@@ -1494,6 +1634,7 @@ class $$FoodsTableTableManager
                 Value<int?> sourceFdcId = const Value.absent(),
                 Value<String?> sourceBarcode = const Value.absent(),
                 Value<bool> hidden = const Value.absent(),
+                Value<int?> parentId = const Value.absent(),
               }) => FoodsCompanion(
                 id: id,
                 name: name,
@@ -1508,6 +1649,7 @@ class $$FoodsTableTableManager
                 sourceFdcId: sourceFdcId,
                 sourceBarcode: sourceBarcode,
                 hidden: hidden,
+                parentId: parentId,
               ),
           createCompanionCallback:
               ({
@@ -1524,6 +1666,7 @@ class $$FoodsTableTableManager
                 Value<int?> sourceFdcId = const Value.absent(),
                 Value<String?> sourceBarcode = const Value.absent(),
                 Value<bool> hidden = const Value.absent(),
+                Value<int?> parentId = const Value.absent(),
               }) => FoodsCompanion.insert(
                 id: id,
                 name: name,
@@ -1538,6 +1681,7 @@ class $$FoodsTableTableManager
                 sourceFdcId: sourceFdcId,
                 sourceBarcode: sourceBarcode,
                 hidden: hidden,
+                parentId: parentId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -1545,31 +1689,72 @@ class $$FoodsTableTableManager
                     (e.readTable(table), $$FoodsTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({foodPortionsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (foodPortionsRefs) db.foodPortions],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (foodPortionsRefs)
-                    await $_getPrefetchedData<Food, $FoodsTable, FoodPortion>(
-                      currentTable: table,
-                      referencedTable: $$FoodsTableReferences
-                          ._foodPortionsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$FoodsTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).foodPortionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.foodId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({parentId = false, foodPortionsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (foodPortionsRefs) db.foodPortions,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (parentId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.parentId,
+                                    referencedTable: $$FoodsTableReferences
+                                        ._parentIdTable(db),
+                                    referencedColumn: $$FoodsTableReferences
+                                        ._parentIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (foodPortionsRefs)
+                        await $_getPrefetchedData<
+                          Food,
+                          $FoodsTable,
+                          FoodPortion
+                        >(
+                          currentTable: table,
+                          referencedTable: $$FoodsTableReferences
+                              ._foodPortionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$FoodsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).foodPortionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.foodId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -1586,7 +1771,7 @@ typedef $$FoodsTableProcessedTableManager =
       $$FoodsTableUpdateCompanionBuilder,
       (Food, $$FoodsTableReferences),
       Food,
-      PrefetchHooks Function({bool foodPortionsRefs})
+      PrefetchHooks Function({bool parentId, bool foodPortionsRefs})
     >;
 typedef $$FoodPortionsTableCreateCompanionBuilder =
     FoodPortionsCompanion Function({

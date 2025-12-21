@@ -15,6 +15,8 @@ class Foods extends Table {
   TextColumn get sourceBarcode => text().named('sourceBarcode').nullable()();
   BoolColumn get hidden =>
       boolean().named('hidden').withDefault(const Constant(false))();
+  IntColumn get parentId =>
+      integer().named('parentId').nullable().references(Foods, #id)();
 }
 
 @DataClassName('FoodPortion')
@@ -30,10 +32,31 @@ class FoodPortions extends Table {
 class Recipes extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
-  RealColumn get servingsCreated => real()();
+  RealColumn get servingsCreated => real().withDefault(const Constant(1.0))();
   RealColumn get finalWeightGrams => real().nullable()();
+  TextColumn get portionName => text().withDefault(const Constant('portion'))();
   TextColumn get notes => text().nullable()();
+  BoolColumn get isTemplate =>
+      boolean().withDefault(const Constant(false))(); // "Decompose Only" mode
   BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+  IntColumn get parentId => integer().nullable().references(Recipes, #id)();
+  IntColumn get createdTimestamp => integer()();
+}
+
+@DataClassName('Category')
+class Categories extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().customConstraint('UNIQUE')();
+}
+
+class RecipeCategoryLinks extends Table {
+  IntColumn get recipeId => integer().references(Recipes, #id)();
+  IntColumn get categoryId => integer().references(Categories, #id)();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {recipeId, categoryId},
+  ];
 }
 
 @DataClassName('RecipeItem')

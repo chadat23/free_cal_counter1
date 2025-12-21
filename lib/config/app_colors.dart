@@ -8,4 +8,10 @@ class AppColors {
   static const Color searchResultGood = Color.fromARGB(255, 43, 0, 0);
   static const Color searchResultBetter = Color.fromARGB(255, 0, 0, 26);
   static const Color searchResultBest = Color.fromARGB(255, 0, 31, 0);
+  static const Color searchResultRecipe = Color.fromARGB(
+    255,
+    43,
+    40,
+    0,
+  ); // Gold/Yellowish for recipes
 }

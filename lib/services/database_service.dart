@@ -4,6 +4,9 @@ import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
 import 'package:free_cal_counter1/models/food_portion.dart' as model;
 import 'package:free_cal_counter1/models/logged_food.dart' as model;
+import 'package:free_cal_counter1/models/recipe.dart' as model;
+import 'package:free_cal_counter1/models/recipe_item.dart' as model;
+import 'package:free_cal_counter1/models/category.dart' as model;
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
 import 'package:free_cal_counter1/services/reference_database.dart'
@@ -411,5 +414,175 @@ class DatabaseService {
         fiberPerGram: loggedFoodData.fiberPerGram,
       );
     }).toList();
+  }
+
+  Future<model.Food?> getFoodById(int id, String source) async {
+    dynamic foodData;
+    if (source == 'live') {
+      foodData = await (_liveDb.select(
+        _liveDb.foods,
+      )..where((t) => t.id.equals(id))).getSingleOrNull();
+    } else {
+      foodData = await (_referenceDb.select(
+        _referenceDb.foods,
+      )..where((t) => t.id.equals(id))).getSingleOrNull();
+    }
+    if (foodData == null) return null;
+    final servings = await getServingsForFood(id, source);
+    return _mapFoodData(foodData, servings);
+  }
+
+  Future<List<model.Recipe>> getRecipes({bool includeHidden = false}) async {
+    final query = _liveDb.select(_liveDb.recipes);
+    if (!includeHidden) {
+      query.where((t) => t.hidden.equals(false));
+    }
+    query.orderBy([
+      (t) =>
+          OrderingTerm(expression: t.createdTimestamp, mode: OrderingMode.desc),
+    ]);
+
+    final rows = await query.get();
+    final List<model.Recipe> results = [];
+    for (final row in rows) {
+      results.add(await getRecipeById(row.id));
+    }
+    return results;
+  }
+
+  Future<List<model.Recipe>> getRecipesBySearch(String query) async {
+    final searchRows = await (_liveDb.select(
+      _liveDb.recipes,
+    )..where((t) => t.name.contains(query) & t.hidden.equals(false))).get();
+
+    final List<model.Recipe> results = [];
+    for (final row in searchRows) {
+      results.add(await getRecipeById(row.id));
+    }
+    return results;
+  }
+
+  Future<model.Recipe> getRecipeById(int id) async {
+    final recipeData = await (_liveDb.select(
+      _liveDb.recipes,
+    )..where((t) => t.id.equals(id))).getSingle();
+
+    final itemsData = await (_liveDb.select(
+      _liveDb.recipeItems,
+    )..where((t) => t.recipeId.equals(id))).get();
+
+    final items = <model.RecipeItem>[];
+    for (final item in itemsData) {
+      model.Food? food;
+      model.Recipe? subRecipe;
+
+      if (item.ingredientFoodId != null) {
+        food = await getFoodById(item.ingredientFoodId!, 'live');
+      } else if (item.ingredientRecipeId != null) {
+        subRecipe = await getRecipeById(item.ingredientRecipeId!);
+      }
+
+      items.add(
+        model.RecipeItem(
+          id: item.id,
+          food: food,
+          recipe: subRecipe,
+          grams: item.grams,
+          unit: item.unit,
+        ),
+      );
+    }
+
+    final categories = await getCategoriesForRecipe(id);
+
+    return model.Recipe(
+      id: recipeData.id,
+      name: recipeData.name,
+      servingsCreated: recipeData.servingsCreated,
+      finalWeightGrams: recipeData.finalWeightGrams,
+      portionName: recipeData.portionName,
+      notes: recipeData.notes,
+      isTemplate: recipeData.isTemplate,
+      hidden: recipeData.hidden,
+      parentId: recipeData.parentId,
+      createdTimestamp: recipeData.createdTimestamp,
+      items: items,
+      categories: categories,
+    );
+  }
+
+  Future<List<model.Category>> getCategoriesForRecipe(int recipeId) async {
+    final query = _liveDb.select(_liveDb.recipeCategoryLinks).join([
+      innerJoin(
+        _liveDb.categories,
+        _liveDb.categories.id.equalsExp(_liveDb.recipeCategoryLinks.categoryId),
+      ),
+    ])..where(_liveDb.recipeCategoryLinks.recipeId.equals(recipeId));
+
+    final rows = await query.get();
+    return rows.map((row) {
+      final cat = row.readTable(_liveDb.categories);
+      return model.Category(id: cat.id, name: cat.name);
+    }).toList();
+  }
+
+  Future<int> saveRecipe(model.Recipe recipe) async {
+    return await _liveDb.transaction(() async {
+      final recipeId = await _liveDb
+          .into(_liveDb.recipes)
+          .insert(
+            RecipesCompanion.insert(
+              name: recipe.name,
+              servingsCreated: Value(recipe.servingsCreated),
+              finalWeightGrams: Value(recipe.finalWeightGrams),
+              portionName: Value(recipe.portionName),
+              notes: Value(recipe.notes),
+              isTemplate: Value(recipe.isTemplate),
+              hidden: Value(recipe.hidden),
+              parentId: Value(recipe.parentId),
+              createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+            ),
+          );
+
+      for (final item in recipe.items) {
+        await _liveDb
+            .into(_liveDb.recipeItems)
+            .insert(
+              RecipeItemsCompanion.insert(
+                recipeId: recipeId,
+                ingredientFoodId: Value(item.food?.id),
+                ingredientRecipeId: Value(item.recipe?.id),
+                grams: item.grams,
+                unit: item.unit,
+              ),
+            );
+      }
+
+      for (final category in recipe.categories) {
+        await _liveDb
+            .into(_liveDb.recipeCategoryLinks)
+            .insert(
+              RecipeCategoryLinksCompanion.insert(
+                recipeId: recipeId,
+                categoryId: category.id,
+              ),
+            );
+      }
+
+      return recipeId;
+    });
+  }
+
+  Future<List<model.Category>> getCategories() async {
+    final rows = await _liveDb.select(_liveDb.categories).get();
+    return rows
+        .map((row) => model.Category(id: row.id, name: row.name))
+        .toList();
+  }
+
+  Future<int> addCategory(String name) async {
+    return await _liveDb
+        .into(_liveDb.categories)
+        .insert(CategoriesCompanion.insert(name: name));
   }
 }

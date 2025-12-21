@@ -14,6 +14,8 @@ part 'live_database.g.dart';
     FoodPortions,
     Recipes,
     RecipeItems,
+    Categories,
+    RecipeCategoryLinks,
     LoggedFoods,
     LoggedFoodServings,
     LoggedPortions,

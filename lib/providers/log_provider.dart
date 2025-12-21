@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food_portion.dart';
-import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/food_portion.dart' as model;
+import 'package:free_cal_counter1/models/logged_food.dart' as model;
+import 'package:free_cal_counter1/models/recipe.dart' as model;
 import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 
@@ -24,8 +25,8 @@ class LogProvider extends ChangeNotifier {
   double _dailyTargetCarbs = 250.0;
   double _dailyTargetFiber = 30.0;
 
-  final List<FoodPortion> _logQueue = [];
-  List<LoggedFood> _loggedFoods = [];
+  final List<model.FoodPortion> _logQueue = [];
+  List<model.LoggedFood> _loggedFoods = [];
 
   // Getters
   double get loggedCalories => _loggedCalories;
@@ -47,17 +48,50 @@ class LogProvider extends ChangeNotifier {
   double get dailyTargetCarbs => _dailyTargetCarbs;
   double get dailyTargetFiber => _dailyTargetFiber;
 
-  List<FoodPortion> get logQueue => _logQueue;
-  List<LoggedFood> get loggedFoods => _loggedFoods;
+  List<model.FoodPortion> get logQueue => _logQueue;
+  List<model.LoggedFood> get loggedFoods => _loggedFoods;
 
   // Queue Operations
-  void addFoodToQueue(FoodPortion serving) {
+  void addFoodToQueue(model.FoodPortion serving) {
     _logQueue.add(serving);
     _recalculateQueuedMacros();
     notifyListeners();
   }
 
-  void updateFoodInQueue(int index, FoodPortion newPortion) {
+  void addRecipeToQueue(model.Recipe recipe, {double quantity = 1.0}) {
+    if (recipe.isTemplate) {
+      // Decompose: Add all items recursively
+      for (final item in recipe.items) {
+        if (item.isFood) {
+          addFoodToQueue(
+            model.FoodPortion(
+              food: item.food!,
+              grams: item.grams * quantity,
+              unit: item.unit,
+            ),
+          );
+        } else if (item.isRecipe) {
+          // Recursive decomposition
+          addRecipeToQueue(
+            item.recipe!,
+            quantity: (item.grams / item.recipe!.gramsPerPortion) * quantity,
+          );
+        }
+      }
+    } else {
+      // Not a template: Add as a single item (frozen)
+      final food = recipe.toFood();
+      addFoodToQueue(
+        model.FoodPortion(
+          food: food,
+          grams: recipe.gramsPerPortion * quantity,
+          unit: recipe.portionName,
+        ),
+      );
+    }
+  }
+
+  void updateFoodInQueue(int index, model.FoodPortion newPortion) {
     if (index >= 0 && index < _logQueue.length) {
       _logQueue[index] = newPortion;
       _recalculateQueuedMacros();
@@ -65,7 +99,7 @@ class LogProvider extends ChangeNotifier {
     }
   }
 
-  void removeFoodFromQueue(FoodPortion serving) {
+  void removeFoodFromQueue(model.FoodPortion serving) {
     _logQueue.remove(serving);
     _recalculateQueuedMacros();
     notifyListeners();
@@ -94,7 +128,7 @@ class LogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteLoggedFood(LoggedFood food) async {
+  Future<void> deleteLoggedFood(model.LoggedFood food) async {
     if (food.id == null) return;
 
     await DatabaseService.instance.deleteLoggedPortion(food.id!);

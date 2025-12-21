@@ -74,6 +74,8 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
         return AppColors.searchResultGood;
       case 'off':
         return AppColors.searchResultBest;
+      case 'recipe':
+        return AppColors.searchResultRecipe;
       default:
         return Theme.of(context).canvasColor; // Use default theme color
     }

@@ -64,8 +64,17 @@ class FoodSearchService {
     if (query.isEmpty) {
       return [];
     }
+
+    // Search both foods and recipes
     final localResults = await databaseService.searchFoodsByName(query);
-    final resultsWithEmoji = localResults
+    final recipeResults = await databaseService.getRecipesBySearch(query);
+
+    final combinedResults = [
+      ...localResults,
+      ...recipeResults.map((r) => r.toFood()),
+    ];
+
+    final resultsWithEmoji = combinedResults
         .map((food) => food.copyWith(emoji: emojiForFoodName(food.name)))
         .toList();
     return _applyFuzzyMatching(query, resultsWithEmoji);

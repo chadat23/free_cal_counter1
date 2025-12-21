@@ -33,9 +33,9 @@ void main() {
 
     await tester.pumpWidget(createTestWidget());
 
-    expect(find.text('Text'), findsOneWidget);
-    expect(find.text('Scan'), findsOneWidget);
-    expect(find.text('Recipe'), findsOneWidget);
+    expect(find.byIcon(Icons.search), findsOneWidget);
+    expect(find.byIcon(Icons.qr_code_scanner), findsOneWidget);
+    expect(find.byIcon(Icons.restaurant_menu), findsOneWidget);
   });
 
   testWidgets('clicking a tab calls setSearchMode', (tester) async {
@@ -43,10 +43,10 @@ void main() {
 
     await tester.pumpWidget(createTestWidget());
 
-    await tester.tap(find.text('Scan'));
+    await tester.tap(find.byIcon(Icons.qr_code_scanner));
     verify(mockProvider.setSearchMode(SearchMode.scan)).called(1);
 
-    await tester.tap(find.text('Recipe'));
+    await tester.tap(find.byIcon(Icons.restaurant_menu));
     verify(mockProvider.setSearchMode(SearchMode.recipe)).called(1);
   });
 }

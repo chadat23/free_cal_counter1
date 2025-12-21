@@ -11,29 +11,26 @@ class SearchModeTabs extends StatelessWidget {
     return Consumer<FoodSearchProvider>(
       builder: (context, provider, child) {
         return Container(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          decoration: BoxDecoration(
+            color: const Color(
+              0xFF2D2D2D,
+            ), // Use smallWidgetBackground type color
+            borderRadius: BorderRadius.circular(12.0),
+          ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildTab(
-                context,
-                provider,
-                SearchMode.text,
-                'Text',
-                Icons.search,
-              ),
+              _buildTab(context, provider, SearchMode.text, Icons.search),
               _buildTab(
                 context,
                 provider,
                 SearchMode.scan,
-                'Scan',
                 Icons.qr_code_scanner,
               ),
               _buildTab(
                 context,
                 provider,
                 SearchMode.recipe,
-                'Recipe',
                 Icons.restaurant_menu,
               ),
             ],
@@ -47,34 +44,27 @@ class SearchModeTabs extends StatelessWidget {
     BuildContext context,
     FoodSearchProvider provider,
     SearchMode mode,
-    String label,
     IconData icon,
   ) {
     final isSelected = provider.searchMode == mode;
-    final color = isSelected ? Theme.of(context).primaryColor : Colors.grey;
 
-    return GestureDetector(
-      onTap: () => provider.setSearchMode(mode),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => provider.setSearchMode(mode),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12.0),
           ),
-          if (isSelected)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              height: 2,
-              width: 20,
-              color: color,
-            ),
-        ],
+          child: Icon(
+            icon,
+            color: isSelected ? Colors.white : Colors.grey,
+            size: 24,
+          ),
+        ),
       ),
     );
   }

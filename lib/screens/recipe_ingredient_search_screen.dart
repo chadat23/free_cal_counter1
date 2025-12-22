@@ -4,9 +4,10 @@ import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/search/search_mode_tabs.dart';
 import 'package:free_cal_counter1/models/recipe_item.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/screens/ingredient_edit_screen.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
+import 'package:free_cal_counter1/providers/recipe_provider.dart';
 
 class RecipeIngredientSearchScreen extends StatefulWidget {
   const RecipeIngredientSearchScreen({super.key});
@@ -90,8 +91,18 @@ class _RecipeIngredientSearchScreenState
             final portion = await Navigator.push<FoodPortion>(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    PortionEditScreen(food: food, initialUnit: selectedUnit),
+                builder: (context) {
+                  // Get existing RecipeProvider from context
+                  final recipeProvider = Provider.of<RecipeProvider>(
+                    context,
+                    listen: false,
+                  );
+                  return IngredientEditScreen(
+                    food: food,
+                    initialUnit: selectedUnit,
+                    recipeProvider: recipeProvider,
+                  );
+                },
               ),
             );
 

@@ -10,7 +10,7 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
 import 'package:free_cal_counter1/widgets/slidable_recipe_item_widget.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/screens/ingredient_edit_screen.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -168,47 +168,47 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
           ),
           onChanged: provider.setName,
         ),
-      Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _portionsController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Portions'),
-              onChanged: (val) {
-                final d = double.tryParse(val);
-                if (d != null) provider.setServingsCreated(d);
-              },
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: TextField(
-              controller: _weightController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Final Weight (g)',
-                hintText: 'Optional',
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _portionsController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Portions'),
+                onChanged: (val) {
+                  final d = double.tryParse(val);
+                  if (d != null) provider.setServingsCreated(d);
+                },
               ),
-              onChanged: (val) {
-                final d = double.tryParse(val);
-                provider.setFinalWeightGrams(d);
-              },
             ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      SwitchListTile(
-        title: const Text('Is Template (Decompose into log)'),
-        subtitle: const Text('When logged, add ingredients individually'),
-        value: provider.isTemplate,
-        onChanged: provider.setIsTemplate,
-        contentPadding: EdgeInsets.zero,
-      ),
-    ],
-  );
-}
+            const SizedBox(width: 16),
+            Expanded(
+              child: TextField(
+                controller: _weightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Final Weight (g)',
+                  hintText: 'Optional',
+                ),
+                onChanged: (val) {
+                  final d = double.tryParse(val);
+                  provider.setFinalWeightGrams(d);
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          title: const Text('Is Template (Decompose into log)'),
+          subtitle: const Text('When logged, add ingredients individually'),
+          value: provider.isTemplate,
+          onChanged: provider.setIsTemplate,
+          contentPadding: EdgeInsets.zero,
+        ),
+      ],
+    );
+  }
 
   Widget _buildMacroSummary(RecipeProvider provider) {
     return Container(
@@ -309,14 +309,19 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
               orElse: () => food.servings.first,
             );
 
-            // Navigate to PortionEditScreen
+            // Navigate to IngredientEditScreen
             final updatedPortion = await Navigator.push<FoodPortion>(
               context,
               MaterialPageRoute(
-                builder: (context) => PortionEditScreen(
+                builder: (context) => IngredientEditScreen(
                   food: food,
                   initialUnit: serving,
                   initialQuantity: serving.quantityFromGrams(item.grams),
+                  recipeProvider: provider,
+                  onUpdate: (updated) {
+                    // We don't need to do anything here because the updated object is returned
+                    // But IngredientEditScreen expects this callback to know it is in "update" mode for macro calculation
+                  },
                 ),
               ),
             );

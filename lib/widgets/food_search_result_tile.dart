@@ -12,11 +12,13 @@ import 'package:provider/provider.dart';
 class FoodSearchResultTile extends StatefulWidget {
   final Food food;
   final void Function(model_unit.FoodServing) onTap;
+  final void Function(model_unit.FoodServing)? onAdd;
 
   const FoodSearchResultTile({
     super.key,
     required this.food,
     required this.onTap,
+    this.onAdd,
   });
 
   @override
@@ -137,13 +139,20 @@ class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
       trailing: IconButton(
         icon: const Icon(Icons.add),
         onPressed: () {
-          final logProvider = Provider.of<LogProvider>(context, listen: false);
-          final serving = FoodPortion(
-            food: widget.food,
-            grams: _selectedUnit.grams,
-            unit: _selectedUnit.unit,
-          );
-          logProvider.addFoodToQueue(serving);
+          if (widget.onAdd != null) {
+            widget.onAdd!(_selectedUnit);
+          } else {
+            final logProvider = Provider.of<LogProvider>(
+              context,
+              listen: false,
+            );
+            final serving = FoodPortion(
+              food: widget.food,
+              grams: _selectedUnit.grams,
+              unit: _selectedUnit.unit,
+            );
+            logProvider.addFoodToQueue(serving);
+          }
         },
       ),
       onTap: () => widget.onTap(_selectedUnit),

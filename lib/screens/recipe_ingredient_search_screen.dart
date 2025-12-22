@@ -75,6 +75,15 @@ class _RecipeIngredientSearchScreenState
         final food = provider.searchResults[index];
         return FoodSearchResultTile(
           food: food,
+          onAdd: (selectedUnit) {
+            final item = RecipeItem(
+              id: 0,
+              food: food,
+              grams: selectedUnit.grams,
+              unit: selectedUnit.unit,
+            );
+            Navigator.pop(context, item);
+          },
           onTap: (selectedUnit) {
             Navigator.push(
               context,

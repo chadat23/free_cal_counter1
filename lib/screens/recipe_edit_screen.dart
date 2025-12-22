@@ -9,6 +9,11 @@ import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
+import 'package:free_cal_counter1/widgets/slidable_recipe_item_widget.dart';
+import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
+import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 
 class RecipeEditScreen extends StatefulWidget {
@@ -58,8 +63,10 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
               IconButton(
                 icon: const Icon(Icons.check),
                 onPressed: () async {
+                  final navigator = Navigator.of(context);
                   await provider.saveRecipe();
-                  if (mounted) Navigator.pop(context);
+                  if (!mounted) return;
+                  navigator.pop();
                 },
               ),
             ],
@@ -264,15 +271,43 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
       itemCount: provider.items.length,
       itemBuilder: (context, index) {
         final item = provider.items[index];
-        return ListTile(
-          title: Text(item.name),
-          subtitle: Text('${item.grams.toStringAsFixed(1)} ${item.unit}'),
-          trailing: IconButton(
-            icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-            onPressed: () => provider.removeItem(index),
-          ),
-          onTap: () {
-            // Edit item
+        return SlidableRecipeItemWidget(
+          item: item,
+          onDelete: () => provider.removeItem(index),
+          onEdit: () async {
+            // Determine food object (either food itself or converted recipe)
+            final Food food = item.isFood ? item.food! : item.recipe!.toFood();
+
+            // Find best matching serving
+            final model_unit.FoodServing serving = food.servings.firstWhere(
+              (s) => s.unit == item.unit,
+              orElse: () => food.servings.first,
+            );
+
+            // Navigate to PortionEditScreen
+            final updatedPortion = await Navigator.push<FoodPortion>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PortionEditScreen(
+                  food: food,
+                  initialUnit: serving,
+                  initialQuantity: serving.quantityFromGrams(item.grams),
+                  onUpdate: (p) => Navigator.pop(context, p),
+                ),
+              ),
+            );
+
+            if (updatedPortion != null && mounted) {
+              // Convert FoodPortion back to RecipeItem
+              final newItem = RecipeItem(
+                id: item.id,
+                food: item.isFood ? updatedPortion.food : null,
+                recipe: item.isRecipe ? item.recipe : null,
+                grams: updatedPortion.grams,
+                unit: updatedPortion.unit,
+              );
+              provider.updateItem(index, newItem);
+            }
           },
         );
       },

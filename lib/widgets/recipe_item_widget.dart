@@ -1,0 +1,46 @@
+import 'package:flutter/material.dart';
+import 'package:free_cal_counter1/models/recipe_item.dart';
+
+class RecipeItemWidget extends StatelessWidget {
+  final RecipeItem item;
+  final VoidCallback? onEdit;
+
+  const RecipeItemWidget({super.key, required this.item, this.onEdit});
+
+  @override
+  Widget build(BuildContext context) {
+    final calories = item.calories * item.grams;
+    final protein = item.protein * item.grams;
+    final fat = item.fat * item.grams;
+    final carbs = item.carbs * item.grams;
+    final fiber = item.fiber * item.grams;
+
+    return ListTile(
+      leading: const SizedBox(
+        width: 40,
+        height: 40,
+        child: Center(
+          child: Icon(Icons.restaurant_menu, size: 24, color: Colors.grey),
+        ),
+      ),
+      title: Text(item.name),
+      subtitle: Text(
+        '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C • ${fiber.toStringAsFixed(1)}Fb',
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${item.grams.toStringAsFixed(1)}g', // Currently RecipeItem only stores grams natively
+          ),
+          const SizedBox(width: 8),
+          if (onEdit != null)
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: onEdit,
+            ),
+        ],
+      ),
+    );
+  }
+}

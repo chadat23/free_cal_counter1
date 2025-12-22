@@ -10,7 +10,7 @@ import 'package:free_cal_counter1/models/category.dart' as model;
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
 import 'package:free_cal_counter1/services/reference_database.dart'
-    hide FoodPortion, FoodsCompanion;
+    hide FoodPortion, FoodsCompanion, FoodPortionsCompanion;
 
 class DatabaseService {
   late LiveDatabase _liveDb;
@@ -545,13 +545,24 @@ class DatabaseService {
           );
 
       for (final item in recipe.items) {
+        int? foodId;
+        int? subRecipeId;
+
+        if (item.food != null) {
+          final persistedFood = await ensureFoodExists(item.food!);
+          foodId = persistedFood.id;
+        } else if (item.recipe != null) {
+          // Nested recipes must already be saved
+          subRecipeId = item.recipe!.id;
+        }
+
         await _liveDb
             .into(_liveDb.recipeItems)
             .insert(
               RecipeItemsCompanion.insert(
                 recipeId: recipeId,
-                ingredientFoodId: Value(item.food?.id),
-                ingredientRecipeId: Value(item.recipe?.id),
+                ingredientFoodId: Value(foodId),
+                ingredientRecipeId: Value(subRecipeId),
                 grams: item.grams,
                 unit: item.unit,
               ),
@@ -584,5 +595,61 @@ class DatabaseService {
     return await _liveDb
         .into(_liveDb.categories)
         .insert(CategoriesCompanion.insert(name: name));
+  }
+
+  Future<model.Food> ensureFoodExists(model.Food food) async {
+    // If it's already in the live database, return it
+    if (food.source == 'live') {
+      return food;
+    }
+
+    // Otherwise, check if we've already copied it (by name and macros, or barcode)
+    final existingQuery = _liveDb.select(_liveDb.foods)
+      ..where((t) => t.name.equals(food.name))
+      ..where((t) => t.caloriesPerGram.equals(food.calories))
+      ..where((t) => t.proteinPerGram.equals(food.protein));
+
+    final existing = await existingQuery.getSingleOrNull();
+    if (existing != null) {
+      final servings = await getServingsForFood(existing.id, 'live');
+      return _mapFoodData(existing, servings);
+    }
+
+    // If not, save it to the live database
+    return await _liveDb.transaction(() async {
+      final foodId = await _liveDb
+          .into(_liveDb.foods)
+          .insert(
+            FoodsCompanion.insert(
+              name: food.name,
+              source: 'live',
+              caloriesPerGram: food.calories,
+              proteinPerGram: food.protein,
+              fatPerGram: food.fat,
+              carbsPerGram: food.carbs,
+              fiberPerGram: food.fiber,
+            ),
+          );
+
+      // Save servings
+      for (final serving in food.servings) {
+        await _liveDb
+            .into(_liveDb.foodPortions)
+            .insert(
+              FoodPortionsCompanion.insert(
+                foodId: foodId,
+                unit: serving.unit,
+                grams: serving.grams,
+                quantity: serving.quantity,
+              ),
+            );
+      }
+
+      final servings = await getServingsForFood(foodId, 'live');
+      final newFoodRow = await (_liveDb.select(
+        _liveDb.foods,
+      )..where((t) => t.id.equals(foodId))).getSingle();
+      return _mapFoodData(newFoodRow, servings);
+    });
   }
 }

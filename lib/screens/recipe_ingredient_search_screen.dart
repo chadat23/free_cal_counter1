@@ -5,6 +5,7 @@ import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/search/search_mode_tabs.dart';
 import 'package:free_cal_counter1/models/recipe_item.dart';
 import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
 
 class RecipeIngredientSearchScreen extends StatefulWidget {
@@ -84,34 +85,25 @@ class _RecipeIngredientSearchScreenState
             );
             Navigator.pop(context, item);
           },
-          onTap: (selectedUnit) {
-            Navigator.push(
+          onTap: (selectedUnit) async {
+            final navigator = Navigator.of(context);
+            final portion = await Navigator.push<FoodPortion>(
               context,
               MaterialPageRoute(
-                builder: (context) => PortionEditScreen(
-                  food: food,
-                  initialUnit: selectedUnit,
-                  onUpdate: (portion) {
-                    // Convert FoodPortion to RecipeItem
-                    // Since we don't have the full Recipe model here for 'recipe' foods easily,
-                    // we might need to handle this carefully if it's a recipe.
-                    // But for now, RecipeItem can take a Food object (which we have).
-
-                    final item = RecipeItem(
-                      id: 0,
-                      food: portion.food,
-                      grams: portion.grams,
-                      unit: portion.unit,
-                    );
-                    Navigator.pop(context); // Pop PortionEditScreen
-                    Navigator.pop(
-                      context,
-                      item,
-                    ); // Pop SearchScreen with result
-                  },
-                ),
+                builder: (context) =>
+                    PortionEditScreen(food: food, initialUnit: selectedUnit),
               ),
             );
+
+            if (portion != null && mounted) {
+              final item = RecipeItem(
+                id: 0,
+                food: portion.food,
+                grams: portion.grams,
+                unit: portion.unit,
+              );
+              navigator.pop(item);
+            }
           },
         );
       },

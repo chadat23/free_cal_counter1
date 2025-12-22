@@ -90,4 +90,16 @@ class FoodSearchService {
         .toList();
     return _applyFuzzyMatching(query, resultsWithEmoji);
   }
+
+  Future<List<model.Food>> getAllRecipesAsFoods() async {
+    final recipes = await databaseService.getRecipes();
+
+    // Map recipes to foods
+    final resultsWithEmoji = recipes.map((r) {
+      final food = r.toFood();
+      return food.copyWith(emoji: emojiForFoodName(food.name));
+    }).toList();
+
+    return resultsWithEmoji;
+  }
 }

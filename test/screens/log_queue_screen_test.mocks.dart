@@ -187,6 +187,14 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i6.Future<List<_i3.Recipe>>);
 
   @override
+  _i6.Future<List<_i3.Recipe>> getRecipesBySearch(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#getRecipesBySearch, [query]),
+            returnValue: _i6.Future<List<_i3.Recipe>>.value(<_i3.Recipe>[]),
+          )
+          as _i6.Future<List<_i3.Recipe>>);
+
+  @override
   _i6.Future<_i3.Recipe> getRecipeById(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#getRecipeById, [id]),
@@ -231,6 +239,16 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
             returnValue: _i6.Future<int>.value(0),
           )
           as _i6.Future<int>);
+
+  @override
+  _i6.Future<_i2.Food> ensureFoodExists(_i2.Food? food) =>
+      (super.noSuchMethod(
+            Invocation.method(#ensureFoodExists, [food]),
+            returnValue: _i6.Future<_i2.Food>.value(
+              _FakeFood_0(this, Invocation.method(#ensureFoodExists, [food])),
+            ),
+          )
+          as _i6.Future<_i2.Food>);
 }
 
 /// A class which mocks [OffApiService].
@@ -311,6 +329,14 @@ class MockFoodSearchService extends _i1.Mock implements _i12.FoodSearchService {
   _i6.Future<List<_i2.Food>> searchOff(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#searchOff, [query]),
+            returnValue: _i6.Future<List<_i2.Food>>.value(<_i2.Food>[]),
+          )
+          as _i6.Future<List<_i2.Food>>);
+
+  @override
+  _i6.Future<List<_i2.Food>> getAllRecipesAsFoods() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllRecipesAsFoods, []),
             returnValue: _i6.Future<List<_i2.Food>>.value(<_i2.Food>[]),
           )
           as _i6.Future<List<_i2.Food>>);

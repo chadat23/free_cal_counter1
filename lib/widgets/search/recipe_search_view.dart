@@ -3,11 +3,26 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
 import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/providers/recipe_provider.dart';
 
 import 'package:free_cal_counter1/config/app_router.dart';
 
-class RecipeSearchView extends StatelessWidget {
+class RecipeSearchView extends StatefulWidget {
   const RecipeSearchView({super.key});
+
+  @override
+  State<RecipeSearchView> createState() => _RecipeSearchViewState();
+}
+
+class _RecipeSearchViewState extends State<RecipeSearchView> {
+  @override
+  void initState() {
+    super.initState();
+    // Trigger initial search to show all recipes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FoodSearchProvider>(context, listen: false).textSearch('');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +33,19 @@ class RecipeSearchView extends StatelessWidget {
           child: ElevatedButton.icon(
             icon: const Icon(Icons.add),
             label: const Text('Create New Recipe'),
-            onPressed: () {
-              Navigator.pushNamed(context, AppRouter.recipeEditRoute);
+            onPressed: () async {
+              Provider.of<RecipeProvider>(context, listen: false).reset();
+              final saved = await Navigator.pushNamed(
+                context,
+                AppRouter.recipeEditRoute,
+              );
+              if (saved == true && context.mounted) {
+                // Refresh the search list by searching for current query again
+                Provider.of<FoodSearchProvider>(
+                  context,
+                  listen: false,
+                ).textSearch('');
+              }
             },
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),

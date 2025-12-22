@@ -57,6 +57,74 @@ void main() {
       verifyNever(mockFoodSearchService.searchOff(any));
     });
 
+    test(
+      'should call getAllRecipesAsFoods when query is empty and mode is recipe',
+      () async {
+        // Arrange
+        final mockRecipes = [
+          model.Food(
+            id: 2,
+            name: 'Lasagna',
+            emoji: '',
+            calories: 300,
+            protein: 20,
+            fat: 15,
+            carbs: 30,
+            fiber: 2,
+            source: 'recipe',
+          ),
+        ];
+
+        when(
+          mockFoodSearchService.getAllRecipesAsFoods(),
+        ).thenAnswer((_) async => mockRecipes);
+
+        foodSearchProvider.setSearchMode(SearchMode.recipe);
+
+        // Act
+        await foodSearchProvider.textSearch('');
+
+        // Assert
+        expect(foodSearchProvider.searchResults, mockRecipes);
+        verify(mockFoodSearchService.getAllRecipesAsFoods()).called(1);
+        verifyNever(mockFoodSearchService.searchLocal(any));
+      },
+    );
+
+    test(
+      'should NOT call getAllRecipesAsFoods when query is NOT empty and mode is recipe',
+      () async {
+        // Arrange
+        final mockRecipes = [
+          model.Food(
+            id: 2,
+            name: 'Lasagna',
+            emoji: '',
+            calories: 300,
+            protein: 20,
+            fat: 15,
+            carbs: 30,
+            fiber: 2,
+            source: 'recipe',
+          ),
+        ];
+
+        when(
+          mockFoodSearchService.searchLocal('Lasagna'),
+        ).thenAnswer((_) async => mockRecipes);
+
+        foodSearchProvider.setSearchMode(SearchMode.recipe);
+
+        // Act
+        await foodSearchProvider.textSearch('Lasagna');
+
+        // Assert
+        expect(foodSearchProvider.searchResults, mockRecipes);
+        verify(mockFoodSearchService.searchLocal('Lasagna')).called(1);
+        verifyNever(mockFoodSearchService.getAllRecipesAsFoods());
+      },
+    );
+
     test('should set errorMessage on local search error', () async {
       // Arrange
       when(

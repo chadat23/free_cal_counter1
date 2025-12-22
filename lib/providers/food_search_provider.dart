@@ -32,6 +32,8 @@ class FoodSearchProvider extends ChangeNotifier {
 
   void setSearchMode(SearchMode mode) {
     _searchMode = mode;
+    _searchResults = []; // Clear results when switching modes
+    _clearErrorMessage();
     notifyListeners();
   }
 
@@ -47,7 +49,11 @@ class FoodSearchProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _searchResults = await foodSearchService.searchLocal(query);
+      if (query.isEmpty && _searchMode == SearchMode.recipe) {
+        _searchResults = await foodSearchService.getAllRecipesAsFoods();
+      } else {
+        _searchResults = await foodSearchService.searchLocal(query);
+      }
     } catch (e) {
       _errorMessage = 'Failed to search for food: ${e.toString()}';
       _searchResults = [];

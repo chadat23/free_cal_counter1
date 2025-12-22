@@ -13,6 +13,7 @@ import 'package:free_cal_counter1/widgets/slidable_recipe_item_widget.dart';
 import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 
@@ -63,76 +64,92 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
               IconButton(
                 icon: const Icon(Icons.check),
                 onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
                   final navigator = Navigator.of(context);
-                  await provider.saveRecipe();
+                  final success = await provider.saveRecipe();
+
                   if (!mounted) return;
-                  navigator.pop();
+
+                  if (success) {
+                    navigator.pop(true);
+                  } else {
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          provider.errorMessage ?? 'Failed to save recipe.',
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
             ],
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildMetadataFields(provider),
-                const SizedBox(height: 24),
-                _buildMacroSummary(provider),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Ingredients',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle),
-                      onPressed: () async {
-                        final databaseService = DatabaseService.instance;
-                        final offApiService = OffApiService();
-                        final emojiService = emojiForFoodName;
-                        final foodSearchService = FoodSearchService(
-                          databaseService: databaseService,
-                          offApiService: offApiService,
-                          emojiForFoodName: emojiService,
-                        );
+          body: SlidableAutoCloseBehavior(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildMetadataFields(provider),
+                  const SizedBox(height: 24),
+                  _buildMacroSummary(provider),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Ingredients',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add_circle),
+                        onPressed: () async {
+                          final databaseService = DatabaseService.instance;
+                          final offApiService = OffApiService();
+                          final emojiService = emojiForFoodName;
+                          final foodSearchService = FoodSearchService(
+                            databaseService: databaseService,
+                            offApiService: offApiService,
+                            emojiForFoodName: emojiService,
+                          );
 
-                        final item = await Navigator.push<RecipeItem>(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChangeNotifierProvider(
-                              create: (_) => FoodSearchProvider(
-                                databaseService: databaseService,
-                                offApiService: offApiService,
-                                foodSearchService: foodSearchService,
+                          final item = await Navigator.push<RecipeItem>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChangeNotifierProvider(
+                                create: (_) => FoodSearchProvider(
+                                  databaseService: databaseService,
+                                  offApiService: offApiService,
+                                  foodSearchService: foodSearchService,
+                                ),
+                                child: const RecipeIngredientSearchScreen(),
                               ),
-                              child: const RecipeIngredientSearchScreen(),
                             ),
-                          ),
-                        );
+                          );
 
-                        if (item != null && mounted) {
-                          provider.addItem(item);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                const Divider(),
-                _buildIngredientList(provider),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _notesController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Notes',
-                    hintText: 'Preparation steps, cooking time...',
+                          if (item != null && mounted) {
+                            provider.addItem(item);
+                          }
+                        },
+                      ),
+                    ],
                   ),
-                  onChanged: provider.setNotes,
-                ),
-              ],
+                  const Divider(),
+                  _buildIngredientList(provider),
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: _notesController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Notes',
+                      hintText: 'Preparation steps, cooking time...',
+                    ),
+                    onChanged: provider.setNotes,
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -151,39 +168,47 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
           ),
           onChanged: provider.setName,
         ),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _portionsController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Portions'),
-                onChanged: (val) {
-                  final d = double.tryParse(val);
-                  if (d != null) provider.setServingsCreated(d);
-                },
-              ),
+      Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _portionsController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Portions'),
+              onChanged: (val) {
+                final d = double.tryParse(val);
+                if (d != null) provider.setServingsCreated(d);
+              },
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: TextField(
-                controller: _weightController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Final Weight (g)',
-                  hintText: 'Optional',
-                ),
-                onChanged: (val) {
-                  final d = double.tryParse(val);
-                  provider.setFinalWeightGrams(d);
-                },
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: TextField(
+              controller: _weightController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Final Weight (g)',
+                hintText: 'Optional',
               ),
+              onChanged: (val) {
+                final d = double.tryParse(val);
+                provider.setFinalWeightGrams(d);
+              },
             ),
-          ],
-        ),
-      ],
-    );
-  }
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      SwitchListTile(
+        title: const Text('Is Template (Decompose into log)'),
+        subtitle: const Text('When logged, add ingredients individually'),
+        value: provider.isTemplate,
+        onChanged: provider.setIsTemplate,
+        contentPadding: EdgeInsets.zero,
+      ),
+    ],
+  );
+}
 
   Widget _buildMacroSummary(RecipeProvider provider) {
     return Container(
@@ -292,7 +317,6 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                   food: food,
                   initialUnit: serving,
                   initialQuantity: serving.quantityFromGrams(item.grams),
-                  onUpdate: (p) => Navigator.pop(context, p),
                 ),
               ),
             );

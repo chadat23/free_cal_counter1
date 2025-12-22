@@ -25,7 +25,29 @@ class LiveDatabase extends _$LiveDatabase {
   LiveDatabase({required QueryExecutor connection}) : super(connection);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          // Add parentId to Foods
+          await m.addColumn(foods, foods.parentId);
+          // Create new tables
+          await m.createTable(recipes);
+          await m.createTable(recipeItems);
+          await m.createTable(categories);
+          await m.createTable(recipeCategoryLinks);
+        }
+      },
+      beforeOpen: (details) async {
+        if (details.wasCreated) {
+          // Initialize categories or other data if needed
+        }
+      },
+    );
+  }
 }
 
 QueryExecutor openLiveConnection() {

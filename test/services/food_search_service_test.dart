@@ -10,8 +10,6 @@ import 'package:free_cal_counter1/services/live_database.dart' as live_db;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:drift/native.dart';
 import 'package:drift/drift.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 
 class FakeOffApiService extends OffApiService {
   @override

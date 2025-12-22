@@ -198,6 +198,13 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
   );
 
   @override
+  void addRecipeToQueue(_i7.Recipe? recipe, {double? quantity = 1.0}) =>
+      super.noSuchMethod(
+        Invocation.method(#addRecipeToQueue, [recipe], {#quantity: quantity}),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   void updateFoodInQueue(int? index, _i9.FoodPortion? newPortion) =>
       super.noSuchMethod(
         Invocation.method(#updateFoodInQueue, [index, newPortion]),
@@ -640,6 +647,14 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i11.Future<List<_i7.Recipe>>);
 
   @override
+  _i11.Future<List<_i7.Recipe>> getRecipesBySearch(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#getRecipesBySearch, [query]),
+            returnValue: _i11.Future<List<_i7.Recipe>>.value(<_i7.Recipe>[]),
+          )
+          as _i11.Future<List<_i7.Recipe>>);
+
+  @override
   _i11.Future<_i7.Recipe> getRecipeById(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#getRecipeById, [id]),
@@ -684,4 +699,14 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
             returnValue: _i11.Future<int>.value(0),
           )
           as _i11.Future<int>);
+
+  @override
+  _i11.Future<_i6.Food> ensureFoodExists(_i6.Food? food) =>
+      (super.noSuchMethod(
+            Invocation.method(#ensureFoodExists, [food]),
+            returnValue: _i11.Future<_i6.Food>.value(
+              _FakeFood_4(this, Invocation.method(#ensureFoodExists, [food])),
+            ),
+          )
+          as _i11.Future<_i6.Food>);
 }

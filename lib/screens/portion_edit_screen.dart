@@ -294,7 +294,7 @@ class _PortionEditScreenState extends State<PortionEditScreen> {
                       );
                       logProvider.addFoodToQueue(serving);
                     }
-                    Navigator.pop(context);
+                    Navigator.pop(context, serving);
                   },
                   child: Text(widget.onUpdate != null ? 'Update' : 'Add'),
                 ),

@@ -15,6 +15,7 @@ class RecipeProvider extends ChangeNotifier {
   List<Category> _selectedCategories = [];
 
   bool _isLoading = false;
+  String? _errorMessage;
 
   // Getters
   String get name => _name;
@@ -27,6 +28,7 @@ class RecipeProvider extends ChangeNotifier {
   List<Category> get selectedCategories =>
       List.unmodifiable(_selectedCategories);
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   // Setters
   void setName(String val) {
@@ -106,8 +108,18 @@ class RecipeProvider extends ChangeNotifier {
   // ... other macros per portion if needed
 
   // Persistence
-  Future<void> saveRecipe() async {
-    if (_name.isEmpty || _items.isEmpty) return;
+  Future<bool> saveRecipe() async {
+    _errorMessage = null;
+    if (_name.isEmpty) {
+      _errorMessage = 'Please provide a name for the recipe.';
+      notifyListeners();
+      return false;
+    }
+    if (_items.isEmpty) {
+      _errorMessage = 'Please add at least one ingredient.';
+      notifyListeners();
+      return false;
+    }
 
     _isLoading = true;
     notifyListeners();
@@ -129,8 +141,11 @@ class RecipeProvider extends ChangeNotifier {
 
       await DatabaseService.instance.saveRecipe(recipe);
       reset();
+      return true;
     } catch (e) {
-      // Handle error (maybe add an errorMessage state)
+      debugPrint('Error saving recipe: $e');
+      _errorMessage = 'Technical error: ${e.toString()}';
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -146,6 +161,7 @@ class RecipeProvider extends ChangeNotifier {
     _isTemplate = false;
     _items = [];
     _selectedCategories = [];
+    _errorMessage = null;
     notifyListeners();
   }
 

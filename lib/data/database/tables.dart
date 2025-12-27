@@ -85,6 +85,7 @@ class LoggedFoods extends Table {
   RealColumn get fiberPerGram => real().named('fiberPerGram')();
   // Optional reference to the original food ID (if it still exists/is relevant)
   IntColumn get originalFoodId => integer().nullable()();
+  TextColumn get originalFoodSource => text().nullable()();
 }
 
 @DataClassName('LoggedFoodServing')

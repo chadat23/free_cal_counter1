@@ -3,11 +3,11 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i6;
+import 'dart:async' as _i7;
 import 'dart:ui' as _i8;
 
 import 'package:free_cal_counter1/models/category.dart' as _i5;
-import 'package:free_cal_counter1/models/recipe.dart' as _i7;
+import 'package:free_cal_counter1/models/recipe.dart' as _i6;
 import 'package:free_cal_counter1/models/recipe_item.dart' as _i4;
 import 'package:free_cal_counter1/providers/recipe_provider.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -35,6 +35,15 @@ class MockRecipeProvider extends _i1.Mock implements _i2.RecipeProvider {
   MockRecipeProvider() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  int get id =>
+      (super.noSuchMethod(Invocation.getter(#id), returnValue: 0) as int);
+
+  @override
+  bool get isLogged =>
+      (super.noSuchMethod(Invocation.getter(#isLogged), returnValue: false)
+          as bool);
 
   @override
   String get name =>
@@ -196,22 +205,35 @@ class MockRecipeProvider extends _i1.Mock implements _i2.RecipeProvider {
   );
 
   @override
-  _i6.Future<bool> saveRecipe() =>
-      (super.noSuchMethod(
-            Invocation.method(#saveRecipe, []),
-            returnValue: _i6.Future<bool>.value(false),
-          )
-          as _i6.Future<bool>);
+  void loadFromRecipe(_i6.Recipe? recipe, {bool? isLogged = false}) =>
+      super.noSuchMethod(
+        Invocation.method(#loadFromRecipe, [recipe], {#isLogged: isLogged}),
+        returnValueForMissingStub: null,
+      );
 
   @override
-  void reset() => super.noSuchMethod(
-    Invocation.method(#reset, []),
+  void prepareCopy(_i6.Recipe? recipe) => super.noSuchMethod(
+    Invocation.method(#prepareCopy, [recipe]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void loadFromRecipe(_i7.Recipe? recipe) => super.noSuchMethod(
-    Invocation.method(#loadFromRecipe, [recipe]),
+  void prepareVersion(_i6.Recipe? recipe) => super.noSuchMethod(
+    Invocation.method(#prepareVersion, [recipe]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i7.Future<bool> saveRecipe() =>
+      (super.noSuchMethod(
+            Invocation.method(#saveRecipe, []),
+            returnValue: _i7.Future<bool>.value(false),
+          )
+          as _i7.Future<bool>);
+
+  @override
+  void reset() => super.noSuchMethod(
+    Invocation.method(#reset, []),
     returnValueForMissingStub: null,
   );
 

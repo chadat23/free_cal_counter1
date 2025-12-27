@@ -173,14 +173,9 @@ class DatabaseService {
   }
 
   Future<void> logPortions(
-    //    List<model.FoodPortion> portions, {
-    //    DateTime? date,
     List<model.FoodPortion> portions,
     DateTime logTimestamp,
-    //}) async {
   ) async {
-    //final now = date ?? DateTime.now();
-    //final timestamp = now.millisecondsSinceEpoch;
     final timestamp = logTimestamp.millisecondsSinceEpoch;
 
     await _liveDb.transaction(() async {
@@ -188,9 +183,6 @@ class DatabaseService {
         final food = portion.food;
 
         // Check if an identical food already exists in LoggedFoods
-        // We compare name and macros.
-        // Ideally we should also compare servings, but for now name+macros is a good proxy.
-        // If the user modified the food, it should be a new entry.
         final existingLoggedFood =
             await (_liveDb.select(_liveDb.loggedFoods)
                   ..where((t) => t.name.equals(food.name))
@@ -198,7 +190,9 @@ class DatabaseService {
                   ..where((t) => t.proteinPerGram.equals(food.protein))
                   ..where((t) => t.fatPerGram.equals(food.fat))
                   ..where((t) => t.carbsPerGram.equals(food.carbs))
-                  ..where((t) => t.fiberPerGram.equals(food.fiber)))
+                  ..where((t) => t.fiberPerGram.equals(food.fiber))
+                  ..where((t) => t.originalFoodId.equals(food.id))
+                  ..where((t) => t.originalFoodSource.equals(food.source)))
                 .getSingleOrNull();
 
         int loggedFoodId;
@@ -218,6 +212,7 @@ class DatabaseService {
                   carbsPerGram: food.carbs,
                   fiberPerGram: food.fiber,
                   originalFoodId: Value(food.id),
+                  originalFoodSource: Value(food.source),
                 ),
               );
           loggedFoodId = newLoggedFood.id;
@@ -246,12 +241,34 @@ class DatabaseService {
                 logTimestamp: timestamp,
                 grams: portion.grams,
                 unit: portion.unit,
-                quantity: portion
-                    .grams, // Placeholder, we might need to calc this back if unit != 'g'
+                quantity: portion.grams, // Placeholder
               ),
             );
       }
     });
+  }
+
+  Future<bool> isRecipeLogged(int recipeId) async {
+    final rows =
+        await (_liveDb.select(_liveDb.loggedFoods)..where(
+              (t) =>
+                  t.originalFoodId.equals(recipeId) &
+                  t.originalFoodSource.equals('recipe'),
+            ))
+            .get();
+    return rows.isNotEmpty;
+  }
+
+  Future<bool> isRecipeUsedAsIngredient(int recipeId) async {
+    final rows = await (_liveDb.select(
+      _liveDb.recipeItems,
+    )..where((t) => t.ingredientRecipeId.equals(recipeId))).get();
+    return rows.isNotEmpty;
+  }
+
+  Future<void> hideRecipe(int id) async {
+    await (_liveDb.update(_liveDb.recipes)..where((t) => t.id.equals(id)))
+        .write(const RecipesCompanion(hidden: Value(true)));
   }
 
   Future<List<model.LoggedFood>> getLoggedPortionsForDate(DateTime date) async {
@@ -528,21 +545,50 @@ class DatabaseService {
 
   Future<int> saveRecipe(model.Recipe recipe) async {
     return await _liveDb.transaction(() async {
-      final recipeId = await _liveDb
-          .into(_liveDb.recipes)
-          .insert(
-            RecipesCompanion.insert(
-              name: recipe.name,
-              servingsCreated: Value(recipe.servingsCreated),
-              finalWeightGrams: Value(recipe.finalWeightGrams),
-              portionName: Value(recipe.portionName),
-              notes: Value(recipe.notes),
-              isTemplate: Value(recipe.isTemplate),
-              hidden: Value(recipe.hidden),
-              parentId: Value(recipe.parentId),
-              createdTimestamp: DateTime.now().millisecondsSinceEpoch,
-            ),
-          );
+      int recipeId;
+
+      if (recipe.id > 0) {
+        recipeId = recipe.id;
+        // Update basic info
+        await (_liveDb.update(
+          _liveDb.recipes,
+        )..where((t) => t.id.equals(recipeId))).write(
+          RecipesCompanion(
+            name: Value(recipe.name),
+            servingsCreated: Value(recipe.servingsCreated),
+            finalWeightGrams: Value(recipe.finalWeightGrams),
+            portionName: Value(recipe.portionName),
+            notes: Value(recipe.notes),
+            isTemplate: Value(recipe.isTemplate),
+            hidden: Value(recipe.hidden),
+            parentId: Value(recipe.parentId),
+          ),
+        );
+
+        // Clear associated data for re-insertion
+        await (_liveDb.delete(
+          _liveDb.recipeItems,
+        )..where((t) => t.recipeId.equals(recipeId))).go();
+        await (_liveDb.delete(
+          _liveDb.recipeCategoryLinks,
+        )..where((t) => t.recipeId.equals(recipeId))).go();
+      } else {
+        recipeId = await _liveDb
+            .into(_liveDb.recipes)
+            .insert(
+              RecipesCompanion.insert(
+                name: recipe.name,
+                servingsCreated: Value(recipe.servingsCreated),
+                finalWeightGrams: Value(recipe.finalWeightGrams),
+                portionName: Value(recipe.portionName),
+                notes: Value(recipe.notes),
+                isTemplate: Value(recipe.isTemplate),
+                hidden: Value(recipe.hidden),
+                parentId: Value(recipe.parentId),
+                createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+              ),
+            );
+      }
 
       for (final item in recipe.items) {
         int? foodId;
@@ -552,7 +598,6 @@ class DatabaseService {
           final persistedFood = await ensureFoodExists(item.food!);
           foodId = persistedFood.id;
         } else if (item.recipe != null) {
-          // Nested recipes must already be saved
           subRecipeId = item.recipe!.id;
         }
 
@@ -582,6 +627,27 @@ class DatabaseService {
 
       return recipeId;
     });
+  }
+
+  Future<void> deleteRecipe(int id) async {
+    final isLogged = await isRecipeLogged(id);
+    final isUsed = await isRecipeUsedAsIngredient(id);
+
+    if (isLogged || isUsed) {
+      await hideRecipe(id);
+    } else {
+      await _liveDb.transaction(() async {
+        await (_liveDb.delete(
+          _liveDb.recipeItems,
+        )..where((t) => t.recipeId.equals(id))).go();
+        await (_liveDb.delete(
+          _liveDb.recipeCategoryLinks,
+        )..where((t) => t.recipeId.equals(id))).go();
+        await (_liveDb.delete(
+          _liveDb.recipes,
+        )..where((t) => t.id.equals(id))).go();
+      });
+    }
   }
 
   Future<List<model.Category>> getCategories() async {

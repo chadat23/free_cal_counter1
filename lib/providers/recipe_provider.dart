@@ -5,6 +5,10 @@ import 'package:free_cal_counter1/models/category.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 
 class RecipeProvider extends ChangeNotifier {
+  int _id = 0;
+  int? _parentId;
+  bool _isLogged = false;
+
   String _name = '';
   double _servingsCreated = 1.0;
   double? _finalWeightGrams;
@@ -18,6 +22,10 @@ class RecipeProvider extends ChangeNotifier {
   String? _errorMessage;
 
   // Getters
+  int get id => _id;
+  int? get parentId => _parentId;
+  bool get isLogged => _isLogged;
+
   String get name => _name;
   double get servingsCreated => _servingsCreated;
   double? get finalWeightGrams => _finalWeightGrams;
@@ -105,7 +113,34 @@ class RecipeProvider extends ChangeNotifier {
 
   double get caloriesPerPortion =>
       servingsCreated > 0 ? totalCalories / servingsCreated : 0;
-  // ... other macros per portion if needed
+
+  void loadFromRecipe(Recipe recipe, {bool isLogged = false}) {
+    _id = recipe.id;
+    _parentId = recipe.parentId;
+    _name = recipe.name;
+    _servingsCreated = recipe.servingsCreated;
+    _finalWeightGrams = recipe.finalWeightGrams;
+    _portionName = recipe.portionName;
+    _notes = recipe.notes ?? '';
+    _isTemplate = recipe.isTemplate;
+    _items = List.from(recipe.items);
+    _selectedCategories = List.from(recipe.categories);
+    _isLogged = isLogged;
+    notifyListeners();
+  }
+
+  void prepareCopy(Recipe recipe) {
+    loadFromRecipe(recipe, isLogged: false);
+    _id = 0;
+    _parentId = null;
+    _name = '${recipe.name} - Copy';
+    notifyListeners();
+  }
+
+  void prepareVersion(Recipe recipe) {
+    loadFromRecipe(recipe, isLogged: true);
+    notifyListeners();
+  }
 
   // Persistence
   Future<bool> saveRecipe() async {
@@ -125,8 +160,19 @@ class RecipeProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final db = DatabaseService.instance;
+
+      int? targetParentId = _parentId;
+      int? originalToHide;
+
+      if (_id > 0 && _isLogged) {
+        targetParentId = _id;
+        originalToHide = _id;
+        _id = 0;
+      }
+
       final recipe = Recipe(
-        id: 0, // Database will assign
+        id: _id,
         name: _name,
         servingsCreated: _servingsCreated,
         finalWeightGrams: _finalWeightGrams,
@@ -134,12 +180,18 @@ class RecipeProvider extends ChangeNotifier {
         notes: _notes,
         isTemplate: _isTemplate,
         hidden: false,
+        parentId: targetParentId,
         createdTimestamp: DateTime.now().millisecondsSinceEpoch,
         items: _items,
         categories: _selectedCategories,
       );
 
-      await DatabaseService.instance.saveRecipe(recipe);
+      await db.saveRecipe(recipe);
+
+      if (originalToHide != null) {
+        await db.hideRecipe(originalToHide);
+      }
+
       reset();
       return true;
     } catch (e) {
@@ -153,6 +205,9 @@ class RecipeProvider extends ChangeNotifier {
   }
 
   void reset() {
+    _id = 0;
+    _parentId = null;
+    _isLogged = false;
     _name = '';
     _servingsCreated = 1.0;
     _finalWeightGrams = null;
@@ -162,18 +217,6 @@ class RecipeProvider extends ChangeNotifier {
     _items = [];
     _selectedCategories = [];
     _errorMessage = null;
-    notifyListeners();
-  }
-
-  void loadFromRecipe(Recipe recipe) {
-    _name = recipe.name;
-    _servingsCreated = recipe.servingsCreated;
-    _finalWeightGrams = recipe.finalWeightGrams;
-    _portionName = recipe.portionName;
-    _notes = recipe.notes ?? '';
-    _isTemplate = recipe.isTemplate;
-    _items = List.from(recipe.items);
-    _selectedCategories = List.from(recipe.categories);
     notifyListeners();
   }
 }

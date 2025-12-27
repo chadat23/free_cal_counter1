@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/models/recipe.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
-import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
-
+import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
+import 'package:free_cal_counter1/widgets/search/slidable_recipe_search_result.dart';
+import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 
 class RecipeSearchView extends StatefulWidget {
@@ -83,7 +87,17 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                 itemCount: recipes.length,
                 itemBuilder: (context, index) {
                   final food = recipes[index];
-                  return FoodSearchResultTile(
+                  final db = DatabaseService.instance;
+                  final recipeProvider = Provider.of<RecipeProvider>(
+                    context,
+                    listen: false,
+                  );
+                  final foodSearchProvider = Provider.of<FoodSearchProvider>(
+                    context,
+                    listen: false,
+                  );
+
+                  return SlidableRecipeSearchResult(
                     food: food,
                     onTap: (selectedUnit) {
                       Navigator.push(
@@ -95,6 +109,72 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                           ),
                         ),
                       );
+                    },
+                    onEdit: () async {
+                      final recipe = await db.getRecipeById(food.id);
+                      final isLogged = await db.isRecipeLogged(food.id);
+                      if (isLogged) {
+                        recipeProvider.prepareVersion(recipe);
+                      } else {
+                        recipeProvider.loadFromRecipe(recipe);
+                      }
+                      if (context.mounted) {
+                        final saved = await Navigator.pushNamed(
+                          context,
+                          AppRouter.recipeEditRoute,
+                        );
+                        if (saved == true) {
+                          foodSearchProvider.textSearch('');
+                        }
+                      }
+                    },
+                    onCopy: () async {
+                      final recipe = await db.getRecipeById(food.id);
+                      recipeProvider.prepareCopy(recipe);
+                      if (context.mounted) {
+                        final saved = await Navigator.pushNamed(
+                          context,
+                          AppRouter.recipeEditRoute,
+                        );
+                        if (saved == true) {
+                          foodSearchProvider.textSearch('');
+                        }
+                      }
+                    },
+                    onDelete: () async {
+                      await db.deleteRecipe(food.id);
+                      foodSearchProvider.textSearch('');
+                    },
+                    onDecompose: () async {
+                      final recipe = await db.getRecipeById(food.id);
+                      // Force decomposition by creating a template copy
+                      final templateRecipe = Recipe(
+                        id: recipe.id,
+                        name: recipe.name,
+                        servingsCreated: recipe.servingsCreated,
+                        finalWeightGrams: recipe.finalWeightGrams,
+                        portionName: recipe.portionName,
+                        notes: recipe.notes,
+                        isTemplate: true, // Force true
+                        hidden: recipe.hidden,
+                        parentId: recipe.parentId,
+                        createdTimestamp: recipe.createdTimestamp,
+                        items: recipe.items,
+                        categories: recipe.categories,
+                      );
+                      if (context.mounted) {
+                        Provider.of<LogProvider>(
+                          context,
+                          listen: false,
+                        ).addRecipeToQueue(templateRecipe);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Decomposed ${recipe.name} into Log Queue',
+                            ),
+                          ),
+                        );
+                      }
                     },
                   );
                 },

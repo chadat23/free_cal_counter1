@@ -2732,6 +2732,17 @@ class $LoggedFoodsTable extends LoggedFoods
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _originalFoodSourceMeta =
+      const VerificationMeta('originalFoodSource');
+  @override
+  late final GeneratedColumn<String> originalFoodSource =
+      GeneratedColumn<String>(
+        'original_food_source',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2742,6 +2753,7 @@ class $LoggedFoodsTable extends LoggedFoods
     carbsPerGram,
     fiberPerGram,
     originalFoodId,
+    originalFoodSource,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2827,6 +2839,15 @@ class $LoggedFoodsTable extends LoggedFoods
         ),
       );
     }
+    if (data.containsKey('original_food_source')) {
+      context.handle(
+        _originalFoodSourceMeta,
+        originalFoodSource.isAcceptableOrUnknown(
+          data['original_food_source']!,
+          _originalFoodSourceMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2868,6 +2889,10 @@ class $LoggedFoodsTable extends LoggedFoods
         DriftSqlType.int,
         data['${effectivePrefix}original_food_id'],
       ),
+      originalFoodSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_food_source'],
+      ),
     );
   }
 
@@ -2886,6 +2911,7 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
   final double carbsPerGram;
   final double fiberPerGram;
   final int? originalFoodId;
+  final String? originalFoodSource;
   const LoggedFood({
     required this.id,
     required this.name,
@@ -2895,6 +2921,7 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
     required this.carbsPerGram,
     required this.fiberPerGram,
     this.originalFoodId,
+    this.originalFoodSource,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2908,6 +2935,9 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
     map['fiberPerGram'] = Variable<double>(fiberPerGram);
     if (!nullToAbsent || originalFoodId != null) {
       map['original_food_id'] = Variable<int>(originalFoodId);
+    }
+    if (!nullToAbsent || originalFoodSource != null) {
+      map['original_food_source'] = Variable<String>(originalFoodSource);
     }
     return map;
   }
@@ -2924,6 +2954,9 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
       originalFoodId: originalFoodId == null && nullToAbsent
           ? const Value.absent()
           : Value(originalFoodId),
+      originalFoodSource: originalFoodSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalFoodSource),
     );
   }
 
@@ -2941,6 +2974,9 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
       carbsPerGram: serializer.fromJson<double>(json['carbsPerGram']),
       fiberPerGram: serializer.fromJson<double>(json['fiberPerGram']),
       originalFoodId: serializer.fromJson<int?>(json['originalFoodId']),
+      originalFoodSource: serializer.fromJson<String?>(
+        json['originalFoodSource'],
+      ),
     );
   }
   @override
@@ -2955,6 +2991,7 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
       'carbsPerGram': serializer.toJson<double>(carbsPerGram),
       'fiberPerGram': serializer.toJson<double>(fiberPerGram),
       'originalFoodId': serializer.toJson<int?>(originalFoodId),
+      'originalFoodSource': serializer.toJson<String?>(originalFoodSource),
     };
   }
 
@@ -2967,6 +3004,7 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
     double? carbsPerGram,
     double? fiberPerGram,
     Value<int?> originalFoodId = const Value.absent(),
+    Value<String?> originalFoodSource = const Value.absent(),
   }) => LoggedFood(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -2978,6 +3016,9 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
     originalFoodId: originalFoodId.present
         ? originalFoodId.value
         : this.originalFoodId,
+    originalFoodSource: originalFoodSource.present
+        ? originalFoodSource.value
+        : this.originalFoodSource,
   );
   LoggedFood copyWithCompanion(LoggedFoodsCompanion data) {
     return LoggedFood(
@@ -3001,6 +3042,9 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
       originalFoodId: data.originalFoodId.present
           ? data.originalFoodId.value
           : this.originalFoodId,
+      originalFoodSource: data.originalFoodSource.present
+          ? data.originalFoodSource.value
+          : this.originalFoodSource,
     );
   }
 
@@ -3014,7 +3058,8 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
           ..write('fatPerGram: $fatPerGram, ')
           ..write('carbsPerGram: $carbsPerGram, ')
           ..write('fiberPerGram: $fiberPerGram, ')
-          ..write('originalFoodId: $originalFoodId')
+          ..write('originalFoodId: $originalFoodId, ')
+          ..write('originalFoodSource: $originalFoodSource')
           ..write(')'))
         .toString();
   }
@@ -3029,6 +3074,7 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
     carbsPerGram,
     fiberPerGram,
     originalFoodId,
+    originalFoodSource,
   );
   @override
   bool operator ==(Object other) =>
@@ -3041,7 +3087,8 @@ class LoggedFood extends DataClass implements Insertable<LoggedFood> {
           other.fatPerGram == this.fatPerGram &&
           other.carbsPerGram == this.carbsPerGram &&
           other.fiberPerGram == this.fiberPerGram &&
-          other.originalFoodId == this.originalFoodId);
+          other.originalFoodId == this.originalFoodId &&
+          other.originalFoodSource == this.originalFoodSource);
 }
 
 class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
@@ -3053,6 +3100,7 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
   final Value<double> carbsPerGram;
   final Value<double> fiberPerGram;
   final Value<int?> originalFoodId;
+  final Value<String?> originalFoodSource;
   const LoggedFoodsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -3062,6 +3110,7 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
     this.carbsPerGram = const Value.absent(),
     this.fiberPerGram = const Value.absent(),
     this.originalFoodId = const Value.absent(),
+    this.originalFoodSource = const Value.absent(),
   });
   LoggedFoodsCompanion.insert({
     this.id = const Value.absent(),
@@ -3072,6 +3121,7 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
     required double carbsPerGram,
     required double fiberPerGram,
     this.originalFoodId = const Value.absent(),
+    this.originalFoodSource = const Value.absent(),
   }) : name = Value(name),
        caloriesPerGram = Value(caloriesPerGram),
        proteinPerGram = Value(proteinPerGram),
@@ -3087,6 +3137,7 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
     Expression<double>? carbsPerGram,
     Expression<double>? fiberPerGram,
     Expression<int>? originalFoodId,
+    Expression<String>? originalFoodSource,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3097,6 +3148,8 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
       if (carbsPerGram != null) 'carbsPerGram': carbsPerGram,
       if (fiberPerGram != null) 'fiberPerGram': fiberPerGram,
       if (originalFoodId != null) 'original_food_id': originalFoodId,
+      if (originalFoodSource != null)
+        'original_food_source': originalFoodSource,
     });
   }
 
@@ -3109,6 +3162,7 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
     Value<double>? carbsPerGram,
     Value<double>? fiberPerGram,
     Value<int?>? originalFoodId,
+    Value<String?>? originalFoodSource,
   }) {
     return LoggedFoodsCompanion(
       id: id ?? this.id,
@@ -3119,6 +3173,7 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
       carbsPerGram: carbsPerGram ?? this.carbsPerGram,
       fiberPerGram: fiberPerGram ?? this.fiberPerGram,
       originalFoodId: originalFoodId ?? this.originalFoodId,
+      originalFoodSource: originalFoodSource ?? this.originalFoodSource,
     );
   }
 
@@ -3149,6 +3204,9 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
     if (originalFoodId.present) {
       map['original_food_id'] = Variable<int>(originalFoodId.value);
     }
+    if (originalFoodSource.present) {
+      map['original_food_source'] = Variable<String>(originalFoodSource.value);
+    }
     return map;
   }
 
@@ -3162,7 +3220,8 @@ class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
           ..write('fatPerGram: $fatPerGram, ')
           ..write('carbsPerGram: $carbsPerGram, ')
           ..write('fiberPerGram: $fiberPerGram, ')
-          ..write('originalFoodId: $originalFoodId')
+          ..write('originalFoodId: $originalFoodId, ')
+          ..write('originalFoodSource: $originalFoodSource')
           ..write(')'))
         .toString();
   }
@@ -6838,6 +6897,7 @@ typedef $$LoggedFoodsTableCreateCompanionBuilder =
       required double carbsPerGram,
       required double fiberPerGram,
       Value<int?> originalFoodId,
+      Value<String?> originalFoodSource,
     });
 typedef $$LoggedFoodsTableUpdateCompanionBuilder =
     LoggedFoodsCompanion Function({
@@ -6849,6 +6909,7 @@ typedef $$LoggedFoodsTableUpdateCompanionBuilder =
       Value<double> carbsPerGram,
       Value<double> fiberPerGram,
       Value<int?> originalFoodId,
+      Value<String?> originalFoodSource,
     });
 
 final class $$LoggedFoodsTableReferences
@@ -6947,6 +7008,11 @@ class $$LoggedFoodsTableFilterComposer
 
   ColumnFilters<int> get originalFoodId => $composableBuilder(
     column: $table.originalFoodId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalFoodSource => $composableBuilder(
+    column: $table.originalFoodSource,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7049,6 +7115,11 @@ class $$LoggedFoodsTableOrderingComposer
     column: $table.originalFoodId,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get originalFoodSource => $composableBuilder(
+    column: $table.originalFoodSource,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$LoggedFoodsTableAnnotationComposer
@@ -7093,6 +7164,11 @@ class $$LoggedFoodsTableAnnotationComposer
 
   GeneratedColumn<int> get originalFoodId => $composableBuilder(
     column: $table.originalFoodId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originalFoodSource => $composableBuilder(
+    column: $table.originalFoodSource,
     builder: (column) => column,
   );
 
@@ -7187,6 +7263,7 @@ class $$LoggedFoodsTableTableManager
                 Value<double> carbsPerGram = const Value.absent(),
                 Value<double> fiberPerGram = const Value.absent(),
                 Value<int?> originalFoodId = const Value.absent(),
+                Value<String?> originalFoodSource = const Value.absent(),
               }) => LoggedFoodsCompanion(
                 id: id,
                 name: name,
@@ -7196,6 +7273,7 @@ class $$LoggedFoodsTableTableManager
                 carbsPerGram: carbsPerGram,
                 fiberPerGram: fiberPerGram,
                 originalFoodId: originalFoodId,
+                originalFoodSource: originalFoodSource,
               ),
           createCompanionCallback:
               ({
@@ -7207,6 +7285,7 @@ class $$LoggedFoodsTableTableManager
                 required double carbsPerGram,
                 required double fiberPerGram,
                 Value<int?> originalFoodId = const Value.absent(),
+                Value<String?> originalFoodSource = const Value.absent(),
               }) => LoggedFoodsCompanion.insert(
                 id: id,
                 name: name,
@@ -7216,6 +7295,7 @@ class $$LoggedFoodsTableTableManager
                 carbsPerGram: carbsPerGram,
                 fiberPerGram: fiberPerGram,
                 originalFoodId: originalFoodId,
+                originalFoodSource: originalFoodSource,
               ),
           withReferenceMapper: (p0) => p0
               .map(

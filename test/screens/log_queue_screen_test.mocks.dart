@@ -129,6 +129,31 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i6.Future<void>);
 
   @override
+  _i6.Future<bool> isRecipeLogged(int? recipeId) =>
+      (super.noSuchMethod(
+            Invocation.method(#isRecipeLogged, [recipeId]),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<bool> isRecipeUsedAsIngredient(int? recipeId) =>
+      (super.noSuchMethod(
+            Invocation.method(#isRecipeUsedAsIngredient, [recipeId]),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<void> hideRecipe(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#hideRecipe, [id]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<List<_i9.LoggedFood>> getLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#getLoggedPortionsForDate, [date]),
@@ -221,6 +246,15 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
             returnValue: _i6.Future<int>.value(0),
           )
           as _i6.Future<int>);
+
+  @override
+  _i6.Future<void> deleteRecipe(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteRecipe, [id]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
 
   @override
   _i6.Future<List<_i11.Category>> getCategories() =>

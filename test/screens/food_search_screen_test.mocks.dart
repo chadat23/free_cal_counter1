@@ -9,7 +9,7 @@ import 'dart:ui' as _i11;
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i2;
 import 'package:free_cal_counter1/models/food.dart' as _i14;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i7;
-import 'package:free_cal_counter1/models/logged_food.dart' as _i8;
+import 'package:free_cal_counter1/models/logged_portion.dart' as _i8;
 import 'package:free_cal_counter1/models/recipe.dart' as _i9;
 import 'package:free_cal_counter1/models/search_mode.dart' as _i15;
 import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i13;
@@ -167,12 +167,12 @@ class MockLogProvider extends _i1.Mock implements _i6.LogProvider {
           as List<_i7.FoodPortion>);
 
   @override
-  List<_i8.LoggedFood> get loggedFoods =>
+  List<_i8.LoggedPortion> get loggedPortion =>
       (super.noSuchMethod(
             Invocation.getter(#loggedFoods),
-            returnValue: <_i8.LoggedFood>[],
+            returnValue: <_i8.LoggedPortion>[],
           )
-          as List<_i8.LoggedFood>);
+          as List<_i8.LoggedPortion>);
 
   @override
   bool get hasListeners =>
@@ -221,7 +221,7 @@ class MockLogProvider extends _i1.Mock implements _i6.LogProvider {
           as _i10.Future<void>);
 
   @override
-  _i10.Future<void> loadLoggedFoodsForDate(DateTime? date) =>
+  _i10.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#loadLoggedFoodsForDate, [date]),
             returnValue: _i10.Future<void>.value(),
@@ -230,7 +230,7 @@ class MockLogProvider extends _i1.Mock implements _i6.LogProvider {
           as _i10.Future<void>);
 
   @override
-  _i10.Future<void> deleteLoggedFood(_i8.LoggedFood? food) =>
+  _i10.Future<void> deleteLoggedPortion(_i8.LoggedPortion? food) =>
       (super.noSuchMethod(
             Invocation.method(#deleteLoggedFood, [food]),
             returnValue: _i10.Future<void>.value(),

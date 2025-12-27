@@ -15,7 +15,7 @@ import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart';
 import 'package:drift/native.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
-import 'package:free_cal_counter1/models/logged_food.dart' as model;
+import 'package:free_cal_counter1/models/logged_portion.dart' as model;
 import 'package:free_cal_counter1/models/food_portion.dart' as model;
 import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
@@ -48,8 +48,10 @@ void main() {
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
     // Stub loadLoggedFoodsForDate to avoid null errors if called
-    when(mockLogProvider.loadLoggedFoodsForDate(any)).thenAnswer((_) async {});
-    when(mockLogProvider.loggedFoods).thenReturn([]);
+    when(
+      mockLogProvider.loadLoggedPortionsForDate(any),
+    ).thenAnswer((_) async {});
+    when(mockLogProvider.loggedPortion).thenReturn([]);
 
     // Stub NavigationProvider
     when(mockNavigationProvider.changeTab(any)).thenAnswer((_) {});
@@ -111,19 +113,21 @@ void main() {
         ],
       );
 
-      final loggedFood1 = model.LoggedFood(
+      final loggedPortion1 = model.LoggedPortion(
         id: 1,
         portion: model.FoodPortion(food: food, grams: 100, unit: 'g'),
         timestamp: time,
       );
 
-      final loggedFood2 = model.LoggedFood(
+      final loggedPortion2 = model.LoggedPortion(
         id: 2,
         portion: model.FoodPortion(food: food, grams: 100, unit: 'g'),
         timestamp: time,
       );
 
-      when(mockLogProvider.loggedFoods).thenReturn([loggedFood1, loggedFood2]);
+      when(
+        mockLogProvider.loggedPortion,
+      ).thenReturn([loggedPortion1, loggedPortion2]);
 
       await tester.pumpWidget(createTestWidget());
 
@@ -160,21 +164,21 @@ void main() {
           ],
         );
 
-        final loggedFood1 = model.LoggedFood(
+        final loggedPortion1 = model.LoggedPortion(
           id: 1,
           portion: model.FoodPortion(food: food, grams: 100, unit: 'g'),
           timestamp: time1,
         );
 
-        final loggedFood2 = model.LoggedFood(
+        final loggedPortion2 = model.LoggedPortion(
           id: 2,
           portion: model.FoodPortion(food: food, grams: 100, unit: 'g'),
           timestamp: time2,
         );
 
         when(
-          mockLogProvider.loggedFoods,
-        ).thenReturn([loggedFood1, loggedFood2]);
+          mockLogProvider.loggedPortion,
+        ).thenReturn([loggedPortion1, loggedPortion2]);
 
         await tester.pumpWidget(createTestWidget());
 

@@ -8,7 +8,7 @@ import 'dart:ui' as _i8;
 
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i2;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i4;
-import 'package:free_cal_counter1/models/logged_food.dart' as _i5;
+import 'package:free_cal_counter1/models/logged_portion.dart' as _i5;
 import 'package:free_cal_counter1/models/recipe.dart' as _i6;
 import 'package:free_cal_counter1/providers/log_provider.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
@@ -143,12 +143,12 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
           as List<_i4.FoodPortion>);
 
   @override
-  List<_i5.LoggedFood> get loggedFoods =>
+  List<_i5.LoggedPortion> get loggedPortion =>
       (super.noSuchMethod(
             Invocation.getter(#loggedFoods),
-            returnValue: <_i5.LoggedFood>[],
+            returnValue: <_i5.LoggedPortion>[],
           )
-          as List<_i5.LoggedFood>);
+          as List<_i5.LoggedPortion>);
 
   @override
   bool get hasListeners =>
@@ -197,7 +197,7 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
           as _i7.Future<void>);
 
   @override
-  _i7.Future<void> loadLoggedFoodsForDate(DateTime? date) =>
+  _i7.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#loadLoggedFoodsForDate, [date]),
             returnValue: _i7.Future<void>.value(),
@@ -206,7 +206,7 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
           as _i7.Future<void>);
 
   @override
-  _i7.Future<void> deleteLoggedFood(_i5.LoggedFood? food) =>
+  _i7.Future<void> deleteLoggedPortion(_i5.LoggedPortion? food) =>
       (super.noSuchMethod(
             Invocation.method(#deleteLoggedFood, [food]),
             returnValue: _i7.Future<void>.value(),

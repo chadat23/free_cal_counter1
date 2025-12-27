@@ -5,7 +5,7 @@ import 'package:free_cal_counter1/widgets/log_header.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
-import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/logged_portion.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
@@ -34,7 +34,7 @@ class _LogScreenState extends State<LogScreen> {
     if (mounted) {
       // Load logs for the selected date
       final logProvider = Provider.of<LogProvider>(context, listen: false);
-      await logProvider.loadLoggedFoodsForDate(_selectedDate);
+      await logProvider.loadLoggedPortionsForDate(_selectedDate);
     }
   }
 
@@ -43,13 +43,13 @@ class _LogScreenState extends State<LogScreen> {
       _selectedDate = newDate;
     });
     final logProvider = Provider.of<LogProvider>(context, listen: false);
-    logProvider.loadLoggedFoodsForDate(newDate);
+    logProvider.loadLoggedPortionsForDate(newDate);
   }
 
   @override
   Widget build(BuildContext context) {
     // Calculate nutrition targets from logged foods
-    final loggedFoods = Provider.of<LogProvider>(context).loggedFoods;
+    final loggedFoods = Provider.of<LogProvider>(context).loggedPortion;
 
     // We can use the helper from DailyMacroStats, but we need to map LoggedFood to DTO first
     // OR just sum them up here since we have the full objects already.
@@ -125,7 +125,7 @@ class _LogScreenState extends State<LogScreen> {
           Expanded(
             child: Consumer<LogProvider>(
               builder: (context, logProvider, child) {
-                final meals = _groupLogsIntoMeals(logProvider.loggedFoods);
+                final meals = _groupLogsIntoMeals(logProvider.loggedPortion);
 
                 if (meals.isEmpty) {
                   return const Center(child: Text('No logs for this day'));
@@ -150,21 +150,21 @@ class _LogScreenState extends State<LogScreen> {
     );
   }
 
-  List<Meal> _groupLogsIntoMeals(List<LoggedFood> loggedFoods) {
-    if (loggedFoods.isEmpty) return [];
+  List<Meal> _groupLogsIntoMeals(List<LoggedPortion> loggedPortions) {
+    if (loggedPortions.isEmpty) return [];
 
     // Sort by timestamp
-    loggedFoods.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    loggedPortions.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     final meals = <Meal>[];
 
-    if (loggedFoods.isEmpty) return [];
+    if (loggedPortions.isEmpty) return [];
 
-    var currentMealLogs = <LoggedFood>[loggedFoods.first];
+    var currentMealLogs = <LoggedPortion>[loggedPortions.first];
 
-    for (var i = 1; i < loggedFoods.length; i++) {
-      final current = loggedFoods[i];
-      final previous = loggedFoods[i - 1];
+    for (var i = 1; i < loggedPortions.length; i++) {
+      final current = loggedPortions[i];
+      final previous = loggedPortions[i - 1];
 
       // Group essentially by exact timestamp (strict grouping)
       // Since queue items are logged with the same timestamp, they will group.
@@ -174,7 +174,7 @@ class _LogScreenState extends State<LogScreen> {
         meals.add(
           Meal(
             timestamp: currentMealLogs.first.timestamp,
-            loggedFoods: List.from(currentMealLogs),
+            loggedPortion: List.from(currentMealLogs),
           ),
         );
         currentMealLogs = [current];
@@ -187,19 +187,19 @@ class _LogScreenState extends State<LogScreen> {
     meals.add(
       Meal(
         timestamp: currentMealLogs.first.timestamp,
-        loggedFoods: List.from(currentMealLogs),
+        loggedPortion: List.from(currentMealLogs),
       ),
     );
 
     return meals;
   }
 
-  void _updateLoggedFood(LoggedFood oldFood, FoodPortion newPortion) {
+  void _updateLoggedFood(LoggedPortion oldFood, FoodPortion newPortion) {
     // TODO: Implement update logic in LogProvider/DatabaseService
     print('Update logged food not implemented yet');
   }
 
-  void _deleteLoggedFood(LoggedFood food) {
-    Provider.of<LogProvider>(context, listen: false).deleteLoggedFood(food);
+  void _deleteLoggedFood(LoggedPortion food) {
+    Provider.of<LogProvider>(context, listen: false).deleteLoggedPortion(food);
   }
 }

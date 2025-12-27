@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
-import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/logged_portion.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
@@ -26,7 +26,7 @@ void main() {
       servings: [FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0)],
     );
     final serving1 = FoodPortion(food: food1, grams: 100, unit: 'g');
-    final loggedFood1 = LoggedFood(
+    final loggedPortion1 = LoggedPortion(
       portion: serving1,
       timestamp: DateTime.now(),
     );
@@ -44,14 +44,14 @@ void main() {
       servings: [FoodServing(foodId: 2, unit: 'g', grams: 1.0, quantity: 1.0)],
     );
     final serving2 = FoodPortion(food: food2, grams: 150, unit: 'g');
-    final loggedFood2 = LoggedFood(
+    final loggedPortion2 = LoggedPortion(
       portion: serving2,
       timestamp: DateTime.now(),
     );
 
     final meal = Meal(
       timestamp: DateTime.now(),
-      loggedFoods: [loggedFood1, loggedFood2],
+      loggedPortion: [loggedPortion1, loggedPortion2],
     );
 
     // When
@@ -89,8 +89,14 @@ void main() {
       servings: [FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0)],
     );
     final serving = FoodPortion(food: food, grams: 100, unit: 'g');
-    final loggedFood = LoggedFood(portion: serving, timestamp: DateTime.now());
-    final meal = Meal(timestamp: DateTime.now(), loggedFoods: [loggedFood]);
+    final loggedPortion = LoggedPortion(
+      portion: serving,
+      timestamp: DateTime.now(),
+    );
+    final meal = Meal(
+      timestamp: DateTime.now(),
+      loggedPortion: [loggedPortion],
+    );
 
     // When
     await tester.pumpWidget(

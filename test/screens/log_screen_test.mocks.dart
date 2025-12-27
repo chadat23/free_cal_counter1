@@ -11,7 +11,7 @@ import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i2;
 import 'package:free_cal_counter1/models/food.dart' as _i6;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i9;
 import 'package:free_cal_counter1/models/food_serving.dart' as _i16;
-import 'package:free_cal_counter1/models/logged_food.dart' as _i10;
+import 'package:free_cal_counter1/models/logged_portion.dart' as _i10;
 import 'package:free_cal_counter1/models/recipe.dart' as _i7;
 import 'package:free_cal_counter1/models/search_mode.dart' as _i15;
 import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i14;
@@ -179,12 +179,12 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
           as List<_i9.FoodPortion>);
 
   @override
-  List<_i10.LoggedFood> get loggedFoods =>
+  List<_i10.LoggedPortion> get loggedPortion =>
       (super.noSuchMethod(
             Invocation.getter(#loggedFoods),
-            returnValue: <_i10.LoggedFood>[],
+            returnValue: <_i10.LoggedPortion>[],
           )
-          as List<_i10.LoggedFood>);
+          as List<_i10.LoggedPortion>);
 
   @override
   bool get hasListeners =>
@@ -233,7 +233,7 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
           as _i11.Future<void>);
 
   @override
-  _i11.Future<void> loadLoggedFoodsForDate(DateTime? date) =>
+  _i11.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#loadLoggedFoodsForDate, [date]),
             returnValue: _i11.Future<void>.value(),
@@ -242,7 +242,7 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
           as _i11.Future<void>);
 
   @override
-  _i11.Future<void> deleteLoggedFood(_i10.LoggedFood? food) =>
+  _i11.Future<void> deleteLoggedPortion(_i10.LoggedPortion? food) =>
       (super.noSuchMethod(
             Invocation.method(#deleteLoggedFood, [food]),
             returnValue: _i11.Future<void>.value(),
@@ -614,14 +614,16 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i11.Future<void>);
 
   @override
-  _i11.Future<List<_i10.LoggedFood>> getLoggedPortionsForDate(DateTime? date) =>
+  _i11.Future<List<_i10.LoggedPortion>> getLoggedPortionsForDate(
+    DateTime? date,
+  ) =>
       (super.noSuchMethod(
             Invocation.method(#getLoggedPortionsForDate, [date]),
-            returnValue: _i11.Future<List<_i10.LoggedFood>>.value(
-              <_i10.LoggedFood>[],
+            returnValue: _i11.Future<List<_i10.LoggedPortion>>.value(
+              <_i10.LoggedPortion>[],
             ),
           )
-          as _i11.Future<List<_i10.LoggedFood>>);
+          as _i11.Future<List<_i10.LoggedPortion>>);
 
   @override
   _i11.Future<_i6.Food> saveFood(_i6.Food? food) =>

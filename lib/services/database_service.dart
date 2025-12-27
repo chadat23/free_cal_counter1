@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
 import 'package:free_cal_counter1/models/food_portion.dart' as model;
-import 'package:free_cal_counter1/models/logged_food.dart' as model;
+import 'package:free_cal_counter1/models/logged_portion.dart' as model;
 import 'package:free_cal_counter1/models/recipe.dart' as model;
 import 'package:free_cal_counter1/models/recipe_item.dart' as model;
 import 'package:free_cal_counter1/models/category.dart' as model;
@@ -271,7 +271,9 @@ class DatabaseService {
         .write(const RecipesCompanion(hidden: Value(true)));
   }
 
-  Future<List<model.LoggedFood>> getLoggedPortionsForDate(DateTime date) async {
+  Future<List<model.LoggedPortion>> getLoggedPortionsForDate(
+    DateTime date,
+  ) async {
     final startOfDay = DateTime(
       date.year,
       date.month,
@@ -304,7 +306,7 @@ class DatabaseService {
 
     final rows = await query.get();
 
-    final results = <model.LoggedFood>[];
+    final results = <model.LoggedPortion>[];
 
     for (final row in rows) {
       final loggedFoodData = row.readTable(_liveDb.loggedFoods);
@@ -341,7 +343,7 @@ class DatabaseService {
       );
 
       results.add(
-        model.LoggedFood(
+        model.LoggedPortion(
           id: loggedPortionData.id,
           portion: model.FoodPortion(
             food: food,

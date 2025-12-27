@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food_portion.dart' as model;
-import 'package:free_cal_counter1/models/logged_food.dart' as model;
+import 'package:free_cal_counter1/models/logged_portion.dart' as model;
 import 'package:free_cal_counter1/models/recipe.dart' as model;
 import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
@@ -26,7 +26,7 @@ class LogProvider extends ChangeNotifier {
   double _dailyTargetFiber = 30.0;
 
   final List<model.FoodPortion> _logQueue = [];
-  List<model.LoggedFood> _loggedFoods = [];
+  List<model.LoggedPortion> _loggedPortion = [];
 
   // Getters
   double get loggedCalories => _loggedCalories;
@@ -49,7 +49,7 @@ class LogProvider extends ChangeNotifier {
   double get dailyTargetFiber => _dailyTargetFiber;
 
   List<model.FoodPortion> get logQueue => _logQueue;
-  List<model.LoggedFood> get loggedFoods => _loggedFoods;
+  List<model.LoggedPortion> get loggedPortion => _loggedPortion;
 
   // Queue Operations
   void addFoodToQueue(model.FoodPortion serving) {
@@ -116,24 +116,24 @@ class LogProvider extends ChangeNotifier {
 
     await DatabaseService.instance.logPortions(_logQueue, DateTime.now());
     clearQueue();
-    await loadLoggedFoodsForDate(DateTime.now());
+    await loadLoggedPortionsForDate(DateTime.now());
   }
 
   // Database Operations
-  Future<void> loadLoggedFoodsForDate(DateTime date) async {
-    _loggedFoods = await DatabaseService.instance.getLoggedPortionsForDate(
+  Future<void> loadLoggedPortionsForDate(DateTime date) async {
+    _loggedPortion = await DatabaseService.instance.getLoggedPortionsForDate(
       date,
     );
     _recalculateLoggedMacros();
     notifyListeners();
   }
 
-  Future<void> deleteLoggedFood(model.LoggedFood food) async {
+  Future<void> deleteLoggedPortion(model.LoggedPortion food) async {
     if (food.id == null) return;
 
     await DatabaseService.instance.deleteLoggedPortion(food.id!);
 
-    _loggedFoods.removeWhere((item) => item.id == food.id);
+    _loggedPortion.removeWhere((item) => item.id == food.id);
     _recalculateLoggedMacros();
     notifyListeners();
   }
@@ -163,7 +163,7 @@ class LogProvider extends ChangeNotifier {
     _loggedCarbs = 0.0;
     _loggedFiber = 0.0;
 
-    for (var item in _loggedFoods) {
+    for (var item in _loggedPortion) {
       final food = item.portion.food;
       _loggedCalories += food.calories * item.portion.grams;
       _loggedProtein += food.protein * item.portion.grams;

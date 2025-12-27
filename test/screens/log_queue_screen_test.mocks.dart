@@ -10,7 +10,7 @@ import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i10;
 import 'package:free_cal_counter1/models/food.dart' as _i2;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i8;
 import 'package:free_cal_counter1/models/food_serving.dart' as _i7;
-import 'package:free_cal_counter1/models/logged_food.dart' as _i9;
+import 'package:free_cal_counter1/models/logged_portion.dart' as _i9;
 import 'package:free_cal_counter1/models/recipe.dart' as _i3;
 import 'package:free_cal_counter1/services/database_service.dart' as _i4;
 import 'package:free_cal_counter1/services/food_search_service.dart' as _i12;
@@ -154,14 +154,16 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<List<_i9.LoggedFood>> getLoggedPortionsForDate(DateTime? date) =>
+  _i6.Future<List<_i9.LoggedPortion>> getLoggedPortionsForDate(
+    DateTime? date,
+  ) =>
       (super.noSuchMethod(
             Invocation.method(#getLoggedPortionsForDate, [date]),
-            returnValue: _i6.Future<List<_i9.LoggedFood>>.value(
-              <_i9.LoggedFood>[],
+            returnValue: _i6.Future<List<_i9.LoggedPortion>>.value(
+              <_i9.LoggedPortion>[],
             ),
           )
-          as _i6.Future<List<_i9.LoggedFood>>);
+          as _i6.Future<List<_i9.LoggedPortion>>);
 
   @override
   _i6.Future<_i2.Food> saveFood(_i2.Food? food) =>

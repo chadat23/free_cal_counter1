@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
 import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
-import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/logged_portion.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:intl/intl.dart';
 
 class MealWidget extends StatelessWidget {
   final Meal meal;
-  final Function(LoggedFood, FoodPortion)? onFoodUpdated;
-  final Function(LoggedFood)? onFoodDeleted;
+  final Function(LoggedPortion, FoodPortion)? onFoodUpdated;
+  final Function(LoggedPortion)? onFoodDeleted;
 
   const MealWidget({
     super.key,
@@ -52,7 +52,7 @@ class MealWidget extends StatelessWidget {
               ],
             ),
             const Divider(),
-            ...meal.loggedFoods.asMap().entries.map((entry) {
+            ...meal.loggedPortion.asMap().entries.map((entry) {
               final index = entry.key;
               final loggedFood = entry.value;
               return Column(
@@ -93,7 +93,7 @@ class MealWidget extends StatelessWidget {
                       );
                     },
                   ),
-                  if (index < meal.loggedFoods.length - 1)
+                  if (index < meal.loggedPortion.length - 1)
                     Divider(
                       color: Theme.of(
                         context,

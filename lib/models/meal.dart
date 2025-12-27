@@ -1,28 +1,28 @@
-import 'package:free_cal_counter1/models/logged_food.dart';
+import 'package:free_cal_counter1/models/logged_portion.dart';
 
 class Meal {
   final DateTime timestamp;
-  final List<LoggedFood> loggedFoods;
+  final List<LoggedPortion> loggedPortion;
 
-  Meal({required this.timestamp, required this.loggedFoods});
+  Meal({required this.timestamp, required this.loggedPortion});
 
-  double get totalCalories => loggedFoods.fold(
+  double get totalCalories => loggedPortion.fold(
     0,
     (sum, item) => sum + item.portion.food.calories * item.portion.grams,
   );
-  double get totalProtein => loggedFoods.fold(
+  double get totalProtein => loggedPortion.fold(
     0,
     (sum, item) => sum + item.portion.food.protein * item.portion.grams,
   );
-  double get totalFat => loggedFoods.fold(
+  double get totalFat => loggedPortion.fold(
     0,
     (sum, item) => sum + item.portion.food.fat * item.portion.grams,
   );
-  double get totalCarbs => loggedFoods.fold(
+  double get totalCarbs => loggedPortion.fold(
     0,
     (sum, item) => sum + item.portion.food.carbs * item.portion.grams,
   );
-  double get totalFiber => loggedFoods.fold(
+  double get totalFiber => loggedPortion.fold(
     0,
     (sum, item) => sum + item.portion.food.fiber * item.portion.grams,
   );

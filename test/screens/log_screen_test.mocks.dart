@@ -181,7 +181,7 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
   @override
   List<_i10.LoggedPortion> get loggedPortion =>
       (super.noSuchMethod(
-            Invocation.getter(#loggedFoods),
+            Invocation.getter(#loggedPortion),
             returnValue: <_i10.LoggedPortion>[],
           )
           as List<_i10.LoggedPortion>);
@@ -235,7 +235,7 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
   @override
   _i11.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
-            Invocation.method(#loadLoggedFoodsForDate, [date]),
+            Invocation.method(#loadLoggedPortionsForDate, [date]),
             returnValue: _i11.Future<void>.value(),
             returnValueForMissingStub: _i11.Future<void>.value(),
           )
@@ -244,7 +244,7 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
   @override
   _i11.Future<void> deleteLoggedPortion(_i10.LoggedPortion? food) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteLoggedFood, [food]),
+            Invocation.method(#deleteLoggedPortion, [food]),
             returnValue: _i11.Future<void>.value(),
             returnValueForMissingStub: _i11.Future<void>.value(),
           )

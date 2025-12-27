@@ -38,14 +38,38 @@ At a high level, eventually, it should be able to do things like track calories,
 - 1.3.8 Selecting the add button should add the current portion to the Log Queue.
 - 1.3.9 Selecting other parts of a search result should bring up the Serving Edit screen.
 - 1.3.10 Selecing the Log button should log the Log Queue to the LoggedPortions tabe in the db and then navigate the user back to the Overview screen.
+- 1.3.11 Kind of like with the Slidable Portion Widgets, the search results should be slidable, so there should be a Slidable Search Result Widget that wraps a Search Result Widget. 
+  - 1.3.11.1 The previous functionality can all be handles by the Search Result Widget, but that should be a child widget of the Slidable Search Result Widget.
+  - 1.3.11.2 Sliding the search result to the left should reveal the delete button, and having it work this way means that two actions are needed to help avoid accidental deletions.
+  - 1.3.11.3 Sliding the search result to the right should reveal the Edit and Copy buttons.
+  - 1.3.11.4 The Edit button needs to bring up a yet to be implimented (or at least flushed out) Food Edit Screen that lets the user modify an existing food.
+    - 1.3.11.4.1 If the search result is from the reference db, then at least uppon submitting/entering the edit, the food needs to be copied to the live db logged_foods table with all of the user viewed data copied over (other than whatever the user changes via the edit screen) with all other stuff being updated as needed to maintain overarching app functionality (so it probably shouldn't have a parent).
+    - 1.3.11.4.2 If the parent food is in the referenece db, then ideally, since foods point to the parent's id, the source data from the reference db would be able to be filitered out of search results.
+    - 1.3.11.4.3 In cases where the parent is also in the logged_foods table, all parents should be recursively filtered out of the search results so only the newest version of the food will be shown.
+    - 1.3.11.4.4 By doing this we won't break old logs, yet we'll be able to update future search results.
+  - 1.3.11.5 The Copy button should work about like the edit button, only a coppied item seemingly won't have a parent, so unlike with the edit button, whatever its data's being copied from, won't be filtered out of the search results.
+  - 1.3.11.6 In theory, from the user's perspective, the Delete button will delete foods.
+    - 1.3.11.6.1 Since the reference db is read only, if the user tries to delete a search result from the reference db, the user should be susinctly be promped to let them know that the food can't be deleted and why.
+    - 1.3.11.6.2 If the search result that's to be deleted is from the logged_foods table, and isn't referenced by anything (presumably just portions or recipies), then it can be deleted.
+    - 1.3.11.6.3 If the search result that's to be deleted is from the logged_foods table, and is referenced by something (presumably just portions or recipies), then it can't be deleted, so some sort of flag needs to be set in the food so that it's filtered from future search results without breaking old logged portions or recipies.
 
-## Portion Edit:
-- Should have two rows of macros: the day's expected macro including the current proposed portion, and then the portion's macros. Both should update in real time.
-- If it's being to update a portion that's already been logged or added to the Log Queue, the day's macros should be day's macros - old version of the portion + new version of the portion.
-- There should be the Amount, so how many units of the food are in the portion
-- There should also be the Unit, the list of all of the units of measure that are available for the current food item, eg. grams, cups, Apples, etc. 
-- The Cancel button should bring the user back to where they just were, so the Log, Log Queue, or Search screen.
-- The Add button should add the portion to the Log Queue if the user was just at the Search screen or update the portion if the user was updating a food from the Log or Log Queue screen.
+## 1.4 Portion Edit:
+- 1.4.1 To have a back button that brings the user back to wherever they navigated to the Portion edit screen from (presumably the Search Screen, Log Screen, or Log Queue Screen) without making any changes.
+- 1.4.2 Should have two rows of macros: the day's macro including the current proposed portion, and then the portion's macros. Both should update in real time.
+- 1.4.3 If it's going to update a portion that's already been logged or added to the Log Queue, the day's macros should be day's logged macros - old version of the portion + new version of the portion. Otherwise the day's macros should be the day's logged macros + the portion's macros.
+- 1.4.4 There should be a user editable Amount, so how many units of the food are in the portion
+- 1.4.5 There should also be a user editable Unit, the list of all of the units of measure that are available for the current food item, eg. grams, cups, Apples, etc. 
+- 1.4.6 Next should be a row of target buttons (this isn't means to be the label, just a brainstormed idea of what the concept is), so what we're trying to accomplish. They should be "Unit" (the default), Calories, Carbs, Protein, and Fat.
+  - 1.4.6.1 If the target is Unit, then the user is saying that the Amount is whatever unit they entered from 1.4.5, and that's how much they're having.
+  - 1.4.6.2 If the target is something else, then the foods macro values should be used to calculate the number of grams of said food that are required in order to achieve the target number of calories, carbs, protein, or fat.
+- 1.4.7 Below the targets from 1.4.6 should be an output showing how many grams of said food are required in order to achieve the target amount of whatever the target is.
+  - 1.4.7.1 If g is selected unit, and the target is Unit, and the Amount is 125, the the output should be 125.
+  - 1.4.7.2 If the target is calories, and the Amount is 200, then the output should be the number of grams of said food that are required in order to achieve 200 calories.
+  - 1.4.7.3 If the selected unit is Apple, and the target is Unit, the Amount is 2.5, and each apple is 120g, then the output should be 300.
+  - 1.4.7.4 All of the math associated with all of this (the calculated number of grams), as well as updates to the day's and portion's macros should happen in real time.
+- 1.4.8 The Cancel button should bring the user back to where they just were, so the Log, Log Queue, or Search screen without making any changes.
+- 1.4.9 The Add button should add the portion to the Log Queue if the user navigated to the Edit screen from the Search Screen, update the portion in the Log if the user was navigated to the Edit Screen from the Log screen, or update the portion in the Log Queue if the user navigated to the Edit Screen from the Log Queue screen.
+- 1.4.10 Presently, the Add button always says "Add", but ideally it would say "Update" if the user is updating a portion. This if this is a practical change then it should be implimented, but if it's too complicated then it shouldn't. 
 
 ## Log Queue:
 - The top should have a row with an exit button that should bring the user back to the home screen (prompting the user that the Log Queue will be emptied if it isn't already so), a list of images showing what's in the Log Queue, and then a button to navigate to the Search screen.
@@ -95,3 +119,4 @@ Future Features (optional)	Document “planned but not yet requested” ideas fo
 
 # Notes, Quirks, and Idosyncrasies
 - The Portion Edit screen always has and Add button, but in two of it's 3 use-cases, it's updating, not adding
+- On the Search Screen, in addition to the 3 kinds of searches, maybe that's where it'd make sense to have an Add Food button.

@@ -53,7 +53,7 @@ At a high level, eventually, it should be able to do things like track calories,
     - 1.3.11.6.2 If the search result that's to be deleted is from the logged_foods table, and isn't referenced by anything (presumably just portions or recipies), then it can be deleted.
     - 1.3.11.6.3 If the search result that's to be deleted is from the logged_foods table, and is referenced by something (presumably just portions or recipies), then it can't be deleted, so some sort of flag needs to be set in the food so that it's filtered from future search results without breaking old logged portions or recipies.
 
-## 1.4 Portion Edit:
+## 1.4 Portion Edit: a place for a user to be able to edit how much of a particular food was eaton
 - 1.4.1 To have a back button that brings the user back to wherever they navigated to the Portion edit screen from (presumably the Search Screen, Log Screen, or Log Queue Screen) without making any changes.
 - 1.4.2 Should have two rows of macros: the day's macro including the current proposed portion, and then the portion's macros. Both should update in real time.
 - 1.4.3 If it's going to update a portion that's already been logged or added to the Log Queue, the day's macros should be day's logged macros - old version of the portion + new version of the portion. Otherwise the day's macros should be the day's logged macros + the portion's macros.
@@ -71,18 +71,18 @@ At a high level, eventually, it should be able to do things like track calories,
 - 1.4.9 The Add button should add the portion to the Log Queue if the user navigated to the Edit screen from the Search Screen, update the portion in the Log if the user was navigated to the Edit Screen from the Log screen, or update the portion in the Log Queue if the user navigated to the Edit Screen from the Log Queue screen.
 - 1.4.10 Presently, the Add button always says "Add", but ideally it would say "Update" if the user is updating a portion. This if this is a practical change then it should be implimented, but if it's too complicated then it shouldn't. 
 
-## Log Queue:
-- The top should have a row with an exit button that should bring the user back to the home screen (prompting the user that the Log Queue will be emptied if it isn't already so), a list of images showing what's in the Log Queue, and then a button to navigate to the Search screen.
-- Should have two rows of macros: the day's expected macro including the current proposed portion, and then the portion's macros. Both should update in real time.
-- Then should be a list of food bubbles, each with an image, name, amount, unit, and macros.
-- There should be an edit button that brings the user to the Portion Edit screen so that it can be edited.
-- Sliding the portion to the left reveal the delete button. Clicking the user should delete the portion from the Log Queue, clicking on the slid portion somewhere other than the delete button should slide the portion back to its nominal position.
-- The bottom has the standard Search bar, OFF button, and Log button.
-- Clicking the Log button will commit the Log Queue to the LoggedPortion table and then bring the user back to the Overview screen.
-
-## Log Queue: same basic thing as the Log, only its a staging area between food entry and the log so it'll be a list of food bubbles
-
-## Overview: summary graphs; Log: daily entries; Weight: trend line; Settings: preferences
+## 1.5 Log Queue: A screen for viewing in process loggin activaties, what and how much food is being proposed to have been eaton.
+- 1.5.1 The top should have a row with an exit button that should bring the user back to the home screen (prompting the user that the Log Queue will be emptied if it isn't already so), a list of images showing what's in the Log Queue, and then an up arrow button to navigate to the Search screen.
+- 1.5.2 Next should be two rows of macros: the day's expected macro including the current proposed portion, and then the portion's macros. Both should update in real time.
+- 1.5.3 Then should be a list of food bubbles, each with an image, name, amount, unit, and macros.
+- 1.5.4 There should be an edit button that brings the user to the Portion Edit screen so that it can be edited.
+- 1.5.5 Sliding the portion to the left should reveal the delete button. 
+  - 1.5.5.1 Clicking the delete button should delete the portion from the Log Queue
+  - 1.5.5.2 Clicking on the slid portion somewhere other than the delete button should slide the portion back to its nominal position.
+  - 1.5.5.3 This is achieved by having the text, iamge, macros, and edit button in the Portion Widget, and having that wraped in a parent Slidable Portion Widget that handles the sliding stuff as well as the delete button and subsiquent functionality.
+- 1.5.6 The bottom has the standard Search bar, OFF button, and Log button.
+- 1.5.7 Clicking the Log button will commit the Log Queue to the LoggedPortion table and then bring the user back to the Overview screen.
+- 1.5.8 When the Log Queue is logged, everything in the log queue should receive the same, current, time as the timestamp for when the portions were logged, that said, said time should be passed into the logging function since that's what allows moving portions, editing their logged time.
 
 # Data Persistance: logic behind editing, copying and deleting foods and recipes
 

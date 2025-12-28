@@ -10,7 +10,8 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
 import 'package:free_cal_counter1/widgets/slidable_recipe_item_widget.dart';
-import 'package:free_cal_counter1/screens/ingredient_edit_screen.dart';
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
+import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -309,19 +310,26 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
               orElse: () => food.servings.first,
             );
 
-            // Navigate to IngredientEditScreen
+            // Navigate to QuantityEditScreen
             final updatedPortion = await Navigator.push<FoodPortion>(
               context,
               MaterialPageRoute(
-                builder: (context) => IngredientEditScreen(
-                  food: food,
-                  initialUnit: serving,
-                  initialQuantity: serving.quantityFromGrams(item.grams),
-                  recipeProvider: provider,
-                  onUpdate: (updated) {
-                    // We don't need to do anything here because the updated object is returned
-                    // But IngredientEditScreen expects this callback to know it is in "update" mode for macro calculation
-                  },
+                builder: (context) => QuantityEditScreen(
+                  config: QuantityEditConfig(
+                    context: QuantityEditContext.recipe,
+                    food: food,
+                    isUpdate: true,
+                    initialUnit: serving.unit,
+                    initialQuantity: serving.quantityFromGrams(item.grams),
+                    originalGrams: item.grams,
+                    recipeServings: provider.servingsCreated,
+                    onSave: (grams, unit) {
+                      Navigator.pop(
+                        context,
+                        FoodPortion(food: food, grams: grams, unit: unit),
+                      );
+                    },
+                  ),
                 ),
               ),
             );

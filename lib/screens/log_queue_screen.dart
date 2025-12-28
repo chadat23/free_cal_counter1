@@ -6,7 +6,9 @@ import 'package:free_cal_counter1/widgets/discard_dialog.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
 import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
+import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:provider/provider.dart';
 
 class LogQueueScreen extends StatelessWidget {
@@ -73,15 +75,28 @@ class LogQueueScreen extends StatelessWidget {
                           (s) => s.unit == foodServing.unit,
                           orElse: () => foodServing.food.servings.first,
                         );
-                        return PortionEditScreen(
-                          food: foodServing.food,
-                          initialUnit: unit,
-                          initialQuantity: unit.quantityFromGrams(
-                            foodServing.grams,
+                        return QuantityEditScreen(
+                          config: QuantityEditConfig(
+                            context: QuantityEditContext.day,
+                            food: foodServing.food,
+                            isUpdate: true,
+                            initialUnit: unit.unit,
+                            initialQuantity: unit.quantityFromGrams(
+                              foodServing.grams,
+                            ),
+                            originalGrams: foodServing.grams,
+                            onSave: (grams, unitName) {
+                              logProvider.updateFoodInQueue(
+                                index,
+                                FoodPortion(
+                                  food: foodServing.food,
+                                  grams: grams,
+                                  unit: unitName,
+                                ),
+                              );
+                              Navigator.pop(context);
+                            },
                           ),
-                          onUpdate: (newPortion) {
-                            logProvider.updateFoodInQueue(index, newPortion);
-                          },
                         );
                       },
                     ),

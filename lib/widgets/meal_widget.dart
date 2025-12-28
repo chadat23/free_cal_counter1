@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
+import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/models/logged_portion.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:intl/intl.dart';
@@ -76,17 +77,30 @@ class MealWidget extends StatelessWidget {
                                   orElse: () =>
                                       loggedFood.portion.food.servings.first,
                                 );
-                            return PortionEditScreen(
-                              food: loggedFood.portion.food,
-                              initialUnit: unit,
-                              initialQuantity: unit.quantityFromGrams(
-                                loggedFood.portion.grams,
+                            return QuantityEditScreen(
+                              config: QuantityEditConfig(
+                                context: QuantityEditContext.day,
+                                food: loggedFood.portion.food,
+                                isUpdate: true,
+                                initialUnit: unit.unit,
+                                initialQuantity: unit.quantityFromGrams(
+                                  loggedFood.portion.grams,
+                                ),
+                                originalGrams: loggedFood.portion.grams,
+                                onSave: (grams, unitName) {
+                                  if (onFoodUpdated != null) {
+                                    onFoodUpdated!(
+                                      loggedFood,
+                                      FoodPortion(
+                                        food: loggedFood.portion.food,
+                                        grams: grams,
+                                        unit: unitName,
+                                      ),
+                                    );
+                                  }
+                                  Navigator.pop(context);
+                                },
                               ),
-                              onUpdate: (newPortion) {
-                                if (onFoodUpdated != null) {
-                                  onFoodUpdated!(loggedFood, newPortion);
-                                }
-                              },
                             );
                           },
                         ),

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 
 class TextSearchView extends StatelessWidget {
   const TextSearchView({super.key});
@@ -40,9 +43,26 @@ class TextSearchView extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PortionEditScreen(
-                      food: food,
-                      initialUnit: selectedUnit,
+                    builder: (context) => QuantityEditScreen(
+                      config: QuantityEditConfig(
+                        context: QuantityEditContext.day,
+                        food: food,
+                        initialUnit: selectedUnit.unit,
+                        initialQuantity: selectedUnit.quantity,
+                        onSave: (grams, unit) {
+                          Provider.of<LogProvider>(
+                            context,
+                            listen: false,
+                          ).addFoodToQueue(
+                            model_portion.FoodPortion(
+                              food: food,
+                              grams: grams,
+                              unit: unit,
+                            ),
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
                   ),
                 );

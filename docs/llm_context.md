@@ -95,9 +95,11 @@ To ensure consistency across the application and codebase, the following terms a
 - 1.4.6 There should be a user editable Quantity and a user editable Unit (list of all available units for the food, e.g., grams, cups, pieces).
 - 1.4.7 Target Selection: A row of buttons for "Unit" (default), Calories, Carbs, Protein, and Fat.
   - 1.4.7.1 If "Unit" is selected, the numeric input is treated as the Quantity of the selected Unit.
-  - 1.4.7.2 If another target is selected, the selected Unit is ignored. The food's macro values are used to calculate the number of grams required to achieve the target Quantity of the selected macro.
+  - 1.4.7.2 If another target is selected (Calories, Carbs, Protein, or Fat), the selected Unit must automatically switch to "g" (grams). The food's macro values are used to calculate the number of grams required to achieve the target numeric value of the selected macro.
+  - 1.4.7.3 If the user manually changes the Unit selection while a macro target (Calories, Carbs, Protein, or Fat) is active, the Target Selection must automatically switch back to "Unit".
 - 1.4.8 Calculated Output: Below the targets, show the resulting number of grams required.
-- 1.4.9 The Cancel button discards changes and returns the user to the previous screen.
+- 1.4.9 Pre-population: When the screen opens, the Quantity (Amount) and Unit fields must be pre-populated with the values from the source that triggered the screen (e.g., the selected unit in a search result or the current quantity/unit of a logged portion).
+- 1.4.10 The Cancel button discards changes and returns the user to the previous screen.
 - 1.4.10 The Action button:
   - 1.4.10.1 Label: Dynamically displays "Add" if adding a new item, or "Update" if modifying an existing one. 
   - 1.4.10.2 Behavior: Adds/updates the item in the appropriate collection (Log Queue, Logged Portions, or Recipe ingredients) and navigates back. Adding an ingredient to a recipe should NOT add it to the Log Queue.

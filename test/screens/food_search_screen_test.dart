@@ -7,8 +7,9 @@ import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/screens/food_search_screen.dart';
-import 'package:free_cal_counter1/screens/portion_edit_screen.dart';
+import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 import 'package:mockito/annotations.dart';
@@ -22,11 +23,17 @@ import 'package:free_cal_counter1/services/reference_database.dart' as ref_db;
 
 import 'food_search_screen_test.mocks.dart';
 
-@GenerateMocks([LogProvider, NavigationProvider, FoodSearchProvider])
+@GenerateMocks([
+  LogProvider,
+  NavigationProvider,
+  FoodSearchProvider,
+  RecipeProvider,
+])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
   late MockFoodSearchProvider mockFoodSearchProvider;
+  late MockRecipeProvider mockRecipeProvider;
 
   setUpAll(() async {
     // Initialize DatabaseService with in-memory databases for testing
@@ -39,6 +46,7 @@ void main() {
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
     mockFoodSearchProvider = MockFoodSearchProvider();
+    mockRecipeProvider = MockRecipeProvider();
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
     when(mockNavigationProvider.showConsumed).thenReturn(true);
@@ -63,6 +71,13 @@ void main() {
     when(mockLogProvider.dailyTargetFat).thenReturn(70.0);
     when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
     when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
+
+    // Default mocks for RecipeProvider
+    when(mockRecipeProvider.totalCalories).thenReturn(0.0);
+    when(mockRecipeProvider.totalProtein).thenReturn(0.0);
+    when(mockRecipeProvider.totalFat).thenReturn(0.0);
+    when(mockRecipeProvider.totalCarbs).thenReturn(0.0);
+    when(mockRecipeProvider.totalFiber).thenReturn(0.0);
   });
 
   Widget createTestWidget() {
@@ -75,6 +90,7 @@ void main() {
         ChangeNotifierProvider<FoodSearchProvider>.value(
           value: mockFoodSearchProvider,
         ),
+        ChangeNotifierProvider<RecipeProvider>.value(value: mockRecipeProvider),
       ],
       child: const MaterialApp(home: FoodSearchScreen()),
     );
@@ -179,7 +195,7 @@ void main() {
     expect(find.text('Discard changes?'), findsOneWidget);
   });
 
-  testWidgets('tapping on a search result navigates to PortionEditScreen', (
+  testWidgets('tapping on a search result navigates to QuantityEditScreen', (
     tester,
   ) async {
     final food = Food(
@@ -206,7 +222,7 @@ void main() {
     await tester.tap(find.text('🍎 Apple'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(PortionEditScreen), findsOneWidget);
+    expect(find.byType(QuantityEditScreen), findsOneWidget);
   });
 
   testWidgets(

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/utils/math_evaluator.dart';
+import 'package:free_cal_counter1/utils/quantity_edit_utils.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 
 class QuantityEditScreen extends StatefulWidget {
@@ -85,15 +85,28 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         final divisor = (isRecipe && _isPerServing) ? servings : 1.0;
 
         // 1. Item Macros
-        final itemValues = _calculatePortionMacros(food, currentGrams, divisor);
-
-        // 2. Parent Macros (Projected)
-        final parentValues = _calculateParentProjectedMacros(
-          isRecipe ? recipeProvider : logProvider,
+        final itemValues = QuantityEditUtils.calculatePortionMacros(
           food,
           currentGrams,
-          widget.config.originalGrams,
           divisor,
+        );
+
+        // 2. Parent Macros (Projected)
+        final parentValues = QuantityEditUtils.calculateParentProjectedMacros(
+          totalCalories: isRecipe
+              ? recipeProvider.totalCalories
+              : logProvider.totalCalories,
+          totalProtein: isRecipe
+              ? recipeProvider.totalProtein
+              : logProvider.totalProtein,
+          totalFat: isRecipe ? recipeProvider.totalFat : logProvider.totalFat,
+          totalCarbs: isRecipe
+              ? recipeProvider.totalCarbs
+              : logProvider.totalCarbs,
+          food: food,
+          currentGrams: currentGrams,
+          originalGrams: widget.config.originalGrams,
+          divisor: divisor,
         );
 
         return Column(
@@ -239,84 +252,12 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
 
   double _calculateCurrentGrams() {
     final quantity = MathEvaluator.evaluate(_quantityController.text) ?? 0.0;
-    if (_selectedTargetIndex == 0) {
-      // Unit target
-      final serving = widget.config.food.servings.firstWhere(
-        (s) => s.unit == _selectedUnit,
-        orElse: () => widget.config.food.servings.first,
-      );
-      return serving.gramsFromQuantity(quantity);
-    } else {
-      // Macro target (Cal, Protein, Fat, Carbs)
-      final food = widget.config.food;
-      double perGram;
-      switch (_selectedTargetIndex) {
-        case 1:
-          perGram = food.calories;
-          break;
-        case 2:
-          perGram = food.protein;
-          break;
-        case 3:
-          perGram = food.fat;
-          break;
-        case 4:
-          perGram = food.carbs;
-          break;
-        default:
-          perGram = 1.0;
-      }
-      return perGram > 0 ? quantity / perGram : 0.0;
-    }
-  }
-
-  Map<String, double> _calculatePortionMacros(
-    Food food,
-    double grams,
-    double divisor,
-  ) {
-    return {
-      'Calories': (food.calories * grams) / divisor,
-      'Protein': (food.protein * grams) / divisor,
-      'Fat': (food.fat * grams) / divisor,
-      'Carbs': (food.carbs * grams) / divisor,
-    };
-  }
-
-  Map<String, double> _calculateParentProjectedMacros(
-    dynamic provider,
-    Food food,
-    double currentGrams,
-    double originalGrams,
-    double divisor,
-  ) {
-    final double calories =
-        (provider.totalCalories -
-            (food.calories * originalGrams) +
-            (food.calories * currentGrams)) /
-        divisor;
-    final double protein =
-        (provider.totalProtein -
-            (food.protein * originalGrams) +
-            (food.protein * currentGrams)) /
-        divisor;
-    final double fat =
-        (provider.totalFat -
-            (food.fat * originalGrams) +
-            (food.fat * currentGrams)) /
-        divisor;
-    final double carbs =
-        (provider.totalCarbs -
-            (food.carbs * originalGrams) +
-            (food.carbs * currentGrams)) /
-        divisor;
-
-    return {
-      'Calories': calories,
-      'Protein': protein,
-      'Fat': fat,
-      'Carbs': carbs,
-    };
+    return QuantityEditUtils.calculateGrams(
+      quantity: quantity,
+      food: widget.config.food,
+      selectedUnit: _selectedUnit,
+      selectedTargetIndex: _selectedTargetIndex,
+    );
   }
 
   Map<String, double> _getDayTargets(LogProvider provider) {

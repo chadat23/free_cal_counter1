@@ -77,7 +77,7 @@ class Recipe {
           grams: gramsPerPortion,
           quantity: 1.0,
         ),
-        FoodServing(foodId: id, unit: 'gram', grams: 1.0, quantity: 1.0),
+        FoodServing(foodId: id, unit: 'g', grams: 1.0, quantity: 1.0),
       ],
     );
   }

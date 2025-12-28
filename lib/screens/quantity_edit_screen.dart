@@ -188,11 +188,12 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         _selectedTargetIndex = index;
         if (index != 0) {
           // Selecting a macro target switches unit to "g" (if available)
-          final hasGrams = widget.config.food.servings.any(
-            (s) => s.unit == 'g',
+          final gramServing = widget.config.food.servings.firstWhere(
+            (s) => s.unit == 'g' || s.unit == 'gram',
+            orElse: () => widget.config.food.servings.first,
           );
-          if (hasGrams) {
-            _selectedUnit = 'g';
+          if (gramServing.unit == 'g' || gramServing.unit == 'gram') {
+            _selectedUnit = gramServing.unit;
           }
         }
       }),

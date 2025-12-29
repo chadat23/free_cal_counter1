@@ -20,7 +20,7 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void goToFoodSearch() {
+  void goToSearch() {
     _previousIndex = _selectedIndex;
     _shouldFocusSearch = true;
     // A value that doesn't correspond to any tab

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/widgets/discard_dialog.dart';
-import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
 import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
@@ -105,7 +105,7 @@ class LogQueueScreen extends StatelessWidget {
               );
             },
           ),
-          bottomNavigationBar: const FoodSearchRibbon(),
+          bottomNavigationBar: const SearchRibbon(),
         );
       },
     );

@@ -127,7 +127,7 @@ testWidgets('displays food search results', (tester) async {
   await tester.pumpWidget(
     MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => mockLogProvider)],
-      child: MaterialApp(home: FoodSearchScreen()),
+      child: MaterialApp(home: SearchScreen()),
     ),
   );
   

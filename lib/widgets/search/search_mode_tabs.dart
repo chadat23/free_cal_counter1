@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 
 class SearchModeTabs extends StatelessWidget {
   const SearchModeTabs({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FoodSearchProvider>(
+    return Consumer<SearchProvider>(
       builder: (context, provider, child) {
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -42,7 +42,7 @@ class SearchModeTabs extends StatelessWidget {
 
   Widget _buildTab(
     BuildContext context,
-    FoodSearchProvider provider,
+    SearchProvider provider,
     SearchMode mode,
     IconData icon,
   ) {

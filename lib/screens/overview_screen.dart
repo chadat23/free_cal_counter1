@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/widgets/nutrition_targets_overview_chart.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
-import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
@@ -128,7 +128,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     ],
                   ),
           ),
-          const FoodSearchRibbon(),
+          const SearchRibbon(),
         ],
       ),
     );

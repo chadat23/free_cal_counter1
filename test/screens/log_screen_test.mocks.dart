@@ -14,12 +14,12 @@ import 'package:free_cal_counter1/models/food_serving.dart' as _i16;
 import 'package:free_cal_counter1/models/logged_portion.dart' as _i10;
 import 'package:free_cal_counter1/models/recipe.dart' as _i7;
 import 'package:free_cal_counter1/models/search_mode.dart' as _i15;
-import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i14;
 import 'package:free_cal_counter1/providers/log_provider.dart' as _i8;
 import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i13;
+import 'package:free_cal_counter1/providers/search_provider.dart' as _i14;
 import 'package:free_cal_counter1/services/database_service.dart' as _i3;
-import 'package:free_cal_counter1/services/food_search_service.dart' as _i5;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i4;
+import 'package:free_cal_counter1/services/search_service.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -54,9 +54,8 @@ class _FakeOffApiService_2 extends _i1.SmartFake implements _i4.OffApiService {
     : super(parent, parentInvocation);
 }
 
-class _FakeFoodSearchService_3 extends _i1.SmartFake
-    implements _i5.FoodSearchService {
-  _FakeFoodSearchService_3(Object parent, Invocation parentInvocation)
+class _FakeSearchService_3 extends _i1.SmartFake implements _i5.SearchService {
+  _FakeSearchService_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -346,8 +345,8 @@ class MockNavigationProvider extends _i1.Mock
   );
 
   @override
-  void goToFoodSearch() => super.noSuchMethod(
-    Invocation.method(#goToFoodSearch, []),
+  void goToSearch() => super.noSuchMethod(
+    Invocation.method(#goToSearch, []),
     returnValueForMissingStub: null,
   );
 
@@ -388,12 +387,11 @@ class MockNavigationProvider extends _i1.Mock
   );
 }
 
-/// A class which mocks [FoodSearchProvider].
+/// A class which mocks [SearchProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFoodSearchProvider extends _i1.Mock
-    implements _i14.FoodSearchProvider {
-  MockFoodSearchProvider() {
+class MockSearchProvider extends _i1.Mock implements _i14.SearchProvider {
+  MockSearchProvider() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -420,15 +418,15 @@ class MockFoodSearchProvider extends _i1.Mock
           as _i4.OffApiService);
 
   @override
-  _i5.FoodSearchService get foodSearchService =>
+  _i5.SearchService get searchService =>
       (super.noSuchMethod(
-            Invocation.getter(#foodSearchService),
-            returnValue: _FakeFoodSearchService_3(
+            Invocation.getter(#searchService),
+            returnValue: _FakeSearchService_3(
               this,
-              Invocation.getter(#foodSearchService),
+              Invocation.getter(#searchService),
             ),
           )
-          as _i5.FoodSearchService);
+          as _i5.SearchService);
 
   @override
   List<_i6.Food> get searchResults =>

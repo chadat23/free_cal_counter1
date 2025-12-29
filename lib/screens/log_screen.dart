@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
-import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/logged_portion.dart';
 import 'package:free_cal_counter1/models/meal.dart';
@@ -144,7 +144,7 @@ class _LogScreenState extends State<LogScreen> {
               },
             ),
           ),
-          const FoodSearchRibbon(),
+          const SearchRibbon(),
         ],
       ),
     );

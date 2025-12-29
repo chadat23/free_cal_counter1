@@ -1,30 +1,30 @@
 import 'package:flutter_test/flutter_test.dart' hide isNotNull;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
-import 'package:free_cal_counter1/services/food_search_service.dart';
+import 'package:free_cal_counter1/services/search_service.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 
 import 'package:free_cal_counter1/models/search_mode.dart';
-import 'food_search_provider_test.mocks.dart';
+import 'search_provider_test.mocks.dart';
 
-@GenerateMocks([DatabaseService, OffApiService, FoodSearchService])
+@GenerateMocks([DatabaseService, OffApiService, SearchService])
 void main() {
-  late FoodSearchProvider foodSearchProvider;
+  late SearchProvider searchProvider;
   late MockDatabaseService mockDatabaseService;
   late MockOffApiService mockOffApiService;
-  late MockFoodSearchService mockFoodSearchService;
+  late MockSearchService mockSearchService;
 
   setUp(() {
     mockDatabaseService = MockDatabaseService();
     mockOffApiService = MockOffApiService();
-    mockFoodSearchService = MockFoodSearchService();
-    foodSearchProvider = FoodSearchProvider(
+    mockSearchService = MockSearchService();
+    searchProvider = SearchProvider(
       databaseService: mockDatabaseService,
       offApiService: mockOffApiService,
-      foodSearchService: mockFoodSearchService,
+      searchService: mockSearchService,
     );
   });
 
@@ -45,16 +45,16 @@ void main() {
         ),
       ];
       when(
-        mockFoodSearchService.searchLocal('apple'),
+        mockSearchService.searchLocal('apple'),
       ).thenAnswer((_) async => mockFoods);
 
       // Act
-      await foodSearchProvider.textSearch('apple');
+      await searchProvider.textSearch('apple');
 
       // Assert
-      expect(foodSearchProvider.searchResults, mockFoods);
-      verify(mockFoodSearchService.searchLocal('apple')).called(1);
-      verifyNever(mockFoodSearchService.searchOff(any));
+      expect(searchProvider.searchResults, mockFoods);
+      verify(mockSearchService.searchLocal('apple')).called(1);
+      verifyNever(mockSearchService.searchOff(any));
     });
 
     test(
@@ -76,18 +76,18 @@ void main() {
         ];
 
         when(
-          mockFoodSearchService.getAllRecipesAsFoods(),
+          mockSearchService.getAllRecipesAsFoods(),
         ).thenAnswer((_) async => mockRecipes);
 
-        foodSearchProvider.setSearchMode(SearchMode.recipe);
+        searchProvider.setSearchMode(SearchMode.recipe);
 
         // Act
-        await foodSearchProvider.textSearch('');
+        await searchProvider.textSearch('');
 
         // Assert
-        expect(foodSearchProvider.searchResults, mockRecipes);
-        verify(mockFoodSearchService.getAllRecipesAsFoods()).called(1);
-        verifyNever(mockFoodSearchService.searchLocal(any));
+        expect(searchProvider.searchResults, mockRecipes);
+        verify(mockSearchService.getAllRecipesAsFoods()).called(1);
+        verifyNever(mockSearchService.searchLocal(any));
       },
     );
 
@@ -110,43 +110,43 @@ void main() {
         ];
 
         when(
-          mockFoodSearchService.searchLocal('Lasagna'),
+          mockSearchService.searchLocal('Lasagna'),
         ).thenAnswer((_) async => mockRecipes);
 
-        foodSearchProvider.setSearchMode(SearchMode.recipe);
+        searchProvider.setSearchMode(SearchMode.recipe);
 
         // Act
-        await foodSearchProvider.textSearch('Lasagna');
+        await searchProvider.textSearch('Lasagna');
 
         // Assert
-        expect(foodSearchProvider.searchResults, mockRecipes);
-        verify(mockFoodSearchService.searchLocal('Lasagna')).called(1);
-        verifyNever(mockFoodSearchService.getAllRecipesAsFoods());
+        expect(searchProvider.searchResults, mockRecipes);
+        verify(mockSearchService.searchLocal('Lasagna')).called(1);
+        verifyNever(mockSearchService.getAllRecipesAsFoods());
       },
     );
 
     test('should set errorMessage on local search error', () async {
       // Arrange
       when(
-        mockFoodSearchService.searchLocal(any),
+        mockSearchService.searchLocal(any),
       ).thenThrow(Exception('Local DB error'));
 
       // Act
-      await foodSearchProvider.textSearch('error_query');
+      await searchProvider.textSearch('error_query');
 
       // Assert
-      expect(foodSearchProvider.errorMessage, contains('Local DB error'));
-      expect(foodSearchProvider.searchResults, isEmpty);
+      expect(searchProvider.errorMessage, contains('Local DB error'));
+      expect(searchProvider.searchResults, isEmpty);
     });
   });
 
   group('performOffSearch', () {
     test('should do nothing if current query is empty', () async {
       // Act
-      await foodSearchProvider.performOffSearch();
+      await searchProvider.performOffSearch();
 
       // Assert
-      verifyZeroInteractions(mockFoodSearchService);
+      verifyZeroInteractions(mockSearchService);
     });
 
     test(
@@ -168,22 +168,20 @@ void main() {
           ),
         ];
         // First, perform a text search to set the current query
-        when(
-          mockFoodSearchService.searchLocal(query),
-        ).thenAnswer((_) async => []);
-        await foodSearchProvider.textSearch(query);
+        when(mockSearchService.searchLocal(query)).thenAnswer((_) async => []);
+        await searchProvider.textSearch(query);
 
         // Now, stub the OFF search
         when(
-          mockFoodSearchService.searchOff(query),
+          mockSearchService.searchOff(query),
         ).thenAnswer((_) async => mockOffFoods);
 
         // Act
-        await foodSearchProvider.performOffSearch();
+        await searchProvider.performOffSearch();
 
         // Assert
-        expect(foodSearchProvider.searchResults, mockOffFoods);
-        verify(mockFoodSearchService.searchOff(query)).called(1);
+        expect(searchProvider.searchResults, mockOffFoods);
+        verify(mockSearchService.searchOff(query)).called(1);
       },
     );
 
@@ -191,22 +189,20 @@ void main() {
       // Arrange
       const query = 'error_query';
       // Set the current query
-      when(
-        mockFoodSearchService.searchLocal(query),
-      ).thenAnswer((_) async => []);
-      await foodSearchProvider.textSearch(query);
+      when(mockSearchService.searchLocal(query)).thenAnswer((_) async => []);
+      await searchProvider.textSearch(query);
 
       // Stub the OFF search to throw an error
       when(
-        mockFoodSearchService.searchOff(query),
+        mockSearchService.searchOff(query),
       ).thenThrow(Exception('OFF API error'));
 
       // Act
-      await foodSearchProvider.performOffSearch();
+      await searchProvider.performOffSearch();
 
       // Assert
-      expect(foodSearchProvider.errorMessage, contains('OFF API error'));
-      expect(foodSearchProvider.searchResults, isEmpty);
+      expect(searchProvider.errorMessage, contains('OFF API error'));
+      expect(searchProvider.searchResults, isEmpty);
     });
   });
 
@@ -233,28 +229,28 @@ void main() {
       ).thenAnswer((_) async => mockFood);
 
       // Act
-      await foodSearchProvider.barcodeSearch('12345');
+      await searchProvider.barcodeSearch('12345');
 
       // Assert
-      expect(foodSearchProvider.searchResults, [mockFood]);
+      expect(searchProvider.searchResults, [mockFood]);
       verify(mockDatabaseService.getFoodByBarcode('12345')).called(1);
       verify(mockOffApiService.fetchFoodByBarcode('12345')).called(1);
     });
   });
   group('searchMode', () {
     test('should default to text', () {
-      expect(foodSearchProvider.searchMode, SearchMode.text);
+      expect(searchProvider.searchMode, SearchMode.text);
     });
 
     test('should update searchMode and notify listeners', () {
       bool notified = false;
-      foodSearchProvider.addListener(() {
+      searchProvider.addListener(() {
         notified = true;
       });
 
-      foodSearchProvider.setSearchMode(SearchMode.scan);
+      searchProvider.setSearchMode(SearchMode.scan);
 
-      expect(foodSearchProvider.searchMode, SearchMode.scan);
+      expect(searchProvider.searchMode, SearchMode.scan);
       expect(notified, isTrue);
     });
   });

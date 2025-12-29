@@ -2,18 +2,18 @@ import 'package:flutter/foundation.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
-import 'package:free_cal_counter1/services/food_search_service.dart';
+import 'package:free_cal_counter1/services/search_service.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 
-class FoodSearchProvider extends ChangeNotifier {
+class SearchProvider extends ChangeNotifier {
   final DatabaseService databaseService;
   final OffApiService offApiService;
-  final FoodSearchService foodSearchService;
+  final SearchService searchService;
 
-  FoodSearchProvider({
+  SearchProvider({
     required this.databaseService,
     required this.offApiService,
-    required this.foodSearchService,
+    required this.searchService,
   });
 
   List<model.Food> _searchResults = [];
@@ -50,9 +50,9 @@ class FoodSearchProvider extends ChangeNotifier {
 
     try {
       if (query.isEmpty && _searchMode == SearchMode.recipe) {
-        _searchResults = await foodSearchService.getAllRecipesAsFoods();
+        _searchResults = await searchService.getAllRecipesAsFoods();
       } else {
-        _searchResults = await foodSearchService.searchLocal(query);
+        _searchResults = await searchService.searchLocal(query);
       }
     } catch (e) {
       _errorMessage = 'Failed to search for food: ${e.toString()}';
@@ -72,7 +72,7 @@ class FoodSearchProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _searchResults = await foodSearchService.searchOff(_currentQuery);
+      _searchResults = await searchService.searchOff(_currentQuery);
     } catch (e) {
       _errorMessage = 'Failed to search for food: ${e.toString()}';
       _searchResults = [];

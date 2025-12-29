@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
-import 'package:free_cal_counter1/services/food_search_service.dart';
+import 'package:free_cal_counter1/services/search_service.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/services/live_database.dart'
     hide FoodsCompanion;
@@ -23,7 +23,7 @@ void main() {
   late LiveDatabase liveDatabase;
   late ReferenceDatabase referenceDatabase;
   late FakeOffApiService mockOffApiService;
-  late FoodSearchService foodSearchService;
+  late SearchService searchService;
 
   setUp(() {
     liveDatabase = LiveDatabase(connection: NativeDatabase.memory());
@@ -33,7 +33,7 @@ void main() {
       referenceDatabase,
     );
     mockOffApiService = FakeOffApiService();
-    foodSearchService = FoodSearchService(
+    searchService = SearchService(
       databaseService: databaseService,
       offApiService: mockOffApiService,
       emojiForFoodName: (name) => '🍎',
@@ -70,7 +70,7 @@ void main() {
     );
 
     // Act
-    final results = await foodSearchService.searchLocal('Apple');
+    final results = await searchService.searchLocal('Apple');
 
     // Assert
     expect(results.length, 1, reason: 'Should have found 1 result');

@@ -4,7 +4,7 @@ import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
 import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
-import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
+import 'package:free_cal_counter1/widgets/search_result_tile.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +14,7 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart';
 
-import 'food_search_result_tile_test.mocks.dart';
+import 'search_result_tile_test.mocks.dart';
 
 @GenerateMocks([LogProvider])
 void main() {
@@ -25,7 +25,7 @@ void main() {
     DatabaseService.initSingletonForTesting(liveDb, refDb);
   });
 
-  group('FoodSearchResultTile', () {
+  group('SearchResultTile', () {
     testWidgets('displays food name and nutritional info with unit dropdown', (
       tester,
     ) async {
@@ -68,7 +68,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: FoodSearchResultTile(food: food, onTap: (_) {}),
+            body: SearchResultTile(food: food, onTap: (_) {}),
           ),
         ),
       );
@@ -142,7 +142,7 @@ void main() {
             value: mockLogProvider,
             child: MaterialApp(
               home: Scaffold(
-                body: FoodSearchResultTile(food: food, onTap: (_) {}),
+                body: SearchResultTile(food: food, onTap: (_) {}),
               ),
             ),
           ),
@@ -193,7 +193,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: FoodSearchResultTile(food: food, onTap: (_) {}),
+            body: SearchResultTile(food: food, onTap: (_) {}),
           ),
         ),
       );

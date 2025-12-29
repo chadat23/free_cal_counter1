@@ -2,37 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
-import 'package:free_cal_counter1/screens/food_search_screen.dart';
-import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/screens/search_screen.dart';
+import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'package:free_cal_counter1/models/search_mode.dart';
-import 'package:free_cal_counter1/models/food_search_config.dart';
+import 'package:free_cal_counter1/models/search_config.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
-import 'food_search_ribbon_test.mocks.dart';
+import 'search_ribbon_test.mocks.dart';
 
-@GenerateMocks([LogProvider, NavigationProvider, FoodSearchProvider])
+@GenerateMocks([LogProvider, NavigationProvider, SearchProvider])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
-  late MockFoodSearchProvider mockFoodSearchProvider;
+  late MockSearchProvider mockSearchProvider;
 
   setUp(() {
     provideDummy<Future<void>>(Future.value());
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
-    mockFoodSearchProvider = MockFoodSearchProvider(); // Use the mock
+    mockSearchProvider = MockSearchProvider(); // Use the mock
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
     when(mockNavigationProvider.showConsumed).thenReturn(true);
-    when(mockFoodSearchProvider.searchResults).thenReturn([]);
-    when(mockFoodSearchProvider.errorMessage).thenReturn(null); // ADDED
-    when(mockFoodSearchProvider.isLoading).thenReturn(false); // ADDED
-    when(mockFoodSearchProvider.searchMode).thenReturn(SearchMode.text);
+    when(mockSearchProvider.searchResults).thenReturn([]);
+    when(mockSearchProvider.errorMessage).thenReturn(null); // ADDED
+    when(mockSearchProvider.isLoading).thenReturn(false); // ADDED
+    when(mockSearchProvider.searchMode).thenReturn(SearchMode.text);
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.totalProtein).thenReturn(0.0);
     when(mockLogProvider.totalFat).thenReturn(0.0);
@@ -58,15 +58,15 @@ void main() {
         ChangeNotifierProvider<NavigationProvider>.value(
           value: mockNavigationProvider,
         ),
-        ChangeNotifierProvider<FoodSearchProvider>.value(
-          value: mockFoodSearchProvider,
+        ChangeNotifierProvider<SearchProvider>.value(
+          value: mockSearchProvider,
         ), // Use the mock
       ],
       child: MaterialApp(
         navigatorKey: GlobalKey<NavigatorState>(),
-        home: const Scaffold(body: FoodSearchRibbon()),
+        home: const Scaffold(body: SearchRibbon()),
         onGenerateRoute: (settings) {
-          if (settings.name == AppRouter.foodSearchRoute) {
+          if (settings.name == AppRouter.searchRoute) {
             return MaterialPageRoute(
               builder: (_) => MultiProvider(
                 // ADDED MultiProvider
@@ -77,12 +77,12 @@ void main() {
                   ChangeNotifierProvider<NavigationProvider>.value(
                     value: mockNavigationProvider,
                   ),
-                  ChangeNotifierProvider<FoodSearchProvider>.value(
-                    value: mockFoodSearchProvider,
+                  ChangeNotifierProvider<SearchProvider>.value(
+                    value: mockSearchProvider,
                   ),
                 ],
-                child: const FoodSearchScreen(
-                  config: FoodSearchConfig(
+                child: const SearchScreen(
+                  config: SearchConfig(
                     context: QuantityEditContext.day,
                     title: 'Food Search',
                     showQueueStats: true,
@@ -105,7 +105,7 @@ void main() {
     await tester.tap(find.byKey(const Key('food_search_text_field')));
     await tester.pumpAndSettle();
 
-    expect(find.byType(FoodSearchScreen), findsOneWidget);
+    expect(find.byType(SearchScreen), findsOneWidget);
   });
 
   group('OFF Button', () {
@@ -127,7 +127,7 @@ void main() {
           ],
           child: MaterialApp(
             home: Scaffold(
-              body: FoodSearchRibbon(
+              body: SearchRibbon(
                 onOffSearch: () {
                   offSearchCalled = true;
                 },

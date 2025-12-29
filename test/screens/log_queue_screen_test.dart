@@ -3,37 +3,37 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/screens/log_queue_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
-import 'package:free_cal_counter1/services/food_search_service.dart';
+import 'package:free_cal_counter1/services/search_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:provider/provider.dart';
 
 import 'log_queue_screen_test.mocks.dart';
 
-@GenerateMocks([DatabaseService, OffApiService, FoodSearchService])
+@GenerateMocks([DatabaseService, OffApiService, SearchService])
 void main() {
   late LogProvider logProvider;
   late NavigationProvider navigationProvider;
-  late FoodSearchProvider foodSearchProvider;
+  late SearchProvider searchProvider;
   late MockDatabaseService mockDatabaseService;
   late MockOffApiService mockOffApiService;
-  late MockFoodSearchService mockFoodSearchService;
+  late MockSearchService mockSearchService;
 
   setUp(() {
     logProvider = LogProvider();
     navigationProvider = NavigationProvider();
     mockDatabaseService = MockDatabaseService();
     mockOffApiService = MockOffApiService();
-    mockFoodSearchService = MockFoodSearchService();
-    foodSearchProvider = FoodSearchProvider(
+    mockSearchService = MockSearchService();
+    searchProvider = SearchProvider(
       databaseService: mockDatabaseService,
       offApiService: mockOffApiService,
-      foodSearchService: mockFoodSearchService,
+      searchService: mockSearchService,
     );
   });
 
@@ -62,7 +62,7 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: logProvider),
           ChangeNotifierProvider.value(value: navigationProvider),
-          ChangeNotifierProvider.value(value: foodSearchProvider),
+          ChangeNotifierProvider.value(value: searchProvider),
         ],
         child: const MaterialApp(home: LogQueueScreen()),
       ),

@@ -9,12 +9,12 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:provider/provider.dart';
 
-class FoodSearchResultTile extends StatefulWidget {
+class SearchResultTile extends StatefulWidget {
   final Food food;
   final void Function(model_unit.FoodServing) onTap;
   final void Function(model_unit.FoodServing)? onAdd;
 
-  const FoodSearchResultTile({
+  const SearchResultTile({
     super.key,
     required this.food,
     required this.onTap,
@@ -22,10 +22,10 @@ class FoodSearchResultTile extends StatefulWidget {
   });
 
   @override
-  State<FoodSearchResultTile> createState() => _FoodSearchResultTileState();
+  State<SearchResultTile> createState() => _SearchResultTileState();
 }
 
-class _FoodSearchResultTileState extends State<FoodSearchResultTile> {
+class _SearchResultTileState extends State<SearchResultTile> {
   late model_unit.FoodServing _selectedUnit;
   late List<model_unit.FoodServing> _availableServings;
 

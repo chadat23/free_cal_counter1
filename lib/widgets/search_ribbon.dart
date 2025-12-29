@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 
-class FoodSearchRibbon extends StatefulWidget {
+class SearchRibbon extends StatefulWidget {
   final bool isSearchActive;
   final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onOffSearch;
 
-  const FoodSearchRibbon({
+  const SearchRibbon({
     super.key,
     this.isSearchActive = false,
     this.focusNode,
@@ -19,10 +19,10 @@ class FoodSearchRibbon extends StatefulWidget {
   });
 
   @override
-  State<FoodSearchRibbon> createState() => _FoodSearchRibbonState();
+  State<SearchRibbon> createState() => _SearchRibbonState();
 }
 
-class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
+class _SearchRibbonState extends State<SearchRibbon> {
   late TextEditingController _controller;
 
   @override
@@ -65,8 +65,8 @@ class _FoodSearchRibbonState extends State<FoodSearchRibbon> {
                       Provider.of<NavigationProvider>(
                         context,
                         listen: false,
-                      ).goToFoodSearch();
-                      Navigator.pushNamed(context, AppRouter.foodSearchRoute);
+                      ).goToSearch();
+                      Navigator.pushNamed(context, AppRouter.searchRoute);
                     },
                     child: AbsorbPointer(
                       child: TextField(

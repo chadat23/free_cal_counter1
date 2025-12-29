@@ -8,10 +8,10 @@ import 'dart:ui' as _i9;
 
 import 'package:free_cal_counter1/models/food.dart' as _i6;
 import 'package:free_cal_counter1/models/search_mode.dart' as _i7;
-import 'package:free_cal_counter1/providers/food_search_provider.dart' as _i5;
+import 'package:free_cal_counter1/providers/search_provider.dart' as _i5;
 import 'package:free_cal_counter1/services/database_service.dart' as _i2;
-import 'package:free_cal_counter1/services/food_search_service.dart' as _i4;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i3;
+import 'package:free_cal_counter1/services/search_service.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -40,18 +40,16 @@ class _FakeOffApiService_1 extends _i1.SmartFake implements _i3.OffApiService {
     : super(parent, parentInvocation);
 }
 
-class _FakeFoodSearchService_2 extends _i1.SmartFake
-    implements _i4.FoodSearchService {
-  _FakeFoodSearchService_2(Object parent, Invocation parentInvocation)
+class _FakeSearchService_2 extends _i1.SmartFake implements _i4.SearchService {
+  _FakeSearchService_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-/// A class which mocks [FoodSearchProvider].
+/// A class which mocks [SearchProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFoodSearchProvider extends _i1.Mock
-    implements _i5.FoodSearchProvider {
-  MockFoodSearchProvider() {
+class MockSearchProvider extends _i1.Mock implements _i5.SearchProvider {
+  MockSearchProvider() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -78,15 +76,15 @@ class MockFoodSearchProvider extends _i1.Mock
           as _i3.OffApiService);
 
   @override
-  _i4.FoodSearchService get foodSearchService =>
+  _i4.SearchService get searchService =>
       (super.noSuchMethod(
-            Invocation.getter(#foodSearchService),
-            returnValue: _FakeFoodSearchService_2(
+            Invocation.getter(#searchService),
+            returnValue: _FakeSearchService_2(
               this,
-              Invocation.getter(#foodSearchService),
+              Invocation.getter(#searchService),
             ),
           )
-          as _i4.FoodSearchService);
+          as _i4.SearchService);
 
   @override
   List<_i6.Food> get searchResults =>

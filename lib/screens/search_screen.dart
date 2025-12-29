@@ -3,27 +3,27 @@ import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:free_cal_counter1/widgets/discard_dialog.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
 import 'package:provider/provider.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
-import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 import 'package:free_cal_counter1/widgets/search/search_mode_tabs.dart';
 import 'package:free_cal_counter1/widgets/search/text_search_view.dart';
 import 'package:free_cal_counter1/widgets/search/scan_search_view.dart';
 import 'package:free_cal_counter1/widgets/search/recipe_search_view.dart';
-import 'package:free_cal_counter1/models/food_search_config.dart';
+import 'package:free_cal_counter1/models/search_config.dart';
 
-class FoodSearchScreen extends StatefulWidget {
-  final FoodSearchConfig config;
+class SearchScreen extends StatefulWidget {
+  final SearchConfig config;
 
-  const FoodSearchScreen({super.key, required this.config});
+  const SearchScreen({super.key, required this.config});
 
   @override
-  State<FoodSearchScreen> createState() => _FoodSearchScreenState();
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _FoodSearchScreenState extends State<FoodSearchScreen> {
+class _SearchScreenState extends State<SearchScreen> {
   late FocusNode _focusNode;
 
   @override
@@ -105,22 +105,22 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
               )
             : Text(widget.config.title),
       ),
-      body: Consumer<FoodSearchProvider>(
-        builder: (context, foodSearchProvider, child) {
+      body: Consumer<SearchProvider>(
+        builder: (context, searchProvider, child) {
           return Column(
             children: [
               const SearchModeTabs(),
-              Expanded(child: _buildBody(foodSearchProvider.searchMode)),
+              Expanded(child: _buildBody(searchProvider.searchMode)),
             ],
           );
         },
       ),
-      bottomNavigationBar: FoodSearchRibbon(
+      bottomNavigationBar: SearchRibbon(
         isSearchActive: true,
         focusNode: _focusNode,
         onChanged: (query) {
           if (query.isNotEmpty) {
-            Provider.of<FoodSearchProvider>(
+            Provider.of<SearchProvider>(
               context,
               listen: false,
             ).textSearch(query);
@@ -129,7 +129,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           }
         },
         onOffSearch: () {
-          Provider.of<FoodSearchProvider>(
+          Provider.of<SearchProvider>(
             context,
             listen: false,
           ).performOffSearch();

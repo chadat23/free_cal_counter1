@@ -6,11 +6,11 @@ import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
-import 'package:free_cal_counter1/screens/food_search_screen.dart';
+import 'package:free_cal_counter1/screens/search_screen.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
-import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -21,21 +21,21 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/live_database.dart' as live_db;
 import 'package:free_cal_counter1/services/reference_database.dart' as ref_db;
 
-import 'package:free_cal_counter1/models/food_search_config.dart';
+import 'package:free_cal_counter1/models/search_config.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 
-import 'food_search_screen_test.mocks.dart';
+import 'search_screen_test.mocks.dart';
 
 @GenerateMocks([
   LogProvider,
   NavigationProvider,
-  FoodSearchProvider,
+  SearchProvider,
   RecipeProvider,
 ])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
-  late MockFoodSearchProvider mockFoodSearchProvider;
+  late MockSearchProvider mockSearchProvider;
   late MockRecipeProvider mockRecipeProvider;
 
   setUpAll(() async {
@@ -48,15 +48,15 @@ void main() {
   setUp(() {
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
-    mockFoodSearchProvider = MockFoodSearchProvider();
+    mockSearchProvider = MockSearchProvider();
     mockRecipeProvider = MockRecipeProvider();
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
     when(mockNavigationProvider.showConsumed).thenReturn(true);
-    when(mockFoodSearchProvider.searchResults).thenReturn([]);
-    when(mockFoodSearchProvider.isLoading).thenReturn(false);
-    when(mockFoodSearchProvider.errorMessage).thenReturn(null);
-    when(mockFoodSearchProvider.searchMode).thenReturn(SearchMode.text);
+    when(mockSearchProvider.searchResults).thenReturn([]);
+    when(mockSearchProvider.isLoading).thenReturn(false);
+    when(mockSearchProvider.errorMessage).thenReturn(null);
+    when(mockSearchProvider.searchMode).thenReturn(SearchMode.text);
 
     // Default mocks for macros to avoid null errors in LogQueueTopRibbon
     when(mockLogProvider.totalCalories).thenReturn(0.0);
@@ -90,14 +90,12 @@ void main() {
         ChangeNotifierProvider<NavigationProvider>.value(
           value: mockNavigationProvider,
         ),
-        ChangeNotifierProvider<FoodSearchProvider>.value(
-          value: mockFoodSearchProvider,
-        ),
+        ChangeNotifierProvider<SearchProvider>.value(value: mockSearchProvider),
         ChangeNotifierProvider<RecipeProvider>.value(value: mockRecipeProvider),
       ],
       child: const MaterialApp(
-        home: FoodSearchScreen(
-          config: FoodSearchConfig(
+        home: SearchScreen(
+          config: SearchConfig(
             context: QuantityEditContext.day,
             title: 'Food Search',
             showQueueStats: true,
@@ -108,15 +106,13 @@ void main() {
   }
 
   testWidgets(
-    'FoodSearchScreen displays error message when errorMessage is not null',
+    'SearchScreen displays error message when errorMessage is not null',
     (WidgetTester tester) async {
       when(mockLogProvider.logQueue).thenReturn([]);
       when(mockLogProvider.totalCalories).thenReturn(0.0);
       when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
-      when(mockFoodSearchProvider.isLoading).thenReturn(false);
-      when(
-        mockFoodSearchProvider.errorMessage,
-      ).thenReturn('Test Error Message');
+      when(mockSearchProvider.isLoading).thenReturn(false);
+      when(mockSearchProvider.errorMessage).thenReturn('Test Error Message');
 
       await tester.pumpWidget(createTestWidget());
 
@@ -125,12 +121,12 @@ void main() {
   );
 
   testWidgets(
-    'FoodSearchScreen displays a CircularProgressIndicator when loading',
+    'SearchScreen displays a CircularProgressIndicator when loading',
     (WidgetTester tester) async {
       when(mockLogProvider.logQueue).thenReturn([]);
       when(mockLogProvider.totalCalories).thenReturn(0.0);
       when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
-      when(mockFoodSearchProvider.isLoading).thenReturn(true);
+      when(mockSearchProvider.isLoading).thenReturn(true);
 
       await tester.pumpWidget(createTestWidget());
 
@@ -138,7 +134,7 @@ void main() {
     },
   );
 
-  testWidgets('FoodSearchScreen has a close button and LogQueueTopRibbon', (
+  testWidgets('SearchScreen has a close button and LogQueueTopRibbon', (
     WidgetTester tester,
   ) async {
     when(mockLogProvider.logQueue).thenReturn([]);
@@ -151,16 +147,14 @@ void main() {
     expect(find.byType(LogQueueTopRibbon), findsOneWidget);
   });
 
-  testWidgets('FoodSearchScreen has a FoodSearchRibbon', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('SearchScreen has a SearchRibbon', (WidgetTester tester) async {
     when(mockLogProvider.logQueue).thenReturn([]);
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
 
     await tester.pumpWidget(createTestWidget());
 
-    expect(find.byType(FoodSearchRibbon), findsOneWidget);
+    expect(find.byType(SearchRibbon), findsOneWidget);
   });
 
   testWidgets('tapping close button pops screen when queue is empty', (
@@ -223,7 +217,7 @@ void main() {
         FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
       ],
     );
-    when(mockFoodSearchProvider.searchResults).thenReturn([food]);
+    when(mockSearchProvider.searchResults).thenReturn([food]);
     when(mockLogProvider.logQueue).thenReturn([]);
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);

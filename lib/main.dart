@@ -7,7 +7,7 @@ import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
-import 'package:free_cal_counter1/services/food_search_service.dart'; // ADDED
+import 'package:free_cal_counter1/services/search_service.dart'; // ADDED
 import 'package:free_cal_counter1/utils/debug_seeder.dart';
 import 'package:provider/provider.dart';
 import 'package:openfoodfacts/openfoodfacts.dart'; // Import openfoodfacts
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
     // Instantiate services that will be injected
     final databaseService = DatabaseService.instance;
     final offApiService = OffApiService();
-    final foodSearchService = FoodSearchService(
+    final searchService = SearchService(
       // NEW
       databaseService: databaseService,
       offApiService: offApiService,
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
     final appRouter = AppRouter(
       databaseService: databaseService,
       offApiService: offApiService,
-      foodSearchService: foodSearchService,
+      searchService: searchService,
     );
 
     return MultiProvider(

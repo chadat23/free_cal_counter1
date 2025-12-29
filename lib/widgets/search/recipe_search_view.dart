@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/recipe.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
@@ -10,10 +10,10 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/widgets/search/slidable_recipe_search_result.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
-import 'package:free_cal_counter1/models/food_search_config.dart';
+import 'package:free_cal_counter1/models/search_config.dart';
 
 class RecipeSearchView extends StatefulWidget {
-  final FoodSearchConfig config;
+  final SearchConfig config;
   const RecipeSearchView({super.key, required this.config});
 
   @override
@@ -26,7 +26,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
     super.initState();
     // Trigger initial search to show all recipes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FoodSearchProvider>(context, listen: false).textSearch('');
+      Provider.of<SearchProvider>(context, listen: false).textSearch('');
     });
   }
 
@@ -47,7 +47,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
               );
               if (saved == true && context.mounted) {
                 // Refresh the search list by searching for current query again
-                Provider.of<FoodSearchProvider>(
+                Provider.of<SearchProvider>(
                   context,
                   listen: false,
                 ).textSearch('');
@@ -59,7 +59,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
           ),
         ),
         Expanded(
-          child: Consumer<FoodSearchProvider>(
+          child: Consumer<SearchProvider>(
             builder: (context, provider, child) {
               final recipes = provider.searchResults
                   .where((food) => food.source == 'recipe')
@@ -94,7 +94,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                     context,
                     listen: false,
                   );
-                  final foodSearchProvider = Provider.of<FoodSearchProvider>(
+                  final searchProvider = Provider.of<SearchProvider>(
                     context,
                     listen: false,
                   );
@@ -146,7 +146,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                           AppRouter.recipeEditRoute,
                         );
                         if (saved == true) {
-                          foodSearchProvider.textSearch('');
+                          searchProvider.textSearch('');
                         }
                       }
                     },
@@ -159,13 +159,13 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                           AppRouter.recipeEditRoute,
                         );
                         if (saved == true) {
-                          foodSearchProvider.textSearch('');
+                          searchProvider.textSearch('');
                         }
                       }
                     },
                     onDelete: () async {
                       await db.deleteRecipe(food.id);
-                      foodSearchProvider.textSearch('');
+                      searchProvider.textSearch('');
                     },
                     onDecompose: () async {
                       final recipe = await db.getRecipeById(food.id);

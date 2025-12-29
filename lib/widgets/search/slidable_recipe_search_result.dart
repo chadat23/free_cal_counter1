@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
-import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
+import 'package:free_cal_counter1/widgets/search_result_tile.dart';
 
 class SlidableRecipeSearchResult extends StatelessWidget {
   final Food food;
@@ -61,7 +61,7 @@ class SlidableRecipeSearchResult extends StatelessWidget {
           ),
         ],
       ),
-      child: FoodSearchResultTile(food: food, onTap: onTap, onAdd: onAdd),
+      child: SearchResultTile(food: food, onTap: onTap, onAdd: onAdd),
     );
   }
 

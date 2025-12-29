@@ -3,12 +3,12 @@ import 'package:free_cal_counter1/models/food.dart' as model;
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 
-class FoodSearchService {
+class SearchService {
   final DatabaseService databaseService;
   final OffApiService offApiService;
   final String Function(String) emojiForFoodName;
 
-  FoodSearchService({
+  SearchService({
     required this.databaseService,
     required this.offApiService,
     required this.emojiForFoodName,

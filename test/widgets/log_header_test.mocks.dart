@@ -68,8 +68,8 @@ class MockNavigationProvider extends _i1.Mock
   );
 
   @override
-  void goToFoodSearch() => super.noSuchMethod(
-    Invocation.method(#goToFoodSearch, []),
+  void goToSearch() => super.noSuchMethod(
+    Invocation.method(#goToSearch, []),
     returnValueForMissingStub: null,
   );
 

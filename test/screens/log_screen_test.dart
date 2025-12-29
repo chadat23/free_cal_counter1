@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/screens/log_screen.dart';
-import 'package:free_cal_counter1/widgets/food_search_ribbon.dart';
+import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -25,18 +25,18 @@ import 'log_screen_test.mocks.dart';
 @GenerateMocks([
   LogProvider,
   NavigationProvider,
-  FoodSearchProvider,
+  SearchProvider,
   DatabaseService,
 ])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
-  late MockFoodSearchProvider mockFoodSearchProvider;
+  late MockSearchProvider mockSearchProvider;
 
   setUp(() {
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
-    mockFoodSearchProvider = MockFoodSearchProvider();
+    mockSearchProvider = MockSearchProvider();
 
     // Initialize in-memory databases for testing
     final liveDb = LiveDatabase(connection: NativeDatabase.memory());
@@ -57,11 +57,11 @@ void main() {
     when(mockNavigationProvider.changeTab(any)).thenAnswer((_) {});
     when(mockNavigationProvider.showConsumed).thenReturn(true);
 
-    // Stub FoodSearchProvider
-    when(mockFoodSearchProvider.errorMessage).thenReturn(null);
-    when(mockFoodSearchProvider.isLoading).thenReturn(false);
-    when(mockFoodSearchProvider.searchResults).thenReturn([]);
-    when(mockFoodSearchProvider.searchMode).thenReturn(SearchMode.text);
+    // Stub SearchProvider
+    when(mockSearchProvider.errorMessage).thenReturn(null);
+    when(mockSearchProvider.isLoading).thenReturn(false);
+    when(mockSearchProvider.searchResults).thenReturn([]);
+    when(mockSearchProvider.searchMode).thenReturn(SearchMode.text);
   });
 
   Widget createTestWidget() {
@@ -71,20 +71,18 @@ void main() {
         ChangeNotifierProvider<NavigationProvider>.value(
           value: mockNavigationProvider,
         ),
-        ChangeNotifierProvider<FoodSearchProvider>.value(
-          value: mockFoodSearchProvider,
-        ),
+        ChangeNotifierProvider<SearchProvider>.value(value: mockSearchProvider),
       ],
       child: const MaterialApp(home: LogScreen()),
     );
   }
 
   group('LogScreen', () {
-    testWidgets('renders LogHeader and FoodSearchRibbon', (tester) async {
+    testWidgets('renders LogHeader and SearchRibbon', (tester) async {
       await tester.pumpWidget(createTestWidget());
 
       expect(find.byType(LogHeader), findsOneWidget);
-      expect(find.byType(FoodSearchRibbon), findsOneWidget);
+      expect(find.byType(SearchRibbon), findsOneWidget);
     });
 
     testWidgets('groups logs with identical timestamp into one meal', (

@@ -4,12 +4,12 @@ import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/models/recipe_item.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
-import 'package:free_cal_counter1/screens/food_search_screen.dart';
-import 'package:free_cal_counter1/models/food_search_config.dart';
-import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/screens/search_screen.dart';
+import 'package:free_cal_counter1/models/search_config.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
-import 'package:free_cal_counter1/services/food_search_service.dart';
+import 'package:free_cal_counter1/services/search_service.dart';
 import 'package:free_cal_counter1/widgets/slidable_recipe_item_widget.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
@@ -111,7 +111,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                           final databaseService = DatabaseService.instance;
                           final offApiService = OffApiService();
                           final emojiService = emojiForFoodName;
-                          final foodSearchService = FoodSearchService(
+                          final searchService = SearchService(
                             databaseService: databaseService,
                             offApiService: offApiService,
                             emojiForFoodName: emojiService,
@@ -121,13 +121,13 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ChangeNotifierProvider(
-                                create: (_) => FoodSearchProvider(
+                                create: (_) => SearchProvider(
                                   databaseService: databaseService,
                                   offApiService: offApiService,
-                                  foodSearchService: foodSearchService,
+                                  searchService: searchService,
                                 ),
-                                child: FoodSearchScreen(
-                                  config: FoodSearchConfig(
+                                child: SearchScreen(
+                                  config: SearchConfig(
                                     context: QuantityEditContext.recipe,
                                     title: 'Add Ingredient',
                                     showQueueStats: false,

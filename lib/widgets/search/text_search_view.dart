@@ -7,8 +7,11 @@ import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 
+import 'package:free_cal_counter1/models/food_search_config.dart';
+
 class TextSearchView extends StatelessWidget {
-  const TextSearchView({super.key});
+  final FoodSearchConfig config;
+  const TextSearchView({super.key, required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -45,22 +48,25 @@ class TextSearchView extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => QuantityEditScreen(
                       config: QuantityEditConfig(
-                        context: QuantityEditContext.day,
+                        context: config.context,
                         food: food,
                         initialUnit: selectedUnit.unit,
                         initialQuantity: selectedUnit.quantity,
                         onSave: (grams, unit) {
-                          Provider.of<LogProvider>(
-                            context,
-                            listen: false,
-                          ).addFoodToQueue(
-                            model_portion.FoodPortion(
-                              food: food,
-                              grams: grams,
-                              unit: unit,
-                            ),
+                          final portion = model_portion.FoodPortion(
+                            food: food,
+                            grams: grams,
+                            unit: unit,
                           );
-                          Navigator.pop(context);
+                          if (config.onSaveOverride != null) {
+                            config.onSaveOverride!(portion);
+                          } else {
+                            Provider.of<LogProvider>(
+                              context,
+                              listen: false,
+                            ).addFoodToQueue(portion);
+                            Navigator.pop(context);
+                          }
                         },
                       ),
                     ),

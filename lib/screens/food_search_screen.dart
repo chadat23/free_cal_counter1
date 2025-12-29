@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
-
 import 'package:free_cal_counter1/widgets/discard_dialog.dart';
 import 'package:free_cal_counter1/widgets/log_queue_top_ribbon.dart';
 import 'package:provider/provider.dart';
@@ -13,9 +12,12 @@ import 'package:free_cal_counter1/widgets/search/search_mode_tabs.dart';
 import 'package:free_cal_counter1/widgets/search/text_search_view.dart';
 import 'package:free_cal_counter1/widgets/search/scan_search_view.dart';
 import 'package:free_cal_counter1/widgets/search/recipe_search_view.dart';
+import 'package:free_cal_counter1/models/food_search_config.dart';
 
 class FoodSearchScreen extends StatefulWidget {
-  const FoodSearchScreen({super.key});
+  final FoodSearchConfig config;
+
+  const FoodSearchScreen({super.key, required this.config});
 
   @override
   State<FoodSearchScreen> createState() => _FoodSearchScreenState();
@@ -52,54 +54,56 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 180, // Increased to accommodate more chart rows
-        automaticallyImplyLeading: false,
-        title: Consumer<LogProvider>(
-          builder: (context, logProvider, child) {
-            return LogQueueTopRibbon(
-              leading: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () async {
-                  final logProvider = Provider.of<LogProvider>(
-                    context,
-                    listen: false,
-                  );
-                  final navProvider = Provider.of<NavigationProvider>(
-                    context,
-                    listen: false,
-                  );
+        toolbarHeight: widget.config.showQueueStats ? 180 : null,
+        automaticallyImplyLeading: !widget.config.showQueueStats,
+        title: widget.config.showQueueStats
+            ? Consumer<LogProvider>(
+                builder: (context, logProvider, child) {
+                  return LogQueueTopRibbon(
+                    leading: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () async {
+                        final logProvider = Provider.of<LogProvider>(
+                          context,
+                          listen: false,
+                        );
+                        final navProvider = Provider.of<NavigationProvider>(
+                          context,
+                          listen: false,
+                        );
 
-                  bool shouldPop = false;
-                  if (logProvider.logQueue.isNotEmpty) {
-                    final discard = await showDiscardDialog(context);
-                    if (discard == true) {
-                      logProvider.clearQueue();
-                      navProvider.goBack();
-                      shouldPop = true;
-                    }
-                  } else {
-                    navProvider.goBack();
-                    shouldPop = true;
-                  }
+                        bool shouldPop = false;
+                        if (logProvider.logQueue.isNotEmpty) {
+                          final discard = await showDiscardDialog(context);
+                          if (discard == true) {
+                            logProvider.clearQueue();
+                            navProvider.goBack();
+                            shouldPop = true;
+                          }
+                        } else {
+                          navProvider.goBack();
+                          shouldPop = true;
+                        }
 
-                  if (shouldPop) {
-                    // Defer the pop operation to the next frame
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) {
-                        Navigator.pop(context);
-                      }
-                    });
-                  }
+                        if (shouldPop) {
+                          // Defer the pop operation to the next frame
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) {
+                              Navigator.pop(context);
+                            }
+                          });
+                        }
+                      },
+                    ),
+                    arrowDirection: Icons.arrow_drop_down,
+                    onArrowPressed: () {
+                      Navigator.pushNamed(context, AppRouter.logQueueRoute);
+                    },
+                    logProvider: logProvider,
+                  );
                 },
-              ),
-              arrowDirection: Icons.arrow_drop_down,
-              onArrowPressed: () {
-                Navigator.pushNamed(context, AppRouter.logQueueRoute);
-              },
-              logProvider: logProvider,
-            );
-          },
-        ),
+              )
+            : Text(widget.config.title),
       ),
       body: Consumer<FoodSearchProvider>(
         builder: (context, foodSearchProvider, child) {
@@ -137,11 +141,11 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   Widget _buildBody(SearchMode searchMode) {
     switch (searchMode) {
       case SearchMode.text:
-        return const TextSearchView();
+        return TextSearchView(config: widget.config);
       case SearchMode.scan:
         return const ScanSearchView();
       case SearchMode.recipe:
-        return const RecipeSearchView();
+        return RecipeSearchView(config: widget.config);
     }
   }
 }

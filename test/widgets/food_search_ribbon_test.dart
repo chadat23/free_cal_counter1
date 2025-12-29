@@ -11,6 +11,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'package:free_cal_counter1/models/search_mode.dart';
+import 'package:free_cal_counter1/models/food_search_config.dart';
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'food_search_ribbon_test.mocks.dart';
 
 @GenerateMocks([LogProvider, NavigationProvider, FoodSearchProvider])
@@ -79,7 +81,13 @@ void main() {
                     value: mockFoodSearchProvider,
                   ),
                 ],
-                child: const FoodSearchScreen(),
+                child: const FoodSearchScreen(
+                  config: FoodSearchConfig(
+                    context: QuantityEditContext.day,
+                    title: 'Food Search',
+                    showQueueStats: true,
+                  ),
+                ),
               ),
             );
           }

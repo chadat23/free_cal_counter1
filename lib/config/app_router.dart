@@ -8,6 +8,8 @@ import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_search_service.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
+import 'package:free_cal_counter1/models/food_search_config.dart';
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 
 class AppRouter {
   static const String homeRoute = '/';
@@ -37,7 +39,13 @@ class AppRouter {
               offApiService: offApiService,
               foodSearchService: foodSearchService,
             ),
-            child: const FoodSearchScreen(),
+            child: const FoodSearchScreen(
+              config: FoodSearchConfig(
+                context: QuantityEditContext.day,
+                title: 'Food Search',
+                showQueueStats: true,
+              ),
+            ),
           ),
         );
       case logQueueRoute:

@@ -21,6 +21,9 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/live_database.dart' as live_db;
 import 'package:free_cal_counter1/services/reference_database.dart' as ref_db;
 
+import 'package:free_cal_counter1/models/food_search_config.dart';
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
+
 import 'food_search_screen_test.mocks.dart';
 
 @GenerateMocks([
@@ -92,7 +95,15 @@ void main() {
         ),
         ChangeNotifierProvider<RecipeProvider>.value(value: mockRecipeProvider),
       ],
-      child: const MaterialApp(home: FoodSearchScreen()),
+      child: const MaterialApp(
+        home: FoodSearchScreen(
+          config: FoodSearchConfig(
+            context: QuantityEditContext.day,
+            title: 'Food Search',
+            showQueueStats: true,
+          ),
+        ),
+      ),
     );
   }
 

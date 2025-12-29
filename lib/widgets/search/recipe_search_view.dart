@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/recipe.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
@@ -8,13 +7,14 @@ import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
-import 'package:free_cal_counter1/widgets/food_search_result_tile.dart';
 import 'package:free_cal_counter1/widgets/search/slidable_recipe_search_result.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
+import 'package:free_cal_counter1/models/food_search_config.dart';
 
 class RecipeSearchView extends StatefulWidget {
-  const RecipeSearchView({super.key});
+  final FoodSearchConfig config;
+  const RecipeSearchView({super.key, required this.config});
 
   @override
   State<RecipeSearchView> createState() => _RecipeSearchViewState();
@@ -107,22 +107,25 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                         MaterialPageRoute(
                           builder: (context) => QuantityEditScreen(
                             config: QuantityEditConfig(
-                              context: QuantityEditContext.day,
+                              context: widget.config.context,
                               food: food,
                               initialUnit: selectedUnit.unit,
                               initialQuantity: selectedUnit.quantity,
                               onSave: (grams, unit) {
-                                Provider.of<LogProvider>(
-                                  context,
-                                  listen: false,
-                                ).addFoodToQueue(
-                                  model_portion.FoodPortion(
-                                    food: food,
-                                    grams: grams,
-                                    unit: unit,
-                                  ),
+                                final portion = model_portion.FoodPortion(
+                                  food: food,
+                                  grams: grams,
+                                  unit: unit,
                                 );
-                                Navigator.pop(context);
+                                if (widget.config.onSaveOverride != null) {
+                                  widget.config.onSaveOverride!(portion);
+                                } else {
+                                  Provider.of<LogProvider>(
+                                    context,
+                                    listen: false,
+                                  ).addFoodToQueue(portion);
+                                  Navigator.pop(context);
+                                }
                               },
                             ),
                           ),

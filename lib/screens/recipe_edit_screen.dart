@@ -4,7 +4,8 @@ import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/models/recipe_item.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
-import 'package:free_cal_counter1/screens/recipe_ingredient_search_screen.dart';
+import 'package:free_cal_counter1/screens/food_search_screen.dart';
+import 'package:free_cal_counter1/models/food_search_config.dart';
 import 'package:free_cal_counter1/providers/food_search_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
@@ -125,7 +126,24 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                                   offApiService: offApiService,
                                   foodSearchService: foodSearchService,
                                 ),
-                                child: const RecipeIngredientSearchScreen(),
+                                child: FoodSearchScreen(
+                                  config: FoodSearchConfig(
+                                    context: QuantityEditContext.recipe,
+                                    title: 'Add Ingredient',
+                                    showQueueStats: false,
+                                    onSaveOverride: (portion) {
+                                      Navigator.pop(
+                                        context,
+                                        RecipeItem(
+                                          id: 0,
+                                          food: portion.food,
+                                          grams: portion.grams,
+                                          unit: portion.unit,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
                             ),
                           );

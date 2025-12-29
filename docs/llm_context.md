@@ -19,9 +19,9 @@ To ensure consistency across the application and codebase, the following terms a
 - 1.1.1 Each column of bar charts represents a day of the current week: Monday through Sunday, and each row represents a macro, one bar chart per day. 
 - 1.1.2 There should also be a column of text, to the right of the bar charts, representing the current day's consumed or remaining (depending on button selection) macro amount for each macro as well as the day's target for said macro.
 - 1.1.3 The Consumed/Remaining buttons should set a global state so that it'll be persistent even when the screen if left and returned to.
-- 1.1.4 The below that should show a Search bar, globe button representing an OpenFoodFacts search, and then a Log button.
-- 1.1.5 The Search bar should bring up the Search screen.
-- 1.1.6 The OFF button should either do nothing and be there for consistencies sake, or should search for whatever is in the search box, but clicking on the search box to enter text should open the Search screen so there should be anything in the search box so maybe the button should do nothing at that point to avoid empty searches?
+- 1.1.4 The below that should show a Search bar, globe button representing an OpenFoodFacts (OFF) search, and then a Log button.
+- 1.1.5 The Search bar should bring up the consolidated Search screen.
+- 1.1.6 The OFF button performs a search using the external OpenFoodFacts database for the current query.
 - 1.1.7 Below that should be a set of tabs: Overview, Log, Weight, and Settings which should bring the user to the Overview, Log, Weight, and Settings screens respectively.
 
 ## 1.2 Log: the person's logged foods. 
@@ -36,18 +36,19 @@ To ensure consistency across the application and codebase, the following terms a
 - 1.2.9 The Search bar should bring up the Search screen.
 - 1.2.10 The OFF button should either do nothing and be there for consistencies sake, or should search for whatever is in the search box, but clicking on the search box to enter text should open the Search screen so there shouldn't be anything in the search box so maybe the button should do nothing at that point to avoid empty searches?
 
-## 1.3 Search: shows results from food searches.
+## 1.3 Search: shows results from various search types (text, barcode, recipe) and sources (local, OFF).
+- 1.3.0 The Search Screen is a consolidated, configurable component (`SearchScreen`) that adapts to different usage contexts (e.g., adding to a day log vs. adding a recipe ingredient) via a `SearchConfig`.
 - 1.3.1 The top should have a row with an exit button that should bring the user back to the home screen (prompting the user that the Log Queue will be emptied if it isn't already so), a list of images showing what's in the Log Queue, and a down arrow button to navigate to the Log Queue screen.
 - 1.3.2 Next are two rows of bar charts, one representing the day's macros (including what's in the Log Queue), one for the Log Queue's macros.
-- 1.3.3 Below that are three buttons, a Text based search button, a Barcode based Search, and a Recipe button thus representing the three main forms of food search.
+- 1.3.3 Below that are three buttons: a Text-based search button, a Barcode-based Search, and a Recipe tab, representing the three main forms of item lookup.
   - 1.3.3.1 The Text based search:
     - 1.3.3.1.1 Defaults to searching the local food databases.
-    - 1.3.3.1.2 The OFF button can be used for additional data options. Pressing it should perform an OFF search for the text that's in the Search bar.
+    - 1.3.3.1.2 The OFF button can be used for additional data options. Pressing it should perform an OFF search for the text that's in the Search bar (handled by the `SearchRibbon`).
     - 1.3.3.1.3 Search results are to be color coded based on the original source of the data (USDA Foundation Foods, USDA SR Foods, OFF Foods, user entered, Recipe). That said, since once a portion is logged that refers to a food, said food needs to be added to the logged foods table, so there simultaneously needs to be a way to distinguish previously logged vs not logged foods. This should be achieved via a small icon or a "Note" section displayed on the food item; since space is at a premium, this should be subtle enough to not clutter the UI but still be identifiable (squinting is an acceptable tradeoff for density).
     - 1.3.3.1.4 For each food, there should be an icon/image, the name, a dropdown of proposed portion units and sizes, and the macros for the currently selected portion, as well as an add button.
     - 1.3.3.1.5 Selecting the add button should add the current portion to the Log Queue.
     - 1.3.3.1.6 Selecting other parts of a search result should bring up the Quantity Edit Screen.
-    - 1.3.3.1.7 Kind of like with the Slidable Portion Widgets, the search results should be slidable, so there should be a Slidable Search Result Widget that wraps a Search Result Widget. 
+    - 1.3.3.1.7 Kind of like with the Slidable Portion Widgets, the search results should be slidable. Each result is displayed using a `SearchResultTile`.
       - 1.3.3.1.7.1 The previous functionality can all be handled by the Search Result Widget, but that should be a child widget of the Slidable Search Result Widget.
       - 1.3.3.1.7.2 Sliding the search result to the left should reveal the delete button, and having it work this way means that two actions are needed to help avoid accidental deletions.
         - 1.3.3.1.7.2.1 Sliding the search result to the right should reveal the Edit and Copy buttons.
@@ -125,13 +126,13 @@ To ensure consistency across the application and codebase, the following terms a
 - 1.7.4 Next should be a row with a Total Weight input. The total final weight must sometimes be updated to account for the addition or subtraction of calorie free stuff such as water that isn't tracked in the app (e.g., if making sugar water, identifying the final weight as 100g even if only 50g of sugar was added, so that a 50g serving correctly calculates as having 25g of sugar). Next to that should be a button to specify that the recipe is purely a dumpable template that is, that while the user should be able to "dump" the ingredients into the Log Queue, the user shouldn't be able to add the recipe itself to the Log Queue. This like like with the cookie vs salad example from 1.3.3.3.3.3.2.3. The Dump Only button/checkbox/whatever, should default to unselected since this is the exception to the rule.
 - 1.7.5 Next should be two rows of bar charts. The top should be the macros for the entire recipe, the bottom should be the macros for a single portion, so the total divided by the number of portions.
 - 1.7.6 Next should a button to add ingredients. this means a number of things must be configurable on the search screen:
-  - 1.7.6.1 The X button at the top must bring the user back wherever the search screen was reached from
-  - 1.7.6.2 The icon bar must either show what's in the Log Queue, or the recipe depending on how the search screen was reached. 
+  - 1.7.6.1 The exit icon at the top must bring the user back to the recipe screen.
+  - 1.7.6.2 The navigation and visibility of UI elements (like the macro ribbon) are dynamically controlled via the `SearchConfig` passed to the `SearchScreen`.
   - 1.7.6.3 The down arrow in the top right should bring the user back to the recipe screen if that's where the search screen was reached from.
   - 1.7.6.4 The bar charts should show the total recipe's macros on the top line and the ingredient's macros on the second line and the labels should update accordingly.
-  - 1.7.6.5 The plus button needs to know to add the ingredient to the recipe but not the Log Queue and to go back to the Recipe Edit screen.
-  - 1.7.6.6 Clicking on the rest of the Search Result widget needs to bring up the Quantity Edit Screen.
-  - 1.7.6.7 The log button presumably shouldn't do anything unless a sensible action is identified (there's no obvious action that should come of pressing it)
+  - 1.7.6.5 The plus button or `onSave` action needs to know to add the ingredient to the recipe but not the Log Queue and to go back to the Recipe Edit screen. This can be handled by an `onSaveOverride` in the `SearchConfig`.
+  - 1.7.6.6 Clicking on the `SearchResultTile` needs to bring up the Quantity Edit Screen with the appropriate context.
+  - 1.7.6.7 The log button should be hidden or inactive in this context if not needed.
 - 1.7.7 Next should be a list of the ingredients in the recipe, with the ability to edit each one. They should use the same Portion Widget and Slidable Portion Widget as the Log and Log Queue. this may take some reworking and should be done so thoughtfully to ensure it still works as desired and expected for all use cases.
 
 # Notes, Quirks, and Idiosyncrasies

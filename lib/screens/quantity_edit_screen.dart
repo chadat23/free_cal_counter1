@@ -60,6 +60,8 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
               _buildRecipeToggle(),
             const SizedBox(height: 24),
             _buildTargetSelection(),
+            const SizedBox(height: 16),
+            _buildResultDisplay(),
             const SizedBox(height: 32),
             _buildFooterActions(),
           ],
@@ -122,15 +124,6 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
               itemValues,
               null,
             ),
-            if (currentGrams > 0) ...[
-              const SizedBox(height: 8),
-              Center(
-                child: Text(
-                  'Result: ${currentGrams.toStringAsFixed(1)}g',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-            ],
           ],
         );
       },
@@ -248,6 +241,16 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildResultDisplay() {
+    final currentGrams = _calculateCurrentGrams();
+    return Center(
+      child: Text(
+        'Result: ${currentGrams.toStringAsFixed(1)}g',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
     );
   }
 

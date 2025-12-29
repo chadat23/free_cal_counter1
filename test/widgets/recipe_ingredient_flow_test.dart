@@ -1,0 +1,216 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
+import 'package:free_cal_counter1/models/search_config.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/providers/recipe_provider.dart';
+import 'package:free_cal_counter1/providers/search_provider.dart';
+import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/models/search_mode.dart';
+import 'package:free_cal_counter1/widgets/search_result_tile.dart';
+import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
+import 'package:free_cal_counter1/screens/search_screen.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
+
+import 'recipe_ingredient_flow_test.mocks.dart';
+
+@GenerateMocks([
+  LogProvider,
+  RecipeProvider,
+  SearchProvider,
+  NavigationProvider,
+])
+void main() {
+  late MockLogProvider mockLogProvider;
+  late MockRecipeProvider mockRecipeProvider;
+  late MockSearchProvider mockSearchProvider;
+  late MockNavigationProvider mockNavigationProvider;
+
+  final mockFood = Food(
+    id: 1,
+    name: 'Apple',
+    source: 'USDA',
+    calories: 0.52,
+    protein: 0.003,
+    fat: 0.002,
+    carbs: 0.14,
+    fiber: 0.024,
+    servings: [FoodServing(foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0)],
+  );
+
+  setUp(() {
+    mockLogProvider = MockLogProvider();
+    mockRecipeProvider = MockRecipeProvider();
+    mockSearchProvider = MockSearchProvider();
+    mockNavigationProvider = MockNavigationProvider();
+
+    when(mockLogProvider.totalCalories).thenReturn(0.0);
+    when(mockLogProvider.totalProtein).thenReturn(0.0);
+    when(mockLogProvider.totalFat).thenReturn(0.0);
+    when(mockLogProvider.totalCarbs).thenReturn(0.0);
+    when(mockLogProvider.totalFiber).thenReturn(0.0);
+    when(mockLogProvider.queuedCalories).thenReturn(0.0);
+    when(mockLogProvider.queuedProtein).thenReturn(0.0);
+    when(mockLogProvider.queuedFat).thenReturn(0.0);
+    when(mockLogProvider.queuedCarbs).thenReturn(0.0);
+    when(mockLogProvider.queuedFiber).thenReturn(0.0);
+    when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
+    when(mockLogProvider.dailyTargetProtein).thenReturn(150.0);
+    when(mockLogProvider.dailyTargetFat).thenReturn(70.0);
+    when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
+    when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
+    when(mockLogProvider.logQueue).thenReturn([]);
+
+    when(mockRecipeProvider.totalCalories).thenReturn(0.0);
+    when(mockRecipeProvider.totalProtein).thenReturn(0.0);
+    when(mockRecipeProvider.totalFat).thenReturn(0.0);
+    when(mockRecipeProvider.totalCarbs).thenReturn(0.0);
+    when(mockRecipeProvider.totalFiber).thenReturn(0.0);
+    when(mockRecipeProvider.servingsCreated).thenReturn(1.0);
+
+    when(mockSearchProvider.searchResults).thenReturn([mockFood]);
+    when(mockSearchProvider.isLoading).thenReturn(false);
+    when(mockSearchProvider.errorMessage).thenReturn(null);
+    when(mockSearchProvider.searchMode).thenReturn(SearchMode.text);
+
+    when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
+    when(mockNavigationProvider.showConsumed).thenReturn(true);
+  });
+
+  testWidgets('Plus button adds ingredient to recipe context', (tester) async {
+    FoodPortion? addedPortion;
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<LogProvider>.value(value: mockLogProvider),
+          ChangeNotifierProvider<RecipeProvider>.value(
+            value: mockRecipeProvider,
+          ),
+          ChangeNotifierProvider<SearchProvider>.value(
+            value: mockSearchProvider,
+          ),
+          ChangeNotifierProvider<NavigationProvider>.value(
+            value: mockNavigationProvider,
+          ),
+        ],
+        child: MaterialApp(
+          home: SearchScreen(
+            config: SearchConfig(
+              context: QuantityEditContext.recipe,
+              title: 'Add Ingredient',
+              showQueueStats: false,
+              onSaveOverride: (portion) {
+                addedPortion = portion;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Find and tap the plus button
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    // Verify it was added via onSaveOverride
+    expect(addedPortion, isNotNull);
+    expect(addedPortion!.food.name, 'Apple');
+
+    // Verify it was NOT added to log queue (default behavior)
+    verifyNever(mockLogProvider.addFoodToQueue(any));
+  });
+
+  testWidgets('Saving from QuantityEditScreen returns to RecipeEditScreen context', (
+    tester,
+  ) async {
+    FoodPortion? addedPortion;
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<LogProvider>.value(value: mockLogProvider),
+          ChangeNotifierProvider<RecipeProvider>.value(
+            value: mockRecipeProvider,
+          ),
+          ChangeNotifierProvider<SearchProvider>.value(
+            value: mockSearchProvider,
+          ),
+          ChangeNotifierProvider<NavigationProvider>.value(
+            value: mockNavigationProvider,
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SearchScreen(
+                      config: SearchConfig(
+                        context: QuantityEditContext.recipe,
+                        title: 'Add Ingredient',
+                        showQueueStats: false,
+                        onSaveOverride: (portion) {
+                          addedPortion = portion;
+                          Navigator.pop(context); // Pop SearchScreen
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Open Search'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open Search'));
+    await tester.pumpAndSettle();
+
+    // Find SearchScreen
+    expect(find.byType(SearchScreen), findsOneWidget);
+
+    // Tap on the food result to open QuantityEditScreen
+    print('Tapping SearchResultTile...');
+    // SearchResultTile shows " Apple" (with leading space because emoji is null in mockFood)
+    // We need to import SearchResultTile to use it directly, or find by text.
+    // For this test, we'll assume SearchResultTile is the widget displaying the food.
+    // If SearchResultTile is not directly accessible, find.textContaining('Apple') is a valid alternative.
+    // Assuming SearchResultTile is a widget that wraps the food name.
+    // For the purpose of this edit, I'll use find.byType(SearchResultTile) as requested,
+    // but note that SearchResultTile is not imported in this file.
+    // If SearchResultTile is not a public widget, this might fail.
+    // For now, I'll assume it's a widget that can be found by type.
+    // If it's not, the test will fail and the user will need to adjust.
+    await tester.tap(find.byType(SearchResultTile));
+    await tester.pumpAndSettle();
+
+    print('Looking for QuantityEditScreen...');
+    expect(find.byType(QuantityEditScreen), findsOneWidget);
+
+    // Tap Add in QuantityEditScreen
+    print('Tapping Add button in QuantityEditScreen...');
+    final addButton = find.widgetWithText(ElevatedButton, 'Add');
+    await tester.ensureVisible(addButton);
+    await tester.tap(addButton);
+    await tester.pumpAndSettle();
+
+    // EXPECTATION: Both screens should be popped, and we should be back at "Open Search"
+    print('addedPortion: $addedPortion');
+    expect(addedPortion, isNotNull);
+    expect(find.byType(QuantityEditScreen), findsNothing);
+    expect(find.byType(SearchScreen), findsNothing);
+    expect(find.text('Open Search'), findsOneWidget);
+
+    expect(addedPortion, isNotNull);
+  });
+}

@@ -42,6 +42,21 @@ class TextSearchView extends StatelessWidget {
             return SearchResultTile(
               key: ValueKey(food.id),
               food: food,
+              onAdd: (selectedUnit) {
+                final portion = model_portion.FoodPortion(
+                  food: food,
+                  grams: selectedUnit.grams,
+                  unit: selectedUnit.unit,
+                );
+                if (config.onSaveOverride != null) {
+                  config.onSaveOverride!(portion);
+                } else {
+                  Provider.of<LogProvider>(
+                    context,
+                    listen: false,
+                  ).addFoodToQueue(portion);
+                }
+              },
               onTap: (selectedUnit) {
                 Navigator.push(
                   context,
@@ -59,6 +74,9 @@ class TextSearchView extends StatelessWidget {
                             unit: unit,
                           );
                           if (config.onSaveOverride != null) {
+                            // First pop closes QuantityEditScreen
+                            Navigator.pop(context);
+                            // Second pop closes SearchScreen via onSaveOverride
                             config.onSaveOverride!(portion);
                           } else {
                             Provider.of<LogProvider>(

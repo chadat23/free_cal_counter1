@@ -101,6 +101,21 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
 
                   return SlidableRecipeSearchResult(
                     food: food,
+                    onAdd: (selectedUnit) {
+                      final portion = model_portion.FoodPortion(
+                        food: food,
+                        grams: selectedUnit.grams,
+                        unit: selectedUnit.unit,
+                      );
+                      if (widget.config.onSaveOverride != null) {
+                        widget.config.onSaveOverride!(portion);
+                      } else {
+                        Provider.of<LogProvider>(
+                          context,
+                          listen: false,
+                        ).addFoodToQueue(portion);
+                      }
+                    },
                     onTap: (selectedUnit) {
                       Navigator.push(
                         context,
@@ -118,6 +133,9 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                                   unit: unit,
                                 );
                                 if (widget.config.onSaveOverride != null) {
+                                  // First pop closes QuantityEditScreen
+                                  Navigator.pop(context);
+                                  // Second pop closes SearchScreen via onSaveOverride
                                   widget.config.onSaveOverride!(portion);
                                 } else {
                                   Provider.of<LogProvider>(

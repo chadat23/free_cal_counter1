@@ -345,6 +345,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
   void _handleSave() {
     final grams = _calculateCurrentGrams();
     if (grams > 0) {
+      // Call the callback for backward compatibility
       widget.config.onSave(grams, _selectedUnit);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

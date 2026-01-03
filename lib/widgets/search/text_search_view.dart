@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/search_provider.dart';
-import 'package:free_cal_counter1/widgets/search_result_tile.dart';
 import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
-
 import 'package:free_cal_counter1/models/search_config.dart';
+import 'package:free_cal_counter1/widgets/search/slidable_search_result.dart';
 
 class TextSearchView extends StatelessWidget {
   final SearchConfig config;
@@ -47,7 +46,7 @@ class TextSearchView extends StatelessWidget {
                   food.source != 'recipe',
             );
 
-            return SearchResultTile(
+            return SlidableSearchResult(
               key: ValueKey('${food.id}_${food.source}'),
               food: food,
               isUpdate: isUpdate,
@@ -98,6 +97,27 @@ class TextSearchView extends StatelessWidget {
                         },
                       ),
                     ),
+                  ),
+                );
+              },
+              onEdit: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Food Edit Screen not yet implemented'),
+                  ),
+                );
+              },
+              onCopy: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Food Copy not yet implemented'),
+                  ),
+                );
+              },
+              onDelete: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Food Delete not yet implemented'),
                   ),
                 );
               },

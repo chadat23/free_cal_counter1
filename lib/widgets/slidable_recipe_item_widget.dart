@@ -19,6 +19,20 @@ class SlidableRecipeItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Slidable(
       key: ValueKey(item),
+      startActionPane: onEdit != null
+          ? ActionPane(
+              motion: const ScrollMotion(),
+              children: [
+                SlidableAction(
+                  onPressed: (context) => onEdit!(),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  icon: Icons.edit,
+                  label: 'Edit',
+                ),
+              ],
+            )
+          : null,
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
         children: [

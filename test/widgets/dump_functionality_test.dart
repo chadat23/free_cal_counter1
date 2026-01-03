@@ -14,6 +14,10 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import 'package:drift/native.dart';
+import 'package:free_cal_counter1/services/live_database.dart' as live_db;
+import 'package:free_cal_counter1/services/reference_database.dart' as ref_db;
+
 import 'dump_functionality_test.mocks.dart';
 
 @GenerateMocks([
@@ -24,6 +28,11 @@ import 'dump_functionality_test.mocks.dart';
   DatabaseService,
 ])
 void main() {
+  setUpAll(() async {
+    final liveDb = live_db.LiveDatabase(connection: NativeDatabase.memory());
+    final refDb = ref_db.ReferenceDatabase(connection: NativeDatabase.memory());
+    DatabaseService.initSingletonForTesting(liveDb, refDb);
+  });
   late MockLogProvider mockLogProvider;
   late MockRecipeProvider mockRecipeProvider;
   late MockSearchProvider mockSearchProvider;

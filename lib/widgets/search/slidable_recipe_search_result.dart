@@ -32,7 +32,7 @@ class SlidableRecipeSearchResult extends StatelessWidget {
   Widget build(BuildContext context) {
     return Slidable(
       key: ValueKey(food.id),
-      endActionPane: ActionPane(
+      startActionPane: ActionPane(
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
@@ -56,6 +56,11 @@ class SlidableRecipeSearchResult extends StatelessWidget {
             icon: Icons.account_tree,
             label: 'Dump',
           ),
+        ],
+      ),
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        children: [
           SlidableAction(
             onPressed: (context) => _confirmDelete(context),
             backgroundColor: Colors.red,

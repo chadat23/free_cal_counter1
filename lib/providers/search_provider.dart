@@ -27,6 +27,8 @@ class SearchProvider extends ChangeNotifier {
 
   String _currentQuery = '';
 
+  String get currentQuery => _currentQuery;
+
   SearchMode _searchMode = SearchMode.text;
   SearchMode get searchMode => _searchMode;
 

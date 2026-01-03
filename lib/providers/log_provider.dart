@@ -156,6 +156,22 @@ class LogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateLoggedPortion(
+    model.LoggedPortion oldLoggedPortion,
+    model.FoodPortion newPortion,
+  ) async {
+    if (oldLoggedPortion.id == null) return;
+
+    await DatabaseService.instance.updateLoggedPortion(
+      oldLoggedPortion.id!,
+      newPortion,
+    );
+
+    // Reload the logged portions for the current date
+    final date = oldLoggedPortion.timestamp;
+    await loadLoggedPortionsForDate(date);
+  }
+
   // Internal Calculation Logic
   void _recalculateQueuedMacros() {
     _queuedCalories = 0.0;

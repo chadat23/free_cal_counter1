@@ -195,8 +195,10 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   void _updateLoggedFood(LoggedPortion oldFood, FoodPortion newPortion) {
-    // TODO: Implement update logic in LogProvider/DatabaseService
-    print('Update logged food not implemented yet');
+    Provider.of<LogProvider>(
+      context,
+      listen: false,
+    ).updateLoggedPortion(oldFood, newPortion);
   }
 
   void _deleteLoggedFood(LoggedPortion food) {

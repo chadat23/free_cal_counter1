@@ -69,8 +69,15 @@ class SearchService {
     final localResults = await databaseService.searchFoodsByName(query);
     final recipeResults = await databaseService.getRecipesBySearch(query);
 
+    // Filter out foods that have a parent (older versions)
+    final filteredResults = localResults.where((food) {
+      // Keep foods without a parent (they are latest version)
+      // Keep foods from reference databases (they don't have parent tracking)
+      return food.parentId == null || food.source != 'live';
+    }).toList();
+
     final combinedResults = [
-      ...localResults,
+      ...filteredResults,
       ...recipeResults.map((r) => r.toFood()),
     ];
 

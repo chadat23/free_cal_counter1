@@ -13,6 +13,7 @@ class Food {
   final double fiber;
   final List<FoodServing> servings;
   final String? usageNote;
+  final int? parentId;
 
   Food({
     required this.id,
@@ -27,6 +28,7 @@ class Food {
     required this.fiber,
     this.servings = const [], // Initialize with an empty list
     this.usageNote,
+    this.parentId,
   });
 
   Food copyWith({
@@ -42,6 +44,7 @@ class Food {
     double? fiber,
     List<FoodServing>? servings,
     String? usageNote,
+    int? parentId,
   }) {
     return Food(
       id: id ?? this.id,
@@ -56,6 +59,7 @@ class Food {
       fiber: fiber ?? this.fiber,
       servings: servings ?? this.servings,
       usageNote: usageNote ?? this.usageNote,
+      parentId: parentId ?? this.parentId,
     );
   }
 }

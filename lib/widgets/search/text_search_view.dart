@@ -7,6 +7,8 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/models/search_config.dart';
 import 'package:free_cal_counter1/widgets/search/slidable_search_result.dart';
+import 'package:free_cal_counter1/models/food.dart' as model_food;
+import 'package:free_cal_counter1/services/database_service.dart';
 
 class TextSearchView extends StatelessWidget {
   final SearchConfig config;
@@ -100,26 +102,67 @@ class TextSearchView extends StatelessWidget {
                   ),
                 );
               },
-              onEdit: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Food Edit Screen not yet implemented'),
-                  ),
-                );
+              onEdit: () async {
+                try {
+                  // Copy food to live database if it's from reference
+                  model_food.Food editableFood = food;
+                  if (food.source != 'live') {
+                    editableFood = await DatabaseService.instance
+                        .copyFoodToLiveDb(food);
+                  }
+
+                  // Navigate to food edit screen (to be implemented)
+                  // For now, show a message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Food Edit Screen not yet implemented'),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to edit food: $e')),
+                  );
+                }
               },
-              onCopy: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Food Copy not yet implemented'),
-                  ),
-                );
+              onCopy: () async {
+                try {
+                  final copiedFood = await DatabaseService.instance
+                      .copyFoodToLiveDb(food, isCopy: true);
+
+                  // Refresh search results
+                  await searchProvider.textSearch(searchProvider.currentQuery);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Copied "${copiedFood.name}" to your foods',
+                      ),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to copy food: $e')),
+                  );
+                }
               },
-              onDelete: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Food Delete not yet implemented'),
-                  ),
-                );
+              onDelete: () async {
+                try {
+                  await DatabaseService.instance.deleteFood(
+                    food.id,
+                    food.source,
+                  );
+
+                  // Refresh search results
+                  await searchProvider.textSearch(searchProvider.currentQuery);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Food deleted successfully')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to delete food: $e')),
+                  );
+                }
               },
             );
           },

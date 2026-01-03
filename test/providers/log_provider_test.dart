@@ -3,6 +3,8 @@ import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/models/recipe.dart';
+import 'package:free_cal_counter1/models/recipe_item.dart';
 
 void main() {
   late LogProvider logProvider;
@@ -124,6 +126,113 @@ void main() {
         // 2 slices * 10g/slice = 20g
         // 0.52 calories/g * 20g = 10.4 calories
         expect(logProvider.queuedCalories, 10.4);
+      },
+    );
+
+    test(
+      'addRecipeToQueue should add a recipe as a single item if not a template',
+      () {
+        // Arrange
+        final food = Food(
+          id: 1,
+          name: 'Ingredient',
+          calories: 1.0,
+          protein: 0.1,
+          fat: 0.1,
+          carbs: 0.1,
+          fiber: 0.0,
+          source: 'test',
+          servings: [
+            FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
+          ],
+        );
+        final recipe = Recipe(
+          id: 10,
+          name: 'Recipe',
+          servingsCreated: 1.0,
+          createdTimestamp: 0,
+          items: [RecipeItem(id: 1, food: food, grams: 100, unit: 'g')],
+        );
+
+        // Act
+        logProvider.addRecipeToQueue(recipe);
+
+        // Assert
+        expect(logProvider.logQueue.length, 1);
+        expect(logProvider.logQueue.first.food.name, 'Recipe');
+        expect(logProvider.logQueue.first.grams, 100);
+        expect(logProvider.queuedCalories, 100);
+      },
+    );
+
+    test('addRecipeToQueue should dump a recipe if it is a template', () {
+      // Arrange
+      final food = Food(
+        id: 1,
+        name: 'Ingredient',
+        calories: 1.0,
+        protein: 0.1,
+        fat: 0.1,
+        carbs: 0.1,
+        fiber: 0.0,
+        source: 'test',
+        servings: [
+          FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
+        ],
+      );
+      final recipe = Recipe(
+        id: 10,
+        name: 'Recipe',
+        servingsCreated: 1.0,
+        createdTimestamp: 0,
+        isTemplate: true,
+        items: [RecipeItem(id: 1, food: food, grams: 100, unit: 'g')],
+      );
+
+      // Act
+      logProvider.addRecipeToQueue(recipe);
+
+      // Assert
+      expect(logProvider.logQueue.length, 1);
+      expect(logProvider.logQueue.first.food.name, 'Ingredient');
+      expect(logProvider.logQueue.first.grams, 100);
+      expect(logProvider.queuedCalories, 100);
+    });
+
+    test(
+      'dumpRecipeToQueue should force decomposition even if not a template',
+      () {
+        // Arrange
+        final food = Food(
+          id: 1,
+          name: 'Ingredient',
+          calories: 1.0,
+          protein: 0.1,
+          fat: 0.1,
+          carbs: 0.1,
+          fiber: 0.0,
+          source: 'test',
+          servings: [
+            FoodServing(id: 1, foodId: 1, unit: 'g', grams: 1.0, quantity: 1.0),
+          ],
+        );
+        final recipe = Recipe(
+          id: 10,
+          name: 'Recipe',
+          servingsCreated: 1.0,
+          createdTimestamp: 0,
+          isTemplate: false,
+          items: [RecipeItem(id: 1, food: food, grams: 100, unit: 'g')],
+        );
+
+        // Act
+        logProvider.dumpRecipeToQueue(recipe);
+
+        // Assert
+        expect(logProvider.logQueue.length, 1);
+        expect(logProvider.logQueue.first.food.name, 'Ingredient');
+        expect(logProvider.logQueue.first.grams, 100);
+        expect(logProvider.queuedCalories, 100);
       },
     );
   });

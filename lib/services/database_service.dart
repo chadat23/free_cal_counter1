@@ -52,7 +52,8 @@ class DatabaseService {
       id: foodData.id,
       source: foodData.source,
       name: foodData.name,
-      emoji: '', // Not available in the database
+      emoji: foodData.emoji,
+      thumbnail: foodData.thumbnail,
       calories: foodData.caloriesPerGram,
       protein: foodData.proteinPerGram,
       fat: foodData.fatPerGram,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:free_cal_counter1/models/recipe.dart';
 import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
@@ -101,7 +100,25 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
 
                   return SlidableRecipeSearchResult(
                     food: food,
-                    onAdd: (selectedUnit) {
+                    onAdd: (selectedUnit) async {
+                      final db = DatabaseService.instance;
+                      final recipe = await db.getRecipeById(food.id);
+
+                      if (recipe.isTemplate && context.mounted) {
+                        Provider.of<LogProvider>(
+                          context,
+                          listen: false,
+                        ).dumpRecipeToQueue(recipe);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Dumped ${recipe.name} into Log Queue',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
                       final portion = model_portion.FoodPortion(
                         food: food,
                         grams: selectedUnit.grams,
@@ -116,39 +133,65 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                         ).addFoodToQueue(portion);
                       }
                     },
-                    onTap: (selectedUnit) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => QuantityEditScreen(
-                            config: QuantityEditConfig(
-                              context: widget.config.context,
-                              food: food,
-                              initialUnit: selectedUnit.unit,
-                              initialQuantity: selectedUnit.quantity,
-                              onSave: (grams, unit) {
-                                final portion = model_portion.FoodPortion(
-                                  food: food,
-                                  grams: grams,
-                                  unit: unit,
-                                );
-                                if (widget.config.onSaveOverride != null) {
-                                  // First pop closes QuantityEditScreen
-                                  Navigator.pop(context);
-                                  // Second pop closes SearchScreen via onSaveOverride
-                                  widget.config.onSaveOverride!(portion);
-                                } else {
-                                  Provider.of<LogProvider>(
-                                    context,
-                                    listen: false,
-                                  ).addFoodToQueue(portion);
-                                  Navigator.pop(context);
-                                }
-                              },
+                    onTap: (selectedUnit) async {
+                      final db = DatabaseService.instance;
+                      final recipe = await db.getRecipeById(food.id);
+
+                      if (recipe.isTemplate && context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Only Dumpable'),
+                            content: Text(
+                              '${recipe.name} is marked as "Only Dumpable". '
+                              'It can only be added as individual ingredients. '
+                              'Use the Dump action or click the + button to dump ingredients.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => QuantityEditScreen(
+                              config: QuantityEditConfig(
+                                context: widget.config.context,
+                                food: food,
+                                initialUnit: selectedUnit.unit,
+                                initialQuantity: selectedUnit.quantity,
+                                onSave: (grams, unit) {
+                                  final portion = model_portion.FoodPortion(
+                                    food: food,
+                                    grams: grams,
+                                    unit: unit,
+                                  );
+                                  if (widget.config.onSaveOverride != null) {
+                                    // First pop closes QuantityEditScreen
+                                    Navigator.pop(context);
+                                    // Second pop closes SearchScreen via onSaveOverride
+                                    widget.config.onSaveOverride!(portion);
+                                  } else {
+                                    Provider.of<LogProvider>(
+                                      context,
+                                      listen: false,
+                                    ).addFoodToQueue(portion);
+                                    Navigator.pop(context);
+                                  }
+                                },
+                              ),
                             ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                     onEdit: () async {
                       final recipe = await db.getRecipeById(food.id);
@@ -187,30 +230,15 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                     },
                     onDecompose: () async {
                       final recipe = await db.getRecipeById(food.id);
-                      // Force decomposition by creating a template copy
-                      final templateRecipe = Recipe(
-                        id: recipe.id,
-                        name: recipe.name,
-                        servingsCreated: recipe.servingsCreated,
-                        finalWeightGrams: recipe.finalWeightGrams,
-                        portionName: recipe.portionName,
-                        notes: recipe.notes,
-                        isTemplate: true, // Force true
-                        hidden: recipe.hidden,
-                        parentId: recipe.parentId,
-                        createdTimestamp: recipe.createdTimestamp,
-                        items: recipe.items,
-                        categories: recipe.categories,
-                      );
                       if (context.mounted) {
                         Provider.of<LogProvider>(
                           context,
                           listen: false,
-                        ).addRecipeToQueue(templateRecipe);
+                        ).dumpRecipeToQueue(recipe);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Decomposed ${recipe.name} into Log Queue',
+                              'Dumped ${recipe.name} into Log Queue',
                             ),
                           ),
                         );

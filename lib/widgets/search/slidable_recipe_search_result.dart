@@ -50,7 +50,7 @@ class SlidableRecipeSearchResult extends StatelessWidget {
             backgroundColor: Colors.orange,
             foregroundColor: Colors.white,
             icon: Icons.account_tree,
-            label: 'Decomp',
+            label: 'Dump',
           ),
           SlidableAction(
             onPressed: (context) => _confirmDelete(context),

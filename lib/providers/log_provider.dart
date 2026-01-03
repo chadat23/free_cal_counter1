@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food_portion.dart' as model;
 import 'package:free_cal_counter1/models/logged_portion.dart' as model;
 import 'package:free_cal_counter1/models/recipe.dart' as model;
+import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 
@@ -60,34 +61,51 @@ class LogProvider extends ChangeNotifier {
 
   void addRecipeToQueue(model.Recipe recipe, {double quantity = 1.0}) {
     if (recipe.isTemplate) {
-      // Decompose: Add all items recursively
-      for (final item in recipe.items) {
-        if (item.isFood) {
-          addFoodToQueue(
-            model.FoodPortion(
-              food: item.food!,
-              grams: item.grams * quantity,
-              unit: item.unit,
-            ),
-          );
-        } else if (item.isRecipe) {
-          // Recursive decomposition
-          addRecipeToQueue(
-            item.recipe!,
-            quantity: (item.grams / item.recipe!.gramsPerPortion) * quantity,
-          );
-        }
-      }
+      dumpRecipeToQueue(recipe, quantity: quantity);
     } else {
       // Not a template: Add as a single item (frozen)
       final food = recipe.toFood();
+      // Ensure emoji is set correctly for the recipe food
+      final enrichedFood = food.copyWith(
+        emoji: (food.emoji == null || food.emoji == '🍴' || food.emoji == '')
+            ? emojiForFoodName(food.name)
+            : food.emoji,
+      );
       addFoodToQueue(
         model.FoodPortion(
-          food: food,
+          food: enrichedFood,
           grams: recipe.gramsPerPortion * quantity,
           unit: recipe.portionName,
         ),
       );
+    }
+  }
+
+  void dumpRecipeToQueue(model.Recipe recipe, {double quantity = 1.0}) {
+    // Force decomposition: Add all items recursively
+    for (final item in recipe.items) {
+      if (item.isFood) {
+        final food = item.food!;
+        // Ensure emoji is set if missing
+        final enrichedFood = food.copyWith(
+          emoji: (food.emoji == null || food.emoji == '🍴' || food.emoji == '')
+              ? emojiForFoodName(food.name)
+              : food.emoji,
+        );
+        addFoodToQueue(
+          model.FoodPortion(
+            food: enrichedFood,
+            grams: item.grams * quantity,
+            unit: item.unit,
+          ),
+        );
+      } else if (item.isRecipe) {
+        // Recursive decomposition
+        dumpRecipeToQueue(
+          item.recipe!,
+          quantity: (item.grams / item.recipe!.gramsPerPortion) * quantity,
+        );
+      }
     }
   }
 

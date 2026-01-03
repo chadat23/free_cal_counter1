@@ -697,6 +697,8 @@ class DatabaseService {
               fatPerGram: food.fat,
               carbsPerGram: food.carbs,
               fiberPerGram: food.fiber,
+              parentId: Value(food.source != 'live' ? food.id : null),
+              sourceFdcId: Value(food.source != 'live' ? food.id : null),
             ),
           );
 
@@ -720,5 +722,50 @@ class DatabaseService {
       )..where((t) => t.id.equals(foodId))).getSingle();
       return _mapFoodData(newFoodRow, servings);
     });
+  }
+
+  Future<Map<int, String?>> getFoodsUsageNotes(List<model.Food> foods) async {
+    final Map<int, String?> results = {};
+
+    for (final food in foods) {
+      if (food.source == 'recipe') {
+        final isLogged = await isRecipeLogged(food.id);
+        final isUsed = await isRecipeUsedAsIngredient(food.id);
+        if (isLogged && isUsed) {
+          results[food.id] = 'Logged • In Recipe';
+        } else if (isLogged) {
+          results[food.id] = 'Logged';
+        } else if (isUsed) {
+          results[food.id] = 'In Recipe';
+        }
+      } else {
+        // For foods, check logged_foods
+        final loggedQuery = _liveDb.select(_liveDb.loggedFoods)
+          ..where(
+            (t) =>
+                t.originalFoodId.equals(food.id) &
+                t.originalFoodSource.equals(food.source),
+          )
+          ..limit(1);
+        final logged = await loggedQuery.getSingleOrNull();
+
+        // Check if used in recipes
+        final usedQuery = _liveDb.select(_liveDb.recipeItems)
+          ..where((t) => t.ingredientFoodId.equals(food.id))
+          ..limit(1);
+        final used = await usedQuery.getSingleOrNull();
+
+        if (logged != null && used != null) {
+          results[food.id] = 'Logged • In Recipe';
+        } else if (logged != null) {
+          results[food.id] = 'Logged';
+        } else if (used != null) {
+          results[food.id] = 'In Recipe';
+        } else {
+          results[food.id] = null;
+        }
+      }
+    }
+    return results;
   }
 }

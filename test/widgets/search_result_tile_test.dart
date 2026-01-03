@@ -213,5 +213,68 @@ void main() {
       // Verify 'g' is the selected unit
       expect(find.text('1.0 g'), findsOneWidget);
     });
+
+    testWidgets('displays note and isUpdate icon correctly', (tester) async {
+      final food = model.Food(
+        id: 1,
+        name: 'Apple',
+        calories: 0.52,
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
+        fiber: 0.024,
+        source: 'test',
+        servings: [
+          model_unit.FoodServing(
+            foodId: 1,
+            unit: 'g',
+            grams: 1.0,
+            quantity: 1.0,
+          ),
+        ],
+      );
+
+      // Test with isUpdate = true and a note
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultTile(
+              food: food,
+              onTap: (_) {},
+              isUpdate: true,
+              note: 'Logged',
+            ),
+          ),
+        ),
+      );
+
+      // Verify note is displayed
+      expect(find.text('Logged'), findsOneWidget);
+
+      // Verify edit icon is shown instead of add icon
+      expect(find.byIcon(Icons.edit), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsNothing);
+
+      // Test with isUpdate = false and another note
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultTile(
+              food: food,
+              onTap: (_) {},
+              isUpdate: false,
+              note: 'Only Dumpable',
+            ),
+          ),
+        ),
+      );
+
+      // Verify note is displayed
+      expect(find.text('Only Dumpable'), findsOneWidget);
+
+      // Verify add icon is shown
+      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.byIcon(Icons.edit), findsNothing);
+    });
   });
 }

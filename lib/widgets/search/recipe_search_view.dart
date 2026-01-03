@@ -99,15 +99,41 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                     listen: false,
                   );
 
+                  final bool isUpdate;
+                  if (widget.config.onSaveOverride != null) {
+                    // Recipe context: check if already in recipe items
+                    isUpdate = recipeProvider.items.any(
+                      (item) =>
+                          item.recipe?.id == food.id ||
+                          item.food?.id == food.id,
+                    );
+                  } else {
+                    // Day context: check if already in log queue
+                    final logProvider = Provider.of<LogProvider>(
+                      context,
+                      listen: false,
+                    );
+                    isUpdate = logProvider.logQueue.any(
+                      (p) =>
+                          p.food.id == food.id && p.food.source == food.source,
+                    );
+                  }
+
                   return FutureBuilder<model_recipe.Recipe>(
                     future: db.getRecipeById(food.id),
                     builder: (context, snapshot) {
                       final recipe = snapshot.data;
+                      String? finalNote = food.usageNote;
+                      if (recipe?.isTemplate ?? false) {
+                        finalNote = finalNote != null
+                            ? 'Only Dumpable • $finalNote'
+                            : 'Only Dumpable';
+                      }
+
                       return SlidableRecipeSearchResult(
                         food: food,
-                        note: (recipe?.isTemplate ?? false)
-                            ? 'Only Dumpable'
-                            : null,
+                        note: finalNote,
+                        isUpdate: isUpdate,
                         onAdd: (selectedUnit) async {
                           if (recipe == null) return;
                           if (recipe.isTemplate && context.mounted) {

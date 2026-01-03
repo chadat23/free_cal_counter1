@@ -14,6 +14,7 @@ class SearchResultTile extends StatefulWidget {
   final void Function(model_unit.FoodServing) onTap;
   final void Function(model_unit.FoodServing)? onAdd;
   final String? note;
+  final bool isUpdate;
 
   const SearchResultTile({
     super.key,
@@ -21,6 +22,7 @@ class SearchResultTile extends StatefulWidget {
     required this.onTap,
     this.onAdd,
     this.note,
+    this.isUpdate = false,
   });
 
   @override
@@ -155,7 +157,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
         ],
       ),
       trailing: IconButton(
-        icon: const Icon(Icons.add),
+        icon: Icon(widget.isUpdate ? Icons.edit : Icons.add),
         onPressed: () {
           if (widget.onAdd != null) {
             widget.onAdd!(_selectedUnit);

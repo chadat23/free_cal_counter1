@@ -74,8 +74,17 @@ class SearchService {
       ...recipeResults.map((r) => r.toFood()),
     ];
 
+    final usageNotes = await databaseService.getFoodsUsageNotes(
+      combinedResults,
+    );
+
     final resultsWithEmoji = combinedResults
-        .map((food) => food.copyWith(emoji: emojiForFoodName(food.name)))
+        .map(
+          (food) => food.copyWith(
+            emoji: emojiForFoodName(food.name),
+            usageNote: usageNotes[food.id],
+          ),
+        )
         .toList();
     return _applyFuzzyMatching(query, resultsWithEmoji);
   }
@@ -85,19 +94,30 @@ class SearchService {
       return [];
     }
     final offResults = await offApiService.searchFoodsByName(query);
+    final usageNotes = await databaseService.getFoodsUsageNotes(offResults);
+
     final resultsWithEmoji = offResults
-        .map((food) => food.copyWith(emoji: emojiForFoodName(food.name)))
+        .map(
+          (food) => food.copyWith(
+            emoji: emojiForFoodName(food.name),
+            usageNote: usageNotes[food.id],
+          ),
+        )
         .toList();
     return _applyFuzzyMatching(query, resultsWithEmoji);
   }
 
   Future<List<model.Food>> getAllRecipesAsFoods() async {
     final recipes = await databaseService.getRecipes();
+    final foods = recipes.map((r) => r.toFood()).toList();
+    final usageNotes = await databaseService.getFoodsUsageNotes(foods);
 
     // Map recipes to foods
-    final resultsWithEmoji = recipes.map((r) {
-      final food = r.toFood();
-      return food.copyWith(emoji: emojiForFoodName(food.name));
+    final resultsWithEmoji = foods.map((food) {
+      return food.copyWith(
+        emoji: emojiForFoodName(food.name),
+        usageNote: usageNotes[food.id],
+      );
     }).toList();
 
     return resultsWithEmoji;

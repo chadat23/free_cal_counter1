@@ -39,9 +39,19 @@ class TextSearchView extends StatelessWidget {
           itemCount: searchProvider.searchResults.length,
           itemBuilder: (context, index) {
             final food = searchProvider.searchResults[index];
+            final logProvider = Provider.of<LogProvider>(context);
+            final isUpdate = logProvider.logQueue.any(
+              (p) =>
+                  p.food.id == food.id &&
+                  p.food.source == food.source &&
+                  food.source != 'recipe',
+            );
+
             return SearchResultTile(
-              key: ValueKey(food.id),
+              key: ValueKey('${food.id}_${food.source}'),
               food: food,
+              isUpdate: isUpdate,
+              note: food.usageNote,
               onAdd: (selectedUnit) {
                 final portion = model_portion.FoodPortion(
                   food: food,

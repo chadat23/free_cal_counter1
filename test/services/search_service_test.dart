@@ -79,4 +79,47 @@ void main() {
     // The quantity should be defaulted to 1.0
     expect(results.first.servings.first.quantity, 1.0);
   });
+
+  test('searchLocal should populate usageNote for logged items', () async {
+    // Arrange
+    const foodId = 1;
+    const foodSource = 'user_created';
+    await liveDatabase
+        .into(liveDatabase.foods)
+        .insert(
+          live_db.FoodsCompanion.insert(
+            id: const Value(foodId),
+            name: 'Apple',
+            source: foodSource,
+            caloriesPerGram: 0.52,
+            proteinPerGram: 0.003,
+            fatPerGram: 0.002,
+            carbsPerGram: 0.14,
+            fiberPerGram: 0.024,
+          ),
+        );
+
+    // Mock logging the food
+    await liveDatabase
+        .into(liveDatabase.loggedFoods)
+        .insert(
+          live_db.LoggedFoodsCompanion.insert(
+            name: 'Apple',
+            caloriesPerGram: 0.52,
+            proteinPerGram: 0.003,
+            fatPerGram: 0.002,
+            carbsPerGram: 0.14,
+            fiberPerGram: 0.024,
+            originalFoodId: const Value(foodId),
+            originalFoodSource: const Value(foodSource),
+          ),
+        );
+
+    // Act
+    final results = await searchService.searchLocal('Apple');
+
+    // Assert
+    expect(results.length, 1);
+    expect(results.first.usageNote, 'Logged');
+  });
 }

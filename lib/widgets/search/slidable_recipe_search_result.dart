@@ -13,6 +13,7 @@ class SlidableRecipeSearchResult extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onDecompose;
   final String? note;
+  final bool isUpdate;
 
   const SlidableRecipeSearchResult({
     super.key,
@@ -24,6 +25,7 @@ class SlidableRecipeSearchResult extends StatelessWidget {
     required this.onDelete,
     required this.onDecompose,
     this.note,
+    this.isUpdate = false,
   });
 
   @override
@@ -68,6 +70,7 @@ class SlidableRecipeSearchResult extends StatelessWidget {
         onTap: onTap,
         onAdd: onAdd,
         note: note,
+        isUpdate: isUpdate,
       ),
     );
   }

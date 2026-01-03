@@ -96,25 +96,9 @@ void main() {
     );
   }
 
-  testWidgets('RecipeEditScreen shows "Only Dumpable" label and Dump button', (
-    tester,
-  ) async {
+  testWidgets('RecipeEditScreen shows "Only Dumpable" label', (tester) async {
     await tester.pumpWidget(createTestWidget(const RecipeEditScreen()));
 
     expect(find.text('Only Dumpable'), findsOneWidget);
-    expect(find.text('Dump into Log Queue'), findsOneWidget);
-  });
-
-  testWidgets('RecipeEditScreen Dump button triggers dumpRecipeToQueue', (
-    tester,
-  ) async {
-    await tester.pumpWidget(createTestWidget(const RecipeEditScreen()));
-
-    await tester.tap(find.text('Dump into Log Queue'));
-    await tester.pump();
-
-    verify(mockLogProvider.dumpRecipeToQueue(any)).called(1);
-    expect(find.byType(SnackBar), findsOneWidget);
-    expect(find.text('Dumped Apple Pie into Log Queue'), findsOneWidget);
   });
 }

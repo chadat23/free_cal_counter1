@@ -18,8 +18,6 @@ import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
-import 'package:free_cal_counter1/providers/log_provider.dart';
-import 'package:free_cal_counter1/models/recipe.dart';
 
 class RecipeEditScreen extends StatefulWidget {
   const RecipeEditScreen({super.key});
@@ -236,40 +234,6 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
         const Text(
           'When enabled, this recipe can only be dumped as individual ingredients into your log.',
           style: TextStyle(color: Colors.grey, fontSize: 12),
-        ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () {
-            final logProvider = Provider.of<LogProvider>(
-              context,
-              listen: false,
-            );
-            final recipe = Recipe(
-              id: provider.id,
-              name: provider.name,
-              servingsCreated: provider.servingsCreated,
-              finalWeightGrams: provider.finalWeightGrams,
-              portionName: provider.portionName,
-              notes: provider.notes,
-              isTemplate: provider.isTemplate,
-              hidden: false,
-              parentId: provider.parentId,
-              createdTimestamp: DateTime.now().millisecondsSinceEpoch,
-              items: provider.items,
-              categories: provider.selectedCategories,
-            );
-            logProvider.dumpRecipeToQueue(recipe);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Dumped ${provider.name} into Log Queue')),
-            );
-          },
-          icon: const Icon(Icons.account_tree),
-          label: const Text('Dump into Log Queue'),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 50),
-            backgroundColor: Colors.orange.withOpacity(0.2),
-            foregroundColor: Colors.orange,
-          ),
         ),
       ],
     );

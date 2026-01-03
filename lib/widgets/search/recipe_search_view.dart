@@ -3,6 +3,7 @@ import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
+import 'package:free_cal_counter1/models/recipe.dart' as model_recipe;
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
@@ -98,151 +99,157 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                     listen: false,
                   );
 
-                  return SlidableRecipeSearchResult(
-                    food: food,
-                    onAdd: (selectedUnit) async {
-                      final db = DatabaseService.instance;
-                      final recipe = await db.getRecipeById(food.id);
-
-                      if (recipe.isTemplate && context.mounted) {
-                        Provider.of<LogProvider>(
-                          context,
-                          listen: false,
-                        ).dumpRecipeToQueue(recipe);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Dumped ${recipe.name} into Log Queue',
-                            ),
-                          ),
-                        );
-                        return;
-                      }
-
-                      final portion = model_portion.FoodPortion(
+                  return FutureBuilder<model_recipe.Recipe>(
+                    future: db.getRecipeById(food.id),
+                    builder: (context, snapshot) {
+                      final recipe = snapshot.data;
+                      return SlidableRecipeSearchResult(
                         food: food,
-                        grams: selectedUnit.grams,
-                        unit: selectedUnit.unit,
-                      );
-                      if (widget.config.onSaveOverride != null) {
-                        widget.config.onSaveOverride!(portion);
-                      } else {
-                        Provider.of<LogProvider>(
-                          context,
-                          listen: false,
-                        ).addFoodToQueue(portion);
-                      }
-                    },
-                    onTap: (selectedUnit) async {
-                      final db = DatabaseService.instance;
-                      final recipe = await db.getRecipeById(food.id);
-
-                      if (recipe.isTemplate && context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Only Dumpable'),
-                            content: Text(
-                              '${recipe.name} is marked as "Only Dumpable". '
-                              'It can only be added as individual ingredients. '
-                              'Use the Dump action or click the + button to dump ingredients.',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('OK'),
+                        note: (recipe?.isTemplate ?? false)
+                            ? 'Only Dumpable'
+                            : null,
+                        onAdd: (selectedUnit) async {
+                          if (recipe == null) return;
+                          if (recipe.isTemplate && context.mounted) {
+                            Provider.of<LogProvider>(
+                              context,
+                              listen: false,
+                            ).dumpRecipeToQueue(recipe);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Dumped ${recipe.name} into Log Queue',
+                                ),
                               ),
-                            ],
-                          ),
-                        );
-                        return;
-                      }
+                            );
+                            return;
+                          }
 
-                      if (context.mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => QuantityEditScreen(
-                              config: QuantityEditConfig(
-                                context: widget.config.context,
-                                food: food,
-                                initialUnit: selectedUnit.unit,
-                                initialQuantity: selectedUnit.quantity,
-                                onSave: (grams, unit) {
-                                  final portion = model_portion.FoodPortion(
+                          final portion = model_portion.FoodPortion(
+                            food: food,
+                            grams: selectedUnit.grams,
+                            unit: selectedUnit.unit,
+                          );
+                          if (widget.config.onSaveOverride != null) {
+                            widget.config.onSaveOverride!(portion);
+                          } else {
+                            Provider.of<LogProvider>(
+                              context,
+                              listen: false,
+                            ).addFoodToQueue(portion);
+                          }
+                        },
+                        onTap: (selectedUnit) async {
+                          if (recipe == null) return;
+                          if (recipe.isTemplate && context.mounted) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Only Dumpable'),
+                                content: Text(
+                                  '${recipe.name} is marked as "Only Dumpable". '
+                                  'It can only be added as individual ingredients. '
+                                  'Use the Dump action or click the + button to dump ingredients.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => QuantityEditScreen(
+                                  config: QuantityEditConfig(
+                                    context: widget.config.context,
                                     food: food,
-                                    grams: grams,
-                                    unit: unit,
-                                  );
-                                  if (widget.config.onSaveOverride != null) {
-                                    // First pop closes QuantityEditScreen
-                                    Navigator.pop(context);
-                                    // Second pop closes SearchScreen via onSaveOverride
-                                    widget.config.onSaveOverride!(portion);
-                                  } else {
-                                    Provider.of<LogProvider>(
-                                      context,
-                                      listen: false,
-                                    ).addFoodToQueue(portion);
-                                    Navigator.pop(context);
-                                  }
-                                },
+                                    initialUnit: selectedUnit.unit,
+                                    initialQuantity: selectedUnit.quantity,
+                                    onSave: (grams, unit) {
+                                      final portion = model_portion.FoodPortion(
+                                        food: food,
+                                        grams: grams,
+                                        unit: unit,
+                                      );
+                                      if (widget.config.onSaveOverride !=
+                                          null) {
+                                        // First pop closes QuantityEditScreen
+                                        Navigator.pop(context);
+                                        // Second pop closes SearchScreen via onSaveOverride
+                                        widget.config.onSaveOverride!(portion);
+                                      } else {
+                                        Provider.of<LogProvider>(
+                                          context,
+                                          listen: false,
+                                        ).addFoodToQueue(portion);
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    onEdit: () async {
-                      final recipe = await db.getRecipeById(food.id);
-                      final isLogged = await db.isRecipeLogged(food.id);
-                      if (isLogged) {
-                        recipeProvider.prepareVersion(recipe);
-                      } else {
-                        recipeProvider.loadFromRecipe(recipe);
-                      }
-                      if (context.mounted) {
-                        final saved = await Navigator.pushNamed(
-                          context,
-                          AppRouter.recipeEditRoute,
-                        );
-                        if (saved == true) {
+                            );
+                          }
+                        },
+                        onEdit: () async {
+                          if (recipe == null) return;
+                          final isLogged = await db.isRecipeLogged(food.id);
+                          if (isLogged) {
+                            recipeProvider.prepareVersion(recipe);
+                          } else {
+                            recipeProvider.loadFromRecipe(recipe);
+                          }
+                          if (context.mounted) {
+                            final saved = await Navigator.pushNamed(
+                              context,
+                              AppRouter.recipeEditRoute,
+                            );
+                            if (saved == true) {
+                              searchProvider.textSearch('');
+                            }
+                          }
+                        },
+                        onCopy: () async {
+                          if (recipe == null) return;
+                          recipeProvider.prepareCopy(recipe);
+                          if (context.mounted) {
+                            final saved = await Navigator.pushNamed(
+                              context,
+                              AppRouter.recipeEditRoute,
+                            );
+                            if (saved == true) {
+                              searchProvider.textSearch('');
+                            }
+                          }
+                        },
+                        onDelete: () async {
+                          await db.deleteRecipe(food.id);
                           searchProvider.textSearch('');
-                        }
-                      }
-                    },
-                    onCopy: () async {
-                      final recipe = await db.getRecipeById(food.id);
-                      recipeProvider.prepareCopy(recipe);
-                      if (context.mounted) {
-                        final saved = await Navigator.pushNamed(
-                          context,
-                          AppRouter.recipeEditRoute,
-                        );
-                        if (saved == true) {
-                          searchProvider.textSearch('');
-                        }
-                      }
-                    },
-                    onDelete: () async {
-                      await db.deleteRecipe(food.id);
-                      searchProvider.textSearch('');
-                    },
-                    onDecompose: () async {
-                      final recipe = await db.getRecipeById(food.id);
-                      if (context.mounted) {
-                        Provider.of<LogProvider>(
-                          context,
-                          listen: false,
-                        ).dumpRecipeToQueue(recipe);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Dumped ${recipe.name} into Log Queue',
-                            ),
-                          ),
-                        );
-                      }
+                        },
+                        onDecompose: () async {
+                          if (recipe == null) return;
+                          if (context.mounted) {
+                            Provider.of<LogProvider>(
+                              context,
+                              listen: false,
+                            ).dumpRecipeToQueue(recipe);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Dumped ${recipe.name} into Log Queue',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      );
                     },
                   );
                 },

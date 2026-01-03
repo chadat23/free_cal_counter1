@@ -13,12 +13,14 @@ class SearchResultTile extends StatefulWidget {
   final Food food;
   final void Function(model_unit.FoodServing) onTap;
   final void Function(model_unit.FoodServing)? onAdd;
+  final String? note;
 
   const SearchResultTile({
     super.key,
     required this.food,
     required this.onTap,
     this.onAdd,
+    this.note,
   });
 
   @override
@@ -111,7 +113,23 @@ class _SearchResultTileState extends State<SearchResultTile> {
               : const Icon(Icons.fastfood), // Default icon if no thumbnail
         ),
       ),
-      title: Text('${emoji ?? ''} ${widget.food.name}'),
+      title: Row(
+        children: [
+          Expanded(child: Text('${emoji ?? ''} ${widget.food.name}')),
+          if (widget.note != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 4.0),
+              child: Text(
+                widget.note!,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+        ],
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

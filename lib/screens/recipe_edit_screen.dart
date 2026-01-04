@@ -315,8 +315,15 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                     onPressed: () async {
                       final name = await _showAddCategorySimpleDialog();
                       if (name != null) {
-                        await DatabaseService.instance.addCategory(name);
+                        final newCategoryId = await DatabaseService.instance
+                            .addCategory(name);
                         await _loadCategories();
+                        // Find and auto-select the newly created category
+                        final newCategory = _allCategories.firstWhere(
+                          (cat) => cat.id == newCategoryId,
+                          orElse: () => _allCategories.last,
+                        );
+                        provider.toggleCategory(newCategory);
                         setDialogState(() {});
                       }
                     },

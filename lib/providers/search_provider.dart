@@ -32,6 +32,9 @@ class SearchProvider extends ChangeNotifier {
   SearchMode _searchMode = SearchMode.text;
   SearchMode get searchMode => _searchMode;
 
+  int? _selectedCategoryId;
+  int? get selectedCategoryId => _selectedCategoryId;
+
   void setSearchMode(SearchMode mode) {
     _searchMode = mode;
     _searchResults = []; // Clear results when switching modes
@@ -43,6 +46,11 @@ class SearchProvider extends ChangeNotifier {
     _errorMessage = null;
   }
 
+  void setSelectedCategoryId(int? id) {
+    _selectedCategoryId = id;
+    textSearch(_currentQuery); // Re-trigger search with new category
+  }
+
   // Always performs a local search
   Future<void> textSearch(String query) async {
     _currentQuery = query;
@@ -52,9 +60,14 @@ class SearchProvider extends ChangeNotifier {
 
     try {
       if (query.isEmpty && _searchMode == SearchMode.recipe) {
-        _searchResults = await searchService.getAllRecipesAsFoods();
+        _searchResults = await searchService.getAllRecipesAsFoods(
+          categoryId: _selectedCategoryId,
+        );
       } else {
-        _searchResults = await searchService.searchLocal(query);
+        _searchResults = await searchService.searchLocal(
+          query,
+          categoryId: _selectedCategoryId,
+        );
       }
     } catch (e) {
       _errorMessage = 'Failed to search for food: ${e.toString()}';

@@ -18,6 +18,7 @@ import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
+import 'package:free_cal_counter1/models/category.dart' as model_cat;
 
 class RecipeEditScreen extends StatefulWidget {
   const RecipeEditScreen({super.key});
@@ -29,8 +30,10 @@ class RecipeEditScreen extends StatefulWidget {
 class _RecipeEditScreenState extends State<RecipeEditScreen> {
   late TextEditingController _nameController;
   late TextEditingController _portionsController;
+  late TextEditingController _portionNameController;
   late TextEditingController _weightController;
   late TextEditingController _notesController;
+  List<model_cat.Category> _allCategories = [];
 
   @override
   void initState() {
@@ -40,16 +43,28 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
     _portionsController = TextEditingController(
       text: provider.servingsCreated.toString(),
     );
+    _portionNameController = TextEditingController(text: provider.portionName);
     _weightController = TextEditingController(
       text: provider.finalWeightGrams?.toString() ?? '',
     );
     _notesController = TextEditingController(text: provider.notes);
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    final cats = await DatabaseService.instance.getCategories();
+    if (mounted) {
+      setState(() {
+        _allCategories = cats;
+      });
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _portionsController.dispose();
+    _portionNameController.dispose();
     _weightController.dispose();
     _notesController.dispose();
     super.dispose();
@@ -193,7 +208,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
               child: TextField(
                 controller: _portionsController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Portions'),
+                decoration: const InputDecoration(labelText: 'Portions Count'),
                 onChanged: (val) {
                   final d = double.tryParse(val);
                   if (d != null) provider.setServingsCreated(d);
@@ -201,6 +216,20 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
               ),
             ),
             const SizedBox(width: 16),
+            Expanded(
+              child: TextField(
+                controller: _portionNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Portion Unit Name',
+                  hintText: 'e.g. Cookie, Slice',
+                ),
+                onChanged: provider.setPortionName,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
             Expanded(
               child: TextField(
                 controller: _weightController,
@@ -235,7 +264,121 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
           'When enabled, this recipe can only be dumped as individual ingredients into your log.',
           style: TextStyle(color: Colors.grey, fontSize: 12),
         ),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: _showCategorySelectionDialog,
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Categories',
+              suffixIcon: Icon(Icons.arrow_drop_down),
+            ),
+            child: provider.selectedCategories.isEmpty
+                ? const Text(
+                    'None selected',
+                    style: TextStyle(color: Colors.grey),
+                  )
+                : Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    children: provider.selectedCategories.map((cat) {
+                      return Chip(
+                        label: Text(
+                          cat.name,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        onDeleted: () => provider.toggleCategory(cat),
+                        padding: EdgeInsets.zero,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      );
+                    }).toList(),
+                  ),
+          ),
+        ),
       ],
+    );
+  }
+
+  void _showCategorySelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final provider = Provider.of<RecipeProvider>(context);
+            return AlertDialog(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Select Categories'),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    onPressed: () async {
+                      final name = await _showAddCategorySimpleDialog();
+                      if (name != null) {
+                        await DatabaseService.instance.addCategory(name);
+                        await _loadCategories();
+                        setDialogState(() {});
+                      }
+                    },
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _allCategories.length,
+                  itemBuilder: (context, index) {
+                    final cat = _allCategories[index];
+                    final isSelected = provider.selectedCategories.any(
+                      (c) => c.id == cat.id,
+                    );
+                    return CheckboxListTile(
+                      title: Text(cat.name),
+                      value: isSelected,
+                      onChanged: (_) {
+                        provider.toggleCategory(cat);
+                        setDialogState(() {});
+                      },
+                    );
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<String?> _showAddCategorySimpleDialog() {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('New Category'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Category Name'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -249,45 +392,60 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Macros per Portion',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
+          _buildMacroRow(
+            'Total Recipe Macros',
+            provider.totalCalories,
+            provider.totalProtein,
+            provider.totalFat,
+            provider.totalCarbs,
+            provider.totalFiber,
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildMacroItem(
-                '🔥',
-                provider.caloriesPerPortion,
-                2000,
-                Colors.blue,
-              ),
-              _buildMacroItem(
-                'P',
-                provider.totalProtein / provider.servingsCreated,
-                150,
-                Colors.red,
-              ),
-              _buildMacroItem(
-                'F',
-                provider.totalFat / provider.servingsCreated,
-                70,
-                Colors.yellow,
-              ),
-              _buildMacroItem(
-                'C',
-                provider.totalCarbs / provider.servingsCreated,
-                250,
-                Colors.green,
-              ),
-            ],
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: Colors.white24),
+          const SizedBox(height: 16),
+          _buildMacroRow(
+            'Macros per ${provider.portionName}',
+            provider.caloriesPerPortion,
+            provider.totalProtein / provider.servingsCreated,
+            provider.totalFat / provider.servingsCreated,
+            provider.totalCarbs / provider.servingsCreated,
+            provider.totalFiber / provider.servingsCreated,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMacroRow(
+    String title,
+    double cal,
+    double protein,
+    double fat,
+    double carbs,
+    double fiber,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            _buildMacroItem('🔥', cal, 2000, Colors.blue),
+            _buildMacroItem('P', protein, 150, Colors.red),
+            _buildMacroItem('F', fat, 70, Colors.yellow),
+            _buildMacroItem('C', carbs, 250, Colors.green),
+            _buildMacroItem('Fb', fiber, 30, Colors.brown),
+          ],
+        ),
+      ],
     );
   }
 

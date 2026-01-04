@@ -131,6 +131,12 @@ class MockSearchProvider extends _i1.Mock implements _i5.SearchProvider {
   );
 
   @override
+  void setSelectedCategoryId(int? id) => super.noSuchMethod(
+    Invocation.method(#setSelectedCategoryId, [id]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   _i9.Future<void> textSearch(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#textSearch, [query]),

@@ -647,6 +647,12 @@ class MockSearchProvider extends _i1.Mock implements _i17.SearchProvider {
   );
 
   @override
+  void setSelectedCategoryId(int? id) => super.noSuchMethod(
+    Invocation.method(#setSelectedCategoryId, [id]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   _i11.Future<void> textSearch(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#textSearch, [query]),
@@ -960,9 +966,16 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i11.Future<List<_i7.Recipe>>);
 
   @override
-  _i11.Future<List<_i7.Recipe>> getRecipesBySearch(String? query) =>
+  _i11.Future<List<_i7.Recipe>> getRecipesBySearch(
+    String? query, {
+    int? categoryId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#getRecipesBySearch, [query]),
+            Invocation.method(
+              #getRecipesBySearch,
+              [query],
+              {#categoryId: categoryId},
+            ),
             returnValue: _i11.Future<List<_i7.Recipe>>.value(<_i7.Recipe>[]),
           )
           as _i11.Future<List<_i7.Recipe>>);

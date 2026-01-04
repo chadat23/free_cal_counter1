@@ -60,21 +60,26 @@ class SearchService {
     return sortedFoods.take(50).toList();
   }
 
-  Future<List<model.Food>> searchLocal(String query) async {
+  Future<List<model.Food>> searchLocal(String query, {int? categoryId}) async {
     if (query.isEmpty) {
+      if (categoryId != null) {
+        return searchRecipesOnly(query, categoryId: categoryId);
+      }
       return [];
     }
 
     // Search both foods and recipes
     final localResults = await databaseService.searchFoodsByName(query);
-    final recipeResults = await databaseService.getRecipesBySearch(query);
+    final recipeResults = await databaseService.getRecipesBySearch(
+      query,
+      categoryId: categoryId,
+    );
 
     // Filter out foods that have a parent (older versions)
-    final filteredResults = localResults.where((food) {
-      // Keep foods without a parent (they are latest version)
-      // Keep foods from reference databases (they don't have parent tracking)
-      return food.parentId == null || food.source != 'live';
-    }).toList();
+    // Note: DatabaseService.searchFoodsByName now handles this internally,
+    // but we can leave this as a secondary safety check if we want,
+    // though it's better to rely on DB for efficiency.
+    final filteredResults = localResults;
 
     final combinedResults = [
       ...filteredResults,
@@ -114,8 +119,11 @@ class SearchService {
     return _applyFuzzyMatching(query, resultsWithEmoji);
   }
 
-  Future<List<model.Food>> getAllRecipesAsFoods() async {
-    final recipes = await databaseService.getRecipes();
+  Future<List<model.Food>> getAllRecipesAsFoods({int? categoryId}) async {
+    final recipes = await databaseService.getRecipesBySearch(
+      '',
+      categoryId: categoryId,
+    );
     final foods = recipes.map((r) => r.toFood()).toList();
     final usageNotes = await databaseService.getFoodsUsageNotes(foods);
 
@@ -128,5 +136,26 @@ class SearchService {
     }).toList();
 
     return resultsWithEmoji;
+  }
+
+  Future<List<model.Food>> searchRecipesOnly(
+    String query, {
+    int? categoryId,
+  }) async {
+    final recipeResults = await databaseService.getRecipesBySearch(
+      query,
+      categoryId: categoryId,
+    );
+    final foods = recipeResults.map((r) => r.toFood()).toList();
+    final usageNotes = await databaseService.getFoodsUsageNotes(foods);
+
+    final resultsWithEmoji = foods.map((food) {
+      return food.copyWith(
+        emoji: emojiForFoodName(food.name),
+        usageNote: usageNotes[food.id],
+      );
+    }).toList();
+
+    return _applyFuzzyMatching(query, resultsWithEmoji);
   }
 }

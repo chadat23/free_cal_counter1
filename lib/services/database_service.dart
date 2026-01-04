@@ -71,23 +71,38 @@ class DatabaseService {
     final liveFoodsData =
         await (_liveDb.select(_liveDb.foods)
               ..where((f) => f.name.lower().like(lowerCaseQuery))
-              ..where((f) => f.hidden.equals(false))) // Filter out hidden foods
+              ..where((f) => f.hidden.equals(false)))
             .get();
 
     final refFoodsData = await (_referenceDb.select(
       _referenceDb.foods,
     )..where((f) => f.name.lower().like(lowerCaseQuery))).get();
 
+    // Filtering: Hide parents if they have a child in the live DB
+    final parentIdRows =
+        await (_liveDb.selectOnly(_liveDb.foods)
+              ..addColumns([_liveDb.foods.parentId])
+              ..where(_liveDb.foods.parentId.isNotNull()))
+            .get();
+    final parentIds = parentIdRows
+        .map((r) => r.read(_liveDb.foods.parentId))
+        .whereType<int>()
+        .toSet();
+
     final List<model.Food> liveFoods = [];
     for (final foodData in liveFoodsData) {
-      final servings = await getServingsForFood(foodData.id, foodData.source);
-      liveFoods.add(_mapFoodData(foodData, servings));
+      if (!parentIds.contains(foodData.id)) {
+        final servings = await getServingsForFood(foodData.id, foodData.source);
+        liveFoods.add(_mapFoodData(foodData, servings));
+      }
     }
 
     final List<model.Food> refFoods = [];
     for (final foodData in refFoodsData) {
-      final servings = await getServingsForFood(foodData.id, foodData.source);
-      refFoods.add(_mapFoodData(foodData, servings));
+      if (!parentIds.contains(foodData.id)) {
+        final servings = await getServingsForFood(foodData.id, foodData.source);
+        refFoods.add(_mapFoodData(foodData, servings));
+      }
     }
 
     return [...liveFoods, ...refFoods];
@@ -544,14 +559,46 @@ class DatabaseService {
     return results;
   }
 
-  Future<List<model.Recipe>> getRecipesBySearch(String query) async {
-    final searchRows = await (_liveDb.select(
-      _liveDb.recipes,
-    )..where((t) => t.name.contains(query) & t.hidden.equals(false))).get();
+  Future<List<model.Recipe>> getRecipesBySearch(
+    String query, {
+    int? categoryId,
+  }) async {
+    final queryBuilder = _liveDb.select(_liveDb.recipes).join([]);
+
+    if (categoryId != null) {
+      queryBuilder.join([
+        innerJoin(
+          _liveDb.recipeCategoryLinks,
+          _liveDb.recipeCategoryLinks.recipeId.equalsExp(_liveDb.recipes.id),
+        ),
+      ]);
+      queryBuilder.where(
+        _liveDb.recipeCategoryLinks.categoryId.equals(categoryId),
+      );
+    }
+
+    queryBuilder.where(_liveDb.recipes.name.contains(query));
+    queryBuilder.where(_liveDb.recipes.hidden.equals(false));
+
+    final rows = await queryBuilder.get();
+
+    // Filter out parents
+    final parentIdRows =
+        await (_liveDb.selectOnly(_liveDb.recipes)
+              ..addColumns([_liveDb.recipes.parentId])
+              ..where(_liveDb.recipes.parentId.isNotNull()))
+            .get();
+    final parentIds = parentIdRows
+        .map((r) => r.read(_liveDb.recipes.parentId))
+        .whereType<int>()
+        .toSet();
 
     final List<model.Recipe> results = [];
-    for (final row in searchRows) {
-      results.add(await getRecipeById(row.id));
+    for (final row in rows) {
+      final recipeData = row.readTable(_liveDb.recipes);
+      if (!parentIds.contains(recipeData.id)) {
+        results.add(await getRecipeById(recipeData.id));
+      }
     }
     return results;
   }

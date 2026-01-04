@@ -6,7 +6,6 @@ import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart' as ref;
 import 'package:drift/native.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
-import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
 
 void main() {
   late DatabaseService databaseService;

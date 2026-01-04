@@ -229,9 +229,16 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i6.Future<List<_i3.Recipe>>);
 
   @override
-  _i6.Future<List<_i3.Recipe>> getRecipesBySearch(String? query) =>
+  _i6.Future<List<_i3.Recipe>> getRecipesBySearch(
+    String? query, {
+    int? categoryId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#getRecipesBySearch, [query]),
+            Invocation.method(
+              #getRecipesBySearch,
+              [query],
+              {#categoryId: categoryId},
+            ),
             returnValue: _i6.Future<List<_i3.Recipe>>.value(<_i3.Recipe>[]),
           )
           as _i6.Future<List<_i3.Recipe>>);
@@ -427,9 +434,9 @@ class MockSearchService extends _i1.Mock implements _i12.SearchService {
           as String Function(String));
 
   @override
-  _i6.Future<List<_i2.Food>> searchLocal(String? query) =>
+  _i6.Future<List<_i2.Food>> searchLocal(String? query, {int? categoryId}) =>
       (super.noSuchMethod(
-            Invocation.method(#searchLocal, [query]),
+            Invocation.method(#searchLocal, [query], {#categoryId: categoryId}),
             returnValue: _i6.Future<List<_i2.Food>>.value(<_i2.Food>[]),
           )
           as _i6.Future<List<_i2.Food>>);
@@ -443,9 +450,26 @@ class MockSearchService extends _i1.Mock implements _i12.SearchService {
           as _i6.Future<List<_i2.Food>>);
 
   @override
-  _i6.Future<List<_i2.Food>> getAllRecipesAsFoods() =>
+  _i6.Future<List<_i2.Food>> getAllRecipesAsFoods({int? categoryId}) =>
       (super.noSuchMethod(
-            Invocation.method(#getAllRecipesAsFoods, []),
+            Invocation.method(#getAllRecipesAsFoods, [], {
+              #categoryId: categoryId,
+            }),
+            returnValue: _i6.Future<List<_i2.Food>>.value(<_i2.Food>[]),
+          )
+          as _i6.Future<List<_i2.Food>>);
+
+  @override
+  _i6.Future<List<_i2.Food>> searchRecipesOnly(
+    String? query, {
+    int? categoryId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #searchRecipesOnly,
+              [query],
+              {#categoryId: categoryId},
+            ),
             returnValue: _i6.Future<List<_i2.Food>>.value(<_i2.Food>[]),
           )
           as _i6.Future<List<_i2.Food>>);

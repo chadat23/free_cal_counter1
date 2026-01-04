@@ -4,6 +4,7 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
 import 'package:free_cal_counter1/models/recipe.dart' as model_recipe;
+import 'package:free_cal_counter1/models/category.dart' as model_cat;
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
@@ -21,41 +22,85 @@ class RecipeSearchView extends StatefulWidget {
 }
 
 class _RecipeSearchViewState extends State<RecipeSearchView> {
+  List<model_cat.Category> _categories = [];
+
   @override
   void initState() {
     super.initState();
+    _loadCategories();
     // Trigger initial search to show all recipes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<SearchProvider>(context, listen: false).textSearch('');
     });
   }
 
+  Future<void> _loadCategories() async {
+    final cats = await DatabaseService.instance.getCategories();
+    if (mounted) {
+      setState(() {
+        _categories = cats;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final searchProvider = Provider.of<SearchProvider>(context);
+
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.add),
-            label: const Text('Create New Recipe'),
-            onPressed: () async {
-              Provider.of<RecipeProvider>(context, listen: false).reset();
-              final saved = await Navigator.pushNamed(
-                context,
-                AppRouter.recipeEditRoute,
-              );
-              if (saved == true && context.mounted) {
-                // Refresh the search list by searching for current query again
-                Provider.of<SearchProvider>(
-                  context,
-                  listen: false,
-                ).textSearch('');
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: const Text('New'),
+                  onPressed: () async {
+                    Provider.of<RecipeProvider>(context, listen: false).reset();
+                    final saved = await Navigator.pushNamed(
+                      context,
+                      AppRouter.recipeEditRoute,
+                    );
+                    if (saved == true && context.mounted) {
+                      searchProvider.textSearch('');
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: DropdownButtonFormField<int?>(
+                  value: searchProvider.selectedCategoryId,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 0,
+                    ),
+                    border: OutlineInputBorder(),
+                    labelText: 'Category',
+                  ),
+                  items: [
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text('All Categories'),
+                    ),
+                    ..._categories.map(
+                      (cat) => DropdownMenuItem(
+                        value: cat.id,
+                        child: Text(cat.name, overflow: TextOverflow.ellipsis),
+                      ),
+                    ),
+                  ],
+                  onChanged: (val) {
+                    searchProvider.setSelectedCategoryId(val);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(

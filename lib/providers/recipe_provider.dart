@@ -17,6 +17,7 @@ class RecipeProvider extends ChangeNotifier {
   bool _isTemplate = false;
   List<RecipeItem> _items = [];
   List<Category> _selectedCategories = [];
+  bool _ingredientsChanged = false;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -37,6 +38,7 @@ class RecipeProvider extends ChangeNotifier {
       List.unmodifiable(_selectedCategories);
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  bool get ingredientsChanged => _ingredientsChanged;
 
   // Setters
   void setName(String val) {
@@ -72,12 +74,14 @@ class RecipeProvider extends ChangeNotifier {
   // Item Operations
   void addItem(RecipeItem item) {
     _items.add(item);
+    _ingredientsChanged = true;
     notifyListeners();
   }
 
   void removeItem(int index) {
     if (index >= 0 && index < _items.length) {
       _items.removeAt(index);
+      _ingredientsChanged = true;
       notifyListeners();
     }
   }
@@ -85,6 +89,7 @@ class RecipeProvider extends ChangeNotifier {
   void updateItem(int index, RecipeItem newItem) {
     if (index >= 0 && index < _items.length) {
       _items[index] = newItem;
+      _ingredientsChanged = true;
       notifyListeners();
     }
   }
@@ -126,6 +131,7 @@ class RecipeProvider extends ChangeNotifier {
     _items = List.from(recipe.items);
     _selectedCategories = List.from(recipe.categories);
     _isLogged = isLogged;
+    _ingredientsChanged = false;
     notifyListeners();
   }
 
@@ -165,7 +171,7 @@ class RecipeProvider extends ChangeNotifier {
       int? targetParentId = _parentId;
       int? originalToHide;
 
-      if (_id > 0 && _isLogged) {
+      if (_id > 0 && _isLogged && _ingredientsChanged) {
         targetParentId = _id;
         originalToHide = _id;
         _id = 0;
@@ -217,6 +223,7 @@ class RecipeProvider extends ChangeNotifier {
     _items = [];
     _selectedCategories = [];
     _errorMessage = null;
+    _ingredientsChanged = false;
     notifyListeners();
   }
 }

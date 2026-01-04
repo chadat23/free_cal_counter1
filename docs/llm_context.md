@@ -124,16 +124,20 @@ To ensure consistency across the application and codebase, the following terms a
 - 1.7.2 Next down should be a place for the user to enter a recipe name
 - 1.7.3 Next should be a row to allow the user to enter the number of portions as well as the name of what a portion is, for example Cookie, Slice, Piece, etc. 
 - 1.7.4 Next should be a row with a Total Weight input. The total final weight must sometimes be updated to account for the addition or subtraction of calorie free stuff such as water that isn't tracked in the app (e.g., if making sugar water, identifying the final weight as 100g even if only 50g of sugar was added, so that a 50g serving correctly calculates as having 25g of sugar). Next to that should be a button to specify that the recipe is purely a dumpable template that is, that while the user should be able to "dump" the ingredients into the Log Queue, the user shouldn't be able to add the recipe itself to the Log Queue. This like like with the cookie vs salad example from 1.3.3.3.3.3.2.3. The Dump Only button/checkbox/whatever, should default to unselected since this is the exception to the rule.
-- 1.7.5 Next should be two rows of bar charts. The top should be the macros for the entire recipe, the bottom should be the macros for a single portion, so the total divided by the number of portions.
-- 1.7.6 Next should a button to add ingredients. this means a number of things must be configurable on the search screen:
-  - 1.7.6.1 The exit icon at the top must bring the user back to the recipe screen.
-  - 1.7.6.2 The navigation and visibility of UI elements (like the macro ribbon) are dynamically controlled via the `SearchConfig` passed to the `SearchScreen`.
-  - 1.7.6.3 The down arrow in the top right should bring the user back to the recipe screen if that's where the search screen was reached from.
-  - 1.7.6.4 The bar charts should show the total recipe's macros on the top line and the ingredient's macros on the second line and the labels should update accordingly.
-  - 1.7.6.5 The plus button or `onSave` action needs to know to add the ingredient to the recipe but not the Log Queue and to go back to the Recipe Edit screen. This can be handled by an `onSaveOverride` in the `SearchConfig`.
-  - 1.7.6.6 Clicking on the `SearchResultTile` needs to bring up the Quantity Edit Screen with the appropriate context.
-  - 1.7.6.7 The log button should be hidden or inactive in this context if not needed.
-- 1.7.7 Next should be a list of the ingredients in the recipe, with the ability to edit each one. They should use the same Portion Widget and Slidable Portion Widget as the Log and Log Queue. this may take some reworking and should be done so thoughtfully to ensure it still works as desired and expected for all use cases.
+- 1.7.5 Next should be two rows of bar charts. The top row should be labeled "Total Recipe Macros" reflecting the sum of all ingredients. The bottom row should be labeled "Macros per [Portion Unit Name]" (e.g., "Macros per Cookie"), representing the total divided by the number of portions.
+- 1.7.6 Below the metadata and macros, there should be a Categories section:
+  - 1.7.6.1 It should have a multi-select category picker that looks like a dropdown field.
+  - 1.7.6.2 Tapping it opens a dialog with a checklist of all available categories and a (+) button to add new ones.
+  - 1.7.6.3 Selected categories should be displayed as chips within the picker field for easy identification and removal.
+- 1.7.7 Next should a button to add ingredients. this means a number of things must be configurable on the search screen:
+  - 1.7.7.1 The exit icon at the top must bring the user back to the recipe screen.
+  - 1.7.7.2 The navigation and visibility of UI elements (like the macro ribbon) are dynamically controlled via the `SearchConfig` passed to the `SearchScreen`.
+  - 1.7.7.3 The down arrow in the top right should bring the user back to the recipe screen if that's where the search screen was reached from.
+  - 1.7.7.4 The bar charts should show the total recipe's macros on the top line and the ingredient's macros on the second line and the labels should update accordingly.
+  - 1.7.7.5 The plus button or `onSave` action needs to know to add the ingredient to the recipe but not the Log Queue and to go back to the Recipe Edit screen. This can be handled by an `onSaveOverride` in the `SearchConfig`.
+  - 1.7.7.6 Clicking on the `SearchResultTile` needs to bring up the Quantity Edit Screen with the appropriate context.
+  - 1.7.7.7 The log button should be hidden or inactive in this context if not needed.
+- 1.7.8 Next should be a list of the ingredients in the recipe, with the ability to edit each one. They should use the same Portion Widget and Slidable Portion Widget as the Log and Log Queue. this may take some reworking and should be done so thoughtfully to ensure it still works as desired and expected for all use cases.
 
 # Notes, Quirks, and Idiosyncrasies
 - The Quantity Edit Screen dynamically updates its action button to say "Add" or "Update" based on context.

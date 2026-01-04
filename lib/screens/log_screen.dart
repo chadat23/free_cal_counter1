@@ -125,6 +125,15 @@ class _LogScreenState extends State<LogScreen> {
             onDateChanged: _handleDateChanged,
             nutritionTargets: nutritionTargets,
           ),
+          Consumer<LogProvider>(
+            builder: (context, logProvider, child) {
+              // Show context-sensitive buttons when portions are selected
+              if (logProvider.hasSelectedPortions) {
+                return _buildMultiselectActions(context, logProvider);
+              }
+              return const SizedBox.shrink();
+            },
+          ),
           Expanded(
             child: Consumer<LogProvider>(
               builder: (context, logProvider, child) {
@@ -134,15 +143,29 @@ class _LogScreenState extends State<LogScreen> {
                   return const Center(child: Text('No logs for this day'));
                 }
 
-                return ListView.builder(
-                  itemCount: meals.length,
-                  itemBuilder: (context, index) {
-                    return MealWidget(
-                      meal: meals[index],
-                      onFoodUpdated: _updateLoggedFood,
-                      onFoodDeleted: _deleteLoggedFood,
-                    );
+                return GestureDetector(
+                  onTap: () {
+                    // Clear selection when tapping outside portions
+                    if (logProvider.hasSelectedPortions) {
+                      logProvider.clearSelection();
+                    }
                   },
+                  child: ListView.builder(
+                    itemCount: meals.length,
+                    itemBuilder: (context, index) {
+                      return MealWidget(
+                        meal: meals[index],
+                        onFoodUpdated: _updateLoggedFood,
+                        onFoodDeleted: _deleteLoggedFood,
+                        onBackgroundTap: () {
+                          // Clear selection when tapping on meal background
+                          if (logProvider.hasSelectedPortions) {
+                            logProvider.clearSelection();
+                          }
+                        },
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -206,5 +229,61 @@ class _LogScreenState extends State<LogScreen> {
 
   void _deleteLoggedFood(LoggedPortion food) {
     Provider.of<LogProvider>(context, listen: false).deleteLoggedPortion(food);
+  }
+
+  Widget _buildMultiselectActions(
+    BuildContext context,
+    LogProvider logProvider,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Implement copy functionality (1.2.7.6.1)
+                logProvider.clearSelection();
+              },
+              icon: const Icon(Icons.copy),
+              label: const Text('Copy'),
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Implement move functionality (1.2.7.6.2)
+                logProvider.clearSelection();
+              },
+              icon: const Icon(Icons.move_down),
+              label: const Text('Move'),
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Implement delete functionality (1.2.7.6.3)
+                logProvider.clearSelection();
+              },
+              icon: const Icon(Icons.delete),
+              label: const Text('Delete'),
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Implement make recipe functionality (1.2.7.6.4)
+                logProvider.clearSelection();
+              },
+              icon: const Icon(Icons.restaurant_menu),
+              label: const Text('Recipe'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

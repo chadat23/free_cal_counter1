@@ -5,8 +5,18 @@ import 'package:free_cal_counter1/models/food_portion.dart';
 class PortionWidget extends StatelessWidget {
   final FoodPortion portion;
   final VoidCallback? onEdit;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final bool isSelected;
 
-  const PortionWidget({super.key, required this.portion, this.onEdit});
+  const PortionWidget({
+    super.key,
+    required this.portion,
+    this.onEdit,
+    this.onTap,
+    this.onLongPress,
+    this.isSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,41 +37,84 @@ class PortionWidget extends StatelessWidget {
     final carbs = portion.food.carbs * totalGrams;
     final fiber = portion.food.fiber * totalGrams;
 
-    return ListTile(
-      leading: SizedBox(
-        width: 40,
-        height: 40,
-        child: Center(
-          child: portion.food.thumbnail != null
-              ? CachedNetworkImage(
-                  imageUrl: portion.food.thumbnail!,
-                  placeholder: (context, url) =>
-                      const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => Text(
-                    portion.food.emoji ?? '🍴',
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                  fit: BoxFit.cover,
+    return InkWell(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3)
+              : null,
+          border: isSelected
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
                 )
-              : Text(
-                  portion.food.emoji ?? '🍴',
-                  style: const TextStyle(fontSize: 24),
-                ),
+              : null,
+          borderRadius: BorderRadius.circular(8),
         ),
-      ),
-      title: Text(portion.food.name),
-      subtitle: Text(
-        '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C • ${fiber.toStringAsFixed(1)}Fb',
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '${unitDef.quantityFromGrams(totalGrams).toStringAsFixed(1)} ${unitDef.unit}',
+        child: ListTile(
+          leading: Stack(
+            children: [
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: Center(
+                  child: portion.food.thumbnail != null
+                      ? CachedNetworkImage(
+                          imageUrl: portion.food.thumbnail!,
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => Text(
+                            portion.food.emoji ?? '🍴',
+                            style: const TextStyle(fontSize: 24),
+                          ),
+                          fit: BoxFit.cover,
+                        )
+                      : Text(
+                          portion.food.emoji ?? '🍴',
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                ),
+              ),
+              if (isSelected)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(width: 8),
-          IconButton(icon: const Icon(Icons.edit_outlined), onPressed: onEdit),
-        ],
+          title: Text(portion.food.name),
+          subtitle: Text(
+            '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C • ${fiber.toStringAsFixed(1)}Fb',
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${unitDef.quantityFromGrams(totalGrams).toStringAsFixed(1)} ${unitDef.unit}',
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: onEdit,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

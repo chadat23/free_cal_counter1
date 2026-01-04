@@ -7,12 +7,18 @@ class SlidablePortionWidget extends StatelessWidget {
   final FoodPortion serving;
   final VoidCallback onDelete;
   final VoidCallback? onEdit;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final bool isSelected;
 
   const SlidablePortionWidget({
     super.key,
     required this.serving,
     required this.onDelete,
     this.onEdit,
+    this.onTap,
+    this.onLongPress,
+    this.isSelected = false,
   });
 
   @override
@@ -34,7 +40,13 @@ class SlidablePortionWidget extends StatelessWidget {
       ),
       child: Container(
         color: Theme.of(context).canvasColor,
-        child: PortionWidget(portion: serving, onEdit: onEdit),
+        child: PortionWidget(
+          portion: serving,
+          onEdit: onEdit,
+          onTap: onTap,
+          onLongPress: onLongPress,
+          isSelected: isSelected,
+        ),
       ),
     );
   }

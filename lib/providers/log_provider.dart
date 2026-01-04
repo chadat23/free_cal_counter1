@@ -29,6 +29,9 @@ class LogProvider extends ChangeNotifier {
   final List<model.FoodPortion> _logQueue = [];
   List<model.LoggedPortion> _loggedPortion = [];
 
+  // Multiselect state
+  final Set<int> _selectedPortionIds = {};
+
   // Getters
   double get loggedCalories => _loggedCalories;
   double get queuedCalories => _queuedCalories;
@@ -51,6 +54,9 @@ class LogProvider extends ChangeNotifier {
 
   List<model.FoodPortion> get logQueue => _logQueue;
   List<model.LoggedPortion> get loggedPortion => _loggedPortion;
+  Set<int> get selectedPortionIds => _selectedPortionIds;
+  bool get hasSelectedPortions => _selectedPortionIds.isNotEmpty;
+  int get selectedPortionCount => _selectedPortionIds.length;
 
   // Queue Operations
   void addFoodToQueue(model.FoodPortion serving) {
@@ -223,5 +229,34 @@ class LogProvider extends ChangeNotifier {
     final today = DateTime(now.year, now.month, now.day);
     final stats = await getDailyMacroStats(today, today);
     return stats.first;
+  }
+
+  // Multiselect operations
+  void togglePortionSelection(int portionId) {
+    if (_selectedPortionIds.contains(portionId)) {
+      _selectedPortionIds.remove(portionId);
+    } else {
+      _selectedPortionIds.add(portionId);
+    }
+    notifyListeners();
+  }
+
+  void selectPortion(int portionId) {
+    _selectedPortionIds.add(portionId);
+    notifyListeners();
+  }
+
+  void deselectPortion(int portionId) {
+    _selectedPortionIds.remove(portionId);
+    notifyListeners();
+  }
+
+  void clearSelection() {
+    _selectedPortionIds.clear();
+    notifyListeners();
+  }
+
+  bool isPortionSelected(int portionId) {
+    return _selectedPortionIds.contains(portionId);
   }
 }

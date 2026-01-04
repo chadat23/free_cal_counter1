@@ -6,120 +6,146 @@ import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/models/logged_portion.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
 
 class MealWidget extends StatelessWidget {
   final Meal meal;
   final Function(LoggedPortion, FoodPortion)? onFoodUpdated;
   final Function(LoggedPortion)? onFoodDeleted;
+  final VoidCallback? onBackgroundTap;
 
   const MealWidget({
     super.key,
     required this.meal,
     this.onFoodUpdated,
     this.onFoodDeleted,
+    this.onBackgroundTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final logProvider = Provider.of<LogProvider>(context);
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  DateFormat.jm().format(meal.timestamp),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Wrap(
-                  spacing: 8.0,
-                  runSpacing: 4.0,
-                  alignment: WrapAlignment.end,
-                  children: [
-                    Text('🔥${meal.totalCalories.toInt()}'),
-                    Text('P: ${meal.totalProtein.toStringAsFixed(1)}'),
-                    Text('F: ${meal.totalFat.toStringAsFixed(1)}'),
-                    Text('C: ${meal.totalCarbs.toStringAsFixed(1)}'),
-                    Text('Fb: ${meal.totalFiber.toStringAsFixed(1)}'),
-                  ],
-                ),
-              ],
-            ),
-            const Divider(),
-            ...meal.loggedPortion.asMap().entries.map((entry) {
-              final index = entry.key;
-              final loggedFood = entry.value;
-              return Column(
+      child: GestureDetector(
+        onTap: onBackgroundTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SlidablePortionWidget(
-                    key: loggedFood.id != null ? ValueKey(loggedFood.id) : null,
-                    serving: loggedFood.portion,
-                    onDelete: () {
-                      if (onFoodDeleted != null) {
-                        onFoodDeleted!(loggedFood);
-                      }
-                    },
-                    onEdit: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            final unit = loggedFood.portion.food.servings
-                                .firstWhere(
-                                  (s) => s.unit == loggedFood.portion.unit,
-                                  orElse: () =>
-                                      loggedFood.portion.food.servings.first,
-                                );
-                            return QuantityEditScreen(
-                              config: QuantityEditConfig(
-                                context: QuantityEditContext.day,
-                                food: loggedFood.portion.food,
-                                isUpdate: true,
-                                initialUnit: unit.unit,
-                                initialQuantity: unit.quantityFromGrams(
-                                  loggedFood.portion.grams,
-                                ),
-                                originalGrams: loggedFood.portion.grams,
-                                onSave: (grams, unitName) {
-                                  if (onFoodUpdated != null) {
-                                    onFoodUpdated!(
-                                      loggedFood,
-                                      FoodPortion(
-                                        food: loggedFood.portion.food,
-                                        grams: grams,
-                                        unit: unitName,
-                                      ),
-                                    );
-                                  }
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                  if (index < meal.loggedPortion.length - 1)
-                    Divider(
-                      color: Theme.of(
-                        context,
-                      ).cardColor.withAlpha((255 * 0.7).round()),
-                      height: 1,
-                      indent: 16,
-                      endIndent: 16,
+                  Text(
+                    DateFormat.jm().format(meal.timestamp),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    alignment: WrapAlignment.end,
+                    children: [
+                      Text('🔥${meal.totalCalories.toInt()}'),
+                      Text('P: ${meal.totalProtein.toStringAsFixed(1)}'),
+                      Text('F: ${meal.totalFat.toStringAsFixed(1)}'),
+                      Text('C: ${meal.totalCarbs.toStringAsFixed(1)}'),
+                      Text('Fb: ${meal.totalFiber.toStringAsFixed(1)}'),
+                    ],
+                  ),
                 ],
-              );
-            }),
-          ],
+              ),
+              const Divider(),
+              ...meal.loggedPortion.asMap().entries.map((entry) {
+                final index = entry.key;
+                final loggedFood = entry.value;
+                final isSelected =
+                    loggedFood.id != null &&
+                    logProvider.isPortionSelected(loggedFood.id!);
+
+                return Column(
+                  children: [
+                    SlidablePortionWidget(
+                      key: loggedFood.id != null
+                          ? ValueKey(loggedFood.id)
+                          : null,
+                      serving: loggedFood.portion,
+                      isSelected: isSelected,
+                      onTap: () {
+                        if (loggedFood.id != null) {
+                          logProvider.togglePortionSelection(loggedFood.id!);
+                        }
+                      },
+                      onLongPress: () {
+                        if (loggedFood.id != null) {
+                          logProvider.selectPortion(loggedFood.id!);
+                        }
+                      },
+                      onDelete: () {
+                        if (onFoodDeleted != null) {
+                          onFoodDeleted!(loggedFood);
+                        }
+                      },
+                      onEdit: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              final unit = loggedFood.portion.food.servings
+                                  .firstWhere(
+                                    (s) => s.unit == loggedFood.portion.unit,
+                                    orElse: () =>
+                                        loggedFood.portion.food.servings.first,
+                                  );
+                              return QuantityEditScreen(
+                                config: QuantityEditConfig(
+                                  context: QuantityEditContext.day,
+                                  food: loggedFood.portion.food,
+                                  isUpdate: true,
+                                  initialUnit: unit.unit,
+                                  initialQuantity: unit.quantityFromGrams(
+                                    loggedFood.portion.grams,
+                                  ),
+                                  originalGrams: loggedFood.portion.grams,
+                                  onSave: (grams, unitName) {
+                                    if (onFoodUpdated != null) {
+                                      onFoodUpdated!(
+                                        loggedFood,
+                                        FoodPortion(
+                                          food: loggedFood.portion.food,
+                                          grams: grams,
+                                          unit: unitName,
+                                        ),
+                                      );
+                                    }
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                    if (index < meal.loggedPortion.length - 1)
+                      Divider(
+                        color: Theme.of(
+                          context,
+                        ).cardColor.withAlpha((255 * 0.7).round()),
+                        height: 1,
+                        indent: 16,
+                        endIndent: 16,
+                      ),
+                  ],
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );

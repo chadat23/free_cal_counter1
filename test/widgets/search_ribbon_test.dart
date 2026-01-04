@@ -6,6 +6,8 @@ import 'package:free_cal_counter1/screens/search_screen.dart';
 import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/search_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -15,17 +17,19 @@ import 'package:free_cal_counter1/models/search_config.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'search_ribbon_test.mocks.dart';
 
-@GenerateMocks([LogProvider, NavigationProvider, SearchProvider])
+@GenerateMocks([LogProvider, NavigationProvider, SearchProvider, GoalsProvider])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
   late MockSearchProvider mockSearchProvider;
+  late MockGoalsProvider mockGoalsProvider;
 
   setUp(() {
     provideDummy<Future<void>>(Future.value());
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
     mockSearchProvider = MockSearchProvider(); // Use the mock
+    mockGoalsProvider = MockGoalsProvider();
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
     when(mockNavigationProvider.showConsumed).thenReturn(true);
@@ -49,6 +53,9 @@ void main() {
     when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
     when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
     when(mockLogProvider.logQueue).thenReturn([]);
+
+    // Default mock for GoalsProvider
+    when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
   });
 
   Widget createTestWidget() {
@@ -61,6 +68,7 @@ void main() {
         ChangeNotifierProvider<SearchProvider>.value(
           value: mockSearchProvider,
         ), // Use the mock
+        ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
       ],
       child: MaterialApp(
         navigatorKey: GlobalKey<NavigatorState>(),
@@ -79,6 +87,9 @@ void main() {
                   ),
                   ChangeNotifierProvider<SearchProvider>.value(
                     value: mockSearchProvider,
+                  ),
+                  ChangeNotifierProvider<GoalsProvider>.value(
+                    value: mockGoalsProvider,
                   ),
                 ],
                 child: const SearchScreen(
@@ -123,6 +134,9 @@ void main() {
             ChangeNotifierProvider<LogProvider>.value(
               // Added because LogProvider is now required
               value: mockLogProvider,
+            ),
+            ChangeNotifierProvider<GoalsProvider>.value(
+              value: mockGoalsProvider,
             ),
           ],
           child: MaterialApp(

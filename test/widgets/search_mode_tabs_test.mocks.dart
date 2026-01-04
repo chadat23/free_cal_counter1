@@ -3,16 +3,17 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i8;
-import 'dart:ui' as _i9;
+import 'dart:async' as _i9;
+import 'dart:ui' as _i10;
 
 import 'package:free_cal_counter1/models/food.dart' as _i6;
-import 'package:free_cal_counter1/models/search_mode.dart' as _i7;
+import 'package:free_cal_counter1/models/search_mode.dart' as _i8;
 import 'package:free_cal_counter1/providers/search_provider.dart' as _i5;
 import 'package:free_cal_counter1/services/database_service.dart' as _i2;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i3;
 import 'package:free_cal_counter1/services/search_service.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -100,12 +101,23 @@ class MockSearchProvider extends _i1.Mock implements _i5.SearchProvider {
           as bool);
 
   @override
-  _i7.SearchMode get searchMode =>
+  String get currentQuery =>
+      (super.noSuchMethod(
+            Invocation.getter(#currentQuery),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.getter(#currentQuery),
+            ),
+          )
+          as String);
+
+  @override
+  _i8.SearchMode get searchMode =>
       (super.noSuchMethod(
             Invocation.getter(#searchMode),
-            returnValue: _i7.SearchMode.text,
+            returnValue: _i8.SearchMode.text,
           )
-          as _i7.SearchMode);
+          as _i8.SearchMode);
 
   @override
   bool get hasListeners =>
@@ -113,46 +125,46 @@ class MockSearchProvider extends _i1.Mock implements _i5.SearchProvider {
           as bool);
 
   @override
-  void setSearchMode(_i7.SearchMode? mode) => super.noSuchMethod(
+  void setSearchMode(_i8.SearchMode? mode) => super.noSuchMethod(
     Invocation.method(#setSearchMode, [mode]),
     returnValueForMissingStub: null,
   );
 
   @override
-  _i8.Future<void> textSearch(String? query) =>
+  _i9.Future<void> textSearch(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#textSearch, [query]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i8.Future<void> performOffSearch() =>
+  _i9.Future<void> performOffSearch() =>
       (super.noSuchMethod(
             Invocation.method(#performOffSearch, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i8.Future<void> barcodeSearch(String? barcode) =>
+  _i9.Future<void> barcodeSearch(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#barcodeSearch, [barcode]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  void addListener(_i9.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i9.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i10.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

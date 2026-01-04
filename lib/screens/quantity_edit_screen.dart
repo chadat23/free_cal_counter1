@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/utils/math_evaluator.dart';
 import 'package:free_cal_counter1/utils/quantity_edit_utils.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
@@ -74,8 +75,8 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
     final currentGrams = _calculateCurrentGrams();
     final food = widget.config.food;
 
-    return Consumer2<LogProvider, RecipeProvider>(
-      builder: (context, logProvider, recipeProvider, _) {
+    return Consumer3<LogProvider, RecipeProvider, GoalsProvider>(
+      builder: (context, logProvider, recipeProvider, goalsProvider, _) {
         final isRecipe = widget.config.context == QuantityEditContext.recipe;
         final servings =
             (isRecipe &&
@@ -105,6 +106,9 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
           totalCarbs: isRecipe
               ? recipeProvider.totalCarbs
               : logProvider.totalCarbs,
+          totalFiber: isRecipe
+              ? recipeProvider.totalFiber
+              : logProvider.totalFiber,
           food: food,
           currentGrams: currentGrams,
           originalGrams: widget.config.originalGrams,
@@ -116,7 +120,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
             _buildChartSection(
               isRecipe ? "Recipe's Macros" : "Day's Macros",
               parentValues,
-              isRecipe ? null : _getDayTargets(logProvider),
+              isRecipe ? null : _getGoals(goalsProvider),
             ),
             const SizedBox(height: 12),
             _buildChartSection(
@@ -171,7 +175,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
   }
 
   Widget _buildTargetSelection() {
-    final targets = ['Unit', 'Calories', 'Protein', 'Fat', 'Carbs'];
+    final targets = ['Unit', 'Calories', 'Protein', 'Fat', 'Carbs', 'Fiber'];
     return ToggleButtons(
       isSelected: List.generate(
         targets.length,
@@ -264,12 +268,14 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
     );
   }
 
-  Map<String, double> _getDayTargets(LogProvider provider) {
+  Map<String, double> _getGoals(GoalsProvider provider) {
+    final goals = provider.currentGoals;
     return {
-      'Calories': provider.dailyTargetCalories,
-      'Protein': provider.dailyTargetProtein,
-      'Fat': provider.dailyTargetFat,
-      'Carbs': provider.dailyTargetCarbs,
+      'Calories': goals.calories,
+      'Protein': goals.protein,
+      'Fat': goals.fat,
+      'Carbs': goals.carbs,
+      'Fiber': goals.fiber,
     };
   }
 
@@ -291,7 +297,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                   child: _buildMiniBar(
                     '🔥',
                     values['Calories']!,
-                    targets?['Calories'] ?? 2000,
+                    targets?['Calories'] ?? 2650,
                     Colors.orange,
                   ),
                 ),
@@ -300,7 +306,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                   child: _buildMiniBar(
                     'P',
                     values['Protein']!,
-                    targets?['Protein'] ?? 150,
+                    targets?['Protein'] ?? 160,
                     Colors.red,
                   ),
                 ),
@@ -309,7 +315,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                   child: _buildMiniBar(
                     'F',
                     values['Fat']!,
-                    targets?['Fat'] ?? 70,
+                    targets?['Fat'] ?? 80,
                     Colors.yellow,
                   ),
                 ),
@@ -320,6 +326,15 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                     values['Carbs']!,
                     targets?['Carbs'] ?? 250,
                     Colors.green,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: _buildMiniBar(
+                    'Fb',
+                    values['Fiber']!,
+                    targets?['Fiber'] ?? 15,
+                    Colors.brown,
                   ),
                 ),
               ],

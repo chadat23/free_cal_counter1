@@ -4,6 +4,7 @@ import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:provider/provider.dart';
 
 class LogQueueTopRibbon extends StatelessWidget {
@@ -22,6 +23,7 @@ class LogQueueTopRibbon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final goals = Provider.of<GoalsProvider>(context).currentGoals;
     // Helper to create targets for the charts
     NutritionTarget createTarget(
       String label,
@@ -43,53 +45,45 @@ class LogQueueTopRibbon extends StatelessWidget {
       createTarget(
         '🔥',
         logProvider.totalCalories,
-        logProvider.dailyTargetCalories,
+        goals.calories,
         Colors.blue,
       ),
-      createTarget(
-        'P',
-        logProvider.totalProtein,
-        logProvider.dailyTargetProtein,
-        Colors.red,
-      ),
-      createTarget(
-        'F',
-        logProvider.totalFat,
-        logProvider.dailyTargetFat,
-        Colors.orange,
-      ),
-      createTarget(
-        'C',
-        logProvider.totalCarbs,
-        logProvider.dailyTargetCarbs,
-        Colors.green,
-      ),
+      createTarget('P', logProvider.totalProtein, goals.protein, Colors.red),
+      createTarget('F', logProvider.totalFat, goals.fat, Colors.orange),
+      createTarget('C', logProvider.totalCarbs, goals.carbs, Colors.green),
+      createTarget('Fb', logProvider.totalFiber, goals.fiber, Colors.brown),
     ];
 
     final queueOnlyTargets = [
       createTarget(
         '🔥',
         logProvider.queuedCalories,
-        logProvider.dailyTargetCalories,
-        Colors.blue.withOpacity(0.7),
+        goals.calories,
+        Colors.blue.withValues(alpha: 0.7),
       ),
       createTarget(
         'P',
         logProvider.queuedProtein,
-        logProvider.dailyTargetProtein,
-        Colors.red.withOpacity(0.7),
+        goals.protein,
+        Colors.red.withValues(alpha: 0.7),
       ),
       createTarget(
         'F',
         logProvider.queuedFat,
-        logProvider.dailyTargetFat,
-        Colors.orange.withOpacity(0.7),
+        goals.fat,
+        Colors.orange.withValues(alpha: 0.7),
       ),
       createTarget(
         'C',
         logProvider.queuedCarbs,
-        logProvider.dailyTargetCarbs,
-        Colors.green.withOpacity(0.7),
+        goals.carbs,
+        Colors.green.withValues(alpha: 0.7),
+      ),
+      createTarget(
+        'Fb',
+        logProvider.queuedFiber,
+        goals.fiber,
+        Colors.brown.withValues(alpha: 0.7),
       ),
     ];
 

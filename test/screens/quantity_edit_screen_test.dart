@@ -5,6 +5,8 @@ import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -12,10 +14,11 @@ import 'package:provider/provider.dart';
 
 import 'quantity_edit_screen_test.mocks.dart';
 
-@GenerateMocks([LogProvider, RecipeProvider])
+@GenerateMocks([LogProvider, RecipeProvider, GoalsProvider])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockRecipeProvider mockRecipeProvider;
+  late MockGoalsProvider mockGoalsProvider;
 
   final mockFood = Food(
     id: 1,
@@ -35,23 +38,30 @@ void main() {
   setUp(() {
     mockLogProvider = MockLogProvider();
     mockRecipeProvider = MockRecipeProvider();
+    mockGoalsProvider = MockGoalsProvider();
 
     // Default mock behavior for LogProvider
     when(mockLogProvider.totalCalories).thenReturn(500.0);
     when(mockLogProvider.totalProtein).thenReturn(20.0);
     when(mockLogProvider.totalFat).thenReturn(10.0);
     when(mockLogProvider.totalCarbs).thenReturn(80.0);
+    when(mockLogProvider.totalFiber).thenReturn(5.0);
     when(mockLogProvider.dailyTargetCalories).thenReturn(2000.0);
     when(mockLogProvider.dailyTargetProtein).thenReturn(150.0);
     when(mockLogProvider.dailyTargetFat).thenReturn(70.0);
     when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
+    when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
 
     // Default mock behavior for RecipeProvider
     when(mockRecipeProvider.totalCalories).thenReturn(0.0);
     when(mockRecipeProvider.totalProtein).thenReturn(0.0);
     when(mockRecipeProvider.totalFat).thenReturn(0.0);
     when(mockRecipeProvider.totalCarbs).thenReturn(0.0);
+    when(mockRecipeProvider.totalFiber).thenReturn(0.0);
     when(mockRecipeProvider.servingsCreated).thenReturn(1.0);
+
+    // Default mock behavior for GoalsProvider
+    when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
   });
 
   Widget createTestWidget(QuantityEditConfig config) {
@@ -59,6 +69,7 @@ void main() {
       providers: [
         ChangeNotifierProvider<LogProvider>.value(value: mockLogProvider),
         ChangeNotifierProvider<RecipeProvider>.value(value: mockRecipeProvider),
+        ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
       ],
       child: MaterialApp(home: QuantityEditScreen(config: config)),
     );

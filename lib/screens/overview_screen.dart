@@ -5,7 +5,9 @@ import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart';
+import 'package:free_cal_counter1/models/macro_goals.dart';
 
 class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
@@ -30,18 +32,23 @@ class _OverviewScreenState extends State<OverviewScreen> {
     final start = today.subtract(const Duration(days: 6)); // Last 7 days
 
     final logProvider = Provider.of<LogProvider>(context, listen: false);
+    final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
     final stats = await logProvider.getDailyMacroStats(start, today);
+    final goals = goalsProvider.currentGoals;
 
     // Process stats into NutritionTargets
     if (mounted) {
       setState(() {
-        _nutritionData = _buildTargets(stats);
+        _nutritionData = _buildTargets(stats, goals);
         _isLoading = false;
       });
     }
   }
 
-  List<NutritionTarget> _buildTargets(List<DailyMacroStats> stats) {
+  List<NutritionTarget> _buildTargets(
+    List<DailyMacroStats> stats,
+    MacroGoals goals,
+  ) {
     // Extract daily lists (ensure 7 days, index 0 is oldest, index 6 is today)
     // DailyMacroStats.fromDTOS usually returns sorted by date
     // We already requested 7 days, so we should map them directly mostly.
@@ -64,7 +71,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
       NutritionTarget(
         color: Colors.blue,
         thisAmount: todayStats.calories,
-        targetAmount: 2000.0, // TODO: Get from settings
+        targetAmount: goals.calories,
         macroLabel: '🔥',
         unitLabel: '',
         dailyAmounts: calories,
@@ -72,7 +79,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
       NutritionTarget(
         color: Colors.red,
         thisAmount: todayStats.protein,
-        targetAmount: 150.0,
+        targetAmount: goals.protein,
         macroLabel: 'P',
         unitLabel: 'g',
         dailyAmounts: protein,
@@ -80,7 +87,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
       NutritionTarget(
         color: Colors.yellow,
         thisAmount: todayStats.fat,
-        targetAmount: 70.0,
+        targetAmount: goals.fat,
         macroLabel: 'F',
         unitLabel: 'g',
         dailyAmounts: fat,
@@ -88,7 +95,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
       NutritionTarget(
         color: Colors.green,
         thisAmount: todayStats.carbs,
-        targetAmount: 250.0,
+        targetAmount: goals.carbs,
         macroLabel: 'C',
         unitLabel: 'g',
         dailyAmounts: carbs,
@@ -96,7 +103,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
       NutritionTarget(
         color: Colors.brown,
         thisAmount: todayStats.fiber,
-        targetAmount: 30.0,
+        targetAmount: goals.fiber,
         macroLabel: 'Fb',
         unitLabel: 'g',
         dailyAmounts: fiber,

@@ -222,6 +222,21 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
           as _i7.Future<void>);
 
   @override
+  _i7.Future<void> updateLoggedPortion(
+    _i5.LoggedPortion? oldLoggedPortion,
+    _i4.FoodPortion? newPortion,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateLoggedPortion, [
+              oldLoggedPortion,
+              newPortion,
+            ]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
   _i7.Future<List<_i2.DailyMacroStats>> getDailyMacroStats(
     DateTime? start,
     DateTime? end,

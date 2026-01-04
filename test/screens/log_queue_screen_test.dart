@@ -6,6 +6,7 @@ import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/screens/log_queue_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/search_service.dart';
@@ -23,6 +24,7 @@ void main() {
   late MockDatabaseService mockDatabaseService;
   late MockOffApiService mockOffApiService;
   late MockSearchService mockSearchService;
+  late GoalsProvider goalsProvider;
 
   setUp(() {
     logProvider = LogProvider();
@@ -35,6 +37,7 @@ void main() {
       offApiService: mockOffApiService,
       searchService: mockSearchService,
     );
+    goalsProvider = GoalsProvider();
   });
 
   testWidgets('should display food servings from the log queue', (
@@ -63,6 +66,7 @@ void main() {
           ChangeNotifierProvider.value(value: logProvider),
           ChangeNotifierProvider.value(value: navigationProvider),
           ChangeNotifierProvider.value(value: searchProvider),
+          ChangeNotifierProvider.value(value: goalsProvider),
         ],
         child: const MaterialApp(home: LogQueueScreen()),
       ),

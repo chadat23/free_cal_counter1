@@ -260,6 +260,21 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
           as _i11.Future<void>);
 
   @override
+  _i11.Future<void> updateLoggedPortion(
+    _i10.LoggedPortion? oldLoggedPortion,
+    _i9.FoodPortion? newPortion,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateLoggedPortion, [
+              oldLoggedPortion,
+              newPortion,
+            ]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
   _i11.Future<List<_i2.DailyMacroStats>> getDailyMacroStats(
     DateTime? start,
     DateTime? end,
@@ -602,6 +617,17 @@ class MockSearchProvider extends _i1.Mock implements _i17.SearchProvider {
           as bool);
 
   @override
+  String get currentQuery =>
+      (super.noSuchMethod(
+            Invocation.getter(#currentQuery),
+            returnValue: _i14.dummyValue<String>(
+              this,
+              Invocation.getter(#currentQuery),
+            ),
+          )
+          as String);
+
+  @override
   _i18.SearchMode get searchMode =>
       (super.noSuchMethod(
             Invocation.getter(#searchMode),
@@ -890,6 +916,21 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i11.Future<void>);
 
   @override
+  _i11.Future<void> updateLoggedPortion(
+    int? loggedPortionId,
+    _i9.FoodPortion? newPortion,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateLoggedPortion, [
+              loggedPortionId,
+              newPortion,
+            ]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
   _i11.Future<List<_i2.LoggedMacroDTO>> getLoggedMacrosForDateRange(
     DateTime? start,
     DateTime? end,
@@ -990,4 +1031,62 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
             ),
           )
           as _i11.Future<_i6.Food>);
+
+  @override
+  _i11.Future<Map<int, String?>> getFoodsUsageNotes(List<_i6.Food>? foods) =>
+      (super.noSuchMethod(
+            Invocation.method(#getFoodsUsageNotes, [foods]),
+            returnValue: _i11.Future<Map<int, String?>>.value(<int, String?>{}),
+          )
+          as _i11.Future<Map<int, String?>>);
+
+  @override
+  _i11.Future<_i6.Food> copyFoodToLiveDb(
+    _i6.Food? sourceFood, {
+    bool? isCopy = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #copyFoodToLiveDb,
+              [sourceFood],
+              {#isCopy: isCopy},
+            ),
+            returnValue: _i11.Future<_i6.Food>.value(
+              _FakeFood_4(
+                this,
+                Invocation.method(
+                  #copyFoodToLiveDb,
+                  [sourceFood],
+                  {#isCopy: isCopy},
+                ),
+              ),
+            ),
+          )
+          as _i11.Future<_i6.Food>);
+
+  @override
+  _i11.Future<void> softDeleteFood(int? foodId, String? source) =>
+      (super.noSuchMethod(
+            Invocation.method(#softDeleteFood, [foodId, source]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
+  _i11.Future<bool> isFoodReferenced(int? foodId, String? source) =>
+      (super.noSuchMethod(
+            Invocation.method(#isFoodReferenced, [foodId, source]),
+            returnValue: _i11.Future<bool>.value(false),
+          )
+          as _i11.Future<bool>);
+
+  @override
+  _i11.Future<void> deleteFood(int? foodId, String? source) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteFood, [foodId, source]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
 }

@@ -16,7 +16,7 @@ class QuantityEditUtils {
       );
       return serving.gramsFromQuantity(quantity);
     } else {
-      // Macro target (1: Cal, 2: Protein, 3: Fat, 4: Carbs)
+      // Macro target (1: Cal, 2: Protein, 3: Fat, 4: Carbs, 5: Fiber)
       double perGram;
       switch (selectedTargetIndex) {
         case 1:
@@ -30,6 +30,9 @@ class QuantityEditUtils {
           break;
         case 4:
           perGram = food.carbs;
+          break;
+        case 5:
+          perGram = food.fiber;
           break;
         default:
           perGram = 1.0;
@@ -49,6 +52,7 @@ class QuantityEditUtils {
       'Protein': (food.protein * grams) / divisor,
       'Fat': (food.fat * grams) / divisor,
       'Carbs': (food.carbs * grams) / divisor,
+      'Fiber': (food.fiber * grams) / divisor,
     };
   }
 
@@ -58,6 +62,7 @@ class QuantityEditUtils {
     required double totalProtein,
     required double totalFat,
     required double totalCarbs,
+    required double totalFiber,
     required Food food,
     required double currentGrams,
     required double originalGrams,
@@ -81,12 +86,18 @@ class QuantityEditUtils {
             (food.carbs * originalGrams) +
             (food.carbs * currentGrams)) /
         divisor;
+    final double fiber =
+        (totalFiber -
+            (food.fiber * originalGrams) +
+            (food.fiber * currentGrams)) /
+        divisor;
 
     return {
       'Calories': calories,
       'Protein': protein,
       'Fat': fat,
       'Carbs': carbs,
+      'Fiber': fiber,
     };
   }
 }

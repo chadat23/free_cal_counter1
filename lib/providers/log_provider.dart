@@ -20,11 +20,11 @@ class LogProvider extends ChangeNotifier {
   double _queuedCarbs = 0.0;
   double _queuedFiber = 0.0;
 
-  double _dailyTargetCalories = 2000.0;
-  double _dailyTargetProtein = 150.0;
-  double _dailyTargetFat = 70.0;
-  double _dailyTargetCarbs = 250.0;
-  double _dailyTargetFiber = 30.0;
+  final double _dailyTargetCalories = 2000.0;
+  final double _dailyTargetProtein = 150.0;
+  final double _dailyTargetFat = 70.0;
+  final double _dailyTargetCarbs = 250.0;
+  final double _dailyTargetFiber = 30.0;
 
   final List<model.FoodPortion> _logQueue = [];
   List<model.LoggedPortion> _loggedPortion = [];

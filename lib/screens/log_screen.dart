@@ -9,6 +9,7 @@ import 'package:free_cal_counter1/models/logged_portion.dart';
 import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/utils/debug_seeder.dart';
 
 class LogScreen extends StatefulWidget {
@@ -71,11 +72,13 @@ class _LogScreenState extends State<LogScreen> {
       totalFiber += food.portion.food.fiber * food.portion.grams;
     }
 
+    final goals = Provider.of<GoalsProvider>(context).currentGoals;
+
     final List<NutritionTarget> nutritionTargets = [
       NutritionTarget(
         color: Colors.blue,
         thisAmount: totalCalories,
-        targetAmount: 2000, // TODO: settings
+        targetAmount: goals.calories,
         macroLabel: '🔥',
         unitLabel: '',
         dailyAmounts: [], // Not used in LogHeader yet
@@ -83,7 +86,7 @@ class _LogScreenState extends State<LogScreen> {
       NutritionTarget(
         color: Colors.red,
         thisAmount: totalProtein,
-        targetAmount: 150,
+        targetAmount: goals.protein,
         macroLabel: 'P',
         unitLabel: 'g',
         dailyAmounts: [],
@@ -91,7 +94,7 @@ class _LogScreenState extends State<LogScreen> {
       NutritionTarget(
         color: Colors.orange,
         thisAmount: totalFat,
-        targetAmount: 70,
+        targetAmount: goals.fat,
         macroLabel: 'F',
         unitLabel: 'g',
         dailyAmounts: [],
@@ -99,7 +102,7 @@ class _LogScreenState extends State<LogScreen> {
       NutritionTarget(
         color: Colors.green,
         thisAmount: totalCarbs,
-        targetAmount: 250,
+        targetAmount: goals.carbs,
         macroLabel: 'C',
         unitLabel: 'g',
         dailyAmounts: [],
@@ -107,7 +110,7 @@ class _LogScreenState extends State<LogScreen> {
       NutritionTarget(
         color: Colors.brown,
         thisAmount: totalFiber,
-        targetAmount: 30,
+        targetAmount: goals.fiber,
         macroLabel: 'Fb',
         unitLabel: 'g',
         dailyAmounts: [],

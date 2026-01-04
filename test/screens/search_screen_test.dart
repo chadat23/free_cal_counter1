@@ -8,6 +8,8 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:free_cal_counter1/screens/search_screen.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/widgets/search_ribbon.dart';
@@ -31,12 +33,14 @@ import 'search_screen_test.mocks.dart';
   NavigationProvider,
   SearchProvider,
   RecipeProvider,
+  GoalsProvider,
 ])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
   late MockSearchProvider mockSearchProvider;
   late MockRecipeProvider mockRecipeProvider;
+  late MockGoalsProvider mockGoalsProvider;
 
   setUpAll(() async {
     // Initialize DatabaseService with in-memory databases for testing
@@ -50,6 +54,7 @@ void main() {
     mockNavigationProvider = MockNavigationProvider();
     mockSearchProvider = MockSearchProvider();
     mockRecipeProvider = MockRecipeProvider();
+    mockGoalsProvider = MockGoalsProvider();
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.resetSearchFocus()).thenReturn(null);
     when(mockNavigationProvider.showConsumed).thenReturn(true);
@@ -81,6 +86,9 @@ void main() {
     when(mockRecipeProvider.totalFat).thenReturn(0.0);
     when(mockRecipeProvider.totalCarbs).thenReturn(0.0);
     when(mockRecipeProvider.totalFiber).thenReturn(0.0);
+
+    // Default mocks for GoalsProvider
+    when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
   });
 
   Widget createTestWidget() {
@@ -92,6 +100,7 @@ void main() {
         ),
         ChangeNotifierProvider<SearchProvider>.value(value: mockSearchProvider),
         ChangeNotifierProvider<RecipeProvider>.value(value: mockRecipeProvider),
+        ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
       ],
       child: const MaterialApp(
         home: SearchScreen(

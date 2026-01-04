@@ -9,6 +9,8 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 import 'package:free_cal_counter1/widgets/search_result_tile.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
@@ -29,6 +31,7 @@ import 'recipe_ingredient_flow_test.mocks.dart';
   RecipeProvider,
   SearchProvider,
   NavigationProvider,
+  GoalsProvider,
 ])
 void main() {
   setUpAll(() async {
@@ -40,6 +43,7 @@ void main() {
   late MockRecipeProvider mockRecipeProvider;
   late MockSearchProvider mockSearchProvider;
   late MockNavigationProvider mockNavigationProvider;
+  late MockGoalsProvider mockGoalsProvider;
 
   final mockFood = Food(
     id: 1,
@@ -58,6 +62,7 @@ void main() {
     mockRecipeProvider = MockRecipeProvider();
     mockSearchProvider = MockSearchProvider();
     mockNavigationProvider = MockNavigationProvider();
+    mockGoalsProvider = MockGoalsProvider();
 
     when(mockLogProvider.totalCalories).thenReturn(0.0);
     when(mockLogProvider.totalProtein).thenReturn(0.0);
@@ -90,6 +95,9 @@ void main() {
 
     when(mockNavigationProvider.shouldFocusSearch).thenReturn(false);
     when(mockNavigationProvider.showConsumed).thenReturn(true);
+
+    // Default mock for GoalsProvider
+    when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
   });
 
   testWidgets('Plus button adds ingredient to recipe context', (tester) async {
@@ -108,6 +116,7 @@ void main() {
           ChangeNotifierProvider<NavigationProvider>.value(
             value: mockNavigationProvider,
           ),
+          ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
         ],
         child: MaterialApp(
           home: SearchScreen(
@@ -154,6 +163,7 @@ void main() {
           ChangeNotifierProvider<NavigationProvider>.value(
             value: mockNavigationProvider,
           ),
+          ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
         ],
         child: MaterialApp(
           home: Builder(

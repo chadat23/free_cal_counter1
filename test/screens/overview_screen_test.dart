@@ -11,19 +11,23 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 import 'overview_screen_test.mocks.dart';
 
-@GenerateMocks([LogProvider, NavigationProvider, SearchProvider])
+@GenerateMocks([LogProvider, NavigationProvider, SearchProvider, GoalsProvider])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
   late MockSearchProvider mockSearchProvider;
+  late MockGoalsProvider mockGoalsProvider;
 
   setUp(() {
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
     mockSearchProvider = MockSearchProvider();
+    mockGoalsProvider = MockGoalsProvider();
 
     // Stub LogProvider
     when(mockLogProvider.totalCalories).thenReturn(0.0);
@@ -69,6 +73,9 @@ void main() {
     when(mockSearchProvider.isLoading).thenReturn(false);
     when(mockSearchProvider.searchResults).thenReturn([]);
     when(mockSearchProvider.searchMode).thenReturn(SearchMode.text);
+
+    // Stub GoalsProvider
+    when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
   });
 
   Widget createTestWidget() {
@@ -79,6 +86,7 @@ void main() {
           value: mockNavigationProvider,
         ),
         ChangeNotifierProvider<SearchProvider>.value(value: mockSearchProvider),
+        ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
       ],
       child: const MaterialApp(home: OverviewScreen()),
     );

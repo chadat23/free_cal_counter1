@@ -63,6 +63,7 @@ void main() {
       expect(macros['Protein'], closeTo(0.3, 0.01));
       expect(macros['Fat'], closeTo(0.2, 0.01));
       expect(macros['Carbs'], closeTo(14.0, 0.01));
+      expect(macros['Fiber'], closeTo(2.4, 0.01));
     });
 
     test('calculates macros correctly with divisor 2.0 (Per Serving)', () {
@@ -83,12 +84,14 @@ void main() {
         totalProtein: 20.0,
         totalFat: 10.0,
         totalCarbs: 80.0,
+        totalFiber: 10.0,
         food: mockFood,
-        currentGrams: 100.0, // +52 cal
+        currentGrams: 100.0, // +52 cal, +2.4 fiber
         originalGrams: 0.0,
         divisor: 1.0,
       );
       expect(projected['Calories'], 552.0);
+      expect(projected['Fiber'], 12.4);
     });
 
     test('projects macros updating existing item', () {
@@ -97,12 +100,15 @@ void main() {
         totalProtein: 20.3,
         totalFat: 10.2,
         totalCarbs: 94.0,
+        totalFiber: 12.4,
         food: mockFood,
-        currentGrams: 200.0, // +104 cal instead of 52
-        originalGrams: 100.0, // -52 cal
+        currentGrams:
+            200.0, // +104 cal instead of 52, +4.8 fiber instead of 2.4
+        originalGrams: 100.0, // -52 cal, -2.4 fiber
         divisor: 1.0,
       );
       expect(projected['Calories'], 604.0);
+      expect(projected['Fiber'], 14.8);
     });
   });
 }

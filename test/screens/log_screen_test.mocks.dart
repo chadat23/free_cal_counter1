@@ -3,24 +3,27 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i11;
-import 'dart:ui' as _i12;
+import 'dart:async' as _i12;
+import 'dart:ui' as _i13;
 
-import 'package:free_cal_counter1/models/category.dart' as _i17;
+import 'package:free_cal_counter1/models/category.dart' as _i19;
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i2;
 import 'package:free_cal_counter1/models/food.dart' as _i6;
-import 'package:free_cal_counter1/models/food_portion.dart' as _i9;
-import 'package:free_cal_counter1/models/food_serving.dart' as _i16;
-import 'package:free_cal_counter1/models/logged_portion.dart' as _i10;
+import 'package:free_cal_counter1/models/food_portion.dart' as _i10;
+import 'package:free_cal_counter1/models/food_serving.dart' as _i18;
+import 'package:free_cal_counter1/models/logged_portion.dart' as _i11;
+import 'package:free_cal_counter1/models/macro_goals.dart' as _i8;
 import 'package:free_cal_counter1/models/recipe.dart' as _i7;
-import 'package:free_cal_counter1/models/search_mode.dart' as _i15;
-import 'package:free_cal_counter1/providers/log_provider.dart' as _i8;
-import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i13;
-import 'package:free_cal_counter1/providers/search_provider.dart' as _i14;
+import 'package:free_cal_counter1/models/search_mode.dart' as _i17;
+import 'package:free_cal_counter1/providers/goals_provider.dart' as _i20;
+import 'package:free_cal_counter1/providers/log_provider.dart' as _i9;
+import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i14;
+import 'package:free_cal_counter1/providers/search_provider.dart' as _i15;
 import 'package:free_cal_counter1/services/database_service.dart' as _i3;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i4;
 import 'package:free_cal_counter1/services/search_service.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i16;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -69,10 +72,15 @@ class _FakeRecipe_5 extends _i1.SmartFake implements _i7.Recipe {
     : super(parent, parentInvocation);
 }
 
+class _FakeMacroGoals_6 extends _i1.SmartFake implements _i8.MacroGoals {
+  _FakeMacroGoals_6(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [LogProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
+class MockLogProvider extends _i1.Mock implements _i9.LogProvider {
   MockLogProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -170,20 +178,20 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
           as double);
 
   @override
-  List<_i9.FoodPortion> get logQueue =>
+  List<_i10.FoodPortion> get logQueue =>
       (super.noSuchMethod(
             Invocation.getter(#logQueue),
-            returnValue: <_i9.FoodPortion>[],
+            returnValue: <_i10.FoodPortion>[],
           )
-          as List<_i9.FoodPortion>);
+          as List<_i10.FoodPortion>);
 
   @override
-  List<_i10.LoggedPortion> get loggedPortion =>
+  List<_i11.LoggedPortion> get loggedPortion =>
       (super.noSuchMethod(
             Invocation.getter(#loggedPortion),
-            returnValue: <_i10.LoggedPortion>[],
+            returnValue: <_i11.LoggedPortion>[],
           )
-          as List<_i10.LoggedPortion>);
+          as List<_i11.LoggedPortion>);
 
   @override
   bool get hasListeners =>
@@ -191,7 +199,7 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
           as bool);
 
   @override
-  void addFoodToQueue(_i9.FoodPortion? serving) => super.noSuchMethod(
+  void addFoodToQueue(_i10.FoodPortion? serving) => super.noSuchMethod(
     Invocation.method(#addFoodToQueue, [serving]),
     returnValueForMissingStub: null,
   );
@@ -211,14 +219,14 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
       );
 
   @override
-  void updateFoodInQueue(int? index, _i9.FoodPortion? newPortion) =>
+  void updateFoodInQueue(int? index, _i10.FoodPortion? newPortion) =>
       super.noSuchMethod(
         Invocation.method(#updateFoodInQueue, [index, newPortion]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void removeFoodFromQueue(_i9.FoodPortion? serving) => super.noSuchMethod(
+  void removeFoodFromQueue(_i10.FoodPortion? serving) => super.noSuchMethod(
     Invocation.method(#removeFoodFromQueue, [serving]),
     returnValueForMissingStub: null,
   );
@@ -230,66 +238,81 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
   );
 
   @override
-  _i11.Future<void> logQueueToDatabase() =>
+  _i12.Future<void> logQueueToDatabase() =>
       (super.noSuchMethod(
             Invocation.method(#logQueueToDatabase, []),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
+  _i12.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#loadLoggedPortionsForDate, [date]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<void> deleteLoggedPortion(_i10.LoggedPortion? food) =>
+  _i12.Future<void> deleteLoggedPortion(_i11.LoggedPortion? food) =>
       (super.noSuchMethod(
             Invocation.method(#deleteLoggedPortion, [food]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<List<_i2.DailyMacroStats>> getDailyMacroStats(
+  _i12.Future<void> updateLoggedPortion(
+    _i11.LoggedPortion? oldLoggedPortion,
+    _i10.FoodPortion? newPortion,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateLoggedPortion, [
+              oldLoggedPortion,
+              newPortion,
+            ]),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
+
+  @override
+  _i12.Future<List<_i2.DailyMacroStats>> getDailyMacroStats(
     DateTime? start,
     DateTime? end,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getDailyMacroStats, [start, end]),
-            returnValue: _i11.Future<List<_i2.DailyMacroStats>>.value(
+            returnValue: _i12.Future<List<_i2.DailyMacroStats>>.value(
               <_i2.DailyMacroStats>[],
             ),
           )
-          as _i11.Future<List<_i2.DailyMacroStats>>);
+          as _i12.Future<List<_i2.DailyMacroStats>>);
 
   @override
-  _i11.Future<_i2.DailyMacroStats> getTodayStats() =>
+  _i12.Future<_i2.DailyMacroStats> getTodayStats() =>
       (super.noSuchMethod(
             Invocation.method(#getTodayStats, []),
-            returnValue: _i11.Future<_i2.DailyMacroStats>.value(
+            returnValue: _i12.Future<_i2.DailyMacroStats>.value(
               _FakeDailyMacroStats_0(
                 this,
                 Invocation.method(#getTodayStats, []),
               ),
             ),
           )
-          as _i11.Future<_i2.DailyMacroStats>);
+          as _i12.Future<_i2.DailyMacroStats>);
 
   @override
-  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i13.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -311,7 +334,7 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNavigationProvider extends _i1.Mock
-    implements _i13.NavigationProvider {
+    implements _i14.NavigationProvider {
   MockNavigationProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -370,13 +393,13 @@ class MockNavigationProvider extends _i1.Mock
   );
 
   @override
-  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i13.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -397,7 +420,7 @@ class MockNavigationProvider extends _i1.Mock
 /// A class which mocks [SearchProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSearchProvider extends _i1.Mock implements _i14.SearchProvider {
+class MockSearchProvider extends _i1.Mock implements _i15.SearchProvider {
   MockSearchProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -449,12 +472,23 @@ class MockSearchProvider extends _i1.Mock implements _i14.SearchProvider {
           as bool);
 
   @override
-  _i15.SearchMode get searchMode =>
+  String get currentQuery =>
+      (super.noSuchMethod(
+            Invocation.getter(#currentQuery),
+            returnValue: _i16.dummyValue<String>(
+              this,
+              Invocation.getter(#currentQuery),
+            ),
+          )
+          as String);
+
+  @override
+  _i17.SearchMode get searchMode =>
       (super.noSuchMethod(
             Invocation.getter(#searchMode),
-            returnValue: _i15.SearchMode.text,
+            returnValue: _i17.SearchMode.text,
           )
-          as _i15.SearchMode);
+          as _i17.SearchMode);
 
   @override
   bool get hasListeners =>
@@ -462,46 +496,46 @@ class MockSearchProvider extends _i1.Mock implements _i14.SearchProvider {
           as bool);
 
   @override
-  void setSearchMode(_i15.SearchMode? mode) => super.noSuchMethod(
+  void setSearchMode(_i17.SearchMode? mode) => super.noSuchMethod(
     Invocation.method(#setSearchMode, [mode]),
     returnValueForMissingStub: null,
   );
 
   @override
-  _i11.Future<void> textSearch(String? query) =>
+  _i12.Future<void> textSearch(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#textSearch, [query]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<void> performOffSearch() =>
+  _i12.Future<void> performOffSearch() =>
       (super.noSuchMethod(
             Invocation.method(#performOffSearch, []),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<void> barcodeSearch(String? barcode) =>
+  _i12.Future<void> barcodeSearch(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#barcodeSearch, [barcode]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i13.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -528,226 +562,348 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
   }
 
   @override
-  _i11.Future<void> init() =>
+  _i12.Future<void> init() =>
       (super.noSuchMethod(
             Invocation.method(#init, []),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<List<_i6.Food>> searchFoodsByName(String? query) =>
+  _i12.Future<List<_i6.Food>> searchFoodsByName(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#searchFoodsByName, [query]),
-            returnValue: _i11.Future<List<_i6.Food>>.value(<_i6.Food>[]),
+            returnValue: _i12.Future<List<_i6.Food>>.value(<_i6.Food>[]),
           )
-          as _i11.Future<List<_i6.Food>>);
+          as _i12.Future<List<_i6.Food>>);
 
   @override
-  _i11.Future<List<_i16.FoodServing>> getServingsForFood(
+  _i12.Future<List<_i18.FoodServing>> getServingsForFood(
     int? foodId,
     String? foodSource,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getServingsForFood, [foodId, foodSource]),
-            returnValue: _i11.Future<List<_i16.FoodServing>>.value(
-              <_i16.FoodServing>[],
+            returnValue: _i12.Future<List<_i18.FoodServing>>.value(
+              <_i18.FoodServing>[],
             ),
           )
-          as _i11.Future<List<_i16.FoodServing>>);
+          as _i12.Future<List<_i18.FoodServing>>);
 
   @override
-  _i11.Future<String?> getLastLoggedUnit(int? originalFoodId) =>
+  _i12.Future<String?> getLastLoggedUnit(int? originalFoodId) =>
       (super.noSuchMethod(
             Invocation.method(#getLastLoggedUnit, [originalFoodId]),
-            returnValue: _i11.Future<String?>.value(),
+            returnValue: _i12.Future<String?>.value(),
           )
-          as _i11.Future<String?>);
+          as _i12.Future<String?>);
 
   @override
-  _i11.Future<_i6.Food?> getFoodByBarcode(String? barcode) =>
+  _i12.Future<_i6.Food?> getFoodByBarcode(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#getFoodByBarcode, [barcode]),
-            returnValue: _i11.Future<_i6.Food?>.value(),
+            returnValue: _i12.Future<_i6.Food?>.value(),
           )
-          as _i11.Future<_i6.Food?>);
+          as _i12.Future<_i6.Food?>);
 
   @override
-  _i11.Future<_i6.Food?> getFoodBySourceFdcId(int? fdcId) =>
+  _i12.Future<_i6.Food?> getFoodBySourceFdcId(int? fdcId) =>
       (super.noSuchMethod(
             Invocation.method(#getFoodBySourceFdcId, [fdcId]),
-            returnValue: _i11.Future<_i6.Food?>.value(),
+            returnValue: _i12.Future<_i6.Food?>.value(),
           )
-          as _i11.Future<_i6.Food?>);
+          as _i12.Future<_i6.Food?>);
 
   @override
-  _i11.Future<void> logPortions(
-    List<_i9.FoodPortion>? portions,
+  _i12.Future<void> logPortions(
+    List<_i10.FoodPortion>? portions,
     DateTime? logTimestamp,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#logPortions, [portions, logTimestamp]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<bool> isRecipeLogged(int? recipeId) =>
+  _i12.Future<bool> isRecipeLogged(int? recipeId) =>
       (super.noSuchMethod(
             Invocation.method(#isRecipeLogged, [recipeId]),
-            returnValue: _i11.Future<bool>.value(false),
+            returnValue: _i12.Future<bool>.value(false),
           )
-          as _i11.Future<bool>);
+          as _i12.Future<bool>);
 
   @override
-  _i11.Future<bool> isRecipeUsedAsIngredient(int? recipeId) =>
+  _i12.Future<bool> isRecipeUsedAsIngredient(int? recipeId) =>
       (super.noSuchMethod(
             Invocation.method(#isRecipeUsedAsIngredient, [recipeId]),
-            returnValue: _i11.Future<bool>.value(false),
+            returnValue: _i12.Future<bool>.value(false),
           )
-          as _i11.Future<bool>);
+          as _i12.Future<bool>);
 
   @override
-  _i11.Future<void> hideRecipe(int? id) =>
+  _i12.Future<void> hideRecipe(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#hideRecipe, [id]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<List<_i10.LoggedPortion>> getLoggedPortionsForDate(
+  _i12.Future<List<_i11.LoggedPortion>> getLoggedPortionsForDate(
     DateTime? date,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getLoggedPortionsForDate, [date]),
-            returnValue: _i11.Future<List<_i10.LoggedPortion>>.value(
-              <_i10.LoggedPortion>[],
+            returnValue: _i12.Future<List<_i11.LoggedPortion>>.value(
+              <_i11.LoggedPortion>[],
             ),
           )
-          as _i11.Future<List<_i10.LoggedPortion>>);
+          as _i12.Future<List<_i11.LoggedPortion>>);
 
   @override
-  _i11.Future<_i6.Food> saveFood(_i6.Food? food) =>
+  _i12.Future<_i6.Food> saveFood(_i6.Food? food) =>
       (super.noSuchMethod(
             Invocation.method(#saveFood, [food]),
-            returnValue: _i11.Future<_i6.Food>.value(
+            returnValue: _i12.Future<_i6.Food>.value(
               _FakeFood_4(this, Invocation.method(#saveFood, [food])),
             ),
           )
-          as _i11.Future<_i6.Food>);
+          as _i12.Future<_i6.Food>);
 
   @override
-  _i11.Future<void> deleteLoggedPortion(int? id) =>
+  _i12.Future<void> deleteLoggedPortion(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#deleteLoggedPortion, [id]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<List<_i2.LoggedMacroDTO>> getLoggedMacrosForDateRange(
+  _i12.Future<void> updateLoggedPortion(
+    int? loggedPortionId,
+    _i10.FoodPortion? newPortion,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateLoggedPortion, [
+              loggedPortionId,
+              newPortion,
+            ]),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
+
+  @override
+  _i12.Future<List<_i2.LoggedMacroDTO>> getLoggedMacrosForDateRange(
     DateTime? start,
     DateTime? end,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getLoggedMacrosForDateRange, [start, end]),
-            returnValue: _i11.Future<List<_i2.LoggedMacroDTO>>.value(
+            returnValue: _i12.Future<List<_i2.LoggedMacroDTO>>.value(
               <_i2.LoggedMacroDTO>[],
             ),
           )
-          as _i11.Future<List<_i2.LoggedMacroDTO>>);
+          as _i12.Future<List<_i2.LoggedMacroDTO>>);
 
   @override
-  _i11.Future<_i6.Food?> getFoodById(int? id, String? source) =>
+  _i12.Future<_i6.Food?> getFoodById(int? id, String? source) =>
       (super.noSuchMethod(
             Invocation.method(#getFoodById, [id, source]),
-            returnValue: _i11.Future<_i6.Food?>.value(),
+            returnValue: _i12.Future<_i6.Food?>.value(),
           )
-          as _i11.Future<_i6.Food?>);
+          as _i12.Future<_i6.Food?>);
 
   @override
-  _i11.Future<List<_i7.Recipe>> getRecipes({bool? includeHidden = false}) =>
+  _i12.Future<List<_i7.Recipe>> getRecipes({bool? includeHidden = false}) =>
       (super.noSuchMethod(
             Invocation.method(#getRecipes, [], {#includeHidden: includeHidden}),
-            returnValue: _i11.Future<List<_i7.Recipe>>.value(<_i7.Recipe>[]),
+            returnValue: _i12.Future<List<_i7.Recipe>>.value(<_i7.Recipe>[]),
           )
-          as _i11.Future<List<_i7.Recipe>>);
+          as _i12.Future<List<_i7.Recipe>>);
 
   @override
-  _i11.Future<List<_i7.Recipe>> getRecipesBySearch(String? query) =>
+  _i12.Future<List<_i7.Recipe>> getRecipesBySearch(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#getRecipesBySearch, [query]),
-            returnValue: _i11.Future<List<_i7.Recipe>>.value(<_i7.Recipe>[]),
+            returnValue: _i12.Future<List<_i7.Recipe>>.value(<_i7.Recipe>[]),
           )
-          as _i11.Future<List<_i7.Recipe>>);
+          as _i12.Future<List<_i7.Recipe>>);
 
   @override
-  _i11.Future<_i7.Recipe> getRecipeById(int? id) =>
+  _i12.Future<_i7.Recipe> getRecipeById(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#getRecipeById, [id]),
-            returnValue: _i11.Future<_i7.Recipe>.value(
+            returnValue: _i12.Future<_i7.Recipe>.value(
               _FakeRecipe_5(this, Invocation.method(#getRecipeById, [id])),
             ),
           )
-          as _i11.Future<_i7.Recipe>);
+          as _i12.Future<_i7.Recipe>);
 
   @override
-  _i11.Future<List<_i17.Category>> getCategoriesForRecipe(int? recipeId) =>
+  _i12.Future<List<_i19.Category>> getCategoriesForRecipe(int? recipeId) =>
       (super.noSuchMethod(
             Invocation.method(#getCategoriesForRecipe, [recipeId]),
-            returnValue: _i11.Future<List<_i17.Category>>.value(
-              <_i17.Category>[],
+            returnValue: _i12.Future<List<_i19.Category>>.value(
+              <_i19.Category>[],
             ),
           )
-          as _i11.Future<List<_i17.Category>>);
+          as _i12.Future<List<_i19.Category>>);
 
   @override
-  _i11.Future<int> saveRecipe(_i7.Recipe? recipe) =>
+  _i12.Future<int> saveRecipe(_i7.Recipe? recipe) =>
       (super.noSuchMethod(
             Invocation.method(#saveRecipe, [recipe]),
-            returnValue: _i11.Future<int>.value(0),
+            returnValue: _i12.Future<int>.value(0),
           )
-          as _i11.Future<int>);
+          as _i12.Future<int>);
 
   @override
-  _i11.Future<void> deleteRecipe(int? id) =>
+  _i12.Future<void> deleteRecipe(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#deleteRecipe, [id]),
-            returnValue: _i11.Future<void>.value(),
-            returnValueForMissingStub: _i11.Future<void>.value(),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i11.Future<void>);
+          as _i12.Future<void>);
 
   @override
-  _i11.Future<List<_i17.Category>> getCategories() =>
+  _i12.Future<List<_i19.Category>> getCategories() =>
       (super.noSuchMethod(
             Invocation.method(#getCategories, []),
-            returnValue: _i11.Future<List<_i17.Category>>.value(
-              <_i17.Category>[],
+            returnValue: _i12.Future<List<_i19.Category>>.value(
+              <_i19.Category>[],
             ),
           )
-          as _i11.Future<List<_i17.Category>>);
+          as _i12.Future<List<_i19.Category>>);
 
   @override
-  _i11.Future<int> addCategory(String? name) =>
+  _i12.Future<int> addCategory(String? name) =>
       (super.noSuchMethod(
             Invocation.method(#addCategory, [name]),
-            returnValue: _i11.Future<int>.value(0),
+            returnValue: _i12.Future<int>.value(0),
           )
-          as _i11.Future<int>);
+          as _i12.Future<int>);
 
   @override
-  _i11.Future<_i6.Food> ensureFoodExists(_i6.Food? food) =>
+  _i12.Future<_i6.Food> ensureFoodExists(_i6.Food? food) =>
       (super.noSuchMethod(
             Invocation.method(#ensureFoodExists, [food]),
-            returnValue: _i11.Future<_i6.Food>.value(
+            returnValue: _i12.Future<_i6.Food>.value(
               _FakeFood_4(this, Invocation.method(#ensureFoodExists, [food])),
             ),
           )
-          as _i11.Future<_i6.Food>);
+          as _i12.Future<_i6.Food>);
+
+  @override
+  _i12.Future<Map<int, String?>> getFoodsUsageNotes(List<_i6.Food>? foods) =>
+      (super.noSuchMethod(
+            Invocation.method(#getFoodsUsageNotes, [foods]),
+            returnValue: _i12.Future<Map<int, String?>>.value(<int, String?>{}),
+          )
+          as _i12.Future<Map<int, String?>>);
+
+  @override
+  _i12.Future<_i6.Food> copyFoodToLiveDb(
+    _i6.Food? sourceFood, {
+    bool? isCopy = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #copyFoodToLiveDb,
+              [sourceFood],
+              {#isCopy: isCopy},
+            ),
+            returnValue: _i12.Future<_i6.Food>.value(
+              _FakeFood_4(
+                this,
+                Invocation.method(
+                  #copyFoodToLiveDb,
+                  [sourceFood],
+                  {#isCopy: isCopy},
+                ),
+              ),
+            ),
+          )
+          as _i12.Future<_i6.Food>);
+
+  @override
+  _i12.Future<void> softDeleteFood(int? foodId, String? source) =>
+      (super.noSuchMethod(
+            Invocation.method(#softDeleteFood, [foodId, source]),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
+
+  @override
+  _i12.Future<bool> isFoodReferenced(int? foodId, String? source) =>
+      (super.noSuchMethod(
+            Invocation.method(#isFoodReferenced, [foodId, source]),
+            returnValue: _i12.Future<bool>.value(false),
+          )
+          as _i12.Future<bool>);
+
+  @override
+  _i12.Future<void> deleteFood(int? foodId, String? source) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteFood, [foodId, source]),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
+}
+
+/// A class which mocks [GoalsProvider].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockGoalsProvider extends _i1.Mock implements _i20.GoalsProvider {
+  MockGoalsProvider() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i8.MacroGoals get currentGoals =>
+      (super.noSuchMethod(
+            Invocation.getter(#currentGoals),
+            returnValue: _FakeMacroGoals_6(
+              this,
+              Invocation.getter(#currentGoals),
+            ),
+          )
+          as _i8.MacroGoals);
+
+  @override
+  bool get hasListeners =>
+      (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
+          as bool);
+
+  @override
+  void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#addListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeListener(_i13.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#removeListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+    Invocation.method(#notifyListeners, []),
+    returnValueForMissingStub: null,
+  );
 }

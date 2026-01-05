@@ -275,4 +275,30 @@ class LogProvider extends ChangeNotifier {
     // Clear selection after copying
     clearSelection();
   }
+
+  // Move selected portions to a new date and time
+  Future<void> moveSelectedPortions(DateTime newTimestamp) async {
+    if (_selectedPortionIds.isEmpty) return;
+
+    // Collect the IDs of selected portions
+    final selectedIds = <int>[];
+    for (final loggedPortion in _loggedPortion) {
+      if (loggedPortion.id != null &&
+          _selectedPortionIds.contains(loggedPortion.id!)) {
+        selectedIds.add(loggedPortion.id!);
+      }
+    }
+
+    // Update timestamps in the database
+    await DatabaseService.instance.updateLoggedPortionsTimestamp(
+      selectedIds,
+      newTimestamp,
+    );
+
+    // Clear selection after moving
+    clearSelection();
+
+    // Reload the logged portions for the current date
+    // Note: The caller should handle navigation to the new date
+  }
 }

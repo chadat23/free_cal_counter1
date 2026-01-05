@@ -232,6 +232,31 @@ class _LogScreenState extends State<LogScreen> {
     Provider.of<LogProvider>(context, listen: false).deleteLoggedPortion(food);
   }
 
+  Future<void> _showMoveDialog(
+    BuildContext context,
+    LogProvider logProvider,
+  ) async {
+    final result = await showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return _DateTimePickerDialog(initialDateTime: DateTime.now());
+      },
+    );
+
+    if (result == null || !mounted) {
+      // User cancelled the dialog or widget was disposed
+      return;
+    }
+
+    // Move the selected portions to the new date and time
+    await logProvider.moveSelectedPortions(result);
+
+    // Navigate to the selected date
+    if (mounted) {
+      _handleDateChanged(result);
+    }
+  }
+
   Widget _buildMultiselectActions(
     BuildContext context,
     LogProvider logProvider,
@@ -254,10 +279,7 @@ class _LogScreenState extends State<LogScreen> {
           const SizedBox(width: 8.0),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () {
-                // TODO: Implement move functionality (1.2.7.6.2)
-                logProvider.clearSelection();
-              },
+              onPressed: () => _showMoveDialog(context, logProvider),
               icon: const Icon(Icons.move_down),
               label: const Text('Move'),
             ),
@@ -286,6 +308,115 @@ class _LogScreenState extends State<LogScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A dialog that combines date and time pickers in a single popup
+class _DateTimePickerDialog extends StatefulWidget {
+  final DateTime initialDateTime;
+
+  const _DateTimePickerDialog({required this.initialDateTime});
+
+  @override
+  State<_DateTimePickerDialog> createState() => _DateTimePickerDialogState();
+}
+
+class _DateTimePickerDialogState extends State<_DateTimePickerDialog> {
+  late DateTime _selectedDate;
+  late TimeOfDay _selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialDateTime;
+    _selectedTime = TimeOfDay.fromDateTime(widget.initialDateTime);
+  }
+
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+    );
+    if (picked != null && mounted) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Move to Date & Time'),
+      content: SizedBox(
+        width: 300,
+        height: 400,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Date picker
+            Expanded(
+              flex: 2,
+              child: CalendarDatePicker(
+                initialDate: _selectedDate,
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2030),
+                onDateChanged: (DateTime newDate) {
+                  setState(() {
+                    _selectedDate = newDate;
+                  });
+                },
+              ),
+            ),
+            const Divider(height: 1),
+            // Time picker button
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: InkWell(
+                onTap: _selectTime,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.access_time),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        _selectedTime.format(context),
+                        style: const TextStyle(fontSize: 18.0),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final result = DateTime(
+              _selectedDate.year,
+              _selectedDate.month,
+              _selectedDate.day,
+              _selectedTime.hour,
+              _selectedTime.minute,
+            );
+            Navigator.of(context).pop(result);
+          },
+          child: const Text('Move'),
+        ),
+      ],
     );
   }
 }

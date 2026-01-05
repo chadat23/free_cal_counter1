@@ -471,6 +471,17 @@ class DatabaseService {
     });
   }
 
+  Future<void> updateLoggedPortionsTimestamp(
+    List<int> loggedPortionIds,
+    DateTime newTimestamp,
+  ) async {
+    final timestamp = newTimestamp.millisecondsSinceEpoch;
+
+    await (_liveDb.update(_liveDb.loggedPortions)
+          ..where((t) => t.id.isIn(loggedPortionIds)))
+        .write(LoggedPortionsCompanion(logTimestamp: Value(timestamp)));
+  }
+
   Future<List<model_stats.LoggedMacroDTO>> getLoggedMacrosForDateRange(
     DateTime start,
     DateTime end,

@@ -53,10 +53,13 @@ class LiveDatabase extends _$LiveDatabase {
   }
 }
 
+Future<File> getLiveDbFile() async {
+  final dbFolder = await getApplicationDocumentsDirectory();
+  return File(p.join(dbFolder.path, 'live.db'));
+}
+
 QueryExecutor openLiveConnection() {
   return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'live.db'));
-    return NativeDatabase(file);
+    return NativeDatabase(await getLiveDbFile());
   });
 }

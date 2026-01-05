@@ -52,6 +52,12 @@ dependencies:
   fuzzywuzzy: ^1.2.0
   flutter_slidable: ^4.0.3
 
+  # Backup & Sharing dependencies
+  share_plus: ^10.1.4
+  file_picker: ^8.1.7
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^6.0.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

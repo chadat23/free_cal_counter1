@@ -28,6 +28,12 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void goToDataManagement() {
+    _previousIndex = _selectedIndex;
+    _selectedIndex = -1;
+    notifyListeners();
+  }
+
   void resetSearchFocus() {
     _shouldFocusSearch = false;
     // No need to notify listeners for this change

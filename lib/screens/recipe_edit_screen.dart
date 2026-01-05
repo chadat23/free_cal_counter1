@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
+import 'package:free_cal_counter1/models/recipe.dart';
 import 'package:free_cal_counter1/models/recipe_item.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
@@ -99,6 +101,42 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                       ),
                     );
                   }
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: () async {
+                  // Ensure it's a saved recipe before sharing
+                  if (provider.id <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please save the recipe first.'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Reconstruct recipe object from provider state to share
+                  final recipeToShare = Recipe(
+                    id: provider.id,
+                    name: provider.name,
+                    servingsCreated: provider.servingsCreated,
+                    finalWeightGrams: provider.finalWeightGrams,
+                    portionName: provider.portionName,
+                    notes: provider.notes,
+                    isTemplate: provider.isTemplate,
+                    hidden: false,
+                    parentId: provider.parentId,
+                    createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+                    items: provider.items,
+                    categories: provider.selectedCategories,
+                  );
+
+                  Navigator.pushNamed(
+                    context,
+                    AppRouter.qrSharingRoute,
+                    arguments: recipeToShare,
+                  );
                 },
               ),
             ],

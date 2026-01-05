@@ -14,6 +14,8 @@ class Food {
   final List<FoodServing> servings;
   final String? usageNote;
   final int? parentId;
+  final int? sourceFdcId;
+  final String? sourceBarcode;
 
   Food({
     required this.id,
@@ -29,6 +31,8 @@ class Food {
     this.servings = const [], // Initialize with an empty list
     this.usageNote,
     this.parentId,
+    this.sourceFdcId,
+    this.sourceBarcode,
   });
 
   Food copyWith({
@@ -45,6 +49,8 @@ class Food {
     List<FoodServing>? servings,
     String? usageNote,
     int? parentId,
+    int? sourceFdcId,
+    String? sourceBarcode,
   }) {
     return Food(
       id: id ?? this.id,
@@ -60,6 +66,52 @@ class Food {
       servings: servings ?? this.servings,
       usageNote: usageNote ?? this.usageNote,
       parentId: parentId ?? this.parentId,
+      sourceFdcId: sourceFdcId ?? this.sourceFdcId,
+      sourceBarcode: sourceBarcode ?? this.sourceBarcode,
     );
+  }
+
+  factory Food.fromJson(Map<String, dynamic> json) {
+    return Food(
+      id: json['id'] as int,
+      source: json['source'] as String,
+      name: json['name'] as String,
+      emoji: json['emoji'] as String?,
+      thumbnail: json['thumbnail'] as String?,
+      calories: (json['calories'] as num).toDouble(),
+      protein: (json['protein'] as num).toDouble(),
+      fat: (json['fat'] as num).toDouble(),
+      carbs: (json['carbs'] as num).toDouble(),
+      fiber: (json['fiber'] as num).toDouble(),
+      servings:
+          (json['servings'] as List<dynamic>?)
+              ?.map((e) => FoodServing.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      usageNote: json['usageNote'] as String?,
+      parentId: json['parentId'] as int?,
+      sourceFdcId: json['sourceFdcId'] as int?,
+      sourceBarcode: json['sourceBarcode'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'source': source,
+      'name': name,
+      'emoji': emoji,
+      'thumbnail': thumbnail,
+      'calories': calories,
+      'protein': protein,
+      'fat': fat,
+      'carbs': carbs,
+      'fiber': fiber,
+      'servings': servings.map((e) => e.toJson()).toList(),
+      'usageNote': usageNote,
+      'parentId': parentId,
+      'sourceFdcId': sourceFdcId,
+      'sourceBarcode': sourceBarcode,
+    };
   }
 }

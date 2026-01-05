@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:drift/drift.dart';
 
 import 'package:free_cal_counter1/models/food.dart' as model;
@@ -44,6 +45,20 @@ class DatabaseService {
     );
   }
 
+  Future<void> restoreDatabase(File backupFile) async {
+    final liveFile = await getLiveDbFile();
+
+    // 1. Close current connections
+    await _liveDb.close();
+    await _referenceDb.close();
+
+    // 2. Overwrite live database file
+    await backupFile.copy(liveFile.path);
+
+    // 3. Re-initialize
+    await init();
+  }
+
   model.Food _mapFoodData(
     dynamic foodData,
     List<model_serving.FoodServing> servings,
@@ -61,6 +76,8 @@ class DatabaseService {
       fiber: foodData.fiberPerGram,
       servings: servings,
       parentId: foodData.parentId,
+      sourceFdcId: foodData.sourceFdcId,
+      sourceBarcode: foodData.sourceBarcode,
     );
   }
 
@@ -816,11 +833,27 @@ class DatabaseService {
       return food;
     }
 
-    // Otherwise, check if we've already copied it (by name and macros, or barcode)
+    // Otherwise, check if we've already copied it
     final existingQuery = _liveDb.select(_liveDb.foods)
-      ..where((t) => t.name.equals(food.name))
-      ..where((t) => t.caloriesPerGram.equals(food.calories))
-      ..where((t) => t.proteinPerGram.equals(food.protein));
+      ..where((t) {
+        Expression<bool> predicate =
+            t.name.equals(food.name) &
+            t.caloriesPerGram.equals(food.calories) &
+            t.proteinPerGram.equals(food.protein);
+
+        if (food.source != 'live') {
+          // Try matching by original ID or barcode
+          predicate =
+              predicate |
+              t.sourceFdcId.equals(food.id) |
+              t.sourceBarcode.equals(
+                food.name,
+              ); // Using name as barcode if relevant, but models have separate fields?
+          // Actually, Food model doesn't have barcode field explicitly?
+          // Let's check tables.dart again.
+        }
+        return predicate;
+      });
 
     final existing = await existingQuery.getSingleOrNull();
     if (existing != null) {

@@ -81,4 +81,46 @@ class Recipe {
       ],
     );
   }
+
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    return Recipe(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      servingsCreated: (json['servingsCreated'] as num).toDouble(),
+      finalWeightGrams: (json['finalWeightGrams'] as num?)?.toDouble(),
+      portionName: json['portionName'] as String,
+      notes: json['notes'] as String?,
+      isTemplate: json['isTemplate'] as bool? ?? false,
+      hidden: json['hidden'] as bool? ?? false,
+      parentId: json['parentId'] as int?,
+      createdTimestamp: json['createdTimestamp'] as int,
+      items:
+          (json['items'] as List<dynamic>?)
+              ?.map((e) => RecipeItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      categories:
+          (json['categories'] as List<dynamic>?)
+              ?.map((e) => Category.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'servingsCreated': servingsCreated,
+      'finalWeightGrams': finalWeightGrams,
+      'portionName': portionName,
+      'notes': notes,
+      'isTemplate': isTemplate,
+      'hidden': hidden,
+      'parentId': parentId,
+      'createdTimestamp': createdTimestamp,
+      'items': items.map((e) => e.toJson()).toList(),
+      'categories': categories.map((e) => e.toJson()).toList(),
+    };
+  }
 }

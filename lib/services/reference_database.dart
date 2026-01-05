@@ -17,16 +17,36 @@ class ReferenceDatabase extends _$ReferenceDatabase {
   int get schemaVersion => 1;
 }
 
+const int kCurrentReferenceDbVersion =
+    1; // Increment this when updating assets/reference.db
+
 Future<QueryExecutor> openReferenceConnection() async {
   final dbFolder = await getApplicationDocumentsDirectory();
   final file = File(p.join(dbFolder.path, 'reference.db'));
+  final versionFile = File(p.join(dbFolder.path, '.reference.version'));
 
+  bool needsUpdate = false;
   if (!await file.exists()) {
+    needsUpdate = true;
+  } else {
+    int version = 0;
+    if (await versionFile.exists()) {
+      final versionStr = await versionFile.readAsString();
+      version = int.tryParse(versionStr) ?? 0;
+    }
+    if (version < kCurrentReferenceDbVersion) {
+      needsUpdate = true;
+    }
+  }
+
+  if (needsUpdate) {
     final blob = await rootBundle.load('assets/reference.db');
     final buffer = blob.buffer;
     await file.writeAsBytes(
       buffer.asUint8List(blob.offsetInBytes, blob.lengthInBytes),
+      flush: true,
     );
+    await versionFile.writeAsString(kCurrentReferenceDbVersion.toString());
   }
 
   return NativeDatabase(file);

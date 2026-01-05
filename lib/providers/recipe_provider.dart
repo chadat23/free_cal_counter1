@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/recipe.dart';
 import 'package:free_cal_counter1/models/recipe_item.dart';
@@ -225,5 +226,68 @@ class RecipeProvider extends ChangeNotifier {
     _errorMessage = null;
     _ingredientsChanged = false;
     notifyListeners();
+  }
+
+  // Sharing Logic
+  String exportRecipe(Recipe recipe) {
+    return jsonEncode(recipe.toJson());
+  }
+
+  Future<bool> importRecipe(String jsonContent) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final Map<String, dynamic> data = jsonDecode(jsonContent);
+      final recipe = Recipe.fromJson(data);
+      final db = DatabaseService.instance;
+
+      await _importRecipeRecursive(recipe, db);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Error importing recipe: $e');
+      _errorMessage = 'Import failed: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<int> _importRecipeRecursive(Recipe recipe, DatabaseService db) async {
+    final resolvedItems = <RecipeItem>[];
+
+    for (final item in recipe.items) {
+      if (item.isFood) {
+        // Deduplicate food
+        final resolvedFood = await db.ensureFoodExists(item.food!);
+        resolvedItems.add(item.copyWith(id: 0, food: resolvedFood));
+      } else if (item.isRecipe) {
+        // Recursive import for sub-recipe
+        final subRecipeId = await _importRecipeRecursive(item.recipe!, db);
+        final subRecipe = await db.getRecipeById(subRecipeId);
+        resolvedItems.add(item.copyWith(id: 0, recipe: subRecipe));
+      }
+    }
+
+    final recipeToSave = Recipe(
+      id: 0, // Always save as new during import to avoid overwriting user's own variations
+      name: recipe.name,
+      servingsCreated: recipe.servingsCreated,
+      finalWeightGrams: recipe.finalWeightGrams,
+      portionName: recipe.portionName,
+      notes: recipe.notes,
+      isTemplate: recipe.isTemplate,
+      hidden: false,
+      parentId: null,
+      createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+      items: resolvedItems,
+      categories: recipe.categories,
+    );
+
+    return await db.saveRecipe(recipeToSave);
   }
 }

@@ -91,7 +91,8 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
             networkType: NetworkType.connected,
             requiresBatteryNotLow: true,
           ),
-          existingWorkPolicy: ExistingWorkPolicy.update, // Restart schedule
+          existingWorkPolicy:
+              ExistingPeriodicWorkPolicy.update, // Restart schedule
         );
       } else {
         // Turning OFF

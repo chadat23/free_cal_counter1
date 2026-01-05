@@ -119,19 +119,17 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                     if (importedId != null && importedId is int && mounted) {
                       final newRecipe = await DatabaseService.instance
                           .getRecipeById(importedId);
-                      if (newRecipe != null) {
-                        provider.loadFromRecipe(newRecipe);
-                        // Update controllers
-                        _nameController.text = newRecipe.name;
-                        _portionsController.text = newRecipe.servingsCreated
-                            .toString();
-                        _portionNameController.text = newRecipe.portionName;
-                        _weightController.text =
-                            newRecipe.finalWeightGrams?.toString() ?? '';
-                        _notesController.text = newRecipe.notes ?? '';
-                        // Refresh categories
-                        setState(() {});
-                      }
+                      provider.loadFromRecipe(newRecipe);
+                      // Update controllers
+                      _nameController.text = newRecipe.name;
+                      _portionsController.text = newRecipe.servingsCreated
+                          .toString();
+                      _portionNameController.text = newRecipe.portionName;
+                      _weightController.text =
+                          newRecipe.finalWeightGrams?.toString() ?? '';
+                      _notesController.text = newRecipe.notes ?? '';
+                      // Refresh categories
+                      setState(() {});
                     }
                   },
                 ),

@@ -11,13 +11,18 @@ import 'package:drift/native.dart';
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart' as ref;
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() {
   late RecipeProvider provider;
   late DatabaseService databaseService;
   late LiveDatabase liveDb;
   late ref.ReferenceDatabase refDb;
 
-  setUp(() {
+  setUp(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+
     liveDb = LiveDatabase(connection: NativeDatabase.memory());
     refDb = ref.ReferenceDatabase(connection: NativeDatabase.memory());
     databaseService = DatabaseService.forTesting(liveDb, refDb);
@@ -362,6 +367,31 @@ void main() {
       expect(provider.id, 0);
       expect(provider.parentId, isNull);
       expect(provider.ingredientsChanged, isFalse);
+    });
+  });
+
+  group('RecipeProvider Import/Export', () {
+    test('exportRecipe should return valid JSON', () async {
+      final recipe = await createTestRecipe();
+      final jsonStr = provider.exportRecipe(recipe);
+      expect(jsonStr, isNotEmpty);
+      expect(jsonStr, contains('"name":"Test Recipe"'));
+    });
+
+    test('importRecipe should return ID on success', () async {
+      final recipe = await createTestRecipe();
+      final jsonStr = provider.exportRecipe(recipe);
+
+      final newId = await provider.importRecipe(jsonStr);
+      expect(newId, isNotNull);
+      expect(newId, isPositive);
+      expect(newId, isNot(recipe.id)); // Should be a new ID
+    });
+
+    test('importRecipe should return null on invalid JSON', () async {
+      final result = await provider.importRecipe('invalid json');
+      expect(result, isNull);
+      expect(provider.errorMessage, contains('Import failed'));
     });
   });
 }

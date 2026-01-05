@@ -162,6 +162,30 @@ class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
           as List<_i6.LoggedPortion>);
 
   @override
+  Set<int> get selectedPortionIds =>
+      (super.noSuchMethod(
+            Invocation.getter(#selectedPortionIds),
+            returnValue: <int>{},
+          )
+          as Set<int>);
+
+  @override
+  bool get hasSelectedPortions =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasSelectedPortions),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  int get selectedPortionCount =>
+      (super.noSuchMethod(
+            Invocation.getter(#selectedPortionCount),
+            returnValue: 0,
+          )
+          as int);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -274,6 +298,38 @@ class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
           as _i8.Future<_i2.DailyMacroStats>);
 
   @override
+  void togglePortionSelection(int? portionId) => super.noSuchMethod(
+    Invocation.method(#togglePortionSelection, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void selectPortion(int? portionId) => super.noSuchMethod(
+    Invocation.method(#selectPortion, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void deselectPortion(int? portionId) => super.noSuchMethod(
+    Invocation.method(#deselectPortion, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void clearSelection() => super.noSuchMethod(
+    Invocation.method(#clearSelection, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  bool isPortionSelected(int? portionId) =>
+      (super.noSuchMethod(
+            Invocation.method(#isPortionSelected, [portionId]),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
   void addListener(_i9.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
@@ -377,6 +433,14 @@ class MockRecipeProvider extends _i1.Mock implements _i10.RecipeProvider {
   @override
   bool get isLoading =>
       (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
+          as bool);
+
+  @override
+  bool get ingredientsChanged =>
+      (super.noSuchMethod(
+            Invocation.getter(#ingredientsChanged),
+            returnValue: false,
+          )
           as bool);
 
   @override

@@ -65,6 +65,16 @@ void main() {
       mockLogProvider.loadLoggedPortionsForDate(any),
     ).thenAnswer((_) async {});
     when(mockLogProvider.loggedPortion).thenReturn([]);
+    // Stub multiselect getters
+    when(mockLogProvider.selectedPortionIds).thenReturn({});
+    when(mockLogProvider.hasSelectedPortions).thenReturn(false);
+    when(mockLogProvider.selectedPortionCount).thenReturn(0);
+    // Stub multiselect methods
+    when(mockLogProvider.togglePortionSelection(any)).thenAnswer((_) {});
+    when(mockLogProvider.selectPortion(any)).thenAnswer((_) {});
+    when(mockLogProvider.deselectPortion(any)).thenAnswer((_) {});
+    when(mockLogProvider.clearSelection()).thenAnswer((_) {});
+    when(mockLogProvider.isPortionSelected(any)).thenReturn(false);
 
     // Stub NavigationProvider
     when(mockNavigationProvider.changeTab(any)).thenAnswer((_) {});

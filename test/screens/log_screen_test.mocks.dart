@@ -194,6 +194,30 @@ class MockLogProvider extends _i1.Mock implements _i9.LogProvider {
           as List<_i11.LoggedPortion>);
 
   @override
+  Set<int> get selectedPortionIds =>
+      (super.noSuchMethod(
+            Invocation.getter(#selectedPortionIds),
+            returnValue: <int>{},
+          )
+          as Set<int>);
+
+  @override
+  bool get hasSelectedPortions =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasSelectedPortions),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  int get selectedPortionCount =>
+      (super.noSuchMethod(
+            Invocation.getter(#selectedPortionCount),
+            returnValue: 0,
+          )
+          as int);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -304,6 +328,38 @@ class MockLogProvider extends _i1.Mock implements _i9.LogProvider {
             ),
           )
           as _i12.Future<_i2.DailyMacroStats>);
+
+  @override
+  void togglePortionSelection(int? portionId) => super.noSuchMethod(
+    Invocation.method(#togglePortionSelection, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void selectPortion(int? portionId) => super.noSuchMethod(
+    Invocation.method(#selectPortion, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void deselectPortion(int? portionId) => super.noSuchMethod(
+    Invocation.method(#deselectPortion, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void clearSelection() => super.noSuchMethod(
+    Invocation.method(#clearSelection, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  bool isPortionSelected(int? portionId) =>
+      (super.noSuchMethod(
+            Invocation.method(#isPortionSelected, [portionId]),
+            returnValue: false,
+          )
+          as bool);
 
   @override
   void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(

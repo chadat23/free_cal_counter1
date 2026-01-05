@@ -9,8 +9,29 @@ import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
 import 'package:free_cal_counter1/widgets/portion_widget.dart';
 import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'meal_widget_test.mocks.dart';
 
+@GenerateMocks([LogProvider])
 void main() {
+  late MockLogProvider mockLogProvider;
+
+  setUp(() {
+    mockLogProvider = MockLogProvider();
+    // Stub multiselect methods
+    when(mockLogProvider.selectedPortionIds).thenReturn({});
+    when(mockLogProvider.hasSelectedPortions).thenReturn(false);
+    when(mockLogProvider.selectedPortionCount).thenReturn(0);
+    when(mockLogProvider.togglePortionSelection(any)).thenAnswer((_) {});
+    when(mockLogProvider.selectPortion(any)).thenAnswer((_) {});
+    when(mockLogProvider.deselectPortion(any)).thenAnswer((_) {});
+    when(mockLogProvider.clearSelection()).thenAnswer((_) {});
+    when(mockLogProvider.isPortionSelected(any)).thenReturn(false);
+  });
+
   testWidgets('Meal widget displays correctly', (WidgetTester tester) async {
     // Given
     final food1 = Food(
@@ -56,8 +77,13 @@ void main() {
 
     // When
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(body: MealWidget(meal: meal)),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<LogProvider>.value(value: mockLogProvider),
+        ],
+        child: MaterialApp(
+          home: Scaffold(body: MealWidget(meal: meal)),
+        ),
       ),
     );
 
@@ -100,11 +126,16 @@ void main() {
 
     // When
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: MealWidget(
-            meal: meal,
-            onFoodDeleted: (_) => deleteCalled = true,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<LogProvider>.value(value: mockLogProvider),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: MealWidget(
+              meal: meal,
+              onFoodDeleted: (_) => deleteCalled = true,
+            ),
           ),
         ),
       ),

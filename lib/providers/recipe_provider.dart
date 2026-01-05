@@ -233,7 +233,7 @@ class RecipeProvider extends ChangeNotifier {
     return jsonEncode(recipe.toJson());
   }
 
-  Future<bool> importRecipe(String jsonContent) async {
+  Future<int?> importRecipe(String jsonContent) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -243,17 +243,17 @@ class RecipeProvider extends ChangeNotifier {
       final recipe = Recipe.fromJson(data);
       final db = DatabaseService.instance;
 
-      await _importRecipeRecursive(recipe, db);
+      final newId = await _importRecipeRecursive(recipe, db);
 
       _isLoading = false;
       notifyListeners();
-      return true;
+      return newId;
     } catch (e) {
       debugPrint('Error importing recipe: $e');
       _errorMessage = 'Import failed: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
-      return false;
+      return null;
     }
   }
 

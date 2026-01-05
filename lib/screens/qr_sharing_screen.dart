@@ -171,15 +171,15 @@ class _QrSharingScreenState extends State<QrSharingScreen>
     final fullJson = sb.toString();
 
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    final success = await recipeProvider.importRecipe(fullJson);
+    final newId = await recipeProvider.importRecipe(fullJson);
 
     if (!mounted) return;
 
-    if (success) {
+    if (newId != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Recipe imported successfully!')),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, newId);
     } else {
       setState(() {
         _isScanning = true;

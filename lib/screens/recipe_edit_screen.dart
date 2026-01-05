@@ -103,42 +103,67 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                   }
                 },
               ),
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () async {
-                  // Ensure it's a saved recipe before sharing
-                  if (provider.id <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please save the recipe first.'),
-                      ),
+              // Only show Import (Scan) button if creating a new recipe AND it's empty
+              if (provider.id == 0 &&
+                  provider.name.isEmpty &&
+                  provider.items.isEmpty)
+                IconButton(
+                  icon: const Icon(Icons.qr_code_scanner),
+                  tooltip: 'Import Recipe',
+                  onPressed: () async {
+                    final importedId = await Navigator.pushNamed(
+                      context,
+                      AppRouter.qrSharingRoute,
                     );
-                    return;
-                  }
 
-                  // Reconstruct recipe object from provider state to share
-                  final recipeToShare = Recipe(
-                    id: provider.id,
-                    name: provider.name,
-                    servingsCreated: provider.servingsCreated,
-                    finalWeightGrams: provider.finalWeightGrams,
-                    portionName: provider.portionName,
-                    notes: provider.notes,
-                    isTemplate: provider.isTemplate,
-                    hidden: false,
-                    parentId: provider.parentId,
-                    createdTimestamp: DateTime.now().millisecondsSinceEpoch,
-                    items: provider.items,
-                    categories: provider.selectedCategories,
-                  );
+                    if (importedId != null && importedId is int && mounted) {
+                      final newRecipe = await DatabaseService.instance
+                          .getRecipeById(importedId);
+                      if (newRecipe != null) {
+                        provider.loadFromRecipe(newRecipe);
+                        // Update controllers
+                        _nameController.text = newRecipe.name;
+                        _portionsController.text = newRecipe.servingsCreated
+                            .toString();
+                        _portionNameController.text = newRecipe.portionName;
+                        _weightController.text =
+                            newRecipe.finalWeightGrams?.toString() ?? '';
+                        _notesController.text = newRecipe.notes ?? '';
+                        // Refresh categories
+                        setState(() {});
+                      }
+                    }
+                  },
+                ),
+              // Only show Share button if the recipe is saved (id > 0)
+              if (provider.id > 0)
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () async {
+                    // Reconstruct recipe object from provider state to share
+                    // (Logic same as before but inside condition)
+                    final recipeToShare = Recipe(
+                      id: provider.id,
+                      name: provider.name,
+                      servingsCreated: provider.servingsCreated,
+                      finalWeightGrams: provider.finalWeightGrams,
+                      portionName: provider.portionName,
+                      notes: provider.notes,
+                      isTemplate: provider.isTemplate,
+                      hidden: false,
+                      parentId: provider.parentId,
+                      createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+                      items: provider.items,
+                      categories: provider.selectedCategories,
+                    );
 
-                  Navigator.pushNamed(
-                    context,
-                    AppRouter.qrSharingRoute,
-                    arguments: recipeToShare,
-                  );
-                },
-              ),
+                    Navigator.pushNamed(
+                      context,
+                      AppRouter.qrSharingRoute,
+                      arguments: recipeToShare,
+                    );
+                  },
+                ),
             ],
           ),
           body: SlidableAutoCloseBehavior(

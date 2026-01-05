@@ -11,6 +11,7 @@ import 'package:free_cal_counter1/widgets/meal_widget.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/utils/debug_seeder.dart';
+import 'package:free_cal_counter1/config/app_router.dart';
 
 class LogScreen extends StatefulWidget {
   const LogScreen({super.key});
@@ -242,8 +243,9 @@ class _LogScreenState extends State<LogScreen> {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () {
-                // TODO: Implement copy functionality (1.2.7.6.1)
-                logProvider.clearSelection();
+                // Copy selected portions to log queue and navigate to Log Queue Screen
+                logProvider.copySelectedPortionsToQueue();
+                Navigator.pushNamed(context, AppRouter.logQueueRoute);
               },
               icon: const Icon(Icons.copy),
               label: const Text('Copy'),

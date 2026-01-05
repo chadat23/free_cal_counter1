@@ -259,4 +259,20 @@ class LogProvider extends ChangeNotifier {
   bool isPortionSelected(int portionId) {
     return _selectedPortionIds.contains(portionId);
   }
+
+  // Copy selected portions to log queue
+  void copySelectedPortionsToQueue() {
+    if (_selectedPortionIds.isEmpty) return;
+
+    // Find selected portions and copy their FoodPortion to the queue
+    for (final loggedPortion in _loggedPortion) {
+      if (loggedPortion.id != null &&
+          _selectedPortionIds.contains(loggedPortion.id!)) {
+        addFoodToQueue(loggedPortion.portion);
+      }
+    }
+
+    // Clear selection after copying
+    clearSelection();
+  }
 }

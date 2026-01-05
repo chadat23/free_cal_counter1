@@ -330,6 +330,12 @@ class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
           as bool);
 
   @override
+  void copySelectedPortionsToQueue() => super.noSuchMethod(
+    Invocation.method(#copySelectedPortionsToQueue, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   void addListener(_i9.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,

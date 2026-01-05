@@ -75,6 +75,7 @@ void main() {
     when(mockLogProvider.deselectPortion(any)).thenAnswer((_) {});
     when(mockLogProvider.clearSelection()).thenAnswer((_) {});
     when(mockLogProvider.isPortionSelected(any)).thenReturn(false);
+    when(mockLogProvider.copySelectedPortionsToQueue()).thenAnswer((_) {});
 
     // Stub NavigationProvider
     when(mockNavigationProvider.changeTab(any)).thenAnswer((_) {});

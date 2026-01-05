@@ -400,6 +400,18 @@ class DatabaseService {
     )..where((t) => t.id.equals(id))).go();
   }
 
+  /// Deletes multiple logged portions in a single batch operation
+  ///
+  /// This is more efficient than calling deleteLoggedPortion multiple times
+  /// and ensures atomicity of the operation.
+  Future<void> deleteLoggedPortions(List<int> ids) async {
+    if (ids.isEmpty) return;
+
+    await (_liveDb.delete(
+      _liveDb.loggedPortions,
+    )..where((t) => t.id.isIn(ids))).go();
+  }
+
   Future<void> updateLoggedPortion(
     int loggedPortionId,
     model.FoodPortion newPortion,

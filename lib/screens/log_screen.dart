@@ -4,6 +4,7 @@ import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/widgets/search_ribbon.dart';
+import 'package:free_cal_counter1/widgets/confirm_delete_dialog.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/logged_portion.dart';
 import 'package:free_cal_counter1/models/meal.dart';
@@ -287,12 +288,24 @@ class _LogScreenState extends State<LogScreen> {
           const SizedBox(width: 8.0),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () {
-                // TODO: Implement delete functionality (1.2.7.6.3)
-                logProvider.clearSelection();
+              onPressed: () async {
+                // Show confirmation dialog
+                final confirmed = await showConfirmDeleteDialog(
+                  context,
+                  count: logProvider.selectedPortionCount,
+                );
+
+                if (confirmed == true && mounted) {
+                  // Delete the selected portions
+                  await logProvider.deleteSelectedPortions();
+
+                  // User stays on the current date (no navigation)
+                  // Selection is automatically cleared by deleteSelectedPortions()
+                }
               },
               icon: const Icon(Icons.delete),
               label: const Text('Delete'),
+              style: ElevatedButton.styleFrom(foregroundColor: Colors.red),
             ),
           ),
           const SizedBox(width: 8.0),

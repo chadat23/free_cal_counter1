@@ -301,4 +301,41 @@ class LogProvider extends ChangeNotifier {
     // Reload the logged portions for the current date
     // Note: The caller should handle navigation to the new date
   }
+
+  /// Deletes all currently selected portions from the database
+  ///
+  /// This method:
+  /// 1. Collects the IDs of all selected portions
+  /// 2. Deletes them from the database in a batch operation
+  /// 3. Removes them from the local state
+  /// 4. Recalculates the logged macros
+  /// 5. Clears the selection
+  ///
+  /// The user remains on the current date (no navigation occurs).
+  Future<void> deleteSelectedPortions() async {
+    if (_selectedPortionIds.isEmpty) return;
+
+    // Collect the IDs of selected portions
+    final selectedIds = <int>[];
+    for (final loggedPortion in _loggedPortion) {
+      if (loggedPortion.id != null &&
+          _selectedPortionIds.contains(loggedPortion.id!)) {
+        selectedIds.add(loggedPortion.id!);
+      }
+    }
+
+    // Delete from database
+    await DatabaseService.instance.deleteLoggedPortions(selectedIds);
+
+    // Remove from local state
+    _loggedPortion.removeWhere(
+      (item) => item.id != null && selectedIds.contains(item.id!),
+    );
+
+    // Recalculate macros
+    _recalculateLoggedMacros();
+
+    // Clear selection
+    clearSelection();
+  }
 }

@@ -7,6 +7,7 @@ import 'package:free_cal_counter1/models/food_portion.dart' as model;
 import 'package:free_cal_counter1/models/logged_portion.dart' as model;
 import 'package:free_cal_counter1/models/recipe.dart' as model;
 import 'package:free_cal_counter1/models/recipe_item.dart' as model;
+import 'package:free_cal_counter1/services/backup_config_service.dart';
 import 'package:free_cal_counter1/models/category.dart' as model;
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
@@ -57,6 +58,7 @@ class DatabaseService {
 
     // 3. Re-initialize
     await init();
+    BackupConfigService.instance.markDirty();
   }
 
   model.Food _mapFoodData(
@@ -281,6 +283,8 @@ class DatabaseService {
               ),
             );
       }
+
+      BackupConfigService.instance.markDirty();
     });
   }
 
@@ -415,6 +419,7 @@ class DatabaseService {
     await (_liveDb.delete(
       _liveDb.loggedPortions,
     )..where((t) => t.id.equals(id))).go();
+    BackupConfigService.instance.markDirty();
   }
 
   /// Deletes multiple logged portions in a single batch operation
@@ -427,6 +432,7 @@ class DatabaseService {
     await (_liveDb.delete(
       _liveDb.loggedPortions,
     )..where((t) => t.id.isIn(ids))).go();
+    BackupConfigService.instance.markDirty();
   }
 
   Future<void> updateLoggedPortion(
@@ -509,6 +515,7 @@ class DatabaseService {
     await (_liveDb.update(_liveDb.loggedPortions)
           ..where((t) => t.id.isIn(loggedPortionIds)))
         .write(LoggedPortionsCompanion(logTimestamp: Value(timestamp)));
+    BackupConfigService.instance.markDirty();
   }
 
   Future<List<model_stats.LoggedMacroDTO>> getLoggedMacrosForDateRange(
@@ -708,7 +715,7 @@ class DatabaseService {
   }
 
   Future<int> saveRecipe(model.Recipe recipe) async {
-    return await _liveDb.transaction(() async {
+    final result = await _liveDb.transaction(() async {
       int recipeId;
 
       if (recipe.id > 0) {
@@ -791,6 +798,8 @@ class DatabaseService {
 
       return recipeId;
     });
+    BackupConfigService.instance.markDirty();
+    return result;
   }
 
   Future<void> deleteRecipe(int id) async {
@@ -822,9 +831,11 @@ class DatabaseService {
   }
 
   Future<int> addCategory(String name) async {
-    return await _liveDb
+    final id = await _liveDb
         .into(_liveDb.categories)
         .insert(CategoriesCompanion.insert(name: name));
+    BackupConfigService.instance.markDirty();
+    return id;
   }
 
   Future<model.Food> ensureFoodExists(model.Food food) async {
@@ -1021,6 +1032,7 @@ class DatabaseService {
 
     await (_liveDb.update(_liveDb.foods)..where((t) => t.id.equals(foodId)))
         .write(const FoodsCompanion(hidden: Value(true)));
+    BackupConfigService.instance.markDirty();
   }
 
   Future<bool> isFoodReferenced(int foodId, String source) async {

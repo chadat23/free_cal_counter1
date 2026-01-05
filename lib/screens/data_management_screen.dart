@@ -5,6 +5,11 @@ import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:free_cal_counter1/services/backup_config_service.dart';
+import 'package:free_cal_counter1/services/google_drive_service.dart';
+import 'package:free_cal_counter1/services/background_backup_worker.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:intl/intl.dart';
 
 class DataManagementScreen extends StatefulWidget {
   const DataManagementScreen({super.key});
@@ -15,6 +20,107 @@ class DataManagementScreen extends StatefulWidget {
 
 class _DataManagementScreenState extends State<DataManagementScreen> {
   bool _isRestoring = false;
+
+  // Cloud Backup State
+  bool _isAutoBackupEnabled = false;
+  int _retentionCount = 7;
+  String? _googleEmail;
+  DateTime? _lastBackupTime;
+  bool _isLoadingCloudSettings = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCloudSettings();
+  }
+
+  Future<void> _loadCloudSettings() async {
+    final config = BackupConfigService.instance;
+    final drive = GoogleDriveService.instance;
+
+    // Try silent sign-in to get email if possible
+    await drive.silentSignIn();
+    final account = drive.currentUser;
+
+    final enabled = await config.isAutoBackupEnabled();
+    final retention = await config.getRetentionCount();
+    final lastTime = await config.getLastBackupTime();
+
+    if (mounted) {
+      setState(() {
+        _isAutoBackupEnabled = enabled;
+        _retentionCount = retention;
+        _lastBackupTime = lastTime;
+        _googleEmail = account?.email;
+        _isLoadingCloudSettings = false;
+      });
+    }
+  }
+
+  Future<void> _toggleAutoBackup(bool value) async {
+    setState(() => _isLoadingCloudSettings = true);
+
+    try {
+      if (value) {
+        // Turning ON
+        // 1. Ensure Signed In
+        if (_googleEmail == null) {
+          final account = await GoogleDriveService.instance.signIn();
+          if (account == null) {
+            // Cancelled or failed
+            if (mounted) {
+              setState(() {
+                _isAutoBackupEnabled = false;
+                _isLoadingCloudSettings = false;
+              });
+            }
+            return;
+          }
+          _googleEmail = account.email;
+        }
+
+        // 2. Enable Config
+        await BackupConfigService.instance.setAutoBackupEnabled(true);
+
+        // 3. Register Worker (Daily)
+        await Workmanager().registerPeriodicTask(
+          backupTaskKey,
+          backupTaskKey,
+          frequency: const Duration(days: 1),
+          constraints: Constraints(
+            networkType: NetworkType.connected,
+            requiresBatteryNotLow: true,
+          ),
+          existingWorkPolicy: ExistingWorkPolicy.update, // Restart schedule
+        );
+      } else {
+        // Turning OFF
+        await BackupConfigService.instance.setAutoBackupEnabled(false);
+        await Workmanager().cancelByUniqueName(backupTaskKey);
+      }
+
+      if (mounted) {
+        setState(() {
+          _isAutoBackupEnabled = value;
+          _isLoadingCloudSettings = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error toggling backup: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        setState(() => _isLoadingCloudSettings = false);
+      }
+    }
+  }
+
+  Future<void> _updateRetention(double value) async {
+    final intVal = value.toInt();
+    setState(() => _retentionCount = intVal);
+    await BackupConfigService.instance.setRetentionCount(intVal);
+  }
 
   Future<void> _exportBackup() async {
     try {
@@ -99,11 +205,21 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                _buildCloudBackupCard(),
+                const SizedBox(height: 24),
+                const Text(
+                  'Manual Backup',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Card(
                   color: Colors.grey[900],
                   child: ListTile(
                     leading: const Icon(Icons.file_upload, color: Colors.blue),
-                    title: const Text('Backup Data'),
+                    title: const Text('Export to File'),
                     subtitle: const Text(
                       'Export your live database to a file.',
                     ),
@@ -118,7 +234,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                       Icons.file_download,
                       color: Colors.green,
                     ),
-                    title: const Text('Restore Data'),
+                    title: const Text('Restore from File'),
                     subtitle: const Text(
                       'Import logs and recipes from a .db file.',
                     ),
@@ -135,6 +251,120 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildCloudBackupCard() {
+    if (_isLoadingCloudSettings) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    return Card(
+      color: Colors.grey[900],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.cloud_upload, color: Colors.orange),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Google Drive Backup',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Switch(
+                  value: _isAutoBackupEnabled,
+                  onChanged: _toggleAutoBackup,
+                  activeColor: Colors.orange,
+                ),
+              ],
+            ),
+            if (_googleEmail != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 36.0, bottom: 12.0),
+                child: Text(
+                  'Account: $_googleEmail',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+
+            if (_isAutoBackupEnabled) ...[
+              const Divider(color: Colors.white24),
+              const SizedBox(height: 8),
+              const Text(
+                'Retention Policy',
+                style: TextStyle(color: Colors.grey),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Slider(
+                      value: _retentionCount.toDouble(),
+                      min: 1,
+                      max: 30,
+                      divisions: 29,
+                      label: '$_retentionCount days',
+                      activeColor: Colors.orange,
+                      onChanged: _updateRetention,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 40,
+                    child: Text(
+                      '$_retentionCount',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              const Text(
+                'Backups older than this number of days will be deleted.',
+                style: TextStyle(fontSize: 10, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Frequency: Daily',
+                style: TextStyle(color: Colors.grey),
+              ), // Hardcoded for MVP
+            ],
+
+            if (_lastBackupTime != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black26,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      size: 16,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Last successful backup: ${DateFormat('MM/dd HH:mm').format(_lastBackupTime!)}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

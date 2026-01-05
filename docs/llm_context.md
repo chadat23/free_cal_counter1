@@ -128,9 +128,24 @@ To ensure consistency across the application and codebase, the following terms a
 - 1.5.7 Clicking the Log button will commit the Log Queue to the LoggedPortion table and then bring the user back to the Overview screen.
 - 1.5.8 When the Log Queue is logged, everything in the log queue should receive the same, current, time as the timestamp for when the portions were logged, that said, said time should be passed into the logging function since that's what allows moving portions, editing their logged time.
 
+## 1.6 Settings: configuration and data management.
+- 1.6.1 The screen should provide access to app-wide settings and tools.
+- 1.6.2 **Data Management**: A specific sub-screen for handling app data preservation.
+  - 1.6.2.1 **Manual Backup**:
+    - 1.6.2.1.1 **Export**: Users can manually export the entire live database to a file using the system's share sheet.
+    - 1.6.2.1.2 **Import**: Users can restore the database from a file. This is a destructive action that replaces the current database, so a confirmation dialog is required.
+  - 1.6.2.2 **Automatic Cloud Backup**:
+    - 1.6.2.2.1 **Integration**: Seamless integration with Google Drive (specifically the hidden App Data folder to avoid clutter).
+    - 1.6.2.2.2 **Configuration**: Users can toggle this feature on/off and sign in/out of their Google account.
+    - 1.6.2.2.3 **Retention Policy**: Users configurable retention count (defaulting to 7 days). The system automatically deletes old backups from Drive to save space.
+    - 1.6.2.2.4 **Smart Scheduling**: Backups are scheduled to run daily in the background. A "dirty flag" mechanism ensures backups only occur if the database has actually changed since the last successful backup, conserving data and battery.
+- 1.6.3 **Recipe Import**: A "Scan Recipe" option that opens the QR Code Scanner to import recipes shared by other users.
+
 
 ## 1.7 Recipe Edit: a screen for editing and creating recipes
-- 1.7.1 The top row of the screen should have a back button that'll bring the user back to the Search Screen, the recipe name (if its previously been saved), and a save button that'll save the recipe. If there are unsaved changes, if the user hits the back button, they should get a succinct message asking if they want to discard unsaved changes.
+- 1.7.1 The top row of the screen should have a back button that'll bring the user back to the Search Screen, the recipe name (if its previously been saved), a Share button, and a Save button.
+  - 1.7.1.1 The Share button (visible only for saved recipes) opens the QR Sharing Screen, allowing the user to export the recipe as a series of QR codes.
+  - 1.7.1.2 If there are unsaved changes, if the user hits the back button, they should get a succinct message asking if they want to discard unsaved changes.
 - 1.7.2 Next down should be a place for the user to enter a recipe name
 - 1.7.3 Next should be a row to allow the user to enter the number of portions as well as the name of what a portion is, for example Cookie, Slice, Piece, etc. 
 - 1.7.4 Next should be a row with a Total Weight input. The total final weight must sometimes be updated to account for the addition or subtraction of calorie free stuff such as water that isn't tracked in the app (e.g., if making sugar water, identifying the final weight as 100g even if only 50g of sugar was added, so that a 50g serving correctly calculates as having 25g of sugar). Next to that should be a button to specify that the recipe is purely a dumpable template that is, that while the user should be able to "dump" the ingredients into the Log Queue, the user shouldn't be able to add the recipe itself to the Log Queue. This like like with the cookie vs salad example from 1.3.3.3.3.3.2.3. The Dump Only button/checkbox/whatever, should default to unselected since this is the exception to the rule.

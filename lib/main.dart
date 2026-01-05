@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:free_cal_counter1/services/background_backup_worker.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
@@ -15,6 +17,9 @@ import 'package:openfoodfacts/openfoodfacts.dart'; // Import openfoodfacts
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+
   await DatabaseService.instance.init();
 
   if (kDebugMode) {

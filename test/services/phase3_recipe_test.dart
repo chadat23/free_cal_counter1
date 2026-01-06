@@ -6,6 +6,7 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart' as ref;
 import 'package:drift/drift.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late DatabaseService databaseService;
@@ -13,6 +14,9 @@ void main() {
   late ref.ReferenceDatabase refDb;
 
   setUp(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+
     liveDb = LiveDatabase(connection: NativeDatabase.memory());
     refDb = ref.ReferenceDatabase(connection: NativeDatabase.memory());
     databaseService = DatabaseService.forTesting(liveDb, refDb);

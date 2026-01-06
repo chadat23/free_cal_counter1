@@ -8,6 +8,7 @@ import 'package:free_cal_counter1/services/reference_database.dart'
     hide FoodsCompanion;
 import 'package:free_cal_counter1/services/live_database.dart' as live_db;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
+import 'package:free_cal_counter1/services/food_sorting_service.dart';
 import 'package:drift/native.dart';
 import 'package:drift/drift.dart';
 
@@ -37,6 +38,7 @@ void main() {
       databaseService: databaseService,
       offApiService: mockOffApiService,
       emojiForFoodName: (name) => '🍎',
+      sortingService: FoodSortingService(),
     );
   });
 

@@ -13,6 +13,7 @@ import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
 import 'package:free_cal_counter1/services/reference_database.dart'
     hide FoodPortion, FoodsCompanion, FoodPortionsCompanion;
+import 'package:free_cal_counter1/models/food_usage_stats.dart';
 
 class DatabaseService {
   late LiveDatabase _liveDb;
@@ -1077,5 +1078,193 @@ class DatabaseService {
         )..where((t) => t.id.equals(foodId))).go();
       });
     }
+  }
+
+  // ========== NEW METHODS FOR TEXT-BASED SEARCH ==========
+
+  /// Query only live database foods by name
+  Future<List<model.Food>> searchLiveFoodsByName(String query) async {
+    if (query.isEmpty) return [];
+    final lowerCaseQuery = '%${query.toLowerCase()}%';
+
+    final liveFoodsData =
+        await (_liveDb.select(_liveDb.foods)
+              ..where((f) => f.name.lower().like(lowerCaseQuery))
+              ..where((f) => f.hidden.equals(false)))
+            .get();
+
+    // Filter out foods with parentId (these are older versions)
+    final parentIdRows =
+        await (_liveDb.selectOnly(_liveDb.foods)
+              ..addColumns([_liveDb.foods.parentId])
+              ..where(_liveDb.foods.parentId.isNotNull()))
+            .get();
+    final parentIds = parentIdRows
+        .map((r) => r.read(_liveDb.foods.parentId))
+        .whereType<int>()
+        .toSet();
+
+    final List<model.Food> liveFoods = [];
+    for (final foodData in liveFoodsData) {
+      if (!parentIds.contains(foodData.id)) {
+        final servings = await getServingsForFood(foodData.id, foodData.source);
+        liveFoods.add(_mapFoodData(foodData, servings));
+      }
+    }
+
+    return liveFoods;
+  }
+
+  /// Query only reference database foods by name
+  Future<List<model.Food>> searchReferenceFoodsByName(String query) async {
+    if (query.isEmpty) return [];
+    final lowerCaseQuery = '%${query.toLowerCase()}%';
+
+    final refFoodsData = await (_referenceDb.select(
+      _referenceDb.foods,
+    )..where((f) => f.name.lower().like(lowerCaseQuery))).get();
+
+    final List<model.Food> refFoods = [];
+    for (final foodData in refFoodsData) {
+      final servings = await getServingsForFood(foodData.id, foodData.source);
+      refFoods.add(_mapFoodData(foodData, servings));
+    }
+
+    return refFoods;
+  }
+
+  /// Get usage statistics for a list of food IDs
+  /// Queries LoggedPortions joined with LoggedFoods to count logs
+  Future<Map<int, FoodUsageStats>> getFoodUsageStats(List<int> foodIds) async {
+    if (foodIds.isEmpty) return {};
+
+    final Map<int, FoodUsageStats> results = {};
+
+    for (final foodId in foodIds) {
+      // Query all logged portions for this food
+      final query =
+          _liveDb.select(_liveDb.loggedPortions).join([
+              innerJoin(
+                _liveDb.loggedFoods,
+                _liveDb.loggedFoods.id.equalsExp(
+                  _liveDb.loggedPortions.loggedFoodId,
+                ),
+              ),
+            ])
+            ..where(_liveDb.loggedFoods.originalFoodId.equals(foodId))
+            ..orderBy([
+              OrderingTerm(
+                expression: _liveDb.loggedPortions.logTimestamp,
+                mode: OrderingMode.desc,
+              ),
+            ]);
+
+      final rows = await query.get();
+
+      if (rows.isEmpty) {
+        results[foodId] = FoodUsageStats(
+          foodId: foodId,
+          logCount: 0,
+          lastLoggedAt: null,
+          logTimestamps: [],
+        );
+        continue;
+      }
+
+      final logTimestamps = rows
+          .map(
+            (row) => DateTime.fromMillisecondsSinceEpoch(
+              row.readTable(_liveDb.loggedPortions).logTimestamp,
+            ),
+          )
+          .toList();
+
+      results[foodId] = FoodUsageStats(
+        foodId: foodId,
+        logCount: rows.length,
+        lastLoggedAt: logTimestamps.first,
+        logTimestamps: logTimestamps,
+      );
+    }
+
+    return results;
+  }
+
+  /// Get usage statistics for a list of recipe IDs
+  /// Queries LoggedPortions joined with LoggedFoods where originalFoodSource='recipe'
+  Future<Map<int, FoodUsageStats>> getRecipeUsageStats(
+    List<int> recipeIds,
+  ) async {
+    if (recipeIds.isEmpty) return {};
+
+    final Map<int, FoodUsageStats> results = {};
+
+    for (final recipeId in recipeIds) {
+      // Query all logged portions for this recipe
+      final query =
+          _liveDb.select(_liveDb.loggedPortions).join([
+              innerJoin(
+                _liveDb.loggedFoods,
+                _liveDb.loggedFoods.id.equalsExp(
+                  _liveDb.loggedPortions.loggedFoodId,
+                ),
+              ),
+            ])
+            ..where(_liveDb.loggedFoods.originalFoodId.equals(recipeId))
+            ..where(_liveDb.loggedFoods.originalFoodSource.equals('recipe'))
+            ..orderBy([
+              OrderingTerm(
+                expression: _liveDb.loggedPortions.logTimestamp,
+                mode: OrderingMode.desc,
+              ),
+            ]);
+
+      final rows = await query.get();
+
+      if (rows.isEmpty) {
+        results[recipeId] = FoodUsageStats(
+          foodId: recipeId,
+          logCount: 0,
+          lastLoggedAt: null,
+          logTimestamps: [],
+        );
+        continue;
+      }
+
+      final logTimestamps = rows
+          .map(
+            (row) => DateTime.fromMillisecondsSinceEpoch(
+              row.readTable(_liveDb.loggedPortions).logTimestamp,
+            ),
+          )
+          .toList();
+
+      results[recipeId] = FoodUsageStats(
+        foodId: recipeId,
+        logCount: rows.length,
+        lastLoggedAt: logTimestamps.first,
+        logTimestamps: logTimestamps,
+      );
+    }
+
+    return results;
+  }
+
+  /// Filter reference foods that have live versions
+  /// Removes reference foods whose ID is in live foods' sourceFdcId
+  Future<List<model.Food>> filterReferenceFoodsWithLiveVersions(
+    List<model.Food> referenceFoods,
+    List<model.Food> liveFoods,
+  ) async {
+    // Collect all sourceFdcId values from live foods
+    final liveSourceIds = liveFoods
+        .map((f) => f.sourceFdcId)
+        .whereType<int>()
+        .toSet();
+
+    // Filter out reference foods that have a live version
+    return referenceFoods
+        .where((refFood) => !liveSourceIds.contains(refFood.id))
+        .toList();
   }
 }

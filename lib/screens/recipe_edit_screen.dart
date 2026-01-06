@@ -12,6 +12,7 @@ import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/search_service.dart';
+import 'package:free_cal_counter1/services/food_sorting_service.dart';
 import 'package:free_cal_counter1/widgets/slidable_recipe_item_widget.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
@@ -191,6 +192,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                             databaseService: databaseService,
                             offApiService: offApiService,
                             emojiForFoodName: emojiService,
+                            sortingService: FoodSortingService(),
                           );
 
                           final item = await Navigator.push<RecipeItem>(

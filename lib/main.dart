@@ -11,6 +11,7 @@ import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/search_service.dart'; // ADDED
+import 'package:free_cal_counter1/services/food_sorting_service.dart'; // ADDED
 import 'package:free_cal_counter1/utils/debug_seeder.dart';
 import 'package:provider/provider.dart';
 import 'package:openfoodfacts/openfoodfacts.dart'; // Import openfoodfacts
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
       databaseService: databaseService,
       offApiService: offApiService,
       emojiForFoodName: emojiForFoodName,
+      sortingService: FoodSortingService(),
     );
 
     final appRouter = AppRouter(

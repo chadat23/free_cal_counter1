@@ -163,6 +163,18 @@ To ensure consistency across the application and codebase, the following terms a
   - 1.7.7.7 The log button should be hidden or inactive in this context if not needed.
 - 1.7.8 Next should be a list of the ingredients in the recipe, with the ability to edit each one. They should use the same Portion Widget and Slidable Portion Widget as the Log and Log Queue. this may take some reworking and should be done so thoughtfully to ensure it still works as desired and expected for all use cases.
 
-# Notes, Quirks, and Idiosyncrasies
-- The Quantity Edit Screen dynamically updates its action button to say "Add" or "Update" based on context.
-- On the Search Screen, in addition to the 3 kinds of searches, maybe that's where it'd make sense to have an Add Food button.
+# 2 Search Functionality and Behavior
+- 2.1 Text Based Search
+  - 2.1.1 All text based data sources, reference db, live db, and OFF API data can be fed through the same fuzzy filtering/sorting funtion/algerythom
+  - 2.1.2 OFF API data doesn't need any additional filtering/sorting since it's never displayed with other data and is innately always unlogged (presumably, if an item was already logged, it would have been looked up before an OFF search was performed)
+  - 2.1.3 Reference db and live db data should be displayed sumiultaniously and should be processed as such
+    - 2.1.3.1 Live db data should be sorted based on weighted considerations of: frequency of logging, time since last logging, and present time vs typical time of day of logging. Also, since unit's unknown what the best/final filtering/sorting algerythom will be, this should be done in an encapsolated way.
+    - 2.1.3.2 Since live db data in already in the live db and has subsiquencly already been eaten, it's more likely to be what the user is looking for, so all live db data should be displayed above reference db data within the search results.
+      - 2.1.3.2.1 If something from the reference db ever displays above anything from the live db, then something has gone wrong or goals are misunderstood.
+      - 2.1.3.2.2 Given that many things in the live db will have been copied from the reference db, anything that exists in live and reference search results should be filtered out of the reference results to minimize redundency of search results.
+    - 2.1.3.1 Since, like with OFF API data, if reference db data had ever been logged, it would have been copied to the live db, it doesn't need any additional filtering/sorting
+    - 2.1.3.2 Once it's been sufficiently long since an item has been logged, it may make sense to drop it from the live data results portion of the results and instead display it with the reference data results. If this is done however, we'll want to ensure that we're not reentering stuff into the live db to prevent search results from being cluttered with stuff that was last eaten years ago. This could be configurable via the Settings Tab.
+- 2.2 Barcode Based Search: TBD
+- 2.3 Recipe Search
+  - 2.3.1 By default, all recipies should be displayed. No user action should be needed in order to scroll through recipies other than clicking to the Recipe Search tab.
+  - 2.3.2 Should use a basic fuzzy search algorithm to filter recipes based on the search query.

@@ -105,35 +105,37 @@ class _SearchScreenState extends State<SearchScreen> {
               )
             : Text(widget.config.title),
       ),
-      body: Consumer<SearchProvider>(
-        builder: (context, searchProvider, child) {
-          return Column(
-            children: [
-              const SearchModeTabs(),
-              Expanded(child: _buildBody(searchProvider.searchMode)),
-            ],
-          );
-        },
-      ),
-      bottomNavigationBar: SearchRibbon(
-        isSearchActive: true,
-        focusNode: _focusNode,
-        onChanged: (query) {
-          if (query.isNotEmpty) {
-            Provider.of<SearchProvider>(
-              context,
-              listen: false,
-            ).textSearch(query);
-          } else {
-            // Optionally clear results
-          }
-        },
-        onOffSearch: () {
-          Provider.of<SearchProvider>(
-            context,
-            listen: false,
-          ).performOffSearch();
-        },
+      body: Column(
+        children: [
+          const SearchModeTabs(),
+          Expanded(
+            child: Consumer<SearchProvider>(
+              builder: (context, searchProvider, child) {
+                return _buildBody(searchProvider.searchMode);
+              },
+            ),
+          ),
+          SearchRibbon(
+            isSearchActive: true,
+            focusNode: _focusNode,
+            onChanged: (query) {
+              if (query.isNotEmpty) {
+                Provider.of<SearchProvider>(
+                  context,
+                  listen: false,
+                ).textSearch(query);
+              } else {
+                // Optionally clear results
+              }
+            },
+            onOffSearch: () {
+              Provider.of<SearchProvider>(
+                context,
+                listen: false,
+              ).performOffSearch();
+            },
+          ),
+        ],
       ),
     );
   }

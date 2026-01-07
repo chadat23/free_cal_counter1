@@ -325,6 +325,24 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
   );
 
   @override
+  _i7.Future<void> moveSelectedPortions(DateTime? newTimestamp) =>
+      (super.noSuchMethod(
+            Invocation.method(#moveSelectedPortions, [newTimestamp]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> deleteSelectedPortions() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSelectedPortions, []),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
   void addListener(_i8.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,

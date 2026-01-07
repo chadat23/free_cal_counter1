@@ -74,6 +74,12 @@ class MockNavigationProvider extends _i1.Mock
   );
 
   @override
+  void goToDataManagement() => super.noSuchMethod(
+    Invocation.method(#goToDataManagement, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   void resetSearchFocus() => super.noSuchMethod(
     Invocation.method(#resetSearchFocus, []),
     returnValueForMissingStub: null,

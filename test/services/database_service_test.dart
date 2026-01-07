@@ -91,10 +91,6 @@ void main() {
 
     test('should return Food objects with populated units list', () async {
       // Arrange
-      // Insert a food with associated units into the reference database
-      // For now, we'll simulate this by directly inserting into the reference database
-      // and assume a food with ID 1 will be returned.
-      // This part will need to be refined once the actual unit table is identified.
       await referenceDatabase
           .into(referenceDatabase.foods)
           .insert(
@@ -109,9 +105,7 @@ void main() {
               fiberPerGram: 0.024,
             ),
           );
-      // Assuming a units table exists and we can insert into it
-      // This will cause a compile error until FoodUnit and the units table are properly integrated
-      // and the Food model is updated.
+
       await referenceDatabase
           .into(referenceDatabase.foodPortions)
           .insert(
@@ -142,6 +136,7 @@ void main() {
       final appleFood = results.firstWhere((f) => f.name == 'Reference Apple');
       expect(appleFood.servings, matcher.isNotNull);
       expect(appleFood.servings.isNotEmpty, matcher.isTrue);
+      // 'g' is auto-added, plus 2 inserted = 3
       expect(appleFood.servings.length, 3);
       expect(
         appleFood.servings.any(
@@ -166,11 +161,12 @@ void main() {
     test('should return the unit from the most recent log', () async {
       // Arrange
       // Insert a food first to satisfy foreign key constraint
+      const foodId = 1;
       await liveDatabase
           .into(liveDatabase.foods)
           .insert(
             FoodsCompanion.insert(
-              id: const Value(1),
+              id: const Value(foodId),
               name: 'Test Food',
               source: 'user_created',
               caloriesPerGram: 1.0,
@@ -181,27 +177,12 @@ void main() {
             ),
           );
 
-      // Insert LoggedFood snapshot
-      final loggedFoodId = await liveDatabase
-          .into(liveDatabase.loggedFoods)
-          .insert(
-            LoggedFoodsCompanion.insert(
-              name: 'Test Food',
-              caloriesPerGram: 1.0,
-              proteinPerGram: 0.0,
-              fatPerGram: 0.0,
-              carbsPerGram: 0.0,
-              fiberPerGram: 0.0,
-              originalFoodId: const Value(1),
-            ),
-          );
-
-      // Insert logs with different timestamps
+      // Insert logs with different timestamps linking to this food
       await liveDatabase
           .into(liveDatabase.loggedPortions)
           .insert(
             LoggedPortionsCompanion.insert(
-              loggedFoodId: loggedFoodId,
+              foodId: const Value(foodId),
               logTimestamp: 1000,
               grams: 100,
               unit: 'old_unit',
@@ -212,7 +193,7 @@ void main() {
           .into(liveDatabase.loggedPortions)
           .insert(
             LoggedPortionsCompanion.insert(
-              loggedFoodId: loggedFoodId,
+              foodId: const Value(foodId),
               logTimestamp: 2000,
               grams: 100,
               unit: 'new_unit',
@@ -221,7 +202,7 @@ void main() {
           );
 
       // Act
-      final unit = await databaseService.getLastLoggedUnit(1);
+      final unit = await databaseService.getLastLoggedUnit(foodId);
 
       // Assert
       expect(unit, 'new_unit');
@@ -231,18 +212,19 @@ void main() {
   group('getLoggedMacrosForDateRange', () {
     test('should return macro DTOs for logs within range', () async {
       // Arrange
+      const foodId = 1;
       await liveDatabase
-          .into(liveDatabase.loggedFoods)
+          .into(liveDatabase.foods)
           .insert(
-            LoggedFoodsCompanion.insert(
-              id: const Value(1),
+            FoodsCompanion.insert(
+              id: const Value(foodId),
               name: 'Test Food',
+              source: 'user_created',
               caloriesPerGram: 1.0,
               proteinPerGram: 0.5,
               fatPerGram: 0.2,
               carbsPerGram: 0.3,
               fiberPerGram: 0.1,
-              originalFoodId: const Value(0),
             ),
           );
 
@@ -254,7 +236,7 @@ void main() {
           .into(liveDatabase.loggedPortions)
           .insert(
             LoggedPortionsCompanion.insert(
-              loggedFoodId: 1,
+              foodId: const Value(foodId),
               logTimestamp: todayStart
                   .add(const Duration(hours: 12))
                   .millisecondsSinceEpoch,
@@ -269,7 +251,7 @@ void main() {
           .into(liveDatabase.loggedPortions)
           .insert(
             LoggedPortionsCompanion.insert(
-              loggedFoodId: 1,
+              foodId: const Value(foodId),
               logTimestamp: todayStart
                   .subtract(const Duration(hours: 12))
                   .millisecondsSinceEpoch,
@@ -284,7 +266,7 @@ void main() {
           .into(liveDatabase.loggedPortions)
           .insert(
             LoggedPortionsCompanion.insert(
-              loggedFoodId: 1,
+              foodId: const Value(foodId),
               logTimestamp: todayStart
                   .add(const Duration(days: 1, hours: 12))
                   .millisecondsSinceEpoch,

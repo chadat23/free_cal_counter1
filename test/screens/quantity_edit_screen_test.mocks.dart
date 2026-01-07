@@ -336,6 +336,24 @@ class MockLogProvider extends _i1.Mock implements _i4.LogProvider {
   );
 
   @override
+  _i8.Future<void> moveSelectedPortions(DateTime? newTimestamp) =>
+      (super.noSuchMethod(
+            Invocation.method(#moveSelectedPortions, [newTimestamp]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> deleteSelectedPortions() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSelectedPortions, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
   void addListener(_i9.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
@@ -579,6 +597,25 @@ class MockRecipeProvider extends _i1.Mock implements _i10.RecipeProvider {
     Invocation.method(#reset, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  String exportRecipe(_i7.Recipe? recipe) =>
+      (super.noSuchMethod(
+            Invocation.method(#exportRecipe, [recipe]),
+            returnValue: _i11.dummyValue<String>(
+              this,
+              Invocation.method(#exportRecipe, [recipe]),
+            ),
+          )
+          as String);
+
+  @override
+  _i8.Future<int?> importRecipe(String? jsonContent) =>
+      (super.noSuchMethod(
+            Invocation.method(#importRecipe, [jsonContent]),
+            returnValue: _i8.Future<int?>.value(),
+          )
+          as _i8.Future<int?>);
 
   @override
   void addListener(_i9.VoidCallback? listener) => super.noSuchMethod(

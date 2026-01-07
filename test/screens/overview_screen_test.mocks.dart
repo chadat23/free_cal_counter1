@@ -356,6 +356,24 @@ class MockLogProvider extends _i1.Mock implements _i7.LogProvider {
   );
 
   @override
+  _i11.Future<void> moveSelectedPortions(DateTime? newTimestamp) =>
+      (super.noSuchMethod(
+            Invocation.method(#moveSelectedPortions, [newTimestamp]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
+  _i11.Future<void> deleteSelectedPortions() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSelectedPortions, []),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
   void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
@@ -427,6 +445,12 @@ class MockNavigationProvider extends _i1.Mock
   @override
   void goToSearch() => super.noSuchMethod(
     Invocation.method(#goToSearch, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void goToDataManagement() => super.noSuchMethod(
+    Invocation.method(#goToDataManagement, []),
     returnValueForMissingStub: null,
   );
 

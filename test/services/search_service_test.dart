@@ -101,19 +101,16 @@ void main() {
           ),
         );
 
-    // Mock logging the food
+    // Mock logging the food by inserting into LoggedPortions
     await liveDatabase
-        .into(liveDatabase.loggedFoods)
+        .into(liveDatabase.loggedPortions)
         .insert(
-          live_db.LoggedFoodsCompanion.insert(
-            name: 'Apple',
-            caloriesPerGram: 0.52,
-            proteinPerGram: 0.003,
-            fatPerGram: 0.002,
-            carbsPerGram: 0.14,
-            fiberPerGram: 0.024,
-            originalFoodId: const Value(foodId),
-            originalFoodSource: const Value(foodSource),
+          live_db.LoggedPortionsCompanion.insert(
+            foodId: const Value(foodId),
+            logTimestamp: DateTime.now().millisecondsSinceEpoch,
+            grams: 100,
+            unit: 'g',
+            quantity: 100,
           ),
         );
 

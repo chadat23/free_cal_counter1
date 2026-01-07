@@ -2638,955 +2638,6 @@ class RecipeCategoryLinksCompanion extends UpdateCompanion<RecipeCategoryLink> {
   }
 }
 
-class $LoggedFoodsTable extends LoggedFoods
-    with TableInfo<$LoggedFoodsTable, LoggedFood> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $LoggedFoodsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _caloriesPerGramMeta = const VerificationMeta(
-    'caloriesPerGram',
-  );
-  @override
-  late final GeneratedColumn<double> caloriesPerGram = GeneratedColumn<double>(
-    'caloriesPerGram',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _proteinPerGramMeta = const VerificationMeta(
-    'proteinPerGram',
-  );
-  @override
-  late final GeneratedColumn<double> proteinPerGram = GeneratedColumn<double>(
-    'proteinPerGram',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _fatPerGramMeta = const VerificationMeta(
-    'fatPerGram',
-  );
-  @override
-  late final GeneratedColumn<double> fatPerGram = GeneratedColumn<double>(
-    'fatPerGram',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _carbsPerGramMeta = const VerificationMeta(
-    'carbsPerGram',
-  );
-  @override
-  late final GeneratedColumn<double> carbsPerGram = GeneratedColumn<double>(
-    'carbsPerGram',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _fiberPerGramMeta = const VerificationMeta(
-    'fiberPerGram',
-  );
-  @override
-  late final GeneratedColumn<double> fiberPerGram = GeneratedColumn<double>(
-    'fiberPerGram',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _originalFoodIdMeta = const VerificationMeta(
-    'originalFoodId',
-  );
-  @override
-  late final GeneratedColumn<int> originalFoodId = GeneratedColumn<int>(
-    'original_food_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _originalFoodSourceMeta =
-      const VerificationMeta('originalFoodSource');
-  @override
-  late final GeneratedColumn<String> originalFoodSource =
-      GeneratedColumn<String>(
-        'original_food_source',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    caloriesPerGram,
-    proteinPerGram,
-    fatPerGram,
-    carbsPerGram,
-    fiberPerGram,
-    originalFoodId,
-    originalFoodSource,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'logged_foods';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<LoggedFood> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('caloriesPerGram')) {
-      context.handle(
-        _caloriesPerGramMeta,
-        caloriesPerGram.isAcceptableOrUnknown(
-          data['caloriesPerGram']!,
-          _caloriesPerGramMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_caloriesPerGramMeta);
-    }
-    if (data.containsKey('proteinPerGram')) {
-      context.handle(
-        _proteinPerGramMeta,
-        proteinPerGram.isAcceptableOrUnknown(
-          data['proteinPerGram']!,
-          _proteinPerGramMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_proteinPerGramMeta);
-    }
-    if (data.containsKey('fatPerGram')) {
-      context.handle(
-        _fatPerGramMeta,
-        fatPerGram.isAcceptableOrUnknown(data['fatPerGram']!, _fatPerGramMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_fatPerGramMeta);
-    }
-    if (data.containsKey('carbsPerGram')) {
-      context.handle(
-        _carbsPerGramMeta,
-        carbsPerGram.isAcceptableOrUnknown(
-          data['carbsPerGram']!,
-          _carbsPerGramMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_carbsPerGramMeta);
-    }
-    if (data.containsKey('fiberPerGram')) {
-      context.handle(
-        _fiberPerGramMeta,
-        fiberPerGram.isAcceptableOrUnknown(
-          data['fiberPerGram']!,
-          _fiberPerGramMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_fiberPerGramMeta);
-    }
-    if (data.containsKey('original_food_id')) {
-      context.handle(
-        _originalFoodIdMeta,
-        originalFoodId.isAcceptableOrUnknown(
-          data['original_food_id']!,
-          _originalFoodIdMeta,
-        ),
-      );
-    }
-    if (data.containsKey('original_food_source')) {
-      context.handle(
-        _originalFoodSourceMeta,
-        originalFoodSource.isAcceptableOrUnknown(
-          data['original_food_source']!,
-          _originalFoodSourceMeta,
-        ),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  LoggedFood map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return LoggedFood(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      caloriesPerGram: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}caloriesPerGram'],
-      )!,
-      proteinPerGram: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}proteinPerGram'],
-      )!,
-      fatPerGram: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}fatPerGram'],
-      )!,
-      carbsPerGram: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}carbsPerGram'],
-      )!,
-      fiberPerGram: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}fiberPerGram'],
-      )!,
-      originalFoodId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}original_food_id'],
-      ),
-      originalFoodSource: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}original_food_source'],
-      ),
-    );
-  }
-
-  @override
-  $LoggedFoodsTable createAlias(String alias) {
-    return $LoggedFoodsTable(attachedDatabase, alias);
-  }
-}
-
-class LoggedFood extends DataClass implements Insertable<LoggedFood> {
-  final int id;
-  final String name;
-  final double caloriesPerGram;
-  final double proteinPerGram;
-  final double fatPerGram;
-  final double carbsPerGram;
-  final double fiberPerGram;
-  final int? originalFoodId;
-  final String? originalFoodSource;
-  const LoggedFood({
-    required this.id,
-    required this.name,
-    required this.caloriesPerGram,
-    required this.proteinPerGram,
-    required this.fatPerGram,
-    required this.carbsPerGram,
-    required this.fiberPerGram,
-    this.originalFoodId,
-    this.originalFoodSource,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['name'] = Variable<String>(name);
-    map['caloriesPerGram'] = Variable<double>(caloriesPerGram);
-    map['proteinPerGram'] = Variable<double>(proteinPerGram);
-    map['fatPerGram'] = Variable<double>(fatPerGram);
-    map['carbsPerGram'] = Variable<double>(carbsPerGram);
-    map['fiberPerGram'] = Variable<double>(fiberPerGram);
-    if (!nullToAbsent || originalFoodId != null) {
-      map['original_food_id'] = Variable<int>(originalFoodId);
-    }
-    if (!nullToAbsent || originalFoodSource != null) {
-      map['original_food_source'] = Variable<String>(originalFoodSource);
-    }
-    return map;
-  }
-
-  LoggedFoodsCompanion toCompanion(bool nullToAbsent) {
-    return LoggedFoodsCompanion(
-      id: Value(id),
-      name: Value(name),
-      caloriesPerGram: Value(caloriesPerGram),
-      proteinPerGram: Value(proteinPerGram),
-      fatPerGram: Value(fatPerGram),
-      carbsPerGram: Value(carbsPerGram),
-      fiberPerGram: Value(fiberPerGram),
-      originalFoodId: originalFoodId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(originalFoodId),
-      originalFoodSource: originalFoodSource == null && nullToAbsent
-          ? const Value.absent()
-          : Value(originalFoodSource),
-    );
-  }
-
-  factory LoggedFood.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return LoggedFood(
-      id: serializer.fromJson<int>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
-      caloriesPerGram: serializer.fromJson<double>(json['caloriesPerGram']),
-      proteinPerGram: serializer.fromJson<double>(json['proteinPerGram']),
-      fatPerGram: serializer.fromJson<double>(json['fatPerGram']),
-      carbsPerGram: serializer.fromJson<double>(json['carbsPerGram']),
-      fiberPerGram: serializer.fromJson<double>(json['fiberPerGram']),
-      originalFoodId: serializer.fromJson<int?>(json['originalFoodId']),
-      originalFoodSource: serializer.fromJson<String?>(
-        json['originalFoodSource'],
-      ),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'name': serializer.toJson<String>(name),
-      'caloriesPerGram': serializer.toJson<double>(caloriesPerGram),
-      'proteinPerGram': serializer.toJson<double>(proteinPerGram),
-      'fatPerGram': serializer.toJson<double>(fatPerGram),
-      'carbsPerGram': serializer.toJson<double>(carbsPerGram),
-      'fiberPerGram': serializer.toJson<double>(fiberPerGram),
-      'originalFoodId': serializer.toJson<int?>(originalFoodId),
-      'originalFoodSource': serializer.toJson<String?>(originalFoodSource),
-    };
-  }
-
-  LoggedFood copyWith({
-    int? id,
-    String? name,
-    double? caloriesPerGram,
-    double? proteinPerGram,
-    double? fatPerGram,
-    double? carbsPerGram,
-    double? fiberPerGram,
-    Value<int?> originalFoodId = const Value.absent(),
-    Value<String?> originalFoodSource = const Value.absent(),
-  }) => LoggedFood(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    caloriesPerGram: caloriesPerGram ?? this.caloriesPerGram,
-    proteinPerGram: proteinPerGram ?? this.proteinPerGram,
-    fatPerGram: fatPerGram ?? this.fatPerGram,
-    carbsPerGram: carbsPerGram ?? this.carbsPerGram,
-    fiberPerGram: fiberPerGram ?? this.fiberPerGram,
-    originalFoodId: originalFoodId.present
-        ? originalFoodId.value
-        : this.originalFoodId,
-    originalFoodSource: originalFoodSource.present
-        ? originalFoodSource.value
-        : this.originalFoodSource,
-  );
-  LoggedFood copyWithCompanion(LoggedFoodsCompanion data) {
-    return LoggedFood(
-      id: data.id.present ? data.id.value : this.id,
-      name: data.name.present ? data.name.value : this.name,
-      caloriesPerGram: data.caloriesPerGram.present
-          ? data.caloriesPerGram.value
-          : this.caloriesPerGram,
-      proteinPerGram: data.proteinPerGram.present
-          ? data.proteinPerGram.value
-          : this.proteinPerGram,
-      fatPerGram: data.fatPerGram.present
-          ? data.fatPerGram.value
-          : this.fatPerGram,
-      carbsPerGram: data.carbsPerGram.present
-          ? data.carbsPerGram.value
-          : this.carbsPerGram,
-      fiberPerGram: data.fiberPerGram.present
-          ? data.fiberPerGram.value
-          : this.fiberPerGram,
-      originalFoodId: data.originalFoodId.present
-          ? data.originalFoodId.value
-          : this.originalFoodId,
-      originalFoodSource: data.originalFoodSource.present
-          ? data.originalFoodSource.value
-          : this.originalFoodSource,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('LoggedFood(')
-          ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('caloriesPerGram: $caloriesPerGram, ')
-          ..write('proteinPerGram: $proteinPerGram, ')
-          ..write('fatPerGram: $fatPerGram, ')
-          ..write('carbsPerGram: $carbsPerGram, ')
-          ..write('fiberPerGram: $fiberPerGram, ')
-          ..write('originalFoodId: $originalFoodId, ')
-          ..write('originalFoodSource: $originalFoodSource')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    name,
-    caloriesPerGram,
-    proteinPerGram,
-    fatPerGram,
-    carbsPerGram,
-    fiberPerGram,
-    originalFoodId,
-    originalFoodSource,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is LoggedFood &&
-          other.id == this.id &&
-          other.name == this.name &&
-          other.caloriesPerGram == this.caloriesPerGram &&
-          other.proteinPerGram == this.proteinPerGram &&
-          other.fatPerGram == this.fatPerGram &&
-          other.carbsPerGram == this.carbsPerGram &&
-          other.fiberPerGram == this.fiberPerGram &&
-          other.originalFoodId == this.originalFoodId &&
-          other.originalFoodSource == this.originalFoodSource);
-}
-
-class LoggedFoodsCompanion extends UpdateCompanion<LoggedFood> {
-  final Value<int> id;
-  final Value<String> name;
-  final Value<double> caloriesPerGram;
-  final Value<double> proteinPerGram;
-  final Value<double> fatPerGram;
-  final Value<double> carbsPerGram;
-  final Value<double> fiberPerGram;
-  final Value<int?> originalFoodId;
-  final Value<String?> originalFoodSource;
-  const LoggedFoodsCompanion({
-    this.id = const Value.absent(),
-    this.name = const Value.absent(),
-    this.caloriesPerGram = const Value.absent(),
-    this.proteinPerGram = const Value.absent(),
-    this.fatPerGram = const Value.absent(),
-    this.carbsPerGram = const Value.absent(),
-    this.fiberPerGram = const Value.absent(),
-    this.originalFoodId = const Value.absent(),
-    this.originalFoodSource = const Value.absent(),
-  });
-  LoggedFoodsCompanion.insert({
-    this.id = const Value.absent(),
-    required String name,
-    required double caloriesPerGram,
-    required double proteinPerGram,
-    required double fatPerGram,
-    required double carbsPerGram,
-    required double fiberPerGram,
-    this.originalFoodId = const Value.absent(),
-    this.originalFoodSource = const Value.absent(),
-  }) : name = Value(name),
-       caloriesPerGram = Value(caloriesPerGram),
-       proteinPerGram = Value(proteinPerGram),
-       fatPerGram = Value(fatPerGram),
-       carbsPerGram = Value(carbsPerGram),
-       fiberPerGram = Value(fiberPerGram);
-  static Insertable<LoggedFood> custom({
-    Expression<int>? id,
-    Expression<String>? name,
-    Expression<double>? caloriesPerGram,
-    Expression<double>? proteinPerGram,
-    Expression<double>? fatPerGram,
-    Expression<double>? carbsPerGram,
-    Expression<double>? fiberPerGram,
-    Expression<int>? originalFoodId,
-    Expression<String>? originalFoodSource,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (name != null) 'name': name,
-      if (caloriesPerGram != null) 'caloriesPerGram': caloriesPerGram,
-      if (proteinPerGram != null) 'proteinPerGram': proteinPerGram,
-      if (fatPerGram != null) 'fatPerGram': fatPerGram,
-      if (carbsPerGram != null) 'carbsPerGram': carbsPerGram,
-      if (fiberPerGram != null) 'fiberPerGram': fiberPerGram,
-      if (originalFoodId != null) 'original_food_id': originalFoodId,
-      if (originalFoodSource != null)
-        'original_food_source': originalFoodSource,
-    });
-  }
-
-  LoggedFoodsCompanion copyWith({
-    Value<int>? id,
-    Value<String>? name,
-    Value<double>? caloriesPerGram,
-    Value<double>? proteinPerGram,
-    Value<double>? fatPerGram,
-    Value<double>? carbsPerGram,
-    Value<double>? fiberPerGram,
-    Value<int?>? originalFoodId,
-    Value<String?>? originalFoodSource,
-  }) {
-    return LoggedFoodsCompanion(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      caloriesPerGram: caloriesPerGram ?? this.caloriesPerGram,
-      proteinPerGram: proteinPerGram ?? this.proteinPerGram,
-      fatPerGram: fatPerGram ?? this.fatPerGram,
-      carbsPerGram: carbsPerGram ?? this.carbsPerGram,
-      fiberPerGram: fiberPerGram ?? this.fiberPerGram,
-      originalFoodId: originalFoodId ?? this.originalFoodId,
-      originalFoodSource: originalFoodSource ?? this.originalFoodSource,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (caloriesPerGram.present) {
-      map['caloriesPerGram'] = Variable<double>(caloriesPerGram.value);
-    }
-    if (proteinPerGram.present) {
-      map['proteinPerGram'] = Variable<double>(proteinPerGram.value);
-    }
-    if (fatPerGram.present) {
-      map['fatPerGram'] = Variable<double>(fatPerGram.value);
-    }
-    if (carbsPerGram.present) {
-      map['carbsPerGram'] = Variable<double>(carbsPerGram.value);
-    }
-    if (fiberPerGram.present) {
-      map['fiberPerGram'] = Variable<double>(fiberPerGram.value);
-    }
-    if (originalFoodId.present) {
-      map['original_food_id'] = Variable<int>(originalFoodId.value);
-    }
-    if (originalFoodSource.present) {
-      map['original_food_source'] = Variable<String>(originalFoodSource.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('LoggedFoodsCompanion(')
-          ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('caloriesPerGram: $caloriesPerGram, ')
-          ..write('proteinPerGram: $proteinPerGram, ')
-          ..write('fatPerGram: $fatPerGram, ')
-          ..write('carbsPerGram: $carbsPerGram, ')
-          ..write('fiberPerGram: $fiberPerGram, ')
-          ..write('originalFoodId: $originalFoodId, ')
-          ..write('originalFoodSource: $originalFoodSource')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $LoggedFoodServingsTable extends LoggedFoodServings
-    with TableInfo<$LoggedFoodServingsTable, LoggedFoodServing> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $LoggedFoodServingsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _loggedFoodIdMeta = const VerificationMeta(
-    'loggedFoodId',
-  );
-  @override
-  late final GeneratedColumn<int> loggedFoodId = GeneratedColumn<int>(
-    'loggedFoodId',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES logged_foods (id)',
-    ),
-  );
-  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
-  @override
-  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
-    'unitName',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _gramsMeta = const VerificationMeta('grams');
-  @override
-  late final GeneratedColumn<double> grams = GeneratedColumn<double>(
-    'gramsPerPortion',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _quantityMeta = const VerificationMeta(
-    'quantity',
-  );
-  @override
-  late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
-    'quantityPerPortion',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    loggedFoodId,
-    unit,
-    grams,
-    quantity,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'logged_food_servings';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<LoggedFoodServing> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('loggedFoodId')) {
-      context.handle(
-        _loggedFoodIdMeta,
-        loggedFoodId.isAcceptableOrUnknown(
-          data['loggedFoodId']!,
-          _loggedFoodIdMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_loggedFoodIdMeta);
-    }
-    if (data.containsKey('unitName')) {
-      context.handle(
-        _unitMeta,
-        unit.isAcceptableOrUnknown(data['unitName']!, _unitMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_unitMeta);
-    }
-    if (data.containsKey('gramsPerPortion')) {
-      context.handle(
-        _gramsMeta,
-        grams.isAcceptableOrUnknown(data['gramsPerPortion']!, _gramsMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_gramsMeta);
-    }
-    if (data.containsKey('quantityPerPortion')) {
-      context.handle(
-        _quantityMeta,
-        quantity.isAcceptableOrUnknown(
-          data['quantityPerPortion']!,
-          _quantityMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_quantityMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  LoggedFoodServing map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return LoggedFoodServing(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      loggedFoodId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}loggedFoodId'],
-      )!,
-      unit: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}unitName'],
-      )!,
-      grams: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}gramsPerPortion'],
-      )!,
-      quantity: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}quantityPerPortion'],
-      )!,
-    );
-  }
-
-  @override
-  $LoggedFoodServingsTable createAlias(String alias) {
-    return $LoggedFoodServingsTable(attachedDatabase, alias);
-  }
-}
-
-class LoggedFoodServing extends DataClass
-    implements Insertable<LoggedFoodServing> {
-  final int id;
-  final int loggedFoodId;
-  final String unit;
-  final double grams;
-  final double quantity;
-  const LoggedFoodServing({
-    required this.id,
-    required this.loggedFoodId,
-    required this.unit,
-    required this.grams,
-    required this.quantity,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['loggedFoodId'] = Variable<int>(loggedFoodId);
-    map['unitName'] = Variable<String>(unit);
-    map['gramsPerPortion'] = Variable<double>(grams);
-    map['quantityPerPortion'] = Variable<double>(quantity);
-    return map;
-  }
-
-  LoggedFoodServingsCompanion toCompanion(bool nullToAbsent) {
-    return LoggedFoodServingsCompanion(
-      id: Value(id),
-      loggedFoodId: Value(loggedFoodId),
-      unit: Value(unit),
-      grams: Value(grams),
-      quantity: Value(quantity),
-    );
-  }
-
-  factory LoggedFoodServing.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return LoggedFoodServing(
-      id: serializer.fromJson<int>(json['id']),
-      loggedFoodId: serializer.fromJson<int>(json['loggedFoodId']),
-      unit: serializer.fromJson<String>(json['unit']),
-      grams: serializer.fromJson<double>(json['grams']),
-      quantity: serializer.fromJson<double>(json['quantity']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'loggedFoodId': serializer.toJson<int>(loggedFoodId),
-      'unit': serializer.toJson<String>(unit),
-      'grams': serializer.toJson<double>(grams),
-      'quantity': serializer.toJson<double>(quantity),
-    };
-  }
-
-  LoggedFoodServing copyWith({
-    int? id,
-    int? loggedFoodId,
-    String? unit,
-    double? grams,
-    double? quantity,
-  }) => LoggedFoodServing(
-    id: id ?? this.id,
-    loggedFoodId: loggedFoodId ?? this.loggedFoodId,
-    unit: unit ?? this.unit,
-    grams: grams ?? this.grams,
-    quantity: quantity ?? this.quantity,
-  );
-  LoggedFoodServing copyWithCompanion(LoggedFoodServingsCompanion data) {
-    return LoggedFoodServing(
-      id: data.id.present ? data.id.value : this.id,
-      loggedFoodId: data.loggedFoodId.present
-          ? data.loggedFoodId.value
-          : this.loggedFoodId,
-      unit: data.unit.present ? data.unit.value : this.unit,
-      grams: data.grams.present ? data.grams.value : this.grams,
-      quantity: data.quantity.present ? data.quantity.value : this.quantity,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('LoggedFoodServing(')
-          ..write('id: $id, ')
-          ..write('loggedFoodId: $loggedFoodId, ')
-          ..write('unit: $unit, ')
-          ..write('grams: $grams, ')
-          ..write('quantity: $quantity')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, loggedFoodId, unit, grams, quantity);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is LoggedFoodServing &&
-          other.id == this.id &&
-          other.loggedFoodId == this.loggedFoodId &&
-          other.unit == this.unit &&
-          other.grams == this.grams &&
-          other.quantity == this.quantity);
-}
-
-class LoggedFoodServingsCompanion extends UpdateCompanion<LoggedFoodServing> {
-  final Value<int> id;
-  final Value<int> loggedFoodId;
-  final Value<String> unit;
-  final Value<double> grams;
-  final Value<double> quantity;
-  const LoggedFoodServingsCompanion({
-    this.id = const Value.absent(),
-    this.loggedFoodId = const Value.absent(),
-    this.unit = const Value.absent(),
-    this.grams = const Value.absent(),
-    this.quantity = const Value.absent(),
-  });
-  LoggedFoodServingsCompanion.insert({
-    this.id = const Value.absent(),
-    required int loggedFoodId,
-    required String unit,
-    required double grams,
-    required double quantity,
-  }) : loggedFoodId = Value(loggedFoodId),
-       unit = Value(unit),
-       grams = Value(grams),
-       quantity = Value(quantity);
-  static Insertable<LoggedFoodServing> custom({
-    Expression<int>? id,
-    Expression<int>? loggedFoodId,
-    Expression<String>? unit,
-    Expression<double>? grams,
-    Expression<double>? quantity,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (loggedFoodId != null) 'loggedFoodId': loggedFoodId,
-      if (unit != null) 'unitName': unit,
-      if (grams != null) 'gramsPerPortion': grams,
-      if (quantity != null) 'quantityPerPortion': quantity,
-    });
-  }
-
-  LoggedFoodServingsCompanion copyWith({
-    Value<int>? id,
-    Value<int>? loggedFoodId,
-    Value<String>? unit,
-    Value<double>? grams,
-    Value<double>? quantity,
-  }) {
-    return LoggedFoodServingsCompanion(
-      id: id ?? this.id,
-      loggedFoodId: loggedFoodId ?? this.loggedFoodId,
-      unit: unit ?? this.unit,
-      grams: grams ?? this.grams,
-      quantity: quantity ?? this.quantity,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (loggedFoodId.present) {
-      map['loggedFoodId'] = Variable<int>(loggedFoodId.value);
-    }
-    if (unit.present) {
-      map['unitName'] = Variable<String>(unit.value);
-    }
-    if (grams.present) {
-      map['gramsPerPortion'] = Variable<double>(grams.value);
-    }
-    if (quantity.present) {
-      map['quantityPerPortion'] = Variable<double>(quantity.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('LoggedFoodServingsCompanion(')
-          ..write('id: $id, ')
-          ..write('loggedFoodId: $loggedFoodId, ')
-          ..write('unit: $unit, ')
-          ..write('grams: $grams, ')
-          ..write('quantity: $quantity')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $LoggedPortionsTable extends LoggedPortions
     with TableInfo<$LoggedPortionsTable, LoggedPortion> {
   @override
@@ -3606,18 +2657,30 @@ class $LoggedPortionsTable extends LoggedPortions
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _loggedFoodIdMeta = const VerificationMeta(
-    'loggedFoodId',
-  );
+  static const VerificationMeta _foodIdMeta = const VerificationMeta('foodId');
   @override
-  late final GeneratedColumn<int> loggedFoodId = GeneratedColumn<int>(
+  late final GeneratedColumn<int> foodId = GeneratedColumn<int>(
     'loggedFoodId',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES logged_foods (id)',
+      'REFERENCES foods (id)',
+    ),
+  );
+  static const VerificationMeta _recipeIdMeta = const VerificationMeta(
+    'recipeId',
+  );
+  @override
+  late final GeneratedColumn<int> recipeId = GeneratedColumn<int>(
+    'recipeId',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES recipes (id)',
     ),
   );
   static const VerificationMeta _logTimestampMeta = const VerificationMeta(
@@ -3663,7 +2726,8 @@ class $LoggedPortionsTable extends LoggedPortions
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    loggedFoodId,
+    foodId,
+    recipeId,
     logTimestamp,
     grams,
     unit,
@@ -3686,14 +2750,15 @@ class $LoggedPortionsTable extends LoggedPortions
     }
     if (data.containsKey('loggedFoodId')) {
       context.handle(
-        _loggedFoodIdMeta,
-        loggedFoodId.isAcceptableOrUnknown(
-          data['loggedFoodId']!,
-          _loggedFoodIdMeta,
-        ),
+        _foodIdMeta,
+        foodId.isAcceptableOrUnknown(data['loggedFoodId']!, _foodIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_loggedFoodIdMeta);
+    }
+    if (data.containsKey('recipeId')) {
+      context.handle(
+        _recipeIdMeta,
+        recipeId.isAcceptableOrUnknown(data['recipeId']!, _recipeIdMeta),
+      );
     }
     if (data.containsKey('log_timestamp')) {
       context.handle(
@@ -3743,10 +2808,14 @@ class $LoggedPortionsTable extends LoggedPortions
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      loggedFoodId: attachedDatabase.typeMapping.read(
+      foodId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}loggedFoodId'],
-      )!,
+      ),
+      recipeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}recipeId'],
+      ),
       logTimestamp: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}log_timestamp'],
@@ -3774,14 +2843,16 @@ class $LoggedPortionsTable extends LoggedPortions
 
 class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
   final int id;
-  final int loggedFoodId;
+  final int? foodId;
+  final int? recipeId;
   final int logTimestamp;
   final double grams;
   final String unit;
   final double quantity;
   const LoggedPortion({
     required this.id,
-    required this.loggedFoodId,
+    this.foodId,
+    this.recipeId,
     required this.logTimestamp,
     required this.grams,
     required this.unit,
@@ -3791,7 +2862,12 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['loggedFoodId'] = Variable<int>(loggedFoodId);
+    if (!nullToAbsent || foodId != null) {
+      map['loggedFoodId'] = Variable<int>(foodId);
+    }
+    if (!nullToAbsent || recipeId != null) {
+      map['recipeId'] = Variable<int>(recipeId);
+    }
     map['log_timestamp'] = Variable<int>(logTimestamp);
     map['grams'] = Variable<double>(grams);
     map['unit'] = Variable<String>(unit);
@@ -3802,7 +2878,12 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
   LoggedPortionsCompanion toCompanion(bool nullToAbsent) {
     return LoggedPortionsCompanion(
       id: Value(id),
-      loggedFoodId: Value(loggedFoodId),
+      foodId: foodId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(foodId),
+      recipeId: recipeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recipeId),
       logTimestamp: Value(logTimestamp),
       grams: Value(grams),
       unit: Value(unit),
@@ -3817,7 +2898,8 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LoggedPortion(
       id: serializer.fromJson<int>(json['id']),
-      loggedFoodId: serializer.fromJson<int>(json['loggedFoodId']),
+      foodId: serializer.fromJson<int?>(json['foodId']),
+      recipeId: serializer.fromJson<int?>(json['recipeId']),
       logTimestamp: serializer.fromJson<int>(json['logTimestamp']),
       grams: serializer.fromJson<double>(json['grams']),
       unit: serializer.fromJson<String>(json['unit']),
@@ -3829,7 +2911,8 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'loggedFoodId': serializer.toJson<int>(loggedFoodId),
+      'foodId': serializer.toJson<int?>(foodId),
+      'recipeId': serializer.toJson<int?>(recipeId),
       'logTimestamp': serializer.toJson<int>(logTimestamp),
       'grams': serializer.toJson<double>(grams),
       'unit': serializer.toJson<String>(unit),
@@ -3839,14 +2922,16 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
 
   LoggedPortion copyWith({
     int? id,
-    int? loggedFoodId,
+    Value<int?> foodId = const Value.absent(),
+    Value<int?> recipeId = const Value.absent(),
     int? logTimestamp,
     double? grams,
     String? unit,
     double? quantity,
   }) => LoggedPortion(
     id: id ?? this.id,
-    loggedFoodId: loggedFoodId ?? this.loggedFoodId,
+    foodId: foodId.present ? foodId.value : this.foodId,
+    recipeId: recipeId.present ? recipeId.value : this.recipeId,
     logTimestamp: logTimestamp ?? this.logTimestamp,
     grams: grams ?? this.grams,
     unit: unit ?? this.unit,
@@ -3855,9 +2940,8 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
   LoggedPortion copyWithCompanion(LoggedPortionsCompanion data) {
     return LoggedPortion(
       id: data.id.present ? data.id.value : this.id,
-      loggedFoodId: data.loggedFoodId.present
-          ? data.loggedFoodId.value
-          : this.loggedFoodId,
+      foodId: data.foodId.present ? data.foodId.value : this.foodId,
+      recipeId: data.recipeId.present ? data.recipeId.value : this.recipeId,
       logTimestamp: data.logTimestamp.present
           ? data.logTimestamp.value
           : this.logTimestamp,
@@ -3871,7 +2955,8 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
   String toString() {
     return (StringBuffer('LoggedPortion(')
           ..write('id: $id, ')
-          ..write('loggedFoodId: $loggedFoodId, ')
+          ..write('foodId: $foodId, ')
+          ..write('recipeId: $recipeId, ')
           ..write('logTimestamp: $logTimestamp, ')
           ..write('grams: $grams, ')
           ..write('unit: $unit, ')
@@ -3882,13 +2967,14 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
 
   @override
   int get hashCode =>
-      Object.hash(id, loggedFoodId, logTimestamp, grams, unit, quantity);
+      Object.hash(id, foodId, recipeId, logTimestamp, grams, unit, quantity);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LoggedPortion &&
           other.id == this.id &&
-          other.loggedFoodId == this.loggedFoodId &&
+          other.foodId == this.foodId &&
+          other.recipeId == this.recipeId &&
           other.logTimestamp == this.logTimestamp &&
           other.grams == this.grams &&
           other.unit == this.unit &&
@@ -3897,14 +2983,16 @@ class LoggedPortion extends DataClass implements Insertable<LoggedPortion> {
 
 class LoggedPortionsCompanion extends UpdateCompanion<LoggedPortion> {
   final Value<int> id;
-  final Value<int> loggedFoodId;
+  final Value<int?> foodId;
+  final Value<int?> recipeId;
   final Value<int> logTimestamp;
   final Value<double> grams;
   final Value<String> unit;
   final Value<double> quantity;
   const LoggedPortionsCompanion({
     this.id = const Value.absent(),
-    this.loggedFoodId = const Value.absent(),
+    this.foodId = const Value.absent(),
+    this.recipeId = const Value.absent(),
     this.logTimestamp = const Value.absent(),
     this.grams = const Value.absent(),
     this.unit = const Value.absent(),
@@ -3912,19 +3000,20 @@ class LoggedPortionsCompanion extends UpdateCompanion<LoggedPortion> {
   });
   LoggedPortionsCompanion.insert({
     this.id = const Value.absent(),
-    required int loggedFoodId,
+    this.foodId = const Value.absent(),
+    this.recipeId = const Value.absent(),
     required int logTimestamp,
     required double grams,
     required String unit,
     required double quantity,
-  }) : loggedFoodId = Value(loggedFoodId),
-       logTimestamp = Value(logTimestamp),
+  }) : logTimestamp = Value(logTimestamp),
        grams = Value(grams),
        unit = Value(unit),
        quantity = Value(quantity);
   static Insertable<LoggedPortion> custom({
     Expression<int>? id,
-    Expression<int>? loggedFoodId,
+    Expression<int>? foodId,
+    Expression<int>? recipeId,
     Expression<int>? logTimestamp,
     Expression<double>? grams,
     Expression<String>? unit,
@@ -3932,7 +3021,8 @@ class LoggedPortionsCompanion extends UpdateCompanion<LoggedPortion> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (loggedFoodId != null) 'loggedFoodId': loggedFoodId,
+      if (foodId != null) 'loggedFoodId': foodId,
+      if (recipeId != null) 'recipeId': recipeId,
       if (logTimestamp != null) 'log_timestamp': logTimestamp,
       if (grams != null) 'grams': grams,
       if (unit != null) 'unit': unit,
@@ -3942,7 +3032,8 @@ class LoggedPortionsCompanion extends UpdateCompanion<LoggedPortion> {
 
   LoggedPortionsCompanion copyWith({
     Value<int>? id,
-    Value<int>? loggedFoodId,
+    Value<int?>? foodId,
+    Value<int?>? recipeId,
     Value<int>? logTimestamp,
     Value<double>? grams,
     Value<String>? unit,
@@ -3950,7 +3041,8 @@ class LoggedPortionsCompanion extends UpdateCompanion<LoggedPortion> {
   }) {
     return LoggedPortionsCompanion(
       id: id ?? this.id,
-      loggedFoodId: loggedFoodId ?? this.loggedFoodId,
+      foodId: foodId ?? this.foodId,
+      recipeId: recipeId ?? this.recipeId,
       logTimestamp: logTimestamp ?? this.logTimestamp,
       grams: grams ?? this.grams,
       unit: unit ?? this.unit,
@@ -3964,8 +3056,11 @@ class LoggedPortionsCompanion extends UpdateCompanion<LoggedPortion> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (loggedFoodId.present) {
-      map['loggedFoodId'] = Variable<int>(loggedFoodId.value);
+    if (foodId.present) {
+      map['loggedFoodId'] = Variable<int>(foodId.value);
+    }
+    if (recipeId.present) {
+      map['recipeId'] = Variable<int>(recipeId.value);
     }
     if (logTimestamp.present) {
       map['log_timestamp'] = Variable<int>(logTimestamp.value);
@@ -3986,7 +3081,8 @@ class LoggedPortionsCompanion extends UpdateCompanion<LoggedPortion> {
   String toString() {
     return (StringBuffer('LoggedPortionsCompanion(')
           ..write('id: $id, ')
-          ..write('loggedFoodId: $loggedFoodId, ')
+          ..write('foodId: $foodId, ')
+          ..write('recipeId: $recipeId, ')
           ..write('logTimestamp: $logTimestamp, ')
           ..write('grams: $grams, ')
           ..write('unit: $unit, ')
@@ -4006,9 +3102,6 @@ abstract class _$LiveDatabase extends GeneratedDatabase {
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $RecipeCategoryLinksTable recipeCategoryLinks =
       $RecipeCategoryLinksTable(this);
-  late final $LoggedFoodsTable loggedFoods = $LoggedFoodsTable(this);
-  late final $LoggedFoodServingsTable loggedFoodServings =
-      $LoggedFoodServingsTable(this);
   late final $LoggedPortionsTable loggedPortions = $LoggedPortionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -4021,8 +3114,6 @@ abstract class _$LiveDatabase extends GeneratedDatabase {
     recipeItems,
     categories,
     recipeCategoryLinks,
-    loggedFoods,
-    loggedFoodServings,
     loggedPortions,
   ];
 }
@@ -4118,6 +3209,24 @@ final class $$FoodsTableReferences
     ).filter((f) => f.ingredientFoodId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_recipeItemsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$LoggedPortionsTable, List<LoggedPortion>>
+  _loggedPortionsRefsTable(_$LiveDatabase db) => MultiTypedResultKey.fromTable(
+    db.loggedPortions,
+    aliasName: $_aliasNameGenerator(db.foods.id, db.loggedPortions.foodId),
+  );
+
+  $$LoggedPortionsTableProcessedTableManager get loggedPortionsRefs {
+    final manager = $$LoggedPortionsTableTableManager(
+      $_db,
+      $_db.loggedPortions,
+    ).filter((f) => f.foodId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_loggedPortionsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -4261,6 +3370,31 @@ class $$FoodsTableFilterComposer extends Composer<_$LiveDatabase, $FoodsTable> {
           }) => $$RecipeItemsTableFilterComposer(
             $db: $db,
             $table: $db.recipeItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> loggedPortionsRefs(
+    Expression<bool> Function($$LoggedPortionsTableFilterComposer f) f,
+  ) {
+    final $$LoggedPortionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.loggedPortions,
+      getReferencedColumn: (t) => t.foodId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LoggedPortionsTableFilterComposer(
+            $db: $db,
+            $table: $db.loggedPortions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4503,6 +3637,31 @@ class $$FoodsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> loggedPortionsRefs<T extends Object>(
+    Expression<T> Function($$LoggedPortionsTableAnnotationComposer a) f,
+  ) {
+    final $$LoggedPortionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.loggedPortions,
+      getReferencedColumn: (t) => t.foodId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LoggedPortionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.loggedPortions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$FoodsTableTableManager
@@ -4522,6 +3681,7 @@ class $$FoodsTableTableManager
             bool parentId,
             bool foodPortionsRefs,
             bool recipeItemsRefs,
+            bool loggedPortionsRefs,
           })
         > {
   $$FoodsTableTableManager(_$LiveDatabase db, $FoodsTable table)
@@ -4610,12 +3770,14 @@ class $$FoodsTableTableManager
                 parentId = false,
                 foodPortionsRefs = false,
                 recipeItemsRefs = false,
+                loggedPortionsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (foodPortionsRefs) db.foodPortions,
                     if (recipeItemsRefs) db.recipeItems,
+                    if (loggedPortionsRefs) db.loggedPortions,
                   ],
                   addJoins:
                       <
@@ -4693,6 +3855,27 @@ class $$FoodsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (loggedPortionsRefs)
+                        await $_getPrefetchedData<
+                          Food,
+                          $FoodsTable,
+                          LoggedPortion
+                        >(
+                          currentTable: table,
+                          referencedTable: $$FoodsTableReferences
+                              ._loggedPortionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$FoodsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).loggedPortionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.foodId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -4717,6 +3900,7 @@ typedef $$FoodsTableProcessedTableManager =
         bool parentId,
         bool foodPortionsRefs,
         bool recipeItemsRefs,
+        bool loggedPortionsRefs,
       })
     >;
 typedef $$FoodPortionsTableCreateCompanionBuilder =
@@ -5144,6 +4328,24 @@ final class $$RecipesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$LoggedPortionsTable, List<LoggedPortion>>
+  _loggedPortionsRefsTable(_$LiveDatabase db) => MultiTypedResultKey.fromTable(
+    db.loggedPortions,
+    aliasName: $_aliasNameGenerator(db.recipes.id, db.loggedPortions.recipeId),
+  );
+
+  $$LoggedPortionsTableProcessedTableManager get loggedPortionsRefs {
+    final manager = $$LoggedPortionsTableTableManager(
+      $_db,
+      $_db.loggedPortions,
+    ).filter((f) => f.recipeId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_loggedPortionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$RecipesTableFilterComposer
@@ -5289,6 +4491,31 @@ class $$RecipesTableFilterComposer
           }) => $$RecipeCategoryLinksTableFilterComposer(
             $db: $db,
             $table: $db.recipeCategoryLinks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> loggedPortionsRefs(
+    Expression<bool> Function($$LoggedPortionsTableFilterComposer f) f,
+  ) {
+    final $$LoggedPortionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.loggedPortions,
+      getReferencedColumn: (t) => t.recipeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LoggedPortionsTableFilterComposer(
+            $db: $db,
+            $table: $db.loggedPortions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -5521,6 +4748,31 @@ class $$RecipesTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> loggedPortionsRefs<T extends Object>(
+    Expression<T> Function($$LoggedPortionsTableAnnotationComposer a) f,
+  ) {
+    final $$LoggedPortionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.loggedPortions,
+      getReferencedColumn: (t) => t.recipeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LoggedPortionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.loggedPortions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$RecipesTableTableManager
@@ -5541,6 +4793,7 @@ class $$RecipesTableTableManager
             bool RecipeEntries,
             bool IngredientRecipes,
             bool recipeCategoryLinksRefs,
+            bool loggedPortionsRefs,
           })
         > {
   $$RecipesTableTableManager(_$LiveDatabase db, $RecipesTable table)
@@ -5616,6 +4869,7 @@ class $$RecipesTableTableManager
                 RecipeEntries = false,
                 IngredientRecipes = false,
                 recipeCategoryLinksRefs = false,
+                loggedPortionsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -5623,6 +4877,7 @@ class $$RecipesTableTableManager
                     if (RecipeEntries) db.recipeItems,
                     if (IngredientRecipes) db.recipeItems,
                     if (recipeCategoryLinksRefs) db.recipeCategoryLinks,
+                    if (loggedPortionsRefs) db.loggedPortions,
                   ],
                   addJoins:
                       <
@@ -5723,6 +4978,27 @@ class $$RecipesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (loggedPortionsRefs)
+                        await $_getPrefetchedData<
+                          Recipe,
+                          $RecipesTable,
+                          LoggedPortion
+                        >(
+                          currentTable: table,
+                          referencedTable: $$RecipesTableReferences
+                              ._loggedPortionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$RecipesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).loggedPortionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.recipeId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -5748,6 +5024,7 @@ typedef $$RecipesTableProcessedTableManager =
         bool RecipeEntries,
         bool IngredientRecipes,
         bool recipeCategoryLinksRefs,
+        bool loggedPortionsRefs,
       })
     >;
 typedef $$RecipeItemsTableCreateCompanionBuilder =
@@ -6887,838 +6164,11 @@ typedef $$RecipeCategoryLinksTableProcessedTableManager =
       RecipeCategoryLink,
       PrefetchHooks Function({bool recipeId, bool categoryId})
     >;
-typedef $$LoggedFoodsTableCreateCompanionBuilder =
-    LoggedFoodsCompanion Function({
-      Value<int> id,
-      required String name,
-      required double caloriesPerGram,
-      required double proteinPerGram,
-      required double fatPerGram,
-      required double carbsPerGram,
-      required double fiberPerGram,
-      Value<int?> originalFoodId,
-      Value<String?> originalFoodSource,
-    });
-typedef $$LoggedFoodsTableUpdateCompanionBuilder =
-    LoggedFoodsCompanion Function({
-      Value<int> id,
-      Value<String> name,
-      Value<double> caloriesPerGram,
-      Value<double> proteinPerGram,
-      Value<double> fatPerGram,
-      Value<double> carbsPerGram,
-      Value<double> fiberPerGram,
-      Value<int?> originalFoodId,
-      Value<String?> originalFoodSource,
-    });
-
-final class $$LoggedFoodsTableReferences
-    extends BaseReferences<_$LiveDatabase, $LoggedFoodsTable, LoggedFood> {
-  $$LoggedFoodsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$LoggedFoodServingsTable, List<LoggedFoodServing>>
-  _loggedFoodServingsRefsTable(_$LiveDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.loggedFoodServings,
-        aliasName: $_aliasNameGenerator(
-          db.loggedFoods.id,
-          db.loggedFoodServings.loggedFoodId,
-        ),
-      );
-
-  $$LoggedFoodServingsTableProcessedTableManager get loggedFoodServingsRefs {
-    final manager = $$LoggedFoodServingsTableTableManager(
-      $_db,
-      $_db.loggedFoodServings,
-    ).filter((f) => f.loggedFoodId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _loggedFoodServingsRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$LoggedPortionsTable, List<LoggedPortion>>
-  _loggedPortionsRefsTable(_$LiveDatabase db) => MultiTypedResultKey.fromTable(
-    db.loggedPortions,
-    aliasName: $_aliasNameGenerator(
-      db.loggedFoods.id,
-      db.loggedPortions.loggedFoodId,
-    ),
-  );
-
-  $$LoggedPortionsTableProcessedTableManager get loggedPortionsRefs {
-    final manager = $$LoggedPortionsTableTableManager(
-      $_db,
-      $_db.loggedPortions,
-    ).filter((f) => f.loggedFoodId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_loggedPortionsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$LoggedFoodsTableFilterComposer
-    extends Composer<_$LiveDatabase, $LoggedFoodsTable> {
-  $$LoggedFoodsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get caloriesPerGram => $composableBuilder(
-    column: $table.caloriesPerGram,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get proteinPerGram => $composableBuilder(
-    column: $table.proteinPerGram,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get fatPerGram => $composableBuilder(
-    column: $table.fatPerGram,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get carbsPerGram => $composableBuilder(
-    column: $table.carbsPerGram,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get fiberPerGram => $composableBuilder(
-    column: $table.fiberPerGram,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get originalFoodId => $composableBuilder(
-    column: $table.originalFoodId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get originalFoodSource => $composableBuilder(
-    column: $table.originalFoodSource,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  Expression<bool> loggedFoodServingsRefs(
-    Expression<bool> Function($$LoggedFoodServingsTableFilterComposer f) f,
-  ) {
-    final $$LoggedFoodServingsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.loggedFoodServings,
-      getReferencedColumn: (t) => t.loggedFoodId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedFoodServingsTableFilterComposer(
-            $db: $db,
-            $table: $db.loggedFoodServings,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> loggedPortionsRefs(
-    Expression<bool> Function($$LoggedPortionsTableFilterComposer f) f,
-  ) {
-    final $$LoggedPortionsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.loggedPortions,
-      getReferencedColumn: (t) => t.loggedFoodId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedPortionsTableFilterComposer(
-            $db: $db,
-            $table: $db.loggedPortions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$LoggedFoodsTableOrderingComposer
-    extends Composer<_$LiveDatabase, $LoggedFoodsTable> {
-  $$LoggedFoodsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get caloriesPerGram => $composableBuilder(
-    column: $table.caloriesPerGram,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get proteinPerGram => $composableBuilder(
-    column: $table.proteinPerGram,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get fatPerGram => $composableBuilder(
-    column: $table.fatPerGram,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get carbsPerGram => $composableBuilder(
-    column: $table.carbsPerGram,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get fiberPerGram => $composableBuilder(
-    column: $table.fiberPerGram,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get originalFoodId => $composableBuilder(
-    column: $table.originalFoodId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get originalFoodSource => $composableBuilder(
-    column: $table.originalFoodSource,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$LoggedFoodsTableAnnotationComposer
-    extends Composer<_$LiveDatabase, $LoggedFoodsTable> {
-  $$LoggedFoodsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<double> get caloriesPerGram => $composableBuilder(
-    column: $table.caloriesPerGram,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get proteinPerGram => $composableBuilder(
-    column: $table.proteinPerGram,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get fatPerGram => $composableBuilder(
-    column: $table.fatPerGram,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get carbsPerGram => $composableBuilder(
-    column: $table.carbsPerGram,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get fiberPerGram => $composableBuilder(
-    column: $table.fiberPerGram,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get originalFoodId => $composableBuilder(
-    column: $table.originalFoodId,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get originalFoodSource => $composableBuilder(
-    column: $table.originalFoodSource,
-    builder: (column) => column,
-  );
-
-  Expression<T> loggedFoodServingsRefs<T extends Object>(
-    Expression<T> Function($$LoggedFoodServingsTableAnnotationComposer a) f,
-  ) {
-    final $$LoggedFoodServingsTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.loggedFoodServings,
-          getReferencedColumn: (t) => t.loggedFoodId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$LoggedFoodServingsTableAnnotationComposer(
-                $db: $db,
-                $table: $db.loggedFoodServings,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
-
-  Expression<T> loggedPortionsRefs<T extends Object>(
-    Expression<T> Function($$LoggedPortionsTableAnnotationComposer a) f,
-  ) {
-    final $$LoggedPortionsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.loggedPortions,
-      getReferencedColumn: (t) => t.loggedFoodId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedPortionsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.loggedPortions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$LoggedFoodsTableTableManager
-    extends
-        RootTableManager<
-          _$LiveDatabase,
-          $LoggedFoodsTable,
-          LoggedFood,
-          $$LoggedFoodsTableFilterComposer,
-          $$LoggedFoodsTableOrderingComposer,
-          $$LoggedFoodsTableAnnotationComposer,
-          $$LoggedFoodsTableCreateCompanionBuilder,
-          $$LoggedFoodsTableUpdateCompanionBuilder,
-          (LoggedFood, $$LoggedFoodsTableReferences),
-          LoggedFood,
-          PrefetchHooks Function({
-            bool loggedFoodServingsRefs,
-            bool loggedPortionsRefs,
-          })
-        > {
-  $$LoggedFoodsTableTableManager(_$LiveDatabase db, $LoggedFoodsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$LoggedFoodsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$LoggedFoodsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$LoggedFoodsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<double> caloriesPerGram = const Value.absent(),
-                Value<double> proteinPerGram = const Value.absent(),
-                Value<double> fatPerGram = const Value.absent(),
-                Value<double> carbsPerGram = const Value.absent(),
-                Value<double> fiberPerGram = const Value.absent(),
-                Value<int?> originalFoodId = const Value.absent(),
-                Value<String?> originalFoodSource = const Value.absent(),
-              }) => LoggedFoodsCompanion(
-                id: id,
-                name: name,
-                caloriesPerGram: caloriesPerGram,
-                proteinPerGram: proteinPerGram,
-                fatPerGram: fatPerGram,
-                carbsPerGram: carbsPerGram,
-                fiberPerGram: fiberPerGram,
-                originalFoodId: originalFoodId,
-                originalFoodSource: originalFoodSource,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String name,
-                required double caloriesPerGram,
-                required double proteinPerGram,
-                required double fatPerGram,
-                required double carbsPerGram,
-                required double fiberPerGram,
-                Value<int?> originalFoodId = const Value.absent(),
-                Value<String?> originalFoodSource = const Value.absent(),
-              }) => LoggedFoodsCompanion.insert(
-                id: id,
-                name: name,
-                caloriesPerGram: caloriesPerGram,
-                proteinPerGram: proteinPerGram,
-                fatPerGram: fatPerGram,
-                carbsPerGram: carbsPerGram,
-                fiberPerGram: fiberPerGram,
-                originalFoodId: originalFoodId,
-                originalFoodSource: originalFoodSource,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$LoggedFoodsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({loggedFoodServingsRefs = false, loggedPortionsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (loggedFoodServingsRefs) db.loggedFoodServings,
-                    if (loggedPortionsRefs) db.loggedPortions,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (loggedFoodServingsRefs)
-                        await $_getPrefetchedData<
-                          LoggedFood,
-                          $LoggedFoodsTable,
-                          LoggedFoodServing
-                        >(
-                          currentTable: table,
-                          referencedTable: $$LoggedFoodsTableReferences
-                              ._loggedFoodServingsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$LoggedFoodsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).loggedFoodServingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.loggedFoodId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (loggedPortionsRefs)
-                        await $_getPrefetchedData<
-                          LoggedFood,
-                          $LoggedFoodsTable,
-                          LoggedPortion
-                        >(
-                          currentTable: table,
-                          referencedTable: $$LoggedFoodsTableReferences
-                              ._loggedPortionsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$LoggedFoodsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).loggedPortionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.loggedFoodId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$LoggedFoodsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$LiveDatabase,
-      $LoggedFoodsTable,
-      LoggedFood,
-      $$LoggedFoodsTableFilterComposer,
-      $$LoggedFoodsTableOrderingComposer,
-      $$LoggedFoodsTableAnnotationComposer,
-      $$LoggedFoodsTableCreateCompanionBuilder,
-      $$LoggedFoodsTableUpdateCompanionBuilder,
-      (LoggedFood, $$LoggedFoodsTableReferences),
-      LoggedFood,
-      PrefetchHooks Function({
-        bool loggedFoodServingsRefs,
-        bool loggedPortionsRefs,
-      })
-    >;
-typedef $$LoggedFoodServingsTableCreateCompanionBuilder =
-    LoggedFoodServingsCompanion Function({
-      Value<int> id,
-      required int loggedFoodId,
-      required String unit,
-      required double grams,
-      required double quantity,
-    });
-typedef $$LoggedFoodServingsTableUpdateCompanionBuilder =
-    LoggedFoodServingsCompanion Function({
-      Value<int> id,
-      Value<int> loggedFoodId,
-      Value<String> unit,
-      Value<double> grams,
-      Value<double> quantity,
-    });
-
-final class $$LoggedFoodServingsTableReferences
-    extends
-        BaseReferences<
-          _$LiveDatabase,
-          $LoggedFoodServingsTable,
-          LoggedFoodServing
-        > {
-  $$LoggedFoodServingsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $LoggedFoodsTable _loggedFoodIdTable(_$LiveDatabase db) =>
-      db.loggedFoods.createAlias(
-        $_aliasNameGenerator(
-          db.loggedFoodServings.loggedFoodId,
-          db.loggedFoods.id,
-        ),
-      );
-
-  $$LoggedFoodsTableProcessedTableManager get loggedFoodId {
-    final $_column = $_itemColumn<int>('loggedFoodId')!;
-
-    final manager = $$LoggedFoodsTableTableManager(
-      $_db,
-      $_db.loggedFoods,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_loggedFoodIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$LoggedFoodServingsTableFilterComposer
-    extends Composer<_$LiveDatabase, $LoggedFoodServingsTable> {
-  $$LoggedFoodServingsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get unit => $composableBuilder(
-    column: $table.unit,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get grams => $composableBuilder(
-    column: $table.grams,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get quantity => $composableBuilder(
-    column: $table.quantity,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$LoggedFoodsTableFilterComposer get loggedFoodId {
-    final $$LoggedFoodsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.loggedFoodId,
-      referencedTable: $db.loggedFoods,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedFoodsTableFilterComposer(
-            $db: $db,
-            $table: $db.loggedFoods,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$LoggedFoodServingsTableOrderingComposer
-    extends Composer<_$LiveDatabase, $LoggedFoodServingsTable> {
-  $$LoggedFoodServingsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get unit => $composableBuilder(
-    column: $table.unit,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get grams => $composableBuilder(
-    column: $table.grams,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get quantity => $composableBuilder(
-    column: $table.quantity,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$LoggedFoodsTableOrderingComposer get loggedFoodId {
-    final $$LoggedFoodsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.loggedFoodId,
-      referencedTable: $db.loggedFoods,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedFoodsTableOrderingComposer(
-            $db: $db,
-            $table: $db.loggedFoods,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$LoggedFoodServingsTableAnnotationComposer
-    extends Composer<_$LiveDatabase, $LoggedFoodServingsTable> {
-  $$LoggedFoodServingsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get unit =>
-      $composableBuilder(column: $table.unit, builder: (column) => column);
-
-  GeneratedColumn<double> get grams =>
-      $composableBuilder(column: $table.grams, builder: (column) => column);
-
-  GeneratedColumn<double> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
-
-  $$LoggedFoodsTableAnnotationComposer get loggedFoodId {
-    final $$LoggedFoodsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.loggedFoodId,
-      referencedTable: $db.loggedFoods,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedFoodsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.loggedFoods,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$LoggedFoodServingsTableTableManager
-    extends
-        RootTableManager<
-          _$LiveDatabase,
-          $LoggedFoodServingsTable,
-          LoggedFoodServing,
-          $$LoggedFoodServingsTableFilterComposer,
-          $$LoggedFoodServingsTableOrderingComposer,
-          $$LoggedFoodServingsTableAnnotationComposer,
-          $$LoggedFoodServingsTableCreateCompanionBuilder,
-          $$LoggedFoodServingsTableUpdateCompanionBuilder,
-          (LoggedFoodServing, $$LoggedFoodServingsTableReferences),
-          LoggedFoodServing,
-          PrefetchHooks Function({bool loggedFoodId})
-        > {
-  $$LoggedFoodServingsTableTableManager(
-    _$LiveDatabase db,
-    $LoggedFoodServingsTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$LoggedFoodServingsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$LoggedFoodServingsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$LoggedFoodServingsTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<int> loggedFoodId = const Value.absent(),
-                Value<String> unit = const Value.absent(),
-                Value<double> grams = const Value.absent(),
-                Value<double> quantity = const Value.absent(),
-              }) => LoggedFoodServingsCompanion(
-                id: id,
-                loggedFoodId: loggedFoodId,
-                unit: unit,
-                grams: grams,
-                quantity: quantity,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required int loggedFoodId,
-                required String unit,
-                required double grams,
-                required double quantity,
-              }) => LoggedFoodServingsCompanion.insert(
-                id: id,
-                loggedFoodId: loggedFoodId,
-                unit: unit,
-                grams: grams,
-                quantity: quantity,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$LoggedFoodServingsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({loggedFoodId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (loggedFoodId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.loggedFoodId,
-                                referencedTable:
-                                    $$LoggedFoodServingsTableReferences
-                                        ._loggedFoodIdTable(db),
-                                referencedColumn:
-                                    $$LoggedFoodServingsTableReferences
-                                        ._loggedFoodIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$LoggedFoodServingsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$LiveDatabase,
-      $LoggedFoodServingsTable,
-      LoggedFoodServing,
-      $$LoggedFoodServingsTableFilterComposer,
-      $$LoggedFoodServingsTableOrderingComposer,
-      $$LoggedFoodServingsTableAnnotationComposer,
-      $$LoggedFoodServingsTableCreateCompanionBuilder,
-      $$LoggedFoodServingsTableUpdateCompanionBuilder,
-      (LoggedFoodServing, $$LoggedFoodServingsTableReferences),
-      LoggedFoodServing,
-      PrefetchHooks Function({bool loggedFoodId})
-    >;
 typedef $$LoggedPortionsTableCreateCompanionBuilder =
     LoggedPortionsCompanion Function({
       Value<int> id,
-      required int loggedFoodId,
+      Value<int?> foodId,
+      Value<int?> recipeId,
       required int logTimestamp,
       required double grams,
       required String unit,
@@ -7727,7 +6177,8 @@ typedef $$LoggedPortionsTableCreateCompanionBuilder =
 typedef $$LoggedPortionsTableUpdateCompanionBuilder =
     LoggedPortionsCompanion Function({
       Value<int> id,
-      Value<int> loggedFoodId,
+      Value<int?> foodId,
+      Value<int?> recipeId,
       Value<int> logTimestamp,
       Value<double> grams,
       Value<String> unit,
@@ -7743,19 +6194,37 @@ final class $$LoggedPortionsTableReferences
     super.$_typedResult,
   );
 
-  static $LoggedFoodsTable _loggedFoodIdTable(_$LiveDatabase db) =>
-      db.loggedFoods.createAlias(
-        $_aliasNameGenerator(db.loggedPortions.loggedFoodId, db.loggedFoods.id),
+  static $FoodsTable _foodIdTable(_$LiveDatabase db) => db.foods.createAlias(
+    $_aliasNameGenerator(db.loggedPortions.foodId, db.foods.id),
+  );
+
+  $$FoodsTableProcessedTableManager? get foodId {
+    final $_column = $_itemColumn<int>('loggedFoodId');
+    if ($_column == null) return null;
+    final manager = $$FoodsTableTableManager(
+      $_db,
+      $_db.foods,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_foodIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $RecipesTable _recipeIdTable(_$LiveDatabase db) =>
+      db.recipes.createAlias(
+        $_aliasNameGenerator(db.loggedPortions.recipeId, db.recipes.id),
       );
 
-  $$LoggedFoodsTableProcessedTableManager get loggedFoodId {
-    final $_column = $_itemColumn<int>('loggedFoodId')!;
-
-    final manager = $$LoggedFoodsTableTableManager(
+  $$RecipesTableProcessedTableManager? get recipeId {
+    final $_column = $_itemColumn<int>('recipeId');
+    if ($_column == null) return null;
+    final manager = $$RecipesTableTableManager(
       $_db,
-      $_db.loggedFoods,
+      $_db.recipes,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_loggedFoodIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_recipeIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -7797,20 +6266,43 @@ class $$LoggedPortionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$LoggedFoodsTableFilterComposer get loggedFoodId {
-    final $$LoggedFoodsTableFilterComposer composer = $composerBuilder(
+  $$FoodsTableFilterComposer get foodId {
+    final $$FoodsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.loggedFoodId,
-      referencedTable: $db.loggedFoods,
+      getCurrentColumn: (t) => t.foodId,
+      referencedTable: $db.foods,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedFoodsTableFilterComposer(
+          }) => $$FoodsTableFilterComposer(
             $db: $db,
-            $table: $db.loggedFoods,
+            $table: $db.foods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$RecipesTableFilterComposer get recipeId {
+    final $$RecipesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.recipeId,
+      referencedTable: $db.recipes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RecipesTableFilterComposer(
+            $db: $db,
+            $table: $db.recipes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7855,20 +6347,43 @@ class $$LoggedPortionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$LoggedFoodsTableOrderingComposer get loggedFoodId {
-    final $$LoggedFoodsTableOrderingComposer composer = $composerBuilder(
+  $$FoodsTableOrderingComposer get foodId {
+    final $$FoodsTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.loggedFoodId,
-      referencedTable: $db.loggedFoods,
+      getCurrentColumn: (t) => t.foodId,
+      referencedTable: $db.foods,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedFoodsTableOrderingComposer(
+          }) => $$FoodsTableOrderingComposer(
             $db: $db,
-            $table: $db.loggedFoods,
+            $table: $db.foods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$RecipesTableOrderingComposer get recipeId {
+    final $$RecipesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.recipeId,
+      referencedTable: $db.recipes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RecipesTableOrderingComposer(
+            $db: $db,
+            $table: $db.recipes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7905,20 +6420,43 @@ class $$LoggedPortionsTableAnnotationComposer
   GeneratedColumn<double> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
 
-  $$LoggedFoodsTableAnnotationComposer get loggedFoodId {
-    final $$LoggedFoodsTableAnnotationComposer composer = $composerBuilder(
+  $$FoodsTableAnnotationComposer get foodId {
+    final $$FoodsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.loggedFoodId,
-      referencedTable: $db.loggedFoods,
+      getCurrentColumn: (t) => t.foodId,
+      referencedTable: $db.foods,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$LoggedFoodsTableAnnotationComposer(
+          }) => $$FoodsTableAnnotationComposer(
             $db: $db,
-            $table: $db.loggedFoods,
+            $table: $db.foods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$RecipesTableAnnotationComposer get recipeId {
+    final $$RecipesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.recipeId,
+      referencedTable: $db.recipes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RecipesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.recipes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7942,7 +6480,7 @@ class $$LoggedPortionsTableTableManager
           $$LoggedPortionsTableUpdateCompanionBuilder,
           (LoggedPortion, $$LoggedPortionsTableReferences),
           LoggedPortion,
-          PrefetchHooks Function({bool loggedFoodId})
+          PrefetchHooks Function({bool foodId, bool recipeId})
         > {
   $$LoggedPortionsTableTableManager(
     _$LiveDatabase db,
@@ -7960,14 +6498,16 @@ class $$LoggedPortionsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> loggedFoodId = const Value.absent(),
+                Value<int?> foodId = const Value.absent(),
+                Value<int?> recipeId = const Value.absent(),
                 Value<int> logTimestamp = const Value.absent(),
                 Value<double> grams = const Value.absent(),
                 Value<String> unit = const Value.absent(),
                 Value<double> quantity = const Value.absent(),
               }) => LoggedPortionsCompanion(
                 id: id,
-                loggedFoodId: loggedFoodId,
+                foodId: foodId,
+                recipeId: recipeId,
                 logTimestamp: logTimestamp,
                 grams: grams,
                 unit: unit,
@@ -7976,14 +6516,16 @@ class $$LoggedPortionsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int loggedFoodId,
+                Value<int?> foodId = const Value.absent(),
+                Value<int?> recipeId = const Value.absent(),
                 required int logTimestamp,
                 required double grams,
                 required String unit,
                 required double quantity,
               }) => LoggedPortionsCompanion.insert(
                 id: id,
-                loggedFoodId: loggedFoodId,
+                foodId: foodId,
+                recipeId: recipeId,
                 logTimestamp: logTimestamp,
                 grams: grams,
                 unit: unit,
@@ -7997,7 +6539,7 @@ class $$LoggedPortionsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({loggedFoodId = false}) {
+          prefetchHooksCallback: ({foodId = false, recipeId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -8017,16 +6559,30 @@ class $$LoggedPortionsTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (loggedFoodId) {
+                    if (foodId) {
                       state =
                           state.withJoin(
                                 currentTable: table,
-                                currentColumn: table.loggedFoodId,
+                                currentColumn: table.foodId,
                                 referencedTable: $$LoggedPortionsTableReferences
-                                    ._loggedFoodIdTable(db),
+                                    ._foodIdTable(db),
                                 referencedColumn:
                                     $$LoggedPortionsTableReferences
-                                        ._loggedFoodIdTable(db)
+                                        ._foodIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (recipeId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.recipeId,
+                                referencedTable: $$LoggedPortionsTableReferences
+                                    ._recipeIdTable(db),
+                                referencedColumn:
+                                    $$LoggedPortionsTableReferences
+                                        ._recipeIdTable(db)
                                         .id,
                               )
                               as T;
@@ -8055,7 +6611,7 @@ typedef $$LoggedPortionsTableProcessedTableManager =
       $$LoggedPortionsTableUpdateCompanionBuilder,
       (LoggedPortion, $$LoggedPortionsTableReferences),
       LoggedPortion,
-      PrefetchHooks Function({bool loggedFoodId})
+      PrefetchHooks Function({bool foodId, bool recipeId})
     >;
 
 class $LiveDatabaseManager {
@@ -8073,10 +6629,6 @@ class $LiveDatabaseManager {
       $$CategoriesTableTableManager(_db, _db.categories);
   $$RecipeCategoryLinksTableTableManager get recipeCategoryLinks =>
       $$RecipeCategoryLinksTableTableManager(_db, _db.recipeCategoryLinks);
-  $$LoggedFoodsTableTableManager get loggedFoods =>
-      $$LoggedFoodsTableTableManager(_db, _db.loggedFoods);
-  $$LoggedFoodServingsTableTableManager get loggedFoodServings =>
-      $$LoggedFoodServingsTableTableManager(_db, _db.loggedFoodServings);
   $$LoggedPortionsTableTableManager get loggedPortions =>
       $$LoggedPortionsTableTableManager(_db, _db.loggedPortions);
 }

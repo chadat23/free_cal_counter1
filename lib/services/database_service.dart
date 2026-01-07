@@ -88,17 +88,26 @@ class DatabaseService {
     if (query.isEmpty) return [];
     final lowerCaseQuery = '%${query.toLowerCase()}%';
 
+    // 1. Search Live DB
     final liveFoodsData =
         await (_liveDb.select(_liveDb.foods)
               ..where((f) => f.name.lower().like(lowerCaseQuery))
               ..where((f) => f.hidden.equals(false)))
             .get();
 
+    // 2. Search Reference DB
     final refFoodsData = await (_referenceDb.select(
       _referenceDb.foods,
     )..where((f) => f.name.lower().like(lowerCaseQuery))).get();
 
-    // Filtering: Hide parents if they have a child in the live DB
+    // 3. Filter Logic
+    // Collect all sourceFdcIds from Live results to filter out References
+    final liveSourceIds = liveFoodsData
+        .map((f) => f.sourceFdcId)
+        .whereType<int>()
+        .toSet();
+
+    // Collect all parentIds to filter out superseded versions
     final parentIdRows =
         await (_liveDb.selectOnly(_liveDb.foods)
               ..addColumns([_liveDb.foods.parentId])
@@ -109,23 +118,26 @@ class DatabaseService {
         .whereType<int>()
         .toSet();
 
-    final List<model.Food> liveFoods = [];
+    final List<model.Food> results = [];
+
+    // Add Live Foods (skipping superseded ones)
     for (final foodData in liveFoodsData) {
       if (!parentIds.contains(foodData.id)) {
         final servings = await getServingsForFood(foodData.id, foodData.source);
-        liveFoods.add(_mapFoodData(foodData, servings));
+        results.add(_mapFoodData(foodData, servings));
       }
     }
 
-    final List<model.Food> refFoods = [];
+    // Add Reference Foods (skipping those that have a Live copy)
     for (final foodData in refFoodsData) {
-      if (!parentIds.contains(foodData.id)) {
+      if (!liveSourceIds.contains(foodData.id)) {
+        // Also skip if it is somehow superseded? (Not applicable for ref db usually)
         final servings = await getServingsForFood(foodData.id, foodData.source);
-        refFoods.add(_mapFoodData(foodData, servings));
+        results.add(_mapFoodData(foodData, servings));
       }
     }
 
-    return [...liveFoods, ...refFoods];
+    return results;
   }
 
   Future<List<model_serving.FoodServing>> getServingsForFood(
@@ -171,18 +183,24 @@ class DatabaseService {
   }
 
   Future<String?> getLastLoggedUnit(int originalFoodId) async {
-    // We need to find the last LoggedPortion associated with a LoggedFood
-    // that corresponds to the given originalFoodId.
+    // Find the last log for this food OR its reference parent
+    // Logic: Look for logs with foodId == originalFoodId OR (food.sourceFdcId == originalFoodId)
+
+    // Since simpler queries with OR across joins can be tricky in Drift without custom expressions,
+    // we can do two queries or one complex join.
+    // Let's do a join on Foods.
+
     final query =
         _liveDb.select(_liveDb.loggedPortions).join([
             innerJoin(
-              _liveDb.loggedFoods,
-              _liveDb.loggedFoods.id.equalsExp(
-                _liveDb.loggedPortions.loggedFoodId,
-              ),
+              _liveDb.foods,
+              _liveDb.foods.id.equalsExp(_liveDb.loggedPortions.foodId),
             ),
           ])
-          ..where(_liveDb.loggedFoods.originalFoodId.equals(originalFoodId))
+          ..where(
+            _liveDb.loggedPortions.foodId.equals(originalFoodId) |
+                _liveDb.foods.sourceFdcId.equals(originalFoodId),
+          )
           ..orderBy([
             OrderingTerm(
               expression: _liveDb.loggedPortions.logTimestamp,
@@ -192,9 +210,10 @@ class DatabaseService {
           ..limit(1);
 
     final row = await query.getSingleOrNull();
-    if (row == null) return null;
-
-    return row.readTable(_liveDb.loggedPortions).unit;
+    if (row != null) {
+      return row.readTable(_liveDb.loggedPortions).unit;
+    }
+    return null;
   }
 
   Future<model.Food?> getFoodByBarcode(String barcode) async {
@@ -220,54 +239,40 @@ class DatabaseService {
     await _liveDb.transaction(() async {
       for (final portion in portions) {
         final food = portion.food;
+        int? foodId;
+        int? recipeId;
+        // Calculate quantity if needed, currently placeholder to grams as per spec
 
-        // Check if an identical food already exists in LoggedFoods
-        final existingLoggedFood =
-            await (_liveDb.select(_liveDb.loggedFoods)
-                  ..where((t) => t.name.equals(food.name))
-                  ..where((t) => t.caloriesPerGram.equals(food.calories))
-                  ..where((t) => t.proteinPerGram.equals(food.protein))
-                  ..where((t) => t.fatPerGram.equals(food.fat))
-                  ..where((t) => t.carbsPerGram.equals(food.carbs))
-                  ..where((t) => t.fiberPerGram.equals(food.fiber))
-                  ..where((t) => t.originalFoodId.equals(food.id))
-                  ..where((t) => t.originalFoodSource.equals(food.source)))
-                .getSingleOrNull();
+        // Find the serving definition to calculate quantity
+        if (portion.unit != 'g') {
+          // We might need to find the serving.
+          // For now, let's assume portion.grams is correct total weight.
+          // If unit is 'slice', and 1 slice is 30g, and we have 60g, quantity is 2.
+          // Converting back might be inexact without serving info.
+          // User's previous code just put portion.grams into quantity?
+          // Line 283: quantity: portion.grams, // Placeholder
+          // So I will stick to that behavior for now or try to improve?
+          // The comment said "// Placeholder".
+          // I'll keep it as placeholder to be safe.
+        }
 
-        int loggedFoodId;
-
-        if (existingLoggedFood != null) {
-          loggedFoodId = existingLoggedFood.id;
+        if (food.source == 'recipe') {
+          recipeId = food.id;
+        } else if (food.source == 'live') {
+          foodId = food.id;
         } else {
-          // Create new snapshot
-          final newLoggedFood = await _liveDb
-              .into(_liveDb.loggedFoods)
-              .insertReturning(
-                LoggedFoodsCompanion.insert(
-                  name: food.name,
-                  caloriesPerGram: food.calories,
-                  proteinPerGram: food.protein,
-                  fatPerGram: food.fat,
-                  carbsPerGram: food.carbs,
-                  fiberPerGram: food.fiber,
-                  originalFoodId: Value(food.id),
-                  originalFoodSource: Value(food.source),
-                ),
-              );
-          loggedFoodId = newLoggedFood.id;
+          // Reference or Foundation
+          // Check if we already have a live copy
+          final existing = await (_liveDb.select(
+            _liveDb.foods,
+          )..where((f) => f.sourceFdcId.equals(food.id))).getSingleOrNull();
 
-          // Save servings for this snapshot
-          for (final serving in food.servings) {
-            await _liveDb
-                .into(_liveDb.loggedFoodServings)
-                .insert(
-                  LoggedFoodServingsCompanion.insert(
-                    loggedFoodId: loggedFoodId,
-                    unit: serving.unit,
-                    grams: serving.grams,
-                    quantity: serving.quantity,
-                  ),
-                );
+          if (existing != null) {
+            foodId = existing.id;
+          } else {
+            // Copy to live
+            final newFood = await copyFoodToLiveDb(food, isCopy: false);
+            foodId = newFood.id;
           }
         }
 
@@ -276,11 +281,13 @@ class DatabaseService {
             .into(_liveDb.loggedPortions)
             .insert(
               LoggedPortionsCompanion.insert(
-                loggedFoodId: loggedFoodId,
+                foodId: Value(foodId),
+                recipeId: Value(recipeId),
                 logTimestamp: timestamp,
                 grams: portion.grams,
                 unit: portion.unit,
-                quantity: portion.grams, // Placeholder
+                quantity:
+                    portion.grams, // Placeholder as per previous implementation
               ),
             );
       }
@@ -290,13 +297,9 @@ class DatabaseService {
   }
 
   Future<bool> isRecipeLogged(int recipeId) async {
-    final rows =
-        await (_liveDb.select(_liveDb.loggedFoods)..where(
-              (t) =>
-                  t.originalFoodId.equals(recipeId) &
-                  t.originalFoodSource.equals('recipe'),
-            ))
-            .get();
+    final rows = await (_liveDb.select(
+      _liveDb.loggedPortions,
+    )..where((t) => t.recipeId.equals(recipeId))).get();
     return rows.isNotEmpty;
   }
 
@@ -330,90 +333,153 @@ class DatabaseService {
       999,
     ).millisecondsSinceEpoch;
 
-    final query =
-        _liveDb.select(_liveDb.loggedPortions).join([
-          innerJoin(
-            _liveDb.loggedFoods,
-            _liveDb.loggedFoods.id.equalsExp(
-              _liveDb.loggedPortions.loggedFoodId,
-            ),
-          ),
-        ])..where(
-          _liveDb.loggedPortions.logTimestamp.isBetweenValues(
-            startOfDay,
-            endOfDay,
-          ),
-        );
+    // We invoke the join manually or fetch lazily?
+    // Manual left join to both Foods and Recipes is cleanest.
 
-    final rows = await query.get();
+    final query = _liveDb.select(_liveDb.loggedPortions)
+      ..where((p) => p.logTimestamp.isBetweenValues(startOfDay, endOfDay));
 
+    final loggedRows = await query.get();
     final results = <model.LoggedPortion>[];
 
-    for (final row in rows) {
-      final loggedFoodData = row.readTable(_liveDb.loggedFoods);
-      final loggedPortionData = row.readTable(_liveDb.loggedPortions);
+    // Bulk fetch helpers to avoid N+1 queries would be better, but simpler logic first.
+    for (final row in loggedRows) {
+      model.Food? food;
 
-      // Fetch servings for this logged food
-      final servingsData = await (_liveDb.select(
-        _liveDb.loggedFoodServings,
-      )..where((t) => t.loggedFoodId.equals(loggedFoodData.id))).get();
+      if (row.foodId != null) {
+        food = await getFoodById(row.foodId!, 'live');
+        // Also need to set the source to 'logged' for UI?
+        // Previous code: source: 'logged'.
+        // But now it IS 'live'.
+        // Wait, previous code created a fake food object from LoggedFood snapshot.
+        // Now we have the REAL food object.
+        // We should probably keep it as 'live' (or whatever getFoodById returns)
+        // but maybe wrap it if we need specific UI behavior?
+        // No, 'live' is correct.
+      } else if (row.recipeId != null) {
+        final recipe = await getRecipeById(row.recipeId!);
+        food = recipe.toFood();
+        // Use toFood() to adapt Recipe to FoodPortion model expectations
+      }
 
-      final servings = servingsData
-          .map(
-            (s) => model_serving.FoodServing(
-              id: s.id,
-              foodId: loggedFoodData
-                  .id, // This is the ID in LoggedFoods, not original
-              unit: s.unit,
-              grams: s.grams,
-              quantity: s.quantity,
+      if (food != null) {
+        results.add(
+          model.LoggedPortion(
+            id: row.id,
+            portion: model.FoodPortion(
+              food: food,
+              grams: row.grams,
+              unit: row.unit,
             ),
-          )
-          .toList();
-
-      final food = model.Food(
-        id: loggedFoodData.id, // Using LoggedFood ID as the food ID for the UI
-        source: 'logged',
-        name: loggedFoodData.name,
-        calories: loggedFoodData.caloriesPerGram,
-        protein: loggedFoodData.proteinPerGram,
-        fat: loggedFoodData.fatPerGram,
-        carbs: loggedFoodData.carbsPerGram,
-        fiber: loggedFoodData.fiberPerGram,
-        servings: servings,
-      );
-
-      results.add(
-        model.LoggedPortion(
-          id: loggedPortionData.id,
-          portion: model.FoodPortion(
-            food: food,
-            grams: loggedPortionData.grams,
-            unit: loggedPortionData.unit,
+            timestamp: DateTime.fromMillisecondsSinceEpoch(row.logTimestamp),
           ),
-          timestamp: DateTime.fromMillisecondsSinceEpoch(
-            loggedPortionData.logTimestamp,
-          ),
-        ),
-      );
+        );
+      }
     }
-
     return results;
   }
 
   Future<model.Food> saveFood(model.Food food) async {
-    final companion = FoodsCompanion.insert(
-      name: food.name,
-      source: food.id == 0 ? 'off_cache' : 'user_created',
-      caloriesPerGram: food.calories,
-      proteinPerGram: food.protein,
-      fatPerGram: food.fat,
-      carbsPerGram: food.carbs,
-      fiberPerGram: food.fiber,
-      sourceFdcId: Value(food.id == 0 ? null : food.id),
-    );
-    final newFoodData = await _liveDb.into(_liveDb.foods).insert(companion);
-    return _mapFoodData(newFoodData, []);
+    // Check if food is used (logged or in recipe)
+    bool isUsed = false;
+    if (food.id > 0) {
+      // Only check if it's an existing live food
+      isUsed = await isFoodReferenced(food.id, 'live');
+    }
+
+    if (isUsed) {
+      // VERSIONING: Create new record, supersede old one
+      return await _liveDb.transaction(() async {
+        // 1. Insert new food pointing to old one as parent
+        final newFoodId = await _liveDb
+            .into(_liveDb.foods)
+            .insert(
+              FoodsCompanion.insert(
+                name: food.name,
+                source: 'live',
+                caloriesPerGram: food.calories,
+                proteinPerGram: food.protein,
+                fatPerGram: food.fat,
+                carbsPerGram: food.carbs,
+                fiberPerGram: food.fiber,
+                parentId: Value(food.id), // Point to OLD ID
+                sourceFdcId: Value(food.sourceFdcId),
+                // Copy other fields...
+              ),
+            );
+
+        // 2. Copy portions
+        // (Assume portions are passed in food object or need to fetch?)
+        // The food object passed in contains the NEW state (including portions).
+        for (final serving in food.servings) {
+          await _liveDb
+              .into(_liveDb.foodPortions)
+              .insert(
+                FoodPortionsCompanion.insert(
+                  foodId: newFoodId,
+                  unit: serving.unit,
+                  grams: serving.grams,
+                  quantity: serving.quantity,
+                ),
+              );
+        }
+
+        // 3. Update OLD food? No, old food stays as is (history).
+        // But we might want to mark it as superseded if we had a status column?
+        // Hierarchy is implicit via parentId on new child.
+        // Search filters out if ID is present in parentId column of ANY other row.
+
+        final servings = await getServingsForFood(newFoodId, 'live');
+        final newFoodRow = await (_liveDb.select(
+          _liveDb.foods,
+        )..where((t) => t.id.equals(newFoodId))).getSingle();
+        return _mapFoodData(newFoodRow, servings);
+      });
+    } else {
+      // UPDATE IN PLACE or INSERT
+      if (food.id > 0 && food.source == 'live') {
+        // Update
+        await (_liveDb.update(
+          _liveDb.foods,
+        )..where((t) => t.id.equals(food.id))).write(
+          FoodsCompanion(
+            name: Value(food.name),
+            caloriesPerGram: Value(food.calories),
+            proteinPerGram: Value(food.protein),
+            fatPerGram: Value(food.fat),
+            carbsPerGram: Value(food.carbs),
+            fiberPerGram: Value(food.fiber),
+            sourceFdcId: Value(food.sourceFdcId),
+          ),
+        );
+
+        // Update portions: Delete all and re-insert
+        await (_liveDb.delete(
+          _liveDb.foodPortions,
+        )..where((t) => t.foodId.equals(food.id))).go();
+        for (final serving in food.servings) {
+          await _liveDb
+              .into(_liveDb.foodPortions)
+              .insert(
+                FoodPortionsCompanion.insert(
+                  foodId: food.id,
+                  unit: serving.unit,
+                  grams: serving.grams,
+                  quantity: serving.quantity,
+                ),
+              );
+        }
+
+        final servings = await getServingsForFood(food.id, 'live');
+        final updatedRow = await (_liveDb.select(
+          _liveDb.foods,
+        )..where((t) => t.id.equals(food.id))).getSingle();
+        return _mapFoodData(updatedRow, servings);
+      } else {
+        // Insert New
+        return await copyFoodToLiveDb(food, isCopy: false);
+      }
+    }
   }
 
   Future<void> deleteLoggedPortion(int id) async {
@@ -440,71 +506,40 @@ class DatabaseService {
     int loggedPortionId,
     model.FoodPortion newPortion,
   ) async {
-    await _liveDb.transaction(() async {
-      final food = newPortion.food;
+    final food = newPortion.food;
+    int? foodId;
+    int? recipeId;
 
-      // Check if an identical food already exists in LoggedFoods
-      final existingLoggedFood =
-          await (_liveDb.select(_liveDb.loggedFoods)
-                ..where((t) => t.name.equals(food.name))
-                ..where((t) => t.caloriesPerGram.equals(food.calories))
-                ..where((t) => t.proteinPerGram.equals(food.protein))
-                ..where((t) => t.fatPerGram.equals(food.fat))
-                ..where((t) => t.carbsPerGram.equals(food.carbs))
-                ..where((t) => t.fiberPerGram.equals(food.fiber))
-                ..where((t) => t.originalFoodId.equals(food.id))
-                ..where((t) => t.originalFoodSource.equals(food.source)))
-              .getSingleOrNull();
-
-      int loggedFoodId;
-
-      if (existingLoggedFood != null) {
-        loggedFoodId = existingLoggedFood.id;
+    if (food.source == 'recipe') {
+      recipeId = food.id;
+    } else if (food.source == 'live') {
+      foodId = food.id;
+    } else {
+      // Should not typically happen during UPDATE unless we switch foods?
+      // But logic is safe to replicate:
+      final existing = await (_liveDb.select(
+        _liveDb.foods,
+      )..where((f) => f.sourceFdcId.equals(food.id))).getSingleOrNull();
+      if (existing != null) {
+        foodId = existing.id;
       } else {
-        // Create new snapshot
-        final newLoggedFood = await _liveDb
-            .into(_liveDb.loggedFoods)
-            .insertReturning(
-              LoggedFoodsCompanion.insert(
-                name: food.name,
-                caloriesPerGram: food.calories,
-                proteinPerGram: food.protein,
-                fatPerGram: food.fat,
-                carbsPerGram: food.carbs,
-                fiberPerGram: food.fiber,
-                originalFoodId: Value(food.id),
-                originalFoodSource: Value(food.source),
-              ),
-            );
-        loggedFoodId = newLoggedFood.id;
-
-        // Save servings for this snapshot
-        for (final serving in food.servings) {
-          await _liveDb
-              .into(_liveDb.loggedFoodServings)
-              .insert(
-                LoggedFoodServingsCompanion.insert(
-                  loggedFoodId: loggedFoodId,
-                  unit: serving.unit,
-                  grams: serving.grams,
-                  quantity: serving.quantity,
-                ),
-              );
-        }
+        final newFood = await copyFoodToLiveDb(food);
+        foodId = newFood.id;
       }
+    }
 
-      // Update the log entry
-      await (_liveDb.update(
-        _liveDb.loggedPortions,
-      )..where((t) => t.id.equals(loggedPortionId))).write(
-        LoggedPortionsCompanion(
-          loggedFoodId: Value(loggedFoodId),
-          grams: Value(newPortion.grams),
-          unit: Value(newPortion.unit),
-          quantity: Value(newPortion.grams),
-        ),
-      );
-    });
+    await (_liveDb.update(
+      _liveDb.loggedPortions,
+    )..where((t) => t.id.equals(loggedPortionId))).write(
+      LoggedPortionsCompanion(
+        foodId: Value(foodId),
+        recipeId: Value(recipeId),
+        grams: Value(newPortion.grams),
+        unit: Value(newPortion.unit),
+        quantity: Value(newPortion.grams),
+      ),
+    );
+    BackupConfigService.instance.markDirty();
   }
 
   Future<void> updateLoggedPortionsTimestamp(
@@ -538,39 +573,48 @@ class DatabaseService {
       999,
     ).millisecondsSinceEpoch;
 
-    final query =
-        _liveDb.select(_liveDb.loggedPortions).join([
-          innerJoin(
-            _liveDb.loggedFoods,
-            _liveDb.loggedFoods.id.equalsExp(
-              _liveDb.loggedPortions.loggedFoodId,
-            ),
-          ),
-        ])..where(
-          _liveDb.loggedPortions.logTimestamp.isBetweenValues(
-            startOfDay,
-            endOfDay,
-          ),
-        );
+    final query = _liveDb.select(_liveDb.loggedPortions)
+      ..where((p) => p.logTimestamp.isBetweenValues(startOfDay, endOfDay));
 
     final rows = await query.get();
 
-    return rows.map((row) {
-      final loggedFoodData = row.readTable(_liveDb.loggedFoods);
-      final loggedPortionData = row.readTable(_liveDb.loggedPortions);
+    final results = <model_stats.LoggedMacroDTO>[];
 
-      return model_stats.LoggedMacroDTO(
-        logTimestamp: DateTime.fromMillisecondsSinceEpoch(
-          loggedPortionData.logTimestamp,
+    for (final row in rows) {
+      double calories = 0, protein = 0, fat = 0, carbs = 0, fiber = 0;
+
+      if (row.foodId != null) {
+        final food = await getFoodById(row.foodId!, 'live');
+        if (food != null) {
+          calories = food.calories;
+          protein = food.protein;
+          fat = food.fat;
+          carbs = food.carbs;
+          fiber = food.fiber;
+        }
+      } else if (row.recipeId != null) {
+        final recipe = await getRecipeById(row.recipeId!);
+        final food = recipe.toFood();
+        calories = food.calories;
+        protein = food.protein;
+        fat = food.fat;
+        carbs = food.carbs;
+        fiber = food.fiber;
+      }
+
+      results.add(
+        model_stats.LoggedMacroDTO(
+          logTimestamp: DateTime.fromMillisecondsSinceEpoch(row.logTimestamp),
+          grams: row.grams,
+          caloriesPerGram: calories,
+          proteinPerGram: protein,
+          fatPerGram: fat,
+          carbsPerGram: carbs,
+          fiberPerGram: fiber,
         ),
-        grams: loggedPortionData.grams,
-        caloriesPerGram: loggedFoodData.caloriesPerGram,
-        proteinPerGram: loggedFoodData.proteinPerGram,
-        fatPerGram: loggedFoodData.fatPerGram,
-        carbsPerGram: loggedFoodData.carbsPerGram,
-        fiberPerGram: loggedFoodData.fiberPerGram,
       );
-    }).toList();
+    }
+    return results;
   }
 
   Future<model.Food?> getFoodById(int id, String source) async {
@@ -845,25 +889,25 @@ class DatabaseService {
       return food;
     }
 
-    // Otherwise, check if we've already copied it
+    // Otherwise, check if we've already copied it using sourceFdcId
+    if (food.id > 0) {
+      final existingByFdc = await (_liveDb.select(
+        _liveDb.foods,
+      )..where((t) => t.sourceFdcId.equals(food.id))).getSingleOrNull();
+
+      if (existingByFdc != null) {
+        final servings = await getServingsForFood(existingByFdc.id, 'live');
+        return _mapFoodData(existingByFdc, servings);
+      }
+    }
+
+    // Fallback to name/macro matching for non-fdc items (if any) or old data
     final existingQuery = _liveDb.select(_liveDb.foods)
       ..where((t) {
         Expression<bool> predicate =
             t.name.equals(food.name) &
             t.caloriesPerGram.equals(food.calories) &
             t.proteinPerGram.equals(food.protein);
-
-        if (food.source != 'live') {
-          // Try matching by original ID or barcode
-          predicate =
-              predicate |
-              t.sourceFdcId.equals(food.id) |
-              t.sourceBarcode.equals(
-                food.name,
-              ); // Using name as barcode if relevant, but models have separate fields?
-          // Actually, Food model doesn't have barcode field explicitly?
-          // Let's check tables.dart again.
-        }
         return predicate;
       });
 
@@ -873,86 +917,64 @@ class DatabaseService {
       return _mapFoodData(existing, servings);
     }
 
-    // If not, save it to the live database
-    return await _liveDb.transaction(() async {
-      final foodId = await _liveDb
-          .into(_liveDb.foods)
-          .insert(
-            FoodsCompanion.insert(
-              name: food.name,
-              source: 'live',
-              caloriesPerGram: food.calories,
-              proteinPerGram: food.protein,
-              fatPerGram: food.fat,
-              carbsPerGram: food.carbs,
-              fiberPerGram: food.fiber,
-              parentId: Value(food.source != 'live' ? food.id : null),
-              sourceFdcId: Value(food.source != 'live' ? food.id : null),
-            ),
-          );
-
-      // Save servings
-      for (final serving in food.servings) {
-        await _liveDb
-            .into(_liveDb.foodPortions)
-            .insert(
-              FoodPortionsCompanion.insert(
-                foodId: foodId,
-                unit: serving.unit,
-                grams: serving.grams,
-                quantity: serving.quantity,
-              ),
-            );
-      }
-
-      final servings = await getServingsForFood(foodId, 'live');
-      final newFoodRow = await (_liveDb.select(
-        _liveDb.foods,
-      )..where((t) => t.id.equals(foodId))).getSingle();
-      return _mapFoodData(newFoodRow, servings);
-    });
+    // If not, save it to the live database (copy logic)
+    return await copyFoodToLiveDb(food, isCopy: false);
   }
 
   Future<Map<int, String?>> getFoodsUsageNotes(List<model.Food> foods) async {
     final Map<int, String?> results = {};
 
     for (final food in foods) {
-      if (food.source == 'recipe') {
-        final isLogged = await isRecipeLogged(food.id);
-        final isUsed = await isRecipeUsedAsIngredient(food.id);
-        if (isLogged && isUsed) {
-          results[food.id] = 'Logged • In Recipe';
-        } else if (isLogged) {
-          results[food.id] = 'Logged';
-        } else if (isUsed) {
-          results[food.id] = 'In Recipe';
-        }
-      } else {
-        // For foods, check logged_foods
-        final loggedQuery = _liveDb.select(_liveDb.loggedFoods)
-          ..where(
-            (t) =>
-                t.originalFoodId.equals(food.id) &
-                t.originalFoodSource.equals(food.source),
-          )
-          ..limit(1);
-        final logged = await loggedQuery.getSingleOrNull();
+      // Checking usage for Reference Foods logic:
+      // Technically Ref foods are not "used" directly anymore in the unified search result sense
+      // because if they were used, they would be Live foods.
+      // But the search might return both?
+      // If I see a Ref food in search, it implicitly means it is NOT used yet (otherwise I'd see the Live version).
+      // So I can default Ref foods to null?
 
-        // Check if used in recipes
+      bool isLiveSource =
+          food.source == 'live' ||
+          food.source == 'user_created' ||
+          food.source == 'off_cache';
+      if (!isLiveSource && food.source != 'recipe') {
+        results[food.id] = null;
+        continue;
+      }
+
+      // Live Foods or Recipes
+      int idToCheck = food.id;
+      bool isRecipe = food.source == 'recipe';
+
+      bool isLogged = false;
+      if (isRecipe) {
+        isLogged = await isRecipeLogged(idToCheck);
+      } else {
+        // Check LoggedPortions for foodId
+        final logCount = await _liveDb.select(_liveDb.loggedPortions)
+          ..where((t) => t.foodId.equals(idToCheck));
+        final rows = await logCount.get();
+        isLogged = rows.isNotEmpty;
+      }
+
+      bool isUsed = false;
+      if (isRecipe) {
+        isUsed = await isRecipeUsedAsIngredient(idToCheck);
+      } else {
         final usedQuery = _liveDb.select(_liveDb.recipeItems)
-          ..where((t) => t.ingredientFoodId.equals(food.id))
+          ..where((t) => t.ingredientFoodId.equals(idToCheck))
           ..limit(1);
         final used = await usedQuery.getSingleOrNull();
+        isUsed = used != null;
+      }
 
-        if (logged != null && used != null) {
-          results[food.id] = 'Logged • In Recipe';
-        } else if (logged != null) {
-          results[food.id] = 'Logged';
-        } else if (used != null) {
-          results[food.id] = 'In Recipe';
-        } else {
-          results[food.id] = null;
-        }
+      if (isLogged && isUsed) {
+        results[food.id] = 'Logged • In Recipe';
+      } else if (isLogged) {
+        results[food.id] = 'Logged';
+      } else if (isUsed) {
+        results[food.id] = 'In Recipe';
+      } else {
+        results[food.id] = null;
       }
     }
     return results;
@@ -1037,23 +1059,25 @@ class DatabaseService {
   }
 
   Future<bool> isFoodReferenced(int foodId, String source) async {
-    // Check if referenced in logged_foods
-    final loggedQuery = _liveDb.select(_liveDb.loggedFoods)
-      ..where(
-        (t) =>
-            t.originalFoodId.equals(foodId) &
-            t.originalFoodSource.equals(source),
-      )
-      ..limit(1);
-    final logged = await loggedQuery.getSingleOrNull();
+    // Check if referenced in logged_portions
+    if (source == 'live') {
+      final loggedQuery = _liveDb.select(_liveDb.loggedPortions)
+        ..where((t) => t.foodId.equals(foodId))
+        ..limit(1);
+      final logged = await loggedQuery.getSingleOrNull();
 
-    // Check if used in recipes
-    final usedQuery = _liveDb.select(_liveDb.recipeItems)
-      ..where((t) => t.ingredientFoodId.equals(foodId))
-      ..limit(1);
-    final used = await usedQuery.getSingleOrNull();
+      // Check if used in recipes
+      final usedQuery = _liveDb.select(_liveDb.recipeItems)
+        ..where((t) => t.ingredientFoodId.equals(foodId))
+        ..limit(1);
+      final used = await usedQuery.getSingleOrNull();
 
-    return logged != null || used != null;
+      return logged != null || used != null;
+    }
+    // Reference foods are physically in Ref DB, but usage is via Live copies.
+    // If checking if a Ref food is "referenced", we'd check if any Live food points to it?
+    // But currently this is mainly used for Live foods versioning/deletion.
+    return false;
   }
 
   Future<void> deleteFood(int foodId, String source) async {
@@ -1142,16 +1166,29 @@ class DatabaseService {
 
     for (final foodId in foodIds) {
       // Query all logged portions for this food
+      // Logic: foodId in LoggedPortions == foodId (Source: Live)
+      // OR foodId is linked via sourceFdcId if we want to be smart.
+      // But getFoodUsageStats is typically called with IDs from search results.
+      // If search result is Live, ID is Live ID. Usage is directly on it.
+      // If search result is Ref, ID is Ref ID. Usage checks if any Live food pointing to it is logged?
+      // Or just check if Ref ID is logged (not possible directly)?
+      // For now, assume caller passes Live IDs for usage visualization,
+      // OR simple direct equality if we logged Ref items (which we copy to Live).
+      // If we copied Ref (1) to Live (100), logs are on 100.
+      // If I ask stats for Ref (1), I won't find logs on 1. I need to find logs on 100.
+      // So I check: usage where food.sourceFdcId == id OR food.id == id.
+
       final query =
           _liveDb.select(_liveDb.loggedPortions).join([
               innerJoin(
-                _liveDb.loggedFoods,
-                _liveDb.loggedFoods.id.equalsExp(
-                  _liveDb.loggedPortions.loggedFoodId,
-                ),
+                _liveDb.foods,
+                _liveDb.foods.id.equalsExp(_liveDb.loggedPortions.foodId),
               ),
             ])
-            ..where(_liveDb.loggedFoods.originalFoodId.equals(foodId))
+            ..where(
+              _liveDb.loggedPortions.foodId.equals(foodId) |
+                  _liveDb.foods.sourceFdcId.equals(foodId),
+            )
             ..orderBy([
               OrderingTerm(
                 expression: _liveDb.loggedPortions.logTimestamp,
@@ -1181,7 +1218,7 @@ class DatabaseService {
 
       results[foodId] = FoodUsageStats(
         foodId: foodId,
-        logCount: rows.length,
+        logCount: rows.length, // accurate count of logs
         lastLoggedAt: logTimestamps.first,
         logTimestamps: logTimestamps,
       );
@@ -1201,23 +1238,12 @@ class DatabaseService {
 
     for (final recipeId in recipeIds) {
       // Query all logged portions for this recipe
-      final query =
-          _liveDb.select(_liveDb.loggedPortions).join([
-              innerJoin(
-                _liveDb.loggedFoods,
-                _liveDb.loggedFoods.id.equalsExp(
-                  _liveDb.loggedPortions.loggedFoodId,
-                ),
-              ),
-            ])
-            ..where(_liveDb.loggedFoods.originalFoodId.equals(recipeId))
-            ..where(_liveDb.loggedFoods.originalFoodSource.equals('recipe'))
-            ..orderBy([
-              OrderingTerm(
-                expression: _liveDb.loggedPortions.logTimestamp,
-                mode: OrderingMode.desc,
-              ),
-            ]);
+      final query = _liveDb.select(_liveDb.loggedPortions)
+        ..where((t) => t.recipeId.equals(recipeId))
+        ..orderBy([
+          (t) =>
+              OrderingTerm(expression: t.logTimestamp, mode: OrderingMode.desc),
+        ]);
 
       final rows = await query.get();
 
@@ -1232,11 +1258,7 @@ class DatabaseService {
       }
 
       final logTimestamps = rows
-          .map(
-            (row) => DateTime.fromMillisecondsSinceEpoch(
-              row.readTable(_liveDb.loggedPortions).logTimestamp,
-            ),
-          )
+          .map((row) => DateTime.fromMillisecondsSinceEpoch(row.logTimestamp))
           .toList();
 
       results[recipeId] = FoodUsageStats(

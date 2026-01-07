@@ -65,15 +65,15 @@ To ensure consistency across the application and codebase, the following terms a
           - 1.3.3.1.7.2.1.1 The Edit button needs to bring up a yet to be implemented (or at least flushed out) Food Edit Screen that lets the user modify an existing food.
             - 1.3.3.1.7.2.1.1.1 If the search result is from the reference db, then at least upon submitting/entering the edit, the food needs to be copied to the live db `Foods` table with all of the user viewed data copied over. The new Live version should maintain a link to the original Reference item (if applicable) to avoid duplicate search results.
             - 1.3.3.1.7.2.1.1.2 If the parent food is in the reference db, then ideally, since foods point to the parent's id, the source data from the reference db would be able to be filtered out of search results. This is low priority and can be done later, especially if there aren't clear and high confidence ways to achieve this.
-            - 1.3.3.1.7.2.1.1.3 In cases where the parent is also in the logged_foods table, all parents should be recursively filtered out of the search results so only the newest version of the food will be shown. This will yield unfindable foods; this may bring about future features.
+            - 1.3.3.1.7.2.1.1.3 In cases where the parent is already logged (referenced in `LoggedPortions`), all parents should be recursively filtered out of the search results so only the newest version of the food will be shown.
             - 1.3.3.1.7.2.1.1.4 By doing this we won't break old logs, yet we'll be able to update future search results.
           - 1.3.3.1.7.2.1.2 The Copy button should work about like the edit button, only a copied item seemingly won't have a parent.
             - 1.3.3.1.7.2.1.2.1 So unlike with the edit button, whatever its data's being copied from, won't be filtered out of the search results.
             - 1.3.3.1.7.2.1.2.2 When the Edit Food Screen opens, the food name should be the same as the source food, only with " - Copy" appended to the end of it.
         - 1.3.3.1.7.2.2 In theory, from the user's perspective, the Delete button will delete foods.
           - 1.3.3.1.7.2.2.1 Since the reference db is read only, if the user tries to delete a search result from the reference db, the user should be succinctly be prompted to let them know that the food can't be deleted and why.
-          - 1.3.3.1.7.2.2.2 If the search result that's to be deleted is from the logged_foods table, and isn't referenced by anything (presumably just portions or recipes), then it can be deleted.
-          - 1.3.3.1.7.2.2.3 If the search result that's to be deleted is from the logged_foods table, and is referenced by something (presumably just portions or recipes), then it can't be deleted, so some sort of flag needs to be set in the food so that it's filtered from future search results without breaking old logged portions or recipes.
+          - 1.3.3.1.7.2.2.2 If the search result that's to be deleted is a user-created/live food, and isn't referenced by anything (log entries or recipes), then it can be deleted.
+          - 1.3.3.1.7.2.2.3 If the search result that's to be deleted is referenced by something (log entries or recipes), then it can't be deleted; it should be soft-deleted ("hidden") so that it's filtered from future search results without breaking old logs or recipes.
   - 1.3.3.2 The Barcode search isn't to be worried about for now.
   - 1.3.3.3 The Recipe Search button is next.
     - 1.3.3.3.1 Below the row of 3 buttons (text search, barcode search, and recipe search) should be a Create New Recipe button to bring the user to the Edit Recipe Screen.
@@ -206,9 +206,9 @@ To preserve historical accuracy while allowing food improvements, we implement a
     - **Unused**: Update in-place.
     - **Used**: Trigger Versioning:
       - 1. Create a NEW `Food` or `Recipe` record with the updated values.
-      - 2. Mark the OLD record as superseded (e.g., via `replacedBy` or `hidden`).
-      - 3. The OLD record continues to exist to satisfy existing foreign keys (past logs).
-      - 4. Set a `parentId` on the NEW record pointing to the OLD record (or a common root) to establish a lineage.
+      - 2. Set a `parentId` on the NEW record pointing to the OLD record (or a common root) to establish a lineage.
+      - 3. The OLD record continues to exist (unchanged) to satisfy existing foreign keys (past logs).
+      - 4. Search logic filters out any record that is referenced as a `parentId` by another record, effectively superseding it.
 - 3.3.3 **Search & Filtering**:
   - The Search Logic must be aware of versioning.
   - It should filter out superseded or "old" versions of foods/recipes so the user only sees the latest version.

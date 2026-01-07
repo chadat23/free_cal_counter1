@@ -2,7 +2,7 @@
 
 FreeCalCounter is to help people track calories, macros, and weight over time. 
 
-At a high level, eventually, it should be able to do things like track calories, fat, carbs, and protein per meal, day, and week, enable visualizing, easy data entry and editing from sources such as the FDA as well as OpenFoodFacts (OFF). There should be a local db (parsed and pruned from FDA data) to search, a local db of logged foods to expedite reselecting foods, and the ability to reach out to OFF as well. Local stuff should be prioritized since it's faster, but other than that basic workflow divergence, any source should seamlessly integrated. It should also be able to track and visualize a person's weight over time, and to make recommendations regarding macro nutrient targets. While the goal isn't infinite flexibility or to allow any work flow, it needs to be flexible, we always want it to be easy for users to fix input mistakes.
+At a high level, eventually, it should be able to do things like track calories, fat, carbs, and protein per meal, day, and week, enable visualizing, easy data entry and editing from sources such as the FDA as well as OpenFoodFacts (OFF). There should be a local Live Database (where user data and edits live) and a read-only Reference Database (parsed and pruned from FDA data). Generally, we want to prioritize local data since it's faster, but allow seamless integration with OFF and the Reference DB. Determining how to manage data versioning and history is critical: we want users to be able to fix input mistakes without rewriting history in a way that falsifies past logs.
 
 # Terminology
 
@@ -63,7 +63,7 @@ To ensure consistency across the application and codebase, the following terms a
       - 1.3.3.1.7.2 Sliding the search result to the left should reveal the delete button, and having it work this way means that two actions are needed to help avoid accidental deletions.
         - 1.3.3.1.7.2.1 Sliding the search result to the right should reveal the Edit and Copy buttons.
           - 1.3.3.1.7.2.1.1 The Edit button needs to bring up a yet to be implemented (or at least flushed out) Food Edit Screen that lets the user modify an existing food.
-            - 1.3.3.1.7.2.1.1.1 If the search result is from the reference db, then at least upon submitting/entering the edit, the food needs to be copied to the live db logged_foods table with all of the user viewed data copied over (other than whatever the user changes via the edit screen) with all other stuff being updated as needed to maintain overarching app functionality (so it probably shouldn't have a parent).
+            - 1.3.3.1.7.2.1.1.1 If the search result is from the reference db, then at least upon submitting/entering the edit, the food needs to be copied to the live db `Foods` table with all of the user viewed data copied over. The new Live version should maintain a link to the original Reference item (if applicable) to avoid duplicate search results.
             - 1.3.3.1.7.2.1.1.2 If the parent food is in the reference db, then ideally, since foods point to the parent's id, the source data from the reference db would be able to be filtered out of search results. This is low priority and can be done later, especially if there aren't clear and high confidence ways to achieve this.
             - 1.3.3.1.7.2.1.1.3 In cases where the parent is also in the logged_foods table, all parents should be recursively filtered out of the search results so only the newest version of the food will be shown. This will yield unfindable foods; this may bring about future features.
             - 1.3.3.1.7.2.1.1.4 By doing this we won't break old logs, yet we'll be able to update future search results.
@@ -84,8 +84,8 @@ To ensure consistency across the application and codebase, the following terms a
       - 1.3.3.3.3.3 Much like with the text based search, the results should be displayed in the Search Result Widget, and the Slidable Search Result Widget, but maybe the Slidable Search Widget needs a flag and configurability, or maybe it needs to be a different widget.
         - 1.3.3.3.3.3.1 Like with search results, sliding a recipe to the left should reveal a delete button, but like with the text based search results, in order to ensure data integrity, it should hide the recipe if it's ever been logged or added to another recipe as an ingredient.
         - 1.3.3.3.3.3.2 Sliding the recipe to the right should reveal the Edit, Copy, and Dump buttons.
-          - 1.3.3.3.3.3.2.1 The Edit button should bring the user to the Edit Recipe Screen, where, again like with the logged_foods table, in order to ensure data integrity, if the current version of the recipe has ever been logged or used as an ingredient in another recipe, it needs to be duplicated and then the user should be able to edit the copy. This should seamlessly be done behind the screens because the user doesn't need to know how this works. Additionally, the new version of the recipe needs to have it's parent Id set so that old versions of it can be filtered out of search results. However, if the current version of the recipe has never been logged or added as in ingredient to another recipe, it can be updated in place since that won't change any past logs. Any past logged items that point to the recipe should be left to refer to the old version, but the new version should be used for any future logs.
-          - 1.3.3.3.3.3.2.2 The Copy button should bring the user to the Edit Recipe Screen, where it should look/behave about like what the Edit button does, only with " - Copy" appended to the end of the new recipe's name. However, since we're copying the recipe, we're creating a new one rather than replacing an old one in search results so we'll leave the parent Id blank, always create a new entry, never update an old one, and not worry about filtering out old versions since it has no parent.
+          - 1.3.3.3.3.3.2.1 The Edit button should bring the user to the Edit Recipe Screen. The system must handle versioning logic (see Section 3.3) to ensure that past logs remain accurate if nutritional data is changed.
+          - 1.3.3.3.3.3.2.2 The Copy button should bring the user to the Edit Recipe Screen with the recipe duplicated (new ID, no parent). The name should have " - Copy" appended.
           - 1.3.3.3.3.3.2.3 The Dump button should dump one serving's worth of ingredients into the Log Queue. The idea is that, while, for instance, if you were making a cookie recipe, you'd never make one cookie or only eat most of the ingredients, but you might, for instance, have a standard dinner salad recipe that you work from most nights, but where, unlike the cookie recipe, instead of making it exactly the same every time, each night will be a little different depending on what's on hand. So the user may create a generic Dinner Salad recipe, and then when making it, hit the Dump button to avoid having to add each individual ingredient/portion to the Log Queue, then they can switch over to the Log Queue, delete anything that they're not having that night, and update portion amounts/units for the remaining ingredients/portions. Also, there's to be an option to set in the Edit Recipe Screen to set that the recipe is only Dumpable (this will avoid accidentally adding the recipe as is and which would inhibit the ability to edit the recipe in place (with the salad recipe example, the recipe may be updated frequently depending on what's in season and ensuring that it's always dumped ensures that the user doesn't end up with a bunch of versions of it in the db)). If the recipe is only dumpable then hitting the plus button should dump the recipe into the Log Queue and tapping the recipe (such as to bring up the Quantity Edit Screen) should prompt the user that that isn't an option since the recipe is only dumpable.
         - 1.3.3.3.3.3.3 The plus button should add one portion (as specified by the dropdown of the Search Result Widget) to the Log Queue.
         - 1.3.3.3.3.3.4 Tapping elsewhere on the widget should bring up the Quantity Edit Screen so that the user can enter the exact Quantity and Unit of recipe that they're having.
@@ -165,16 +165,51 @@ To ensure consistency across the application and codebase, the following terms a
 
 # 2 Search Functionality and Behavior
 - 2.1 Text Based Search
-  - 2.1.1 All text based data sources, reference db, live db, and OFF API data can be fed through the same fuzzy filtering/sorting funtion/algerythom
-  - 2.1.2 OFF API data doesn't need any additional filtering/sorting since it's never displayed with other data and is innately always unlogged (presumably, if an item was already logged, it would have been looked up before an OFF search was performed)
-  - 2.1.3 Reference db and live db data should be displayed sumiultaniously and should be processed as such
-    - 2.1.3.1 Live db data should be sorted based on weighted considerations of: frequency of logging, time since last logging, and present time vs typical time of day of logging. Also, since unit's unknown what the best/final filtering/sorting algerythom will be, this should be done in an encapsolated way.
-    - 2.1.3.2 Since live db data in already in the live db and has subsiquencly already been eaten, it's more likely to be what the user is looking for, so all live db data should be displayed above reference db data within the search results.
-      - 2.1.3.2.1 If something from the reference db ever displays above anything from the live db, then something has gone wrong or goals are misunderstood.
-      - 2.1.3.2.2 Given that many things in the live db will have been copied from the reference db, anything that exists in live and reference search results should be filtered out of the reference results to minimize redundency of search results.
-    - 2.1.3.1 Since, like with OFF API data, if reference db data had ever been logged, it would have been copied to the live db, it doesn't need any additional filtering/sorting
-    - 2.1.3.2 Once it's been sufficiently long since an item has been logged, it may make sense to drop it from the live data results portion of the results and instead display it with the reference data results. If this is done however, we'll want to ensure that we're not reentering stuff into the live db to prevent search results from being cluttered with stuff that was last eaten years ago. This could be configurable via the Settings Tab.
+  - 2.1.1 All text based data sources (Reference DB, Live DB, and OFF API) should generally act as a unified search experience using similar fuzzy filtering/sorting logic where appropriate, though implementation details may vary by source.
+  - 2.1.2 OFF API data doesn't need any additional filtering/sorting since it's never displayed with other data and is innately always unlogged.
+  - 2.1.3 Reference db and live db data should be displayed simultaneously and should be processed as such:
+    - 2.1.3.1 Live db data should be sorted based on weighted considerations of: frequency of logging, time since last logging, and present time vs typical time of day of logging.
+    - 2.1.3.2 Since live db data is already in the live db and has subsequently already been eaten, it's more likely to be what the user is looking for, so all live db data should be displayed above reference db data within the search results.
+    - 2.1.3.3 Duplicate Hiding: Given that many things in the Live DB will have been copied from the Reference DB, anything that exists in both should be filtered out of the Reference results. The Live version (user's version) always takes precedence.
+    - 2.1.3.4 Legacy Filtering: Once it's been sufficiently long since an item has been logged, it may make sense to drop it from the live data results. If this is done, we must ensure we're not re-entering stuff into the live db to prevent search results from being cluttered with stuff that was last eaten years ago.
 - 2.2 Barcode Based Search: TBD
 - 2.3 Recipe Search
-  - 2.3.1 By default, all recipies should be displayed. No user action should be needed in order to scroll through recipies other than clicking to the Recipe Search tab.
+  - 2.3.1 By default, all recipes should be displayed. No user action should be needed in order to scroll through recipes other than clicking to the Recipe Search tab.
   - 2.3.2 Should use a basic fuzzy search algorithm to filter recipes based on the search query.
+
+# 3 Data Persistence & Architecture
+
+## 3.1 Database Strategy
+The app uses two databases:
+- **Reference Database**: A read-only SQLite database containing USDA Foundation Foods. This is an asset packaged with the app and is never modified.
+- **Live Database**: A read-write SQLite database storing all user data, including:
+  - User-created foods and recipes.
+  - Foods copied from the Reference Database (when logged or edited).
+  - Logs (Portions).
+  - Settings and other user state.
+
+## 3.2 Unified Food Storage
+- 3.2.1 There is a single schema for `Food` items in the Live Database. All foods that the user interacts with (searches, logs, edits) are stored here.
+- 3.2.2 **No Separate Logged Foods Table**: We do NOT maintain a separate `LoggedFoods` table. When a food or recipe is logged, the log entry (Portion) points directly to the `Food` or `Recipe` record in the Live Database.
+- 3.2.3 **Importing from Reference**:
+  - When a user logs a food from the Reference Database for the first time, it is eagerly copied into the Live Database `Foods` table.
+  - The log entry points to this new Live `Food` record, not the Reference one.
+  - This ensures the user can later edit "their" version of the food without affecting the Reference DB (which is read-only anyway).
+  - The Live copy retains a "soft link" (e.g., `sourceFdcId`) to the Reference item to allow for potential future updates or conflict resolution, but it is effectively a distinct entity.
+
+## 3.3 Versioning & Data Integrity
+To preserve historical accuracy while allowing food improvements, we implement a Versioning System:
+- 3.3.1 **Immutability of Logged Data**: If a generic food (e.g., "Apple") or Recipe has been logged in the past, its nutritional values at that time must be preserved for that log entry. We cannot simply change the definition in place if it would alter historical macro counts.
+- 3.3.2 **Edit Logic**:
+  - **Macro-Neutral Changes**: If the user only updates fields that do NOT affect calculated macros (e.g., Name, Brand, Notes, Emoji), these changes can always be applied **in-place** to the existing record, instantly updating all past logs (which is desired).
+  - **Macro-Affecting Changes**: If the user updates fields that affect nutrition (Calories, Macros, Serving Sizes, Ingredient list, Ingredient quantities), we must check if the item is "Used" (logged or part of another recipe):
+    - **Unused**: Update in-place.
+    - **Used**: Trigger Versioning:
+      - 1. Create a NEW `Food` or `Recipe` record with the updated values.
+      - 2. Mark the OLD record as superseded (e.g., via `replacedBy` or `hidden`).
+      - 3. The OLD record continues to exist to satisfy existing foreign keys (past logs).
+      - 4. Set a `parentId` on the NEW record pointing to the OLD record (or a common root) to establish a lineage.
+- 3.3.3 **Search & Filtering**:
+  - The Search Logic must be aware of versioning.
+  - It should filter out superseded or "old" versions of foods/recipes so the user only sees the latest version.
+  - It should filter out Reference Database items if a "newer" version exists in the Live Database.

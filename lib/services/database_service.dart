@@ -1016,9 +1016,7 @@ class DatabaseService {
               fatPerGram: sourceFood.fat,
               carbsPerGram: sourceFood.carbs,
               fiberPerGram: sourceFood.fiber,
-              parentId: Value(
-                sourceFood.source != 'live' ? sourceFood.id : null,
-              ),
+              parentId: const Value(null),
               sourceFdcId: Value(
                 sourceFood.source != 'live' ? sourceFood.id : null,
               ),

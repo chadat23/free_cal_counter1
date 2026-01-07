@@ -60,7 +60,7 @@ void main() {
                 fatPerGram: 0.02,
                 carbsPerGram: 0.12,
                 fiberPerGram: 0.03,
-                parentId: const Value(101),
+                sourceFdcId: const Value(101),
               ),
             );
 

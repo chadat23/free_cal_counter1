@@ -321,6 +321,7 @@ class OffApiService {
       fat: baseFatPerGram,
       carbs: baseCarbsPerGram,
       fiber: baseFiberPerGram,
+      sourceBarcode: product.barcode,
       servings: units,
     );
   }

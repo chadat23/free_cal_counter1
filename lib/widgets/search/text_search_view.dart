@@ -43,9 +43,13 @@ class TextSearchView extends StatelessWidget {
             final logProvider = Provider.of<LogProvider>(context);
             final isUpdate = logProvider.logQueue.any(
               (p) =>
-                  p.food.id == food.id &&
-                  p.food.source == food.source &&
-                  food.source != 'recipe',
+                  (p.food.id != 0 &&
+                      p.food.id == food.id &&
+                      p.food.source == food.source) ||
+                  (food.id == 0 &&
+                      food.source == 'off' &&
+                      p.food.source == 'off' &&
+                      p.food.sourceBarcode == food.sourceBarcode),
             );
 
             return SlidableSearchResult(

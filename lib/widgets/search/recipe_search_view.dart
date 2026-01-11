@@ -160,7 +160,13 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                     );
                     isUpdate = logProvider.logQueue.any(
                       (p) =>
-                          p.food.id == food.id && p.food.source == food.source,
+                          (p.food.id != 0 &&
+                              p.food.id == food.id &&
+                              p.food.source == food.source) ||
+                          (food.id == 0 &&
+                              food.source == 'off' &&
+                              p.food.source == 'off' &&
+                              p.food.sourceBarcode == food.sourceBarcode),
                     );
                   }
 

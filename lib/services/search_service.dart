@@ -86,10 +86,11 @@ class SearchService {
     final filteredReferenceFoods = await databaseService
         .filterReferenceFoodsWithLiveVersions(referenceFoods, liveFoods);
 
-    // 4. Sort live foods with usage-based algorithm
+    // 4. Sort live foods with complex weighted algorithm
     final sortedLiveFoods = sortingService.sortLiveFoods(
       liveFoods,
       foodUsageStats,
+      query,
     );
 
     // 5. Sort reference foods with fuzzy matching
@@ -98,45 +99,17 @@ class SearchService {
       query,
     );
 
-    // 6. Query recipes
-    final recipeResults = await databaseService.getRecipesBySearch(
-      query,
-      categoryId: categoryId,
-    );
+    // 6. Combine results: strictly Live first, then Reference
+    // Recipes are excluded from general search per requirements
+    final combinedResults = [...sortedLiveFoods, ...sortedReferenceFoods];
 
-    // 7. Pre-filter recipes with fuzzy matching
-    final filteredRecipes = sortingService.sortRecipes(
-      recipeResults,
-      null, // No usage stats yet
-      query,
-    );
+    // 7. Limit to a reasonable number to avoid UI lag
+    final limitedResults = combinedResults.take(50).toList();
 
-    // 8. Get usage statistics for recipes
-    final recipeIds = filteredRecipes.map((r) => r.id).toList();
-    final recipeUsageStats = await databaseService.getRecipeUsageStats(
-      recipeIds,
-    );
+    // 8. Add usage notes and emojis
+    final usageNotes = await databaseService.getFoodsUsageNotes(limitedResults);
 
-    // 9. Sort recipes with usage statistics
-    final sortedRecipes = sortingService.sortRecipes(
-      filteredRecipes,
-      recipeUsageStats,
-      query,
-    );
-
-    // 10. Combine results: live first, then reference, then recipes
-    final combinedResults = [
-      ...sortedLiveFoods,
-      ...sortedReferenceFoods,
-      ...sortedRecipes.map((r) => r.toFood()),
-    ];
-
-    // 11. Add usage notes and emojis
-    final usageNotes = await databaseService.getFoodsUsageNotes(
-      combinedResults,
-    );
-
-    final resultsWithEmoji = combinedResults
+    final resultsWithEmoji = limitedResults
         .map(
           (food) => food.copyWith(
             emoji: emojiForFoodName(food.name),
@@ -145,8 +118,7 @@ class SearchService {
         )
         .toList();
 
-    // 12. Apply final fuzzy matching
-    return _applyFuzzyMatching(query, resultsWithEmoji);
+    return resultsWithEmoji;
   }
 
   Future<List<model.Food>> searchOff(String query) async {
@@ -190,20 +162,40 @@ class SearchService {
     String query, {
     int? categoryId,
   }) async {
+    // 1. Get recipes from DB
     final recipeResults = await databaseService.getRecipesBySearch(
       query,
       categoryId: categoryId,
     );
-    final foods = recipeResults.map((r) => r.toFood()).toList();
-    final usageNotes = await databaseService.getFoodsUsageNotes(foods);
 
-    final resultsWithEmoji = foods.map((food) {
+    // 2. Get usage statistics for recipes
+    final recipeIds = recipeResults.map((r) => r.id).toList();
+    final recipeUsageStats = await databaseService.getRecipeUsageStats(
+      recipeIds,
+    );
+
+    // 3. Sort recipes with weighted algorithm (Fuzzy + Usage)
+    final sortedRecipes = sortingService.sortRecipes(
+      recipeResults,
+      recipeUsageStats,
+      query,
+    );
+
+    final foods = sortedRecipes.map((r) => r.toFood()).toList();
+
+    // 4. Limit to avoid UI lag
+    final limitedResults = foods.take(50).toList();
+
+    // 5. Add usage notes and emojis
+    final usageNotes = await databaseService.getFoodsUsageNotes(limitedResults);
+
+    final resultsWithEmoji = limitedResults.map((food) {
       return food.copyWith(
         emoji: emojiForFoodName(food.name),
         usageNote: usageNotes[food.id],
       );
     }).toList();
 
-    return _applyFuzzyMatching(query, resultsWithEmoji);
+    return resultsWithEmoji;
   }
 }

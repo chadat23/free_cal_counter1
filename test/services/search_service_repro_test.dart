@@ -2,11 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/search_service.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
-import 'package:free_cal_counter1/services/live_database.dart'
-    hide FoodsCompanion;
-import 'package:free_cal_counter1/services/reference_database.dart'
-    hide FoodsCompanion;
 import 'package:free_cal_counter1/services/live_database.dart' as live_db;
+import 'package:free_cal_counter1/services/reference_database.dart' as ref_db;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
 import 'package:free_cal_counter1/services/food_sorting_service.dart';
 import 'package:drift/native.dart';
@@ -21,14 +18,16 @@ class FakeOffApiService extends OffApiService {
 
 void main() {
   late DatabaseService databaseService;
-  late LiveDatabase liveDatabase;
-  late ReferenceDatabase referenceDatabase;
+  late live_db.LiveDatabase liveDatabase;
+  late ref_db.ReferenceDatabase referenceDatabase;
   late FakeOffApiService mockOffApiService;
   late SearchService searchService;
 
   setUp(() {
-    liveDatabase = LiveDatabase(connection: NativeDatabase.memory());
-    referenceDatabase = ReferenceDatabase(connection: NativeDatabase.memory());
+    liveDatabase = live_db.LiveDatabase(connection: NativeDatabase.memory());
+    referenceDatabase = ref_db.ReferenceDatabase(
+      connection: NativeDatabase.memory(),
+    );
     databaseService = DatabaseService.forTesting(
       liveDatabase,
       referenceDatabase,
@@ -47,38 +46,128 @@ void main() {
     await referenceDatabase.close();
   });
 
-  test('searchLocal should not throw null check operator error', () async {
-    // Arrange
-    // Insert a food first
-    await liveDatabase
-        .into(liveDatabase.foods)
-        .insert(
-          live_db.FoodsCompanion.insert(
-            id: const Value(1),
-            name: 'Apple',
-            source: 'user_created',
-            caloriesPerGram: 0.52,
-            proteinPerGram: 0.003,
-            fatPerGram: 0.002,
-            carbsPerGram: 0.14,
-            fiberPerGram: 0.024,
-          ),
-        );
+  test(
+    'Logged "contains" match should outrank unlogged "startsWith" match',
+    () async {
+      // Arrange
 
-    // Insert a unit with NULL quantityPerPortion using raw SQL
-    await liveDatabase.customStatement(
-      'INSERT INTO food_portions (foodId, unitName, gramsPerPortion, quantityPerPortion) VALUES (?, ?, ?, ?)',
-      [1, 'medium', 182.0, 1.0],
-    );
+      // 1. A food that contains "extra" and IS logged (Live DB)
+      await liveDatabase
+          .into(liveDatabase.foods)
+          .insert(
+            live_db.FoodsCompanion.insert(
+              id: const Value(1),
+              name: 'Skippy Extra Crunchy',
+              source: 'user_created',
+              caloriesPerGram: 1.0,
+              proteinPerGram: 0.1,
+              fatPerGram: 0.1,
+              carbsPerGram: 0.1,
+              fiberPerGram: 0.1,
+            ),
+          );
+      // Log it 10 times to ensure it has stats
+      for (int i = 0; i < 10; i++) {
+        await liveDatabase
+            .into(liveDatabase.loggedPortions)
+            .insert(
+              live_db.LoggedPortionsCompanion.insert(
+                foodId: const Value(1),
+                logTimestamp: DateTime.now().millisecondsSinceEpoch,
+                grams: 100,
+                unit: 'g',
+                quantity: 100,
+              ),
+            );
+      }
 
-    // Act
-    final results = await searchService.searchLocal('Apple');
+      // 2. A food that starts with "extra" but is NOT logged (Reference DB)
+      await referenceDatabase
+          .into(referenceDatabase.foods)
+          .insert(
+            ref_db.FoodsCompanion.insert(
+              id: const Value(100),
+              name: 'Extra White Bread',
+              source: 'reference',
+              caloriesPerGram: 1.0,
+              proteinPerGram: 0.1,
+              fatPerGram: 0.1,
+              carbsPerGram: 0.1,
+              fiberPerGram: 0.1,
+            ),
+          );
 
-    // Assert
-    expect(results.length, 1, reason: 'Should have found 1 result');
-    expect(results.first.name, 'Apple');
-    expect(results.first.servings, isNotEmpty);
-    // The quantity should be defaulted to 1.0
-    expect(results.first.servings.first.quantity, 1.0);
-  });
+      // 3. A recipe that starts with "extra" (should be EXCLUDED from searchLocal)
+      await liveDatabase
+          .into(liveDatabase.recipes)
+          .insert(
+            live_db.RecipesCompanion.insert(
+              id: const Value(200),
+              name: 'Extra Fancy Salad',
+              createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+            ),
+          );
+
+      // Act
+      final results = await searchService.searchLocal('extra');
+
+      // Assert
+      expect(
+        results.length,
+        2,
+        reason: 'Recipes should be excluded from general search',
+      );
+
+      // 'Skippy Extra Crunchy' is Live/Logged, so it should be first
+      expect(results.first.name, 'Skippy Extra Crunchy');
+      expect(results.last.name, 'Extra White Bread');
+    },
+  );
+
+  test(
+    'Recipe search should return recipes and use weighted sorting',
+    () async {
+      // Arrange
+      await liveDatabase
+          .into(liveDatabase.recipes)
+          .insert(
+            live_db.RecipesCompanion.insert(
+              id: const Value(200),
+              name: 'Extra Fancy Salad',
+              createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+            ),
+          );
+      // Log the recipe
+      await liveDatabase
+          .into(liveDatabase.loggedPortions)
+          .insert(
+            live_db.LoggedPortionsCompanion.insert(
+              recipeId: const Value(200),
+              logTimestamp: DateTime.now().millisecondsSinceEpoch,
+              grams: 100,
+              unit: 'g',
+              quantity: 100,
+            ),
+          );
+
+      await liveDatabase
+          .into(liveDatabase.recipes)
+          .insert(
+            live_db.RecipesCompanion.insert(
+              id: const Value(201),
+              name: 'Extra Simple Toast',
+              createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+            ),
+          );
+
+      // Act
+      final results = await searchService.searchRecipesOnly('extra');
+
+      // Assert
+      expect(results.length, 2);
+      // 'Extra Fancy Salad' is logged, so it should be first
+      expect(results.first.name, 'Extra Fancy Salad');
+      expect(results.last.name, 'Extra Simple Toast');
+    },
+  );
 }

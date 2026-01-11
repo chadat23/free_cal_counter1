@@ -59,10 +59,17 @@ class SearchProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if (query.isEmpty && _searchMode == SearchMode.recipe) {
-        _searchResults = await searchService.getAllRecipesAsFoods(
-          categoryId: _selectedCategoryId,
-        );
+      if (_searchMode == SearchMode.recipe) {
+        if (query.isEmpty) {
+          _searchResults = await searchService.getAllRecipesAsFoods(
+            categoryId: _selectedCategoryId,
+          );
+        } else {
+          _searchResults = await searchService.searchRecipesOnly(
+            query,
+            categoryId: _selectedCategoryId,
+          );
+        }
       } else {
         _searchResults = await searchService.searchLocal(
           query,

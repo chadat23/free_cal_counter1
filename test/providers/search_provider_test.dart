@@ -92,7 +92,7 @@ void main() {
     );
 
     test(
-      'should NOT call getAllRecipesAsFoods when query is NOT empty and mode is recipe',
+      'should call searchRecipesOnly when query is NOT empty and mode is recipe',
       () async {
         // Arrange
         final mockRecipes = [
@@ -110,7 +110,10 @@ void main() {
         ];
 
         when(
-          mockSearchService.searchLocal('Lasagna'),
+          mockSearchService.searchRecipesOnly(
+            'Lasagna',
+            categoryId: anyNamed('categoryId'),
+          ),
         ).thenAnswer((_) async => mockRecipes);
 
         searchProvider.setSearchMode(SearchMode.recipe);
@@ -120,8 +123,23 @@ void main() {
 
         // Assert
         expect(searchProvider.searchResults, mockRecipes);
-        verify(mockSearchService.searchLocal('Lasagna')).called(1);
-        verifyNever(mockSearchService.getAllRecipesAsFoods());
+        verify(
+          mockSearchService.searchRecipesOnly(
+            'Lasagna',
+            categoryId: anyNamed('categoryId'),
+          ),
+        ).called(1);
+        verifyNever(
+          mockSearchService.searchLocal(
+            any,
+            categoryId: anyNamed('categoryId'),
+          ),
+        );
+        verifyNever(
+          mockSearchService.getAllRecipesAsFoods(
+            categoryId: anyNamed('categoryId'),
+          ),
+        );
       },
     );
 

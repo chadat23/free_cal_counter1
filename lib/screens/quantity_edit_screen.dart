@@ -146,6 +146,12 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
             border: OutlineInputBorder(),
           ),
           onChanged: (_) => setState(() {}),
+          onTap: () {
+            _quantityController.selection = TextSelection(
+              baseOffset: 0,
+              extentOffset: _quantityController.text.length,
+            );
+          },
         ),
         const SizedBox(height: 16),
         const Text('Unit', style: TextStyle(fontWeight: FontWeight.bold)),

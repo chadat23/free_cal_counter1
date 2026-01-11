@@ -276,6 +276,12 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                   final d = double.tryParse(val);
                   if (d != null) provider.setServingsCreated(d);
                 },
+                onTap: () {
+                  _portionsController.selection = TextSelection(
+                    baseOffset: 0,
+                    extentOffset: _portionsController.text.length,
+                  );
+                },
               ),
             ),
             const SizedBox(width: 16),
@@ -304,6 +310,12 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                 onChanged: (val) {
                   final d = double.tryParse(val);
                   provider.setFinalWeightGrams(d);
+                },
+                onTap: () {
+                  _weightController.selection = TextSelection(
+                    baseOffset: 0,
+                    extentOffset: _weightController.text.length,
+                  );
                 },
               ),
             ),

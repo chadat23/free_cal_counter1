@@ -63,6 +63,12 @@ class _WeightScreenState extends State<WeightScreen> {
                     border: OutlineInputBorder(),
                   ),
                   onSubmitted: (_) => _submitWeight(),
+                  onTap: () {
+                    _weightController.selection = TextSelection(
+                      baseOffset: 0,
+                      extentOffset: _weightController.text.length,
+                    );
+                  },
                 ),
               ),
             ),

@@ -144,10 +144,10 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                     listen: false,
                   );
 
-                  final bool isUpdate;
+                  final int existingIndex;
                   if (widget.config.onSaveOverride != null) {
                     // Recipe context: check if already in recipe items
-                    isUpdate = recipeProvider.items.any(
+                    existingIndex = recipeProvider.items.indexWhere(
                       (item) =>
                           item.recipe?.id == food.id ||
                           item.food?.id == food.id,
@@ -158,7 +158,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                       context,
                       listen: false,
                     );
-                    isUpdate = logProvider.logQueue.any(
+                    existingIndex = logProvider.logQueue.indexWhere(
                       (p) =>
                           (p.food.id != 0 &&
                               p.food.id == food.id &&
@@ -169,6 +169,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                               p.food.sourceBarcode == food.sourceBarcode),
                     );
                   }
+                  final bool isUpdate = existingIndex != -1;
 
                   return FutureBuilder<model_recipe.Recipe>(
                     future: db.getRecipeById(food.id),
@@ -199,6 +200,54 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                                 ),
                               ),
                             );
+                            return;
+                          }
+
+                          if (isUpdate &&
+                              widget.config.onSaveOverride == null) {
+                            // Day context: Edit existing
+                            if (context.mounted) {
+                              final logProvider = Provider.of<LogProvider>(
+                                context,
+                                listen: false,
+                              );
+                              final existingPortion =
+                                  logProvider.logQueue[existingIndex];
+                              final unitServing = food.servings.firstWhere(
+                                (s) => s.unit == existingPortion.unit,
+                                orElse: () => food.servings.first,
+                              );
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => QuantityEditScreen(
+                                    config: QuantityEditConfig(
+                                      context: widget.config.context,
+                                      food: food,
+                                      isUpdate: true,
+                                      initialUnit: existingPortion.unit,
+                                      initialQuantity: unitServing
+                                          .quantityFromGrams(
+                                            existingPortion.grams,
+                                          ),
+                                      originalGrams: existingPortion.grams,
+                                      onSave: (grams, unit) {
+                                        logProvider.updateFoodInQueue(
+                                          existingIndex,
+                                          model_portion.FoodPortion(
+                                            food: food,
+                                            grams: grams,
+                                            unit: unit,
+                                          ),
+                                        );
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
                             return;
                           }
 
@@ -240,6 +289,36 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                           }
 
                           if (context.mounted) {
+                            final logProvider = Provider.of<LogProvider>(
+                              context,
+                              listen: false,
+                            );
+
+                            final existingPortion =
+                                (isUpdate &&
+                                    widget.config.onSaveOverride == null)
+                                ? logProvider.logQueue[existingIndex]
+                                : null;
+                            final unitServing = existingPortion != null
+                                ? food.servings.firstWhere(
+                                    (s) => s.unit == existingPortion.unit,
+                                    orElse: () => food.servings.first,
+                                  )
+                                : null;
+
+                            final initialUnit = existingPortion != null
+                                ? existingPortion.unit
+                                : selectedUnit.unit;
+                            final initialQuantity =
+                                (existingPortion != null && unitServing != null)
+                                ? unitServing.quantityFromGrams(
+                                    existingPortion.grams,
+                                  )
+                                : selectedUnit.quantity;
+                            final originalGrams = existingPortion != null
+                                ? existingPortion.grams
+                                : 0.0;
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -247,8 +326,12 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                                   config: QuantityEditConfig(
                                     context: widget.config.context,
                                     food: food,
-                                    initialUnit: selectedUnit.unit,
-                                    initialQuantity: selectedUnit.quantity,
+                                    isUpdate:
+                                        isUpdate &&
+                                        widget.config.onSaveOverride == null,
+                                    initialUnit: initialUnit,
+                                    initialQuantity: initialQuantity,
+                                    originalGrams: originalGrams,
                                     onSave: (grams, unit) {
                                       final portion = model_portion.FoodPortion(
                                         food: food,
@@ -262,10 +345,14 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                                         // Second pop closes SearchScreen via onSaveOverride
                                         widget.config.onSaveOverride!(portion);
                                       } else {
-                                        Provider.of<LogProvider>(
-                                          context,
-                                          listen: false,
-                                        ).addFoodToQueue(portion);
+                                        if (isUpdate) {
+                                          logProvider.updateFoodInQueue(
+                                            existingIndex,
+                                            portion,
+                                          );
+                                        } else {
+                                          logProvider.addFoodToQueue(portion);
+                                        }
                                         Navigator.pop(context);
                                       }
                                     },

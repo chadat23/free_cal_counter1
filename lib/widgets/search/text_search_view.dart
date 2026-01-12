@@ -41,7 +41,7 @@ class TextSearchView extends StatelessWidget {
           itemBuilder: (context, index) {
             final food = searchProvider.searchResults[index];
             final logProvider = Provider.of<LogProvider>(context);
-            final isUpdate = logProvider.logQueue.any(
+            final int existingIndex = logProvider.logQueue.indexWhere(
               (p) =>
                   (p.food.id != 0 &&
                       p.food.id == food.id &&
@@ -51,6 +51,7 @@ class TextSearchView extends StatelessWidget {
                       p.food.source == 'off' &&
                       p.food.sourceBarcode == food.sourceBarcode),
             );
+            final isUpdate = existingIndex != -1;
 
             return SlidableSearchResult(
               key: ValueKey('${food.id}_${food.source}'),
@@ -58,6 +59,47 @@ class TextSearchView extends StatelessWidget {
               isUpdate: isUpdate,
               note: food.usageNote,
               onAdd: (selectedUnit) {
+                if (isUpdate && config.onSaveOverride == null) {
+                  // If already in queue and no override, edit existing
+                  final existingPortion = logProvider.logQueue[existingIndex];
+                  final unitServing = food.servings.firstWhere(
+                    (s) => s.unit == existingPortion.unit,
+                    orElse: () => food.servings.first,
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QuantityEditScreen(
+                        config: QuantityEditConfig(
+                          context: config.context,
+                          food: food,
+                          isUpdate: true,
+                          initialUnit: existingPortion.unit,
+                          initialQuantity: unitServing.quantityFromGrams(
+                            existingPortion.grams,
+                          ),
+                          originalGrams: existingPortion.grams,
+                          onSave: (grams, unit) {
+                            Provider.of<LogProvider>(
+                              context,
+                              listen: false,
+                            ).updateFoodInQueue(
+                              existingIndex,
+                              model_portion.FoodPortion(
+                                food: food,
+                                grams: grams,
+                                unit: unit,
+                              ),
+                            );
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
                 final portion = model_portion.FoodPortion(
                   food: food,
                   grams: selectedUnit.grams,
@@ -73,6 +115,27 @@ class TextSearchView extends StatelessWidget {
                 }
               },
               onTap: (selectedUnit) {
+                final existingPortion = isUpdate
+                    ? logProvider.logQueue[existingIndex]
+                    : null;
+                final unitServing = existingPortion != null
+                    ? food.servings.firstWhere(
+                        (s) => s.unit == existingPortion.unit,
+                        orElse: () => food.servings.first,
+                      )
+                    : null;
+
+                final initialUnit = existingPortion != null
+                    ? existingPortion.unit
+                    : selectedUnit.unit;
+                final initialQuantity =
+                    existingPortion != null && unitServing != null
+                    ? unitServing.quantityFromGrams(existingPortion.grams)
+                    : selectedUnit.quantity;
+                final originalGrams = existingPortion != null
+                    ? existingPortion.grams
+                    : 0.0;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -80,8 +143,10 @@ class TextSearchView extends StatelessWidget {
                       config: QuantityEditConfig(
                         context: config.context,
                         food: food,
-                        initialUnit: selectedUnit.unit,
-                        initialQuantity: selectedUnit.quantity,
+                        isUpdate: isUpdate,
+                        initialUnit: initialUnit,
+                        initialQuantity: initialQuantity,
+                        originalGrams: originalGrams,
                         onSave: (grams, unit) {
                           final portion = model_portion.FoodPortion(
                             food: food,
@@ -94,10 +159,17 @@ class TextSearchView extends StatelessWidget {
                             // Second pop closes SearchScreen via onSaveOverride
                             config.onSaveOverride!(portion);
                           } else {
-                            Provider.of<LogProvider>(
-                              context,
-                              listen: false,
-                            ).addFoodToQueue(portion);
+                            if (isUpdate) {
+                              Provider.of<LogProvider>(
+                                context,
+                                listen: false,
+                              ).updateFoodInQueue(existingIndex, portion);
+                            } else {
+                              Provider.of<LogProvider>(
+                                context,
+                                listen: false,
+                              ).addFoodToQueue(portion);
+                            }
                             Navigator.pop(context);
                           }
                         },

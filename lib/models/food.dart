@@ -16,6 +16,7 @@ class Food {
   final int? parentId;
   final int? sourceFdcId;
   final String? sourceBarcode;
+  final bool hidden;
 
   Food({
     required this.id,
@@ -33,6 +34,7 @@ class Food {
     this.parentId,
     this.sourceFdcId,
     this.sourceBarcode,
+    this.hidden = false,
   });
 
   Food copyWith({
@@ -51,6 +53,7 @@ class Food {
     int? parentId,
     int? sourceFdcId,
     String? sourceBarcode,
+    bool? hidden,
   }) {
     return Food(
       id: id ?? this.id,
@@ -68,6 +71,7 @@ class Food {
       parentId: parentId ?? this.parentId,
       sourceFdcId: sourceFdcId ?? this.sourceFdcId,
       sourceBarcode: sourceBarcode ?? this.sourceBarcode,
+      hidden: hidden ?? this.hidden,
     );
   }
 
@@ -92,6 +96,7 @@ class Food {
       parentId: json['parentId'] as int?,
       sourceFdcId: json['sourceFdcId'] as int?,
       sourceBarcode: json['sourceBarcode'] as String?,
+      hidden: json['hidden'] as bool? ?? false,
     );
   }
 
@@ -112,6 +117,7 @@ class Food {
       'parentId': parentId,
       'sourceFdcId': sourceFdcId,
       'sourceBarcode': sourceBarcode,
+      'hidden': hidden,
     };
   }
 }

@@ -144,42 +144,55 @@ class DatabaseService {
     int foodId,
     String foodSource,
   ) async {
+    final servingsMap = await getServingsForFoods([foodId], foodSource);
+    return servingsMap[foodId] ?? [];
+  }
+
+  Future<Map<int, List<model_serving.FoodServing>>> getServingsForFoods(
+    List<int> foodIds,
+    String foodSource,
+  ) async {
+    if (foodIds.isEmpty) return {};
+
     List<dynamic> driftServings;
     if (foodSource == 'live') {
       driftServings = await (_liveDb.select(
         _liveDb.foodPortions,
-      )..where((s) => s.foodId.equals(foodId))).get();
+      )..where((s) => s.foodId.isIn(foodIds))).get();
     } else {
-      // 'foundation' or 'reference'
       driftServings = await (_referenceDb.select(
         _referenceDb.foodPortions,
-      )..where((s) => s.foodId.equals(foodId))).get();
+      )..where((s) => s.foodId.isIn(foodIds))).get();
     }
-    final servings = driftServings
-        .map(
-          (s) => model_serving.FoodServing(
-            id: s.id as int,
-            foodId: s.foodId as int,
-            unit: s.unit as String,
-            grams: s.grams as double,
-            quantity: s.quantity as double,
-          ),
-        )
-        .toList();
 
-    // Ensure 'g' is always an option
-    if (!servings.any((s) => s.unit == 'g')) {
-      servings.add(
-        model_serving.FoodServing(
-          foodId: foodId,
-          unit: 'g',
-          grams: 1.0,
-          quantity: 1.0,
-        ),
+    final Map<int, List<model_serving.FoodServing>> results = {};
+    for (final s in driftServings) {
+      final serving = model_serving.FoodServing(
+        id: s.id as int,
+        foodId: s.foodId as int,
+        unit: s.unit as String,
+        grams: s.grams as double,
+        quantity: s.quantity as double,
       );
+      results.putIfAbsent(s.foodId as int, () => []).add(serving);
     }
 
-    return servings;
+    // Ensure 'g' is always an option for each requested food
+    for (final foodId in foodIds) {
+      final servings = results.putIfAbsent(foodId, () => []);
+      if (!servings.any((s) => s.unit == 'g')) {
+        servings.add(
+          model_serving.FoodServing(
+            foodId: foodId,
+            unit: 'g',
+            grams: 1.0,
+            quantity: 1.0,
+          ),
+        );
+      }
+    }
+
+    return results;
   }
 
   Future<String?> getLastLoggedUnit(int originalFoodId) async {
@@ -286,8 +299,7 @@ class DatabaseService {
                 logTimestamp: timestamp,
                 grams: portion.grams,
                 unit: portion.unit,
-                quantity:
-                    portion.grams, // Placeholder as per previous implementation
+                quantity: portion.quantity,
               ),
             );
       }
@@ -340,37 +352,61 @@ class DatabaseService {
       ..where((p) => p.logTimestamp.isBetweenValues(startOfDay, endOfDay));
 
     final loggedRows = await query.get();
+
+    // Batch fetch unique foods and recipes to avoid N+1 queries
+    final foodIds = loggedRows
+        .map((r) => r.foodId)
+        .whereType<int>()
+        .toSet()
+        .toList();
+    final recipeIds = loggedRows
+        .map((r) => r.recipeId)
+        .whereType<int>()
+        .toSet()
+        .toList();
+
+    final foodsMap = <int, model.Food>{};
+    for (final id in foodIds) {
+      final f = await getFoodById(id, 'live');
+      if (f != null) foodsMap[id] = f;
+    }
+
+    final recipesMap = <int, model.Recipe>{};
+    for (final id in recipeIds) {
+      final r = await getRecipeById(id);
+      recipesMap[id] = r;
+    }
+
     final results = <model.LoggedPortion>[];
 
-    // Bulk fetch helpers to avoid N+1 queries would be better, but simpler logic first.
     for (final row in loggedRows) {
-      model.Food? food;
+      model.FoodPortion? portion;
 
       if (row.foodId != null) {
-        food = await getFoodById(row.foodId!, 'live');
-        // Also need to set the source to 'logged' for UI?
-        // Previous code: source: 'logged'.
-        // But now it IS 'live'.
-        // Wait, previous code created a fake food object from LoggedFood snapshot.
-        // Now we have the REAL food object.
-        // We should probably keep it as 'live' (or whatever getFoodById returns)
-        // but maybe wrap it if we need specific UI behavior?
-        // No, 'live' is correct.
+        final food = foodsMap[row.foodId!];
+        if (food != null) {
+          portion = model.FoodPortion(
+            food: food,
+            grams: row.grams,
+            unit: row.unit,
+          );
+        }
       } else if (row.recipeId != null) {
-        final recipe = await getRecipeById(row.recipeId!);
-        food = recipe.toFood();
-        // Use toFood() to adapt Recipe to FoodPortion model expectations
+        final recipe = recipesMap[row.recipeId!];
+        if (recipe != null) {
+          portion = model.FoodPortion(
+            food: recipe.toFood(),
+            grams: row.grams,
+            unit: row.unit,
+          );
+        }
       }
 
-      if (food != null) {
+      if (portion != null) {
         results.add(
           model.LoggedPortion(
             id: row.id,
-            portion: model.FoodPortion(
-              food: food,
-              grams: row.grams,
-              unit: row.unit,
-            ),
+            portion: portion,
             timestamp: DateTime.fromMillisecondsSinceEpoch(row.logTimestamp),
           ),
         );
@@ -382,41 +418,86 @@ class DatabaseService {
   Future<model.Food> saveFood(model.Food food) async {
     // Check if food is used (logged or in recipe)
     bool isUsed = false;
-    if (food.id > 0) {
-      // Only check if it's an existing live food
+    model.Food? existingLiveFood;
+
+    if (food.id > 0 && food.source == 'live') {
       isUsed = await isFoodReferenced(food.id, 'live');
+      existingLiveFood = await getFoodById(food.id, 'live');
     }
 
-    if (isUsed) {
-      // VERSIONING: Create new record, supersede old one
-      return await _liveDb.transaction(() async {
-        // 1. Insert new food pointing to old one as parent
-        final newFoodId = await _liveDb
-            .into(_liveDb.foods)
-            .insert(
-              FoodsCompanion.insert(
-                name: food.name,
-                source: 'live',
-                caloriesPerGram: food.calories,
-                proteinPerGram: food.protein,
-                fatPerGram: food.fat,
-                carbsPerGram: food.carbs,
-                fiberPerGram: food.fiber,
-                parentId: Value(food.id), // Point to OLD ID
-                sourceFdcId: Value(food.sourceFdcId),
-                // Copy other fields...
-              ),
-            );
+    if (isUsed && existingLiveFood != null) {
+      // SMART VERSIONING: Only version if nutrition changed
+      bool nutritionChanged = !_isFoodNutritionallyEquivalent(
+        existingLiveFood,
+        food,
+      );
 
-        // 2. Copy portions
-        // (Assume portions are passed in food object or need to fetch?)
-        // The food object passed in contains the NEW state (including portions).
+      if (nutritionChanged) {
+        return await _liveDb.transaction(() async {
+          // 1. Insert new food pointing to old one as parent
+          final newFoodId = await _liveDb
+              .into(_liveDb.foods)
+              .insert(
+                FoodsCompanion.insert(
+                  name: food.name,
+                  source: 'live',
+                  caloriesPerGram: food.calories,
+                  proteinPerGram: food.protein,
+                  fatPerGram: food.fat,
+                  carbsPerGram: food.carbs,
+                  fiberPerGram: food.fiber,
+                  parentId: Value(food.id), // Point to OLD ID
+                  sourceFdcId: Value(food.sourceFdcId),
+                  sourceBarcode: Value(food.sourceBarcode),
+                  emoji: Value(food.emoji),
+                  thumbnail: Value(food.thumbnail),
+                ),
+              );
+
+          // 2. Copy portions
+          for (final serving in food.servings) {
+            await _liveDb
+                .into(_liveDb.foodPortions)
+                .insert(
+                  FoodPortionsCompanion.insert(
+                    foodId: newFoodId,
+                    unit: serving.unit,
+                    grams: serving.grams,
+                    quantity: serving.quantity,
+                  ),
+                );
+          }
+
+          final servings = await getServingsForFood(newFoodId, 'live');
+          final newFoodRow = await (_liveDb.select(
+            _liveDb.foods,
+          )..where((t) => t.id.equals(newFoodId))).getSingle();
+          return _mapFoodData(newFoodRow, servings);
+        });
+      } else {
+        // Macro-neutral change: update in-place even if used
+        await (_liveDb.update(
+          _liveDb.foods,
+        )..where((t) => t.id.equals(food.id))).write(
+          FoodsCompanion(
+            name: Value(food.name),
+            emoji: Value(food.emoji),
+            thumbnail: Value(food.thumbnail),
+            sourceBarcode: Value(food.sourceBarcode),
+            hidden: Value(food.hidden),
+          ),
+        );
+
+        // Update portions metadata if any (names?)
+        await (_liveDb.delete(
+          _liveDb.foodPortions,
+        )..where((t) => t.foodId.equals(food.id))).go();
         for (final serving in food.servings) {
           await _liveDb
               .into(_liveDb.foodPortions)
               .insert(
                 FoodPortionsCompanion.insert(
-                  foodId: newFoodId,
+                  foodId: food.id,
                   unit: serving.unit,
                   grams: serving.grams,
                   quantity: serving.quantity,
@@ -424,19 +505,14 @@ class DatabaseService {
               );
         }
 
-        // 3. Update OLD food? No, old food stays as is (history).
-        // But we might want to mark it as superseded if we had a status column?
-        // Hierarchy is implicit via parentId on new child.
-        // Search filters out if ID is present in parentId column of ANY other row.
-
-        final servings = await getServingsForFood(newFoodId, 'live');
-        final newFoodRow = await (_liveDb.select(
+        final servings = await getServingsForFood(food.id, 'live');
+        final updatedRow = await (_liveDb.select(
           _liveDb.foods,
-        )..where((t) => t.id.equals(newFoodId))).getSingle();
-        return _mapFoodData(newFoodRow, servings);
-      });
+        )..where((t) => t.id.equals(food.id))).getSingle();
+        return _mapFoodData(updatedRow, servings);
+      }
     } else {
-      // UPDATE IN PLACE or INSERT
+      // NOT USED or NEW: UPDATE IN PLACE or INSERT
       if (food.id > 0 && food.source == 'live') {
         // Update
         await (_liveDb.update(
@@ -450,6 +526,10 @@ class DatabaseService {
             carbsPerGram: Value(food.carbs),
             fiberPerGram: Value(food.fiber),
             sourceFdcId: Value(food.sourceFdcId),
+            sourceBarcode: Value(food.sourceBarcode),
+            emoji: Value(food.emoji),
+            thumbnail: Value(food.thumbnail),
+            hidden: Value(food.hidden),
           ),
         );
 
@@ -536,7 +616,7 @@ class DatabaseService {
         recipeId: Value(recipeId),
         grams: Value(newPortion.grams),
         unit: Value(newPortion.unit),
-        quantity: Value(newPortion.grams),
+        quantity: Value(newPortion.quantity),
       ),
     );
     BackupConfigService.instance.markDirty();
@@ -578,13 +658,33 @@ class DatabaseService {
 
     final rows = await query.get();
 
+    // Batch fetch all referenced foods and recipes to avoid N+1 queries
+    final foodIds = rows.map((r) => r.foodId).whereType<int>().toSet().toList();
+    final recipeIds = rows
+        .map((r) => r.recipeId)
+        .whereType<int>()
+        .toSet()
+        .toList();
+
+    final foodsMap = <int, model.Food>{};
+    for (final id in foodIds) {
+      final f = await getFoodById(id, 'live');
+      if (f != null) foodsMap[id] = f;
+    }
+
+    final recipesMap = <int, model.Recipe>{};
+    for (final id in recipeIds) {
+      final r = await getRecipeById(id);
+      recipesMap[id] = r;
+    }
+
     final results = <model_stats.LoggedMacroDTO>[];
 
     for (final row in rows) {
       double calories = 0, protein = 0, fat = 0, carbs = 0, fiber = 0;
 
       if (row.foodId != null) {
-        final food = await getFoodById(row.foodId!, 'live');
+        final food = foodsMap[row.foodId!];
         if (food != null) {
           calories = food.calories;
           protein = food.protein;
@@ -593,13 +693,15 @@ class DatabaseService {
           fiber = food.fiber;
         }
       } else if (row.recipeId != null) {
-        final recipe = await getRecipeById(row.recipeId!);
-        final food = recipe.toFood();
-        calories = food.calories;
-        protein = food.protein;
-        fat = food.fat;
-        carbs = food.carbs;
-        fiber = food.fiber;
+        final recipe = recipesMap[row.recipeId!];
+        if (recipe != null) {
+          final food = recipe.toFood();
+          calories = food.calories;
+          protein = food.protein;
+          fat = food.fat;
+          carbs = food.carbs;
+          fiber = food.fiber;
+        }
       }
 
       results.add(
@@ -760,12 +862,41 @@ class DatabaseService {
   }
 
   Future<int> saveRecipe(model.Recipe recipe) async {
+    bool isUsed = false;
+    model.Recipe? existingRecipe;
+    if (recipe.id > 0) {
+      isUsed = await isRecipeReferenced(recipe.id);
+      existingRecipe = await getRecipeById(recipe.id);
+    }
+
     final result = await _liveDb.transaction(() async {
       int recipeId;
+      bool shouldVersion =
+          isUsed &&
+          existingRecipe != null &&
+          !_isRecipeNutritionallyEquivalent(existingRecipe, recipe);
 
-      if (recipe.id > 0) {
+      if (shouldVersion) {
+        // SMART VERSIONING: Create new recipe, hide old one
+        recipeId = await _liveDb
+            .into(_liveDb.recipes)
+            .insert(
+              RecipesCompanion.insert(
+                name: recipe.name,
+                servingsCreated: Value(recipe.servingsCreated),
+                finalWeightGrams: Value(recipe.finalWeightGrams),
+                portionName: Value(recipe.portionName),
+                notes: Value(recipe.notes),
+                isTemplate: Value(recipe.isTemplate),
+                hidden: Value(recipe.hidden),
+                parentId: Value(recipe.id), // Point to old ID
+                createdTimestamp: DateTime.now().millisecondsSinceEpoch,
+              ),
+            );
+        // We don't need to delete items from old recipe, they stay for history
+      } else if (recipe.id > 0) {
         recipeId = recipe.id;
-        // Update basic info
+        // Update basic info in-place
         await (_liveDb.update(
           _liveDb.recipes,
         )..where((t) => t.id.equals(recipeId))).write(
@@ -922,50 +1053,71 @@ class DatabaseService {
   }
 
   Future<Map<int, String?>> getFoodsUsageNotes(List<model.Food> foods) async {
+    if (foods.isEmpty) return {};
+
+    final foodIds = foods.map((f) => f.id).toList();
     final Map<int, String?> results = {};
 
-    for (final food in foods) {
-      // Checking usage for Reference Foods logic:
-      // Technically Ref foods are not "used" directly anymore in the unified search result sense
-      // because if they were used, they would be Live foods.
-      // But the search might return both?
-      // If I see a Ref food in search, it implicitly means it is NOT used yet (otherwise I'd see the Live version).
-      // So I can default Ref foods to null?
+    final isLiveSourceMap = {
+      for (var f in foods)
+        f.id:
+            (f.source == 'live' ||
+            f.source == 'user_created' ||
+            f.source == 'off_cache' ||
+            f.source == 'recipe'),
+    };
 
-      bool isLiveSource =
-          food.source == 'live' ||
-          food.source == 'user_created' ||
-          food.source == 'off_cache';
-      if (!isLiveSource && food.source != 'recipe') {
+    // Batch fetch logged entries
+    final loggedFoodIdsRows =
+        await (_liveDb.selectOnly(_liveDb.loggedPortions)
+              ..addColumns([_liveDb.loggedPortions.foodId])
+              ..where(_liveDb.loggedPortions.foodId.isIn(foodIds)))
+            .get();
+    final loggedFoodSet = loggedFoodIdsRows
+        .map((r) => r.read(_liveDb.loggedPortions.foodId))
+        .toSet();
+
+    final loggedRecipeIdsRows =
+        await (_liveDb.selectOnly(_liveDb.loggedPortions)
+              ..addColumns([_liveDb.loggedPortions.recipeId])
+              ..where(_liveDb.loggedPortions.recipeId.isIn(foodIds)))
+            .get();
+    final loggedRecipeSet = loggedRecipeIdsRows
+        .map((r) => r.read(_liveDb.loggedPortions.recipeId))
+        .toSet();
+
+    // Batch fetch usage as ingredients
+    final usedFoodIdsRows =
+        await (_liveDb.selectOnly(_liveDb.recipeItems)
+              ..addColumns([_liveDb.recipeItems.ingredientFoodId])
+              ..where(_liveDb.recipeItems.ingredientFoodId.isIn(foodIds)))
+            .get();
+    final usedFoodSet = usedFoodIdsRows
+        .map((r) => r.read(_liveDb.recipeItems.ingredientFoodId))
+        .toSet();
+
+    final usedRecipeIdsRows =
+        await (_liveDb.selectOnly(_liveDb.recipeItems)
+              ..addColumns([_liveDb.recipeItems.ingredientRecipeId])
+              ..where(_liveDb.recipeItems.ingredientRecipeId.isIn(foodIds)))
+            .get();
+    final usedRecipeSet = usedRecipeIdsRows
+        .map((r) => r.read(_liveDb.recipeItems.ingredientRecipeId))
+        .toSet();
+
+    for (final food in foods) {
+      if (!(isLiveSourceMap[food.id] ?? false)) {
         results[food.id] = null;
         continue;
       }
 
-      // Live Foods or Recipes
-      int idToCheck = food.id;
-      bool isRecipe = food.source == 'recipe';
-
-      bool isLogged = false;
-      if (isRecipe) {
-        isLogged = await isRecipeLogged(idToCheck);
-      } else {
-        // Check LoggedPortions for foodId
-        final logCount = await _liveDb.select(_liveDb.loggedPortions)
-          ..where((t) => t.foodId.equals(idToCheck));
-        final rows = await logCount.get();
-        isLogged = rows.isNotEmpty;
-      }
-
-      bool isUsed = false;
-      if (isRecipe) {
-        isUsed = await isRecipeUsedAsIngredient(idToCheck);
-      } else {
-        final usedQuery = _liveDb.select(_liveDb.recipeItems)
-          ..where((t) => t.ingredientFoodId.equals(idToCheck))
-          ..limit(1);
-        final used = await usedQuery.getSingleOrNull();
-        isUsed = used != null;
-      }
+      final isRecipe = food.source == 'recipe';
+      final isLogged = isRecipe
+          ? loggedRecipeSet.contains(food.id)
+          : loggedFoodSet.contains(food.id);
+      final isUsed = isRecipe
+          ? usedRecipeSet.contains(food.id)
+          : usedFoodSet.contains(food.id);
 
       if (isLogged && isUsed) {
         results[food.id] = 'Logged • In Recipe';
@@ -1126,12 +1278,21 @@ class DatabaseService {
         .whereType<int>()
         .toSet();
 
-    final List<model.Food> liveFoods = [];
+    final List<model.Food> filteredLiveFoods = [];
+    final List<int> idsToFetch = [];
     for (final foodData in liveFoodsData) {
       if (!parentIds.contains(foodData.id)) {
-        final servings = await getServingsForFood(foodData.id, foodData.source);
-        liveFoods.add(_mapFoodData(foodData, servings));
+        filteredLiveFoods.add(
+          _mapFoodData(foodData, []),
+        ); // Temporary empty servings
+        idsToFetch.add(foodData.id);
       }
+    }
+
+    final servingsMap = await getServingsForFoods(idsToFetch, 'live');
+    final List<model.Food> liveFoods = [];
+    for (var f in filteredLiveFoods) {
+      liveFoods.add(f.copyWith(servings: servingsMap[f.id] ?? []));
     }
 
     return liveFoods;
@@ -1146,10 +1307,12 @@ class DatabaseService {
       _referenceDb.foods,
     )..where((f) => f.name.lower().like(lowerCaseQuery))).get();
 
+    final idsToFetch = refFoodsData.map((f) => f.id).toList();
+    final servingsMap = await getServingsForFoods(idsToFetch, 'reference');
+
     final List<model.Food> refFoods = [];
     for (final foodData in refFoodsData) {
-      final servings = await getServingsForFood(foodData.id, foodData.source);
-      refFoods.add(_mapFoodData(foodData, servings));
+      refFoods.add(_mapFoodData(foodData, servingsMap[foodData.id] ?? []));
     }
 
     return refFoods;
@@ -1268,6 +1431,49 @@ class DatabaseService {
     }
 
     return results;
+  }
+
+  Future<bool> isRecipeReferenced(int id) async {
+    return await isRecipeLogged(id) || await isRecipeUsedAsIngredient(id);
+  }
+
+  bool _isFoodNutritionallyEquivalent(model.Food oldF, model.Food newF) {
+    if ((oldF.calories - newF.calories).abs() > 0.001) return false;
+    if ((oldF.protein - newF.protein).abs() > 0.001) return false;
+    if ((oldF.fat - newF.fat).abs() > 0.001) return false;
+    if ((oldF.carbs - newF.carbs).abs() > 0.001) return false;
+    if ((oldF.fiber - newF.fiber).abs() > 0.001) return false;
+
+    if (oldF.servings.length != newF.servings.length) return false;
+    for (final serving in newF.servings) {
+      bool found = oldF.servings.any(
+        (old) =>
+            old.unit == serving.unit &&
+            (old.grams - serving.grams).abs() < 0.001,
+      );
+      if (!found) return false;
+    }
+    return true;
+  }
+
+  bool _isRecipeNutritionallyEquivalent(model.Recipe oldR, model.Recipe newR) {
+    if ((oldR.servingsCreated - newR.servingsCreated).abs() > 0.001) {
+      return false;
+    }
+    if (oldR.finalWeightGrams != newR.finalWeightGrams) return false;
+    if (oldR.items.length != newR.items.length) return false;
+
+    for (var newItem in newR.items) {
+      bool found = oldR.items.any(
+        (oldItem) =>
+            (oldItem.grams - newItem.grams).abs() < 0.001 &&
+            oldItem.unit == newItem.unit &&
+            (oldItem.food?.id == newItem.food?.id &&
+                oldItem.recipe?.id == newItem.recipe?.id),
+      );
+      if (!found) return false;
+    }
+    return true;
   }
 
   /// Filter reference foods that have live versions

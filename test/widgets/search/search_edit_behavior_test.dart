@@ -202,7 +202,7 @@ void main() {
         );
 
         // Tap the tile
-        await tester.tap(find.text('🍎 Apple'));
+        await tester.tap(find.text('Apple'));
         await tester.pumpAndSettle();
 
         // EXPECTED BEHAVIOR (FIXED): It opens QuantityEditScreen with isUpdate: true

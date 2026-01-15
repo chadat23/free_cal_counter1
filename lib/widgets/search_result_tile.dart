@@ -112,12 +112,16 @@ class _SearchResultTileState extends State<SearchResultTile> {
                       const Icon(Icons.fastfood),
                   fit: BoxFit.cover,
                 )
-              : const Icon(Icons.fastfood), // Default icon if no thumbnail
+              : Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 28),
+                  textAlign: TextAlign.center,
+                ),
         ),
       ),
       title: Row(
         children: [
-          Expanded(child: Text('${emoji ?? ''} ${widget.food.name}')),
+          Expanded(child: Text(widget.food.name)),
           if (widget.note != null)
             Padding(
               padding: const EdgeInsets.only(left: 4.0),

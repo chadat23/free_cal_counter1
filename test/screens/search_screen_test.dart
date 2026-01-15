@@ -233,7 +233,7 @@ void main() {
 
     await tester.pumpWidget(createTestWidget());
 
-    await tester.tap(find.text('🍎 Apple'));
+    await tester.tap(find.text('Apple'));
     await tester.pumpAndSettle();
 
     expect(find.byType(QuantityEditScreen), findsOneWidget);

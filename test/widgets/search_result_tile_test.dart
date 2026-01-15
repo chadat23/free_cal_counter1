@@ -74,7 +74,9 @@ void main() {
       );
 
       // Verify food name is displayed
-      expect(find.text('🍎 Apple'), findsOneWidget);
+      expect(find.text('Apple'), findsOneWidget);
+      // Verify emoji is displayed separately
+      expect(find.text('🍎'), findsOneWidget);
 
       // Verify initial nutritional info (should be for 1g by default)
       // Calories: 0.52 * 1 = 0.52
@@ -199,7 +201,9 @@ void main() {
       );
 
       // Verify food name is displayed
-      expect(find.text('🍎 Apple'), findsOneWidget);
+      expect(find.text('Apple'), findsOneWidget);
+      // Verify emoji is displayed separately (via leading widget)
+      expect(find.text('🍎'), findsOneWidget);
 
       // Verify nutritional info (should be for 1g by default)
       expect(find.text('1🔥 • 0.0P • 0.0F • 0.1C • 0.0Fb'), findsOneWidget);

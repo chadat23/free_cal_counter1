@@ -9,11 +9,13 @@ class FoodPortion {
 
   double get quantity {
     if (unit == 'g') return grams;
+    if (food.servings.isEmpty)
+      return grams; // Fallback to grams if no servings defined
+
     final serving = food.servings.firstWhere(
       (s) => s.unit == unit,
       orElse: () => food.servings.first,
     );
-    if (serving.grams == 0) return 0;
-    return grams / serving.grams;
+    return serving.quantityFromGrams(grams);
   }
 }

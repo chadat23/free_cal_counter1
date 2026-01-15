@@ -415,7 +415,7 @@ class DatabaseService {
     return results;
   }
 
-  Future<model.Food> saveFood(model.Food food) async {
+  Future<int> saveFood(model.Food food) async {
     // Check if food is used (logged or in recipe)
     bool isUsed = false;
     model.Food? existingLiveFood;
@@ -468,11 +468,7 @@ class DatabaseService {
                 );
           }
 
-          final servings = await getServingsForFood(newFoodId, 'live');
-          final newFoodRow = await (_liveDb.select(
-            _liveDb.foods,
-          )..where((t) => t.id.equals(newFoodId))).getSingle();
-          return _mapFoodData(newFoodRow, servings);
+          return newFoodId;
         });
       } else {
         // Macro-neutral change: update in-place even if used
@@ -488,7 +484,7 @@ class DatabaseService {
           ),
         );
 
-        // Update portions metadata if any (names?)
+        // Update portions metadata if any
         await (_liveDb.delete(
           _liveDb.foodPortions,
         )..where((t) => t.foodId.equals(food.id))).go();
@@ -505,15 +501,11 @@ class DatabaseService {
               );
         }
 
-        final servings = await getServingsForFood(food.id, 'live');
-        final updatedRow = await (_liveDb.select(
-          _liveDb.foods,
-        )..where((t) => t.id.equals(food.id))).getSingle();
-        return _mapFoodData(updatedRow, servings);
+        return food.id;
       }
     } else {
       // NOT USED or NEW: UPDATE IN PLACE or INSERT
-      if (food.id > 0 && food.source == 'live') {
+      if (existingLiveFood != null) {
         // Update
         await (_liveDb.update(
           _liveDb.foods,
@@ -550,14 +542,11 @@ class DatabaseService {
               );
         }
 
-        final servings = await getServingsForFood(food.id, 'live');
-        final updatedRow = await (_liveDb.select(
-          _liveDb.foods,
-        )..where((t) => t.id.equals(food.id))).getSingle();
-        return _mapFoodData(updatedRow, servings);
+        return food.id; // Correctly return int ID
       } else {
-        // Insert New
-        return await copyFoodToLiveDb(food, isCopy: false);
+        // Insert New (handles copying ref to live or creating user-created with potential ID)
+        final copied = await copyFoodToLiveDb(food, isCopy: false);
+        return copied.id;
       }
     }
   }

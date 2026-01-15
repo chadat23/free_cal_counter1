@@ -237,7 +237,7 @@ void main() {
         // Only change metadata
         provider.setName('Updated Name');
         provider.setPortionName('Serving');
-        provider.setServingsCreated(2.0);
+        provider.setNotes('New Notes');
 
         final success = await provider.saveRecipe();
         expect(success, isTrue);
@@ -249,6 +249,37 @@ void main() {
         expect(allRecipes.length, 1);
         expect(allRecipes.first.id, recipeId);
         expect(allRecipes.first.name, 'Updated Name');
+        expect(allRecipes.first.notes, 'New Notes');
+      },
+    );
+
+    test(
+      'saveRecipe should copy when logged and servingsCreated changed',
+      () async {
+        final recipeId = await databaseService.saveRecipe(
+          await createTestRecipe(),
+        );
+        final recipe = await databaseService.getRecipeById(recipeId);
+
+        // Log the recipe
+        await databaseService.logPortions([
+          model.FoodPortion(food: recipe.toFood(), grams: 100, unit: 'g'),
+        ], DateTime.now());
+
+        provider.loadFromRecipe(recipe, isLogged: true);
+
+        // Change servingsCreated (Nutritional change)
+        provider.setServingsCreated(2.0);
+
+        final success = await provider.saveRecipe();
+        expect(success, isTrue);
+
+        // Should have created a new recipe
+        final allRecipes = await databaseService.getRecipes(
+          includeHidden: true,
+        );
+        expect(allRecipes.length, 2);
+        expect(allRecipes.any((r) => r.parentId == recipeId), isTrue);
       },
     );
 

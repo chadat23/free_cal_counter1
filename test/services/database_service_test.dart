@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_test/flutter_test.dart' hide isNotNull;
 import 'package:matcher/matcher.dart' as matcher;
 import 'package:free_cal_counter1/services/database_service.dart';
@@ -6,8 +7,13 @@ import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/services/reference_database.dart' as ref;
 import 'package:drift/native.dart';
 import 'package:free_cal_counter1/models/food.dart' as model;
+import 'package:free_cal_counter1/models/food_serving.dart' as model_serving;
+import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
+import 'package:free_cal_counter1/models/logged_portion.dart' as model_logged;
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
   late DatabaseService databaseService;
   late LiveDatabase liveDatabase;
   late ref.ReferenceDatabase referenceDatabase;
@@ -292,6 +298,152 @@ void main() {
 
       final yesterdayLog = results.firstWhere((r) => r.grams == 50);
       expect(yesterdayLog.caloriesPerGram, 1.0);
+    });
+  });
+
+  group('Smart Versioning', () {
+    test('macro-neutral changes should update in-place', () async {
+      // Arrange
+      const foodId = 1;
+      final food = model.Food(
+        id: foodId,
+        source: 'live',
+        name: 'Apple',
+        calories: 0.52,
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
+        fiber: 0.024,
+      );
+      final savedId = await databaseService.saveFood(food);
+      final savedFood = food.copyWith(id: savedId);
+
+      // Act: Update name and emoji (macro-neutral)
+      final updatedFood = savedFood.copyWith(name: 'Red Apple', emoji: '🍎');
+      final resultId = await databaseService.saveFood(updatedFood);
+
+      // Assert
+      expect(resultId, savedId); // Should be same ID
+      final saved = await databaseService.getFoodById(savedId, 'live');
+      expect(saved?.name, 'Red Apple');
+      expect(saved?.emoji, '🍎');
+    });
+
+    test(
+      'nutritional changes should update in-place if NOT referenced',
+      () async {
+        // Arrange
+        const foodId = 1;
+        final food = model.Food(
+          id: foodId,
+          source: 'live',
+          name: 'Apple',
+          calories: 0.52,
+          protein: 0.003,
+          fat: 0.002,
+          carbs: 0.14,
+          fiber: 0.024,
+        );
+        final savedId = await databaseService.saveFood(food);
+        final savedFood = food.copyWith(id: savedId);
+
+        // Act: Update calories (nutritional)
+        final updatedFood = savedFood.copyWith(calories: 0.60);
+        final resultId = await databaseService.saveFood(updatedFood);
+
+        // Assert
+        expect(resultId, savedId); // Still same ID because not referenced
+        final saved = await databaseService.getFoodById(savedId, 'live');
+        expect(saved?.calories, 0.60);
+      },
+    );
+
+    test(
+      'nutritional changes should create new version if referenced',
+      () async {
+        // Arrange
+        const foodId = 1;
+        final food = model.Food(
+          id: foodId,
+          source: 'live',
+          name: 'Apple',
+          calories: 0.52,
+          protein: 0.003,
+          fat: 0.002,
+          carbs: 0.14,
+          fiber: 0.024,
+        );
+        final savedId = await databaseService.saveFood(food);
+        final savedFood = food.copyWith(id: savedId);
+
+        // Reference it in a log
+        await databaseService.logPortions([
+          model_portion.FoodPortion(food: savedFood, grams: 100, unit: 'g'),
+        ], DateTime.now());
+
+        // Act: Update calories (nutritional)
+        final updatedFood = savedFood.copyWith(calories: 0.60);
+        final resultId = await databaseService.saveFood(updatedFood);
+
+        // Assert
+        expect(resultId, matcher.isNot(savedId)); // Should be a new ID
+        final oldVersion = await databaseService.getFoodById(savedId, 'live');
+        final newVersion = await databaseService.getFoodById(resultId, 'live');
+
+        expect(oldVersion?.calories, 0.52); // Old version preserved
+        expect(newVersion?.calories, 0.60); // New version created
+        expect(newVersion?.parentId, savedId); // Lineage maintained
+      },
+    );
+  });
+
+  group('Unit-Based Quantity Persistence', () {
+    test('should persist original unit and calculated quantity', () async {
+      // Arrange
+      const foodId = 1;
+      final food = model.Food(
+        id: foodId,
+        source: 'live',
+        name: 'Apple',
+        calories: 0.52,
+        protein: 0.003,
+        fat: 0.002,
+        carbs: 0.14,
+        fiber: 0.024,
+        servings: [
+          const model_serving.FoodServing(
+            foodId: foodId,
+            unit: '1 medium',
+            grams: 182,
+            quantity: 1.0,
+          ),
+        ],
+      );
+      final savedId = await databaseService.saveFood(food);
+      final savedFood = food.copyWith(id: savedId);
+
+      final portion = model_portion.FoodPortion(
+        food: savedFood,
+        grams: 91, // Half a medium apple
+        unit: '1 medium',
+      );
+
+      // Act
+      final now = DateTime.now();
+      await databaseService.logPortions([portion], now);
+
+      // Assert: Verify database row directly
+      final row = await (liveDatabase.select(
+        liveDatabase.loggedPortions,
+      )).getSingle();
+      expect(row.unit, '1 medium');
+      expect(row.grams, 91.0);
+      expect(row.quantity, 0.5); // 91 / 182
+
+      // Assert: Verify retrieval via LoggedPortion model
+      final logs = await databaseService.getLoggedPortionsForDate(now);
+      expect(logs.first.portion.quantity, 0.5);
+      expect(logs.first.portion.unit, '1 medium');
     });
   });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
@@ -35,6 +36,7 @@ import 'recipe_ingredient_flow_test.mocks.dart';
 ])
 void main() {
   setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
     final liveDb = live_db.LiveDatabase(connection: NativeDatabase.memory());
     final refDb = ref_db.ReferenceDatabase(connection: NativeDatabase.memory());
     DatabaseService.initSingletonForTesting(liveDb, refDb);

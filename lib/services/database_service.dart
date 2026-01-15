@@ -81,6 +81,7 @@ class DatabaseService {
       parentId: foodData.parentId,
       sourceFdcId: foodData.sourceFdcId,
       sourceBarcode: foodData.sourceBarcode,
+      usageNote: foodData.usageNote, // Added usageNote
     );
   }
 
@@ -451,6 +452,7 @@ class DatabaseService {
                   sourceBarcode: Value(food.sourceBarcode),
                   emoji: Value(food.emoji),
                   thumbnail: Value(food.thumbnail),
+                  usageNote: Value(food.usageNote),
                 ),
               );
 
@@ -481,6 +483,7 @@ class DatabaseService {
             thumbnail: Value(food.thumbnail),
             sourceBarcode: Value(food.sourceBarcode),
             hidden: Value(food.hidden),
+            usageNote: Value(food.usageNote),
           ),
         );
 
@@ -522,6 +525,7 @@ class DatabaseService {
             emoji: Value(food.emoji),
             thumbnail: Value(food.thumbnail),
             hidden: Value(food.hidden),
+            usageNote: Value(food.usageNote),
           ),
         );
 
@@ -1152,6 +1156,7 @@ class DatabaseService {
               source: 'live',
               emoji: Value(sourceFood.emoji),
               thumbnail: Value(sourceFood.thumbnail),
+              usageNote: Value(sourceFood.usageNote),
               caloriesPerGram: sourceFood.calories,
               proteinPerGram: sourceFood.protein,
               fatPerGram: sourceFood.fat,

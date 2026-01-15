@@ -9,6 +9,7 @@ import 'package:free_cal_counter1/models/search_config.dart';
 import 'package:free_cal_counter1/widgets/search/slidable_search_result.dart';
 import 'package:free_cal_counter1/models/food.dart' as model_food;
 import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/screens/food_edit_screen.dart';
 
 class TextSearchView extends StatelessWidget {
   final SearchConfig config;
@@ -180,45 +181,94 @@ class TextSearchView extends StatelessWidget {
               },
               onEdit: () async {
                 try {
-                  // Copy food to live database if it's from reference
-                  model_food.Food editableFood = food;
-                  if (food.source != 'live') {
-                    editableFood = await DatabaseService.instance
-                        .copyFoodToLiveDb(food);
-                  }
-
-                  // Navigate to food edit screen (to be implemented)
-                  // For now, show a message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Food Edit Screen not yet implemented'),
+                  final result = await Navigator.push<FoodEditResult>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FoodEditScreen(
+                        originalFood: food,
+                        contextType: FoodEditContext.search,
+                        isCopy: false,
+                      ),
                     ),
                   );
+
+                  if (result != null && context.mounted) {
+                    // Refresh search results
+                    await searchProvider.textSearch(
+                      searchProvider.currentQuery,
+                    );
+
+                    if (result.useImmediately) {
+                      final newFood = await DatabaseService.instance
+                          .getFoodById(result.foodId, 'live');
+                      if (context.mounted && newFood != null) {
+                        _openQuantityEdit(
+                          context,
+                          newFood,
+                          config,
+                          isUpdate: false,
+                        );
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Food updated successfully'),
+                        ),
+                      );
+                    }
+                  }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to edit food: $e')),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to edit food: $e')),
+                    );
+                  }
                 }
               },
               onCopy: () async {
                 try {
-                  final copiedFood = await DatabaseService.instance
-                      .copyFoodToLiveDb(food, isCopy: true);
-
-                  // Refresh search results
-                  await searchProvider.textSearch(searchProvider.currentQuery);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Copied "${copiedFood.name}" to your foods',
+                  final result = await Navigator.push<FoodEditResult>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FoodEditScreen(
+                        originalFood: food,
+                        contextType: FoodEditContext.search,
+                        isCopy: true,
                       ),
                     ),
                   );
+
+                  if (result != null && context.mounted) {
+                    // Refresh search results
+                    await searchProvider.textSearch(
+                      searchProvider.currentQuery,
+                    );
+
+                    if (result.useImmediately) {
+                      final newFood = await DatabaseService.instance
+                          .getFoodById(result.foodId, 'live');
+                      if (context.mounted && newFood != null) {
+                        _openQuantityEdit(
+                          context,
+                          newFood,
+                          config,
+                          isUpdate: false,
+                        );
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Food copied successfully'),
+                        ),
+                      );
+                    }
+                  }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to copy food: $e')),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to copy food: $e')),
+                    );
+                  }
                 }
               },
               onDelete: () async {
@@ -244,6 +294,73 @@ class TextSearchView extends StatelessWidget {
           },
         );
       },
+    );
+  }
+
+  void _openQuantityEdit(
+    BuildContext context,
+    model_food.Food food,
+    SearchConfig config, {
+    bool isUpdate = false,
+    int? existingIndex,
+    model_portion.FoodPortion? existingPortion,
+  }) {
+    final unitServing = existingPortion != null
+        ? food.servings.firstWhere(
+            (s) => s.unit == existingPortion.unit,
+            orElse: () => food.servings.first,
+          )
+        : food.servings.first; // Default to first serving for new items
+
+    final initialUnit = existingPortion?.unit ?? unitServing.unit;
+
+    // For new items, default to 1 qty of the default unit
+    final initialQuantity = existingPortion != null
+        ? unitServing.quantityFromGrams(existingPortion.grams)
+        : 1.0;
+
+    final originalGrams = existingPortion?.grams ?? 0.0;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QuantityEditScreen(
+          config: QuantityEditConfig(
+            context: config.context,
+            food: food,
+            isUpdate: isUpdate,
+            initialUnit: initialUnit,
+            initialQuantity: initialQuantity,
+            originalGrams: originalGrams,
+            onSave: (grams, unit) {
+              final portion = model_portion.FoodPortion(
+                food: food,
+                grams: grams,
+                unit: unit,
+              );
+              if (config.onSaveOverride != null) {
+                // First pop closes QuantityEditScreen
+                Navigator.pop(context);
+                // Second pop closes SearchScreen via onSaveOverride
+                config.onSaveOverride!(portion);
+              } else {
+                if (isUpdate && existingIndex != null) {
+                  Provider.of<LogProvider>(
+                    context,
+                    listen: false,
+                  ).updateFoodInQueue(existingIndex, portion);
+                } else {
+                  Provider.of<LogProvider>(
+                    context,
+                    listen: false,
+                  ).addFoodToQueue(portion);
+                }
+                Navigator.pop(context);
+              }
+            },
+          ),
+        ),
+      ),
     );
   }
 }

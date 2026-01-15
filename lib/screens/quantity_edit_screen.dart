@@ -7,6 +7,9 @@ import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/utils/math_evaluator.dart';
 import 'package:free_cal_counter1/utils/quantity_edit_utils.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
+import 'package:free_cal_counter1/screens/food_edit_screen.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/models/food.dart';
 
 class QuantityEditScreen extends StatefulWidget {
   final QuantityEditConfig config;
@@ -22,10 +25,12 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
   late String _selectedUnit;
   int _selectedTargetIndex = 0; // 0: Unit, 1: Cal, 2: Protein, 3: Fat, 4: Carbs
   bool _isPerServing = false;
+  late Food _food;
 
   @override
   void initState() {
     super.initState();
+    _food = widget.config.food;
     _quantityController.text = widget.config.initialQuantity.toString();
     _selectedUnit = widget.config.initialUnit;
   }
@@ -47,6 +52,13 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         title: Text(
           widget.config.isUpdate ? 'Update Quantity' : 'Add Quantity',
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            tooltip: 'Edit Definition',
+            onPressed: _handleEditDefinition,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -73,7 +85,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
 
   Widget _buildMacroDisplay() {
     final currentGrams = _calculateCurrentGrams();
-    final food = widget.config.food;
+    final food = _food;
 
     return Consumer3<LogProvider, RecipeProvider, GoalsProvider>(
       builder: (context, logProvider, recipeProvider, goalsProvider, _) {
@@ -159,7 +171,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 4,
-          children: widget.config.food.servings.map((s) {
+          children: _food.servings.map((s) {
             final isSelected = _selectedUnit == s.unit;
             return ChoiceChip(
               label: Text(s.unit),
@@ -191,9 +203,9 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         _selectedTargetIndex = index;
         if (index != 0) {
           // Selecting a macro target switches unit to "g" (if available)
-          final gramServing = widget.config.food.servings.firstWhere(
+          final gramServing = _food.servings.firstWhere(
             (s) => s.unit == 'g' || s.unit == 'gram',
-            orElse: () => widget.config.food.servings.first,
+            orElse: () => _food.servings.first,
           );
           if (gramServing.unit == 'g' || gramServing.unit == 'gram') {
             _selectedUnit = gramServing.unit;
@@ -268,7 +280,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
     final quantity = MathEvaluator.evaluate(_quantityController.text) ?? 0.0;
     return QuantityEditUtils.calculateGrams(
       quantity: quantity,
-      food: widget.config.food,
+      food: _food,
       selectedUnit: _selectedUnit,
       selectedTargetIndex: _selectedTargetIndex,
     );
@@ -372,6 +384,49 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid amount')),
       );
+    }
+  }
+
+  Future<void> _handleEditDefinition() async {
+    try {
+      final result = await Navigator.push<FoodEditResult>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FoodEditScreen(
+            originalFood: _food,
+            contextType: FoodEditContext.editDefinition,
+          ),
+        ),
+      );
+
+      if (result != null && mounted) {
+        // Reload food from database to get latest changes
+        final updatedFood = await DatabaseService.instance.getFoodById(
+          result.foodId,
+          _food.source,
+        );
+
+        if (updatedFood != null && mounted) {
+          setState(() {
+            _food = updatedFood;
+            // Also update selected unit if it no longer exists
+            if (!_food.servings.any((s) => s.unit == _selectedUnit)) {
+              // Try to find matching unit, otherwise default
+              _selectedUnit = _food.servings.first.unit;
+            }
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Food definition updated')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating food: $e')));
+      }
     }
   }
 }

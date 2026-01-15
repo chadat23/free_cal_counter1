@@ -13,6 +13,7 @@ class Foods extends Table {
   RealColumn get fiberPerGram => real().named('fiberPerGram')();
   IntColumn get sourceFdcId => integer().named('sourceFdcId').nullable()();
   TextColumn get sourceBarcode => text().named('sourceBarcode').nullable()();
+  TextColumn get usageNote => text().named('usageNote').nullable()();
   BoolColumn get hidden =>
       boolean().named('hidden').withDefault(const Constant(false))();
   IntColumn get parentId =>

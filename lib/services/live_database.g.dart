@@ -136,6 +136,17 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _usageNoteMeta = const VerificationMeta(
+    'usageNote',
+  );
+  @override
+  late final GeneratedColumn<String> usageNote = GeneratedColumn<String>(
+    'usageNote',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _hiddenMeta = const VerificationMeta('hidden');
   @override
   late final GeneratedColumn<bool> hidden = GeneratedColumn<bool>(
@@ -177,6 +188,7 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
     fiberPerGram,
     sourceFdcId,
     sourceBarcode,
+    usageNote,
     hidden,
     parentId,
   ];
@@ -293,6 +305,12 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
         ),
       );
     }
+    if (data.containsKey('usageNote')) {
+      context.handle(
+        _usageNoteMeta,
+        usageNote.isAcceptableOrUnknown(data['usageNote']!, _usageNoteMeta),
+      );
+    }
     if (data.containsKey('hidden')) {
       context.handle(
         _hiddenMeta,
@@ -362,6 +380,10 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
         DriftSqlType.string,
         data['${effectivePrefix}sourceBarcode'],
       ),
+      usageNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}usageNote'],
+      ),
       hidden: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}hidden'],
@@ -392,6 +414,7 @@ class Food extends DataClass implements Insertable<Food> {
   final double fiberPerGram;
   final int? sourceFdcId;
   final String? sourceBarcode;
+  final String? usageNote;
   final bool hidden;
   final int? parentId;
   const Food({
@@ -407,6 +430,7 @@ class Food extends DataClass implements Insertable<Food> {
     required this.fiberPerGram,
     this.sourceFdcId,
     this.sourceBarcode,
+    this.usageNote,
     required this.hidden,
     this.parentId,
   });
@@ -432,6 +456,9 @@ class Food extends DataClass implements Insertable<Food> {
     }
     if (!nullToAbsent || sourceBarcode != null) {
       map['sourceBarcode'] = Variable<String>(sourceBarcode);
+    }
+    if (!nullToAbsent || usageNote != null) {
+      map['usageNote'] = Variable<String>(usageNote);
     }
     map['hidden'] = Variable<bool>(hidden);
     if (!nullToAbsent || parentId != null) {
@@ -462,6 +489,9 @@ class Food extends DataClass implements Insertable<Food> {
       sourceBarcode: sourceBarcode == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceBarcode),
+      usageNote: usageNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(usageNote),
       hidden: Value(hidden),
       parentId: parentId == null && nullToAbsent
           ? const Value.absent()
@@ -487,6 +517,7 @@ class Food extends DataClass implements Insertable<Food> {
       fiberPerGram: serializer.fromJson<double>(json['fiberPerGram']),
       sourceFdcId: serializer.fromJson<int?>(json['sourceFdcId']),
       sourceBarcode: serializer.fromJson<String?>(json['sourceBarcode']),
+      usageNote: serializer.fromJson<String?>(json['usageNote']),
       hidden: serializer.fromJson<bool>(json['hidden']),
       parentId: serializer.fromJson<int?>(json['parentId']),
     );
@@ -507,6 +538,7 @@ class Food extends DataClass implements Insertable<Food> {
       'fiberPerGram': serializer.toJson<double>(fiberPerGram),
       'sourceFdcId': serializer.toJson<int?>(sourceFdcId),
       'sourceBarcode': serializer.toJson<String?>(sourceBarcode),
+      'usageNote': serializer.toJson<String?>(usageNote),
       'hidden': serializer.toJson<bool>(hidden),
       'parentId': serializer.toJson<int?>(parentId),
     };
@@ -525,6 +557,7 @@ class Food extends DataClass implements Insertable<Food> {
     double? fiberPerGram,
     Value<int?> sourceFdcId = const Value.absent(),
     Value<String?> sourceBarcode = const Value.absent(),
+    Value<String?> usageNote = const Value.absent(),
     bool? hidden,
     Value<int?> parentId = const Value.absent(),
   }) => Food(
@@ -542,6 +575,7 @@ class Food extends DataClass implements Insertable<Food> {
     sourceBarcode: sourceBarcode.present
         ? sourceBarcode.value
         : this.sourceBarcode,
+    usageNote: usageNote.present ? usageNote.value : this.usageNote,
     hidden: hidden ?? this.hidden,
     parentId: parentId.present ? parentId.value : this.parentId,
   );
@@ -573,6 +607,7 @@ class Food extends DataClass implements Insertable<Food> {
       sourceBarcode: data.sourceBarcode.present
           ? data.sourceBarcode.value
           : this.sourceBarcode,
+      usageNote: data.usageNote.present ? data.usageNote.value : this.usageNote,
       hidden: data.hidden.present ? data.hidden.value : this.hidden,
       parentId: data.parentId.present ? data.parentId.value : this.parentId,
     );
@@ -593,6 +628,7 @@ class Food extends DataClass implements Insertable<Food> {
           ..write('fiberPerGram: $fiberPerGram, ')
           ..write('sourceFdcId: $sourceFdcId, ')
           ..write('sourceBarcode: $sourceBarcode, ')
+          ..write('usageNote: $usageNote, ')
           ..write('hidden: $hidden, ')
           ..write('parentId: $parentId')
           ..write(')'))
@@ -613,6 +649,7 @@ class Food extends DataClass implements Insertable<Food> {
     fiberPerGram,
     sourceFdcId,
     sourceBarcode,
+    usageNote,
     hidden,
     parentId,
   );
@@ -632,6 +669,7 @@ class Food extends DataClass implements Insertable<Food> {
           other.fiberPerGram == this.fiberPerGram &&
           other.sourceFdcId == this.sourceFdcId &&
           other.sourceBarcode == this.sourceBarcode &&
+          other.usageNote == this.usageNote &&
           other.hidden == this.hidden &&
           other.parentId == this.parentId);
 }
@@ -649,6 +687,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
   final Value<double> fiberPerGram;
   final Value<int?> sourceFdcId;
   final Value<String?> sourceBarcode;
+  final Value<String?> usageNote;
   final Value<bool> hidden;
   final Value<int?> parentId;
   const FoodsCompanion({
@@ -664,6 +703,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     this.fiberPerGram = const Value.absent(),
     this.sourceFdcId = const Value.absent(),
     this.sourceBarcode = const Value.absent(),
+    this.usageNote = const Value.absent(),
     this.hidden = const Value.absent(),
     this.parentId = const Value.absent(),
   });
@@ -680,6 +720,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     required double fiberPerGram,
     this.sourceFdcId = const Value.absent(),
     this.sourceBarcode = const Value.absent(),
+    this.usageNote = const Value.absent(),
     this.hidden = const Value.absent(),
     this.parentId = const Value.absent(),
   }) : name = Value(name),
@@ -702,6 +743,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     Expression<double>? fiberPerGram,
     Expression<int>? sourceFdcId,
     Expression<String>? sourceBarcode,
+    Expression<String>? usageNote,
     Expression<bool>? hidden,
     Expression<int>? parentId,
   }) {
@@ -718,6 +760,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
       if (fiberPerGram != null) 'fiberPerGram': fiberPerGram,
       if (sourceFdcId != null) 'sourceFdcId': sourceFdcId,
       if (sourceBarcode != null) 'sourceBarcode': sourceBarcode,
+      if (usageNote != null) 'usageNote': usageNote,
       if (hidden != null) 'hidden': hidden,
       if (parentId != null) 'parentId': parentId,
     });
@@ -736,6 +779,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     Value<double>? fiberPerGram,
     Value<int?>? sourceFdcId,
     Value<String?>? sourceBarcode,
+    Value<String?>? usageNote,
     Value<bool>? hidden,
     Value<int?>? parentId,
   }) {
@@ -752,6 +796,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
       fiberPerGram: fiberPerGram ?? this.fiberPerGram,
       sourceFdcId: sourceFdcId ?? this.sourceFdcId,
       sourceBarcode: sourceBarcode ?? this.sourceBarcode,
+      usageNote: usageNote ?? this.usageNote,
       hidden: hidden ?? this.hidden,
       parentId: parentId ?? this.parentId,
     );
@@ -796,6 +841,9 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     if (sourceBarcode.present) {
       map['sourceBarcode'] = Variable<String>(sourceBarcode.value);
     }
+    if (usageNote.present) {
+      map['usageNote'] = Variable<String>(usageNote.value);
+    }
     if (hidden.present) {
       map['hidden'] = Variable<bool>(hidden.value);
     }
@@ -820,6 +868,7 @@ class FoodsCompanion extends UpdateCompanion<Food> {
           ..write('fiberPerGram: $fiberPerGram, ')
           ..write('sourceFdcId: $sourceFdcId, ')
           ..write('sourceBarcode: $sourceBarcode, ')
+          ..write('usageNote: $usageNote, ')
           ..write('hidden: $hidden, ')
           ..write('parentId: $parentId')
           ..write(')'))
@@ -3132,6 +3181,7 @@ typedef $$FoodsTableCreateCompanionBuilder =
       required double fiberPerGram,
       Value<int?> sourceFdcId,
       Value<String?> sourceBarcode,
+      Value<String?> usageNote,
       Value<bool> hidden,
       Value<int?> parentId,
     });
@@ -3149,6 +3199,7 @@ typedef $$FoodsTableUpdateCompanionBuilder =
       Value<double> fiberPerGram,
       Value<int?> sourceFdcId,
       Value<String?> sourceBarcode,
+      Value<String?> usageNote,
       Value<bool> hidden,
       Value<int?> parentId,
     });
@@ -3298,6 +3349,11 @@ class $$FoodsTableFilterComposer extends Composer<_$LiveDatabase, $FoodsTable> {
 
   ColumnFilters<String> get sourceBarcode => $composableBuilder(
     column: $table.sourceBarcode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get usageNote => $composableBuilder(
+    column: $table.usageNote,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3474,6 +3530,11 @@ class $$FoodsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get usageNote => $composableBuilder(
+    column: $table.usageNote,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get hidden => $composableBuilder(
     column: $table.hidden,
     builder: (column) => ColumnOrderings(column),
@@ -3561,6 +3622,9 @@ class $$FoodsTableAnnotationComposer
     column: $table.sourceBarcode,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get usageNote =>
+      $composableBuilder(column: $table.usageNote, builder: (column) => column);
 
   GeneratedColumn<bool> get hidden =>
       $composableBuilder(column: $table.hidden, builder: (column) => column);
@@ -3709,6 +3773,7 @@ class $$FoodsTableTableManager
                 Value<double> fiberPerGram = const Value.absent(),
                 Value<int?> sourceFdcId = const Value.absent(),
                 Value<String?> sourceBarcode = const Value.absent(),
+                Value<String?> usageNote = const Value.absent(),
                 Value<bool> hidden = const Value.absent(),
                 Value<int?> parentId = const Value.absent(),
               }) => FoodsCompanion(
@@ -3724,6 +3789,7 @@ class $$FoodsTableTableManager
                 fiberPerGram: fiberPerGram,
                 sourceFdcId: sourceFdcId,
                 sourceBarcode: sourceBarcode,
+                usageNote: usageNote,
                 hidden: hidden,
                 parentId: parentId,
               ),
@@ -3741,6 +3807,7 @@ class $$FoodsTableTableManager
                 required double fiberPerGram,
                 Value<int?> sourceFdcId = const Value.absent(),
                 Value<String?> sourceBarcode = const Value.absent(),
+                Value<String?> usageNote = const Value.absent(),
                 Value<bool> hidden = const Value.absent(),
                 Value<int?> parentId = const Value.absent(),
               }) => FoodsCompanion.insert(
@@ -3756,6 +3823,7 @@ class $$FoodsTableTableManager
                 fiberPerGram: fiberPerGram,
                 sourceFdcId: sourceFdcId,
                 sourceBarcode: sourceBarcode,
+                usageNote: usageNote,
                 hidden: hidden,
                 parentId: parentId,
               ),

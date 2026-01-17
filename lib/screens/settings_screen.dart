@@ -30,6 +30,15 @@ class SettingsScreen extends StatelessWidget {
               Navigator.pushNamed(context, AppRouter.dataManagementRoute);
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.track_changes, color: Colors.green),
+            title: const Text('Goals & Targets'),
+            subtitle: const Text('Configure calorie and macro targets'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.pushNamed(context, AppRouter.goalSettingsRoute);
+            },
+          ),
         ],
       ),
     );

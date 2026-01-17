@@ -86,3 +86,13 @@ class LoggedPortions extends Table {
   TextColumn get unit => text().named('unit')();
   RealColumn get quantity => real().named('quantity')();
 }
+
+@DataClassName('Weight')
+class Weights extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  RealColumn get weight => real().named('weight')();
+  IntColumn get date =>
+      integer().named('date')(); // Unix timestamp (start of day)
+  BoolColumn get isFasted =>
+      boolean().named('is_fasted').withDefault(const Constant(false))();
+}

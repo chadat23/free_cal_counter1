@@ -4,6 +4,7 @@ import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
+import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:provider/provider.dart';
 
 class LogHeader extends StatefulWidget {
@@ -80,6 +81,8 @@ class _LogHeaderState extends State<LogHeader> {
                   );
                 },
               ),
+              const Spacer(),
+              _buildDayOptionsMenu(context),
             ],
           ),
           const SizedBox(height: 16),
@@ -137,6 +140,41 @@ class _LogHeaderState extends State<LogHeader> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDayOptionsMenu(BuildContext context) {
+    return Consumer<WeightProvider>(
+      builder: (context, weightProvider, child) {
+        final weightEntry = weightProvider.getWeightForDate(widget.date);
+        final isFasted = weightEntry?.isFasted ?? false;
+
+        return PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert, color: Colors.white),
+          onSelected: (value) {
+            if (value == 'fasted') {
+              weightProvider.toggleFasted(widget.date);
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'fasted',
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: isFasted,
+                    onChanged: (val) {
+                      weightProvider.toggleFasted(widget.date);
+                      Navigator.pop(context); // Close menu
+                    },
+                  ),
+                  const Text('Fasted Day'),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

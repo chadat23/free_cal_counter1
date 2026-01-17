@@ -8,6 +8,9 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/models/macro_goals.dart';
+import 'package:free_cal_counter1/providers/weight_provider.dart';
+import 'package:free_cal_counter1/widgets/weight_trend_chart.dart';
+import 'package:free_cal_counter1/models/weight.dart';
 
 class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
@@ -18,6 +21,7 @@ class OverviewScreen extends StatefulWidget {
 
 class _OverviewScreenState extends State<OverviewScreen> {
   List<NutritionTarget> _nutritionData = [];
+  List<Weight> _weightHistory = [];
   bool _isLoading = true;
 
   @override
@@ -33,13 +37,19 @@ class _OverviewScreenState extends State<OverviewScreen> {
 
     final logProvider = Provider.of<LogProvider>(context, listen: false);
     final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
+    final weightProvider = Provider.of<WeightProvider>(context, listen: false);
     final stats = await logProvider.getDailyMacroStats(start, today);
     final goals = goalsProvider.currentGoals;
+
+    final thirtyDaysAgo = today.subtract(const Duration(days: 30));
+    await weightProvider.loadWeights(thirtyDaysAgo, today);
+    final weightHistory = weightProvider.weights;
 
     // Process stats into NutritionTargets
     if (mounted) {
       setState(() {
         _nutritionData = _buildTargets(stats, goals);
+        _weightHistory = weightHistory;
         _isLoading = false;
       });
     }
@@ -131,6 +141,10 @@ class _OverviewScreenState extends State<OverviewScreen> {
                         child: NutritionTargetsOverviewChart(
                           nutritionData: _nutritionData,
                         ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: WeightTrendChart(weightHistory: _weightHistory),
                       ),
                     ],
                   ),

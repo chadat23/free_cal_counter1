@@ -9,6 +9,7 @@ import 'package:free_cal_counter1/models/recipe.dart' as model;
 import 'package:free_cal_counter1/models/recipe_item.dart' as model;
 import 'package:free_cal_counter1/services/backup_config_service.dart';
 import 'package:free_cal_counter1/models/category.dart' as model;
+import 'package:free_cal_counter1/models/weight.dart' as model;
 import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
 import 'package:free_cal_counter1/services/reference_database.dart'
@@ -60,6 +61,15 @@ class DatabaseService {
     // 3. Re-initialize
     await init();
     BackupConfigService.instance.markDirty();
+  }
+
+  model.Weight _mapWeightData(dynamic weightData) {
+    return model.Weight(
+      id: weightData.id,
+      weight: weightData.weight,
+      date: DateTime.fromMillisecondsSinceEpoch(weightData.date),
+      isFasted: weightData.isFasted,
+    );
   }
 
   model.Food _mapFoodData(
@@ -612,6 +622,60 @@ class DatabaseService {
         quantity: Value(newPortion.quantity),
       ),
     );
+    BackupConfigService.instance.markDirty();
+  }
+
+  // --- Weight Operations ---
+
+  Future<void> saveWeight(model.Weight weight) async {
+    // Weight entries for the same day should overwrite (as per spec)
+    // To ensure "same day" logic, the date should be normalized to start of day
+    // though the caller (Provider) should probably handle that, we'll be safe here.
+    final dateObj = DateTime(
+      weight.date.year,
+      weight.date.month,
+      weight.date.day,
+    );
+    final normalizedTimestamp = dateObj.millisecondsSinceEpoch;
+
+    await _liveDb.transaction(() async {
+      // Delete any existing weight for this date
+      await (_liveDb.delete(
+        _liveDb.weights,
+      )..where((t) => t.date.equals(normalizedTimestamp))).go();
+
+      // Insert new weight
+      await _liveDb
+          .into(_liveDb.weights)
+          .insert(
+            WeightsCompanion.insert(
+              weight: weight.weight,
+              date: normalizedTimestamp,
+              isFasted: Value(weight.isFasted),
+            ),
+          );
+    });
+
+    BackupConfigService.instance.markDirty();
+  }
+
+  Future<List<model.Weight>> getWeightsForRange(
+    DateTime start,
+    DateTime end,
+  ) async {
+    final startMs = start.millisecondsSinceEpoch;
+    final endMs = end.millisecondsSinceEpoch;
+
+    final query = _liveDb.select(_liveDb.weights)
+      ..where((t) => t.date.isBetweenValues(startMs, endMs))
+      ..orderBy([(t) => OrderingTerm(expression: t.date)]);
+
+    final rows = await query.get();
+    return rows.map((row) => _mapWeightData(row)).toList();
+  }
+
+  Future<void> deleteWeight(int id) async {
+    await (_liveDb.delete(_liveDb.weights)..where((t) => t.id.equals(id))).go();
     BackupConfigService.instance.markDirty();
   }
 

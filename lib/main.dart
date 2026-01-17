@@ -7,6 +7,7 @@ import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
@@ -64,6 +65,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LogProvider()),
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
         ChangeNotifierProvider(create: (_) => GoalsProvider()),
+        ChangeNotifierProvider(create: (_) => WeightProvider()),
       ],
       child: MaterialApp(
         title: 'FreeCal Counter',

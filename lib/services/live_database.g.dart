@@ -3141,6 +3141,298 @@ class LoggedPortionsCompanion extends UpdateCompanion<LoggedPortion> {
   }
 }
 
+class $WeightsTable extends Weights with TableInfo<$WeightsTable, Weight> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WeightsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<double> weight = GeneratedColumn<double>(
+    'weight',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<int> date = GeneratedColumn<int>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isFastedMeta = const VerificationMeta(
+    'isFasted',
+  );
+  @override
+  late final GeneratedColumn<bool> isFasted = GeneratedColumn<bool>(
+    'is_fasted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_fasted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, weight, date, isFasted];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'weights';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Weight> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('weight')) {
+      context.handle(
+        _weightMeta,
+        weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weightMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('is_fasted')) {
+      context.handle(
+        _isFastedMeta,
+        isFasted.isAcceptableOrUnknown(data['is_fasted']!, _isFastedMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Weight map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Weight(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      weight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}date'],
+      )!,
+      isFasted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_fasted'],
+      )!,
+    );
+  }
+
+  @override
+  $WeightsTable createAlias(String alias) {
+    return $WeightsTable(attachedDatabase, alias);
+  }
+}
+
+class Weight extends DataClass implements Insertable<Weight> {
+  final int id;
+  final double weight;
+  final int date;
+  final bool isFasted;
+  const Weight({
+    required this.id,
+    required this.weight,
+    required this.date,
+    required this.isFasted,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['weight'] = Variable<double>(weight);
+    map['date'] = Variable<int>(date);
+    map['is_fasted'] = Variable<bool>(isFasted);
+    return map;
+  }
+
+  WeightsCompanion toCompanion(bool nullToAbsent) {
+    return WeightsCompanion(
+      id: Value(id),
+      weight: Value(weight),
+      date: Value(date),
+      isFasted: Value(isFasted),
+    );
+  }
+
+  factory Weight.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Weight(
+      id: serializer.fromJson<int>(json['id']),
+      weight: serializer.fromJson<double>(json['weight']),
+      date: serializer.fromJson<int>(json['date']),
+      isFasted: serializer.fromJson<bool>(json['isFasted']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'weight': serializer.toJson<double>(weight),
+      'date': serializer.toJson<int>(date),
+      'isFasted': serializer.toJson<bool>(isFasted),
+    };
+  }
+
+  Weight copyWith({int? id, double? weight, int? date, bool? isFasted}) =>
+      Weight(
+        id: id ?? this.id,
+        weight: weight ?? this.weight,
+        date: date ?? this.date,
+        isFasted: isFasted ?? this.isFasted,
+      );
+  Weight copyWithCompanion(WeightsCompanion data) {
+    return Weight(
+      id: data.id.present ? data.id.value : this.id,
+      weight: data.weight.present ? data.weight.value : this.weight,
+      date: data.date.present ? data.date.value : this.date,
+      isFasted: data.isFasted.present ? data.isFasted.value : this.isFasted,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Weight(')
+          ..write('id: $id, ')
+          ..write('weight: $weight, ')
+          ..write('date: $date, ')
+          ..write('isFasted: $isFasted')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, weight, date, isFasted);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Weight &&
+          other.id == this.id &&
+          other.weight == this.weight &&
+          other.date == this.date &&
+          other.isFasted == this.isFasted);
+}
+
+class WeightsCompanion extends UpdateCompanion<Weight> {
+  final Value<int> id;
+  final Value<double> weight;
+  final Value<int> date;
+  final Value<bool> isFasted;
+  const WeightsCompanion({
+    this.id = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.date = const Value.absent(),
+    this.isFasted = const Value.absent(),
+  });
+  WeightsCompanion.insert({
+    this.id = const Value.absent(),
+    required double weight,
+    required int date,
+    this.isFasted = const Value.absent(),
+  }) : weight = Value(weight),
+       date = Value(date);
+  static Insertable<Weight> custom({
+    Expression<int>? id,
+    Expression<double>? weight,
+    Expression<int>? date,
+    Expression<bool>? isFasted,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (weight != null) 'weight': weight,
+      if (date != null) 'date': date,
+      if (isFasted != null) 'is_fasted': isFasted,
+    });
+  }
+
+  WeightsCompanion copyWith({
+    Value<int>? id,
+    Value<double>? weight,
+    Value<int>? date,
+    Value<bool>? isFasted,
+  }) {
+    return WeightsCompanion(
+      id: id ?? this.id,
+      weight: weight ?? this.weight,
+      date: date ?? this.date,
+      isFasted: isFasted ?? this.isFasted,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<double>(weight.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<int>(date.value);
+    }
+    if (isFasted.present) {
+      map['is_fasted'] = Variable<bool>(isFasted.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeightsCompanion(')
+          ..write('id: $id, ')
+          ..write('weight: $weight, ')
+          ..write('date: $date, ')
+          ..write('isFasted: $isFasted')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LiveDatabase extends GeneratedDatabase {
   _$LiveDatabase(QueryExecutor e) : super(e);
   $LiveDatabaseManager get managers => $LiveDatabaseManager(this);
@@ -3152,6 +3444,7 @@ abstract class _$LiveDatabase extends GeneratedDatabase {
   late final $RecipeCategoryLinksTable recipeCategoryLinks =
       $RecipeCategoryLinksTable(this);
   late final $LoggedPortionsTable loggedPortions = $LoggedPortionsTable(this);
+  late final $WeightsTable weights = $WeightsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3164,6 +3457,7 @@ abstract class _$LiveDatabase extends GeneratedDatabase {
     categories,
     recipeCategoryLinks,
     loggedPortions,
+    weights,
   ];
 }
 
@@ -6681,6 +6975,175 @@ typedef $$LoggedPortionsTableProcessedTableManager =
       LoggedPortion,
       PrefetchHooks Function({bool foodId, bool recipeId})
     >;
+typedef $$WeightsTableCreateCompanionBuilder =
+    WeightsCompanion Function({
+      Value<int> id,
+      required double weight,
+      required int date,
+      Value<bool> isFasted,
+    });
+typedef $$WeightsTableUpdateCompanionBuilder =
+    WeightsCompanion Function({
+      Value<int> id,
+      Value<double> weight,
+      Value<int> date,
+      Value<bool> isFasted,
+    });
+
+class $$WeightsTableFilterComposer
+    extends Composer<_$LiveDatabase, $WeightsTable> {
+  $$WeightsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFasted => $composableBuilder(
+    column: $table.isFasted,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$WeightsTableOrderingComposer
+    extends Composer<_$LiveDatabase, $WeightsTable> {
+  $$WeightsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFasted => $composableBuilder(
+    column: $table.isFasted,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$WeightsTableAnnotationComposer
+    extends Composer<_$LiveDatabase, $WeightsTable> {
+  $$WeightsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get weight =>
+      $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<int> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFasted =>
+      $composableBuilder(column: $table.isFasted, builder: (column) => column);
+}
+
+class $$WeightsTableTableManager
+    extends
+        RootTableManager<
+          _$LiveDatabase,
+          $WeightsTable,
+          Weight,
+          $$WeightsTableFilterComposer,
+          $$WeightsTableOrderingComposer,
+          $$WeightsTableAnnotationComposer,
+          $$WeightsTableCreateCompanionBuilder,
+          $$WeightsTableUpdateCompanionBuilder,
+          (Weight, BaseReferences<_$LiveDatabase, $WeightsTable, Weight>),
+          Weight,
+          PrefetchHooks Function()
+        > {
+  $$WeightsTableTableManager(_$LiveDatabase db, $WeightsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WeightsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WeightsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WeightsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<double> weight = const Value.absent(),
+                Value<int> date = const Value.absent(),
+                Value<bool> isFasted = const Value.absent(),
+              }) => WeightsCompanion(
+                id: id,
+                weight: weight,
+                date: date,
+                isFasted: isFasted,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required double weight,
+                required int date,
+                Value<bool> isFasted = const Value.absent(),
+              }) => WeightsCompanion.insert(
+                id: id,
+                weight: weight,
+                date: date,
+                isFasted: isFasted,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$WeightsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$LiveDatabase,
+      $WeightsTable,
+      Weight,
+      $$WeightsTableFilterComposer,
+      $$WeightsTableOrderingComposer,
+      $$WeightsTableAnnotationComposer,
+      $$WeightsTableCreateCompanionBuilder,
+      $$WeightsTableUpdateCompanionBuilder,
+      (Weight, BaseReferences<_$LiveDatabase, $WeightsTable, Weight>),
+      Weight,
+      PrefetchHooks Function()
+    >;
 
 class $LiveDatabaseManager {
   final _$LiveDatabase _db;
@@ -6699,4 +7162,6 @@ class $LiveDatabaseManager {
       $$RecipeCategoryLinksTableTableManager(_db, _db.recipeCategoryLinks);
   $$LoggedPortionsTableTableManager get loggedPortions =>
       $$LoggedPortionsTableTableManager(_db, _db.loggedPortions);
+  $$WeightsTableTableManager get weights =>
+      $$WeightsTableTableManager(_db, _db.weights);
 }

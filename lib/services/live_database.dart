@@ -17,13 +17,14 @@ part 'live_database.g.dart';
     Categories,
     RecipeCategoryLinks,
     LoggedPortions,
+    Weights,
   ],
 )
 class LiveDatabase extends _$LiveDatabase {
   LiveDatabase({required QueryExecutor connection}) : super(connection);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -55,6 +56,14 @@ class LiveDatabase extends _$LiveDatabase {
         if (from < 5) {
           // Add usageNote to Foods
           await m.addColumn(foods, foods.usageNote);
+        }
+        if (from < 6) {
+          // Add Weights table
+          await m.createTable(weights);
+        }
+        if (from < 7) {
+          // Add isFasted to Weights
+          await m.addColumn(weights, weights.isFasted);
         }
       },
       beforeOpen: (details) async {

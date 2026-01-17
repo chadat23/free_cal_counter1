@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:free_cal_counter1/screens/goal_settings_screen.dart';
 import 'package:free_cal_counter1/screens/qr_sharing_screen.dart';
 import 'package:free_cal_counter1/screens/data_management_screen.dart';
 import 'package:free_cal_counter1/screens/search_screen.dart';
@@ -21,6 +22,7 @@ class AppRouter {
   static const String recipeEditRoute = '/recipe_edit';
   static const String dataManagementRoute = '/data_management';
   static const String qrSharingRoute = '/qr_sharing';
+  static const String goalSettingsRoute = '/goal_settings';
 
   final DatabaseService databaseService;
   final OffApiService offApiService;
@@ -64,6 +66,8 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => QrSharingScreen(recipeToShare: recipe),
         );
+      case goalSettingsRoute:
+        return MaterialPageRoute(builder: (_) => const GoalSettingsScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

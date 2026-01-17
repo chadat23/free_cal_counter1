@@ -19,13 +19,17 @@ To ensure consistency across the application and codebase, the following terms a
 - 1.1.1 Each column of bar charts represents a day of the current week: Monday through Sunday, and each row represents a macro, one bar chart per day. 
 - 1.1.2 There should also be a column of text, to the right of the bar charts, representing the current day's consumed or remaining (depending on button selection) macro amount for each macro as well as the day's target for said macro.
 - 1.1.3 The Consumed/Remaining buttons should set a global state so that it'll be persistent even when the screen if left and returned to.
-- 1.1.4 The below that should show a Search bar, globe button representing an OpenFoodFacts (OFF) search, and then a Log button.
-- 1.1.5 The Search bar should bring up the consolidated Search screen.
-- 1.1.6 The OFF button performs a search using the external OpenFoodFacts database for the current query.
-- 1.1.7 Below that should be a set of tabs: Overview, Log, Weight, and Settings which should bring the user to the Overview, Log, Weight, and Settings screens respectively.
+- 1.1.4 The below that should show a Weight Graph visualizing the user's weight history over the selected time period.
+  - 1.1.4.1 **Missing Entry Indicator**: If no weight has been entered for "Today", the graph should indicate this in an obvious but unobtrusive way (e.g., a faint placeholder or dashed projection to a predicted point) without skewing the Y-axis to zero.
+- 1.1.5 Below the graph should be a row of buttons: "Week", "Month", "3 Months", "6 Months", "Year" to change the graph's time scale.
+- 1.1.6 The below that should show a Search bar, globe button representing an OpenFoodFacts (OFF) search, and then a Log button.
+- 1.1.7 The Search bar should bring up the consolidated Search screen.
+- 1.1.8 The OFF button performs a search using the external OpenFoodFacts database for the current query.
+- 1.1.9 Below that should be a set of tabs: Overview, Log, Weight, and Settings which should bring the user to the Overview, Log, Weight, and Settings screens respectively.
 
 ## 1.2 Log: the person's logged foods. 
 - 1.2.1 The top should have a label for the day: a date, "Yesterday", "Today", or "Tomorrow" with simple navigation to move between days.
+  - 1.2.1.1 **Fasted Option**: To keep the UI clean, the option to mark the day as "Fasted" (explicit 0 calories) should be tucked away in a menu or non-primary location, rather than a prominent button, given its infrequent usage.
 - 1.2.2 The navigation buttons should let the user switch to see what was logged on any given day by letting the user move one day at a time into the future or past relative to the currently selected day. It should default to today.
 - 1.2.3 There should then be a row of bar charts representing the Consumed or Remaining macros for the selected day based on the global state.
 - 1.2.4 Each set of foods that are logged together should have a timestamp above the group (Meal) as well as the total macros for the meal.
@@ -89,6 +93,10 @@ To ensure consistency across the application and codebase, the following terms a
           - 1.3.3.3.3.3.2.3 The Dump button should dump one serving's worth of ingredients into the Log Queue. The idea is that, while, for instance, if you were making a cookie recipe, you'd never make one cookie or only eat most of the ingredients, but you might, for instance, have a standard dinner salad recipe that you work from most nights, but where, unlike the cookie recipe, instead of making it exactly the same every time, each night will be a little different depending on what's on hand. So the user may create a generic Dinner Salad recipe, and then when making it, hit the Dump button to avoid having to add each individual ingredient/portion to the Log Queue, then they can switch over to the Log Queue, delete anything that they're not having that night, and update portion amounts/units for the remaining ingredients/portions. Also, there's to be an option to set in the Edit Recipe Screen to set that the recipe is only Dumpable (this will avoid accidentally adding the recipe as is and which would inhibit the ability to edit the recipe in place (with the salad recipe example, the recipe may be updated frequently depending on what's in season and ensuring that it's always dumped ensures that the user doesn't end up with a bunch of versions of it in the db)). If the recipe is only dumpable then hitting the plus button should dump the recipe into the Log Queue and tapping the recipe (such as to bring up the Quantity Edit Screen) should prompt the user that that isn't an option since the recipe is only dumpable.
         - 1.3.3.3.3.3.3 The plus button should add one portion (as specified by the dropdown of the Search Result Widget) to the Log Queue.
         - 1.3.3.3.3.3.4 Tapping elsewhere on the widget should bring up the Quantity Edit Screen so that the user can enter the exact Quantity and Unit of recipe that they're having.
+- 1.3.4 **Quick Add**:
+  - 1.3.4.1 A "Quick Add" button (e.g., adjacent to Search/Recipe buttons) allows the user to log a generic entry without searching.
+  - 1.3.4.2 The user specifies Name, Calories, Protein, Fat, and Carbs directly.
+  - 1.3.4.3 Implementation: Creates a new `Food` in the Live DB with `isHidden=true` so it doesn't clutter search results. The name should default to "Quick Add [Timestamp]" if not specified.
 - 1.3.5 Selecting the Log button should log the Log Queue to the LoggedPortions table in the db and then navigate the user back to the Overview screen.
 - 1.3.6 Some additional requirements are covered under 1.7.6 on how it must be made flexible for reuse for searching for and adding ingredient to recipes.
 
@@ -139,6 +147,24 @@ To ensure consistency across the application and codebase, the following terms a
     - 1.6.2.2.2 **Configuration**: Users can toggle this feature on/off and sign in/out of their Google account.
     - 1.6.2.2.3 **Retention Policy**: Users configurable retention count (defaulting to 7 days). The system automatically deletes old backups from Drive to save space.
     - 1.6.2.2.4 **Smart Scheduling**: Backups are scheduled to run daily in the background. A "dirty flag" mechanism ensures backups only occur if the database has actually changed since the last successful backup, conserving data and battery.
+  - 1.6.3 **Goals & Targets Logic**:
+    - 1.6.3.1 **Configuration**:
+      - 1.6.3.1.1 **Manual Maintenance Start**: Users manually enter an estimated starting Maintenance Calorie amount.
+      - 1.6.3.1.2 **Target Weight**: Users manually set a specific Weight Goal (Anchor Weight).
+      - 1.6.3.1.3 **Macro Split**: User sets specific targets for Protein (g) and Fat (g). Carbs (g) are calculated as the remainder of the calorie budget.
+      - 1.6.3.1.4 **Maintenance Display**: The calculated daily Maintenance Calories (TDEE) should be displayed in the goals/settings area for user reference.
+    - 1.6.3.2 **Calculation Loop**:
+      - 1.6.3.2.1 Formula: `Target Intake = Maintenance Intake +/- Delta`.
+      - 1.6.3.2.2 **Gain/Lose Mode**: `Delta` is a *fixed calorie amount* specified by the user (e.g., +500 or -500 per day).
+      - 1.6.3.2.3 **Maintain Mode**: `Delta` is *calculated* to correct drift. Formula: `(Reference Anchor Weight - Current Trend Weight) / 30`. This measures the gap, assumes a 30-day correction window, calculates the daily mass change required, converts that to calories (approx 3500 cal/lb), and creates the Delta.
+    - 1.6.3.3 **Updates & Trends**:
+      - 1.6.3.3.1 **Weekly Updates**: Calculating and updating the active Macro Targets (Calories/Carbs) happens once per week (every Monday). On the first app open of the week, a popup or noticeable banner must inform the user of their new macro targets.
+      - 1.6.3.3.2 **Data Gap Handling**:
+        - Days with NO food entry or NO weight entry are **ignored** (assumed missing data), NOT treated as zero.
+        - Days explicitly marked "Fasted" are treated as 0 calories.
+        - Weight inputs assume one per day; entering a second time overwrites the first.
+    - 1.6.3.4 **Estimation**: The "Current Trend Weight" is derived from a best-fit/average of recent weight entries to smooth out daily fluctuations.
+    - 1.6.3.5 **Future Projection**: The screen displays a projection of what the user will weight in 1 month if they stick to the current plan (based on the gain/lose/maintain delta).
 
 ## 1.7 Recipe Edit: a screen for editing and creating recipes
 - 1.7.1 The top row of the screen should have a back button that'll bring the user back to the Search Screen, the recipe name (if its previously been saved), a Share button, and a Save button.
@@ -162,6 +188,18 @@ To ensure consistency across the application and codebase, the following terms a
   - 1.7.7.6 Clicking on the `SearchResultTile` needs to bring up the Quantity Edit Screen with the appropriate context.
   - 1.7.7.7 The log button should be hidden or inactive in this context if not needed.
 - 1.7.8 Next should be a list of the ingredients in the recipe, with the ability to edit each one. They should use the same Portion Widget and Slidable Portion Widget as the Log and Log Queue. this may take some reworking and should be done so thoughtfully to ensure it still works as desired and expected for all use cases.
+
+## 1.8 Weight Screen: A screen for tracking body weight
+- 1.8.1 **Default View**: Opens to the current day ("Today").
+- 1.8.2 **Display**:
+  - 1.8.2.1 If a weight has been entered for the selected day, show the value.
+  - 1.8.2.2 If no weight has been entered, show a clear placeholder text like "Weight".
+- 1.8.3 **Navigation**:
+  - 1.8.3.1 Users can scroll through past days to view or edit historical weight entries, similar to the date navigation on the Log Screen.
+- 1.8.4 **Data Persistence**:
+  - 1.8.4.1 Inputs are stored in a dedicated `Weights` table in the Live DB, recording the weight value and the date.
+  - 1.8.4.2 Entering a weight for a given day overwrites any previous entry for that same day.
+  - 1.8.4.3 This data feeds the Overview Graph and the Goals calculation logic.
 
 # 2 Search Functionality and Behavior
 - 2.1 Text Based Search

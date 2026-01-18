@@ -25,6 +25,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
   bool _isLoading = true;
   int _weightRangeDays = 30;
   String _weightRangeLabel = '1 mo';
+  DateTime _weightRangeStart = DateTime.now();
+  DateTime _weightRangeEnd = DateTime.now();
 
   @override
   void initState() {
@@ -52,6 +54,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
       setState(() {
         _nutritionData = _buildTargets(stats, goals);
         _weightHistory = weightHistory;
+        _weightRangeStart = rangeStart;
+        _weightRangeEnd = today;
         _isLoading = false;
       });
     }
@@ -191,6 +195,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
                             WeightTrendChart(
                               weightHistory: _weightHistory,
                               timeframeLabel: _weightRangeLabel,
+                              startDate: _weightRangeStart,
+                              endDate: _weightRangeEnd,
                             ),
                             const SizedBox(height: 8),
                             _buildRangeSelector(),

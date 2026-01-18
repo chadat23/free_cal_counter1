@@ -6,9 +6,14 @@ import 'package:free_cal_counter1/widgets/weight_trend_chart.dart';
 void main() {
   testWidgets('WeightTrendChart displays empty state message', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
-          body: WeightTrendChart(weightHistory: [], timeframeLabel: '30d'),
+          body: WeightTrendChart(
+            weightHistory: [],
+            timeframeLabel: '30d',
+            startDate: DateTime(2023, 1, 1),
+            endDate: DateTime(2023, 1, 31),
+          ),
         ),
       ),
     );
@@ -28,6 +33,8 @@ void main() {
           body: WeightTrendChart(
             weightHistory: history,
             timeframeLabel: '1 mo',
+            startDate: DateTime(2023, 1, 1),
+            endDate: DateTime(2023, 1, 31),
           ),
         ),
       ),
@@ -36,6 +43,6 @@ void main() {
     expect(find.text('Weight Trend (1 mo)'), findsOneWidget);
     expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
     expect(find.text('Jan 1'), findsOneWidget);
-    expect(find.text('Jan 2'), findsOneWidget);
+    expect(find.text('Jan 31'), findsOneWidget);
   });
 }

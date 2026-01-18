@@ -8,11 +8,15 @@ import 'dart:ui' as ui;
 class WeightTrendChart extends StatelessWidget {
   final List<Weight> weightHistory;
   final String timeframeLabel;
+  final DateTime startDate;
+  final DateTime endDate;
 
   const WeightTrendChart({
     super.key,
     required this.weightHistory,
     required this.timeframeLabel,
+    required this.startDate,
+    required this.endDate,
   });
 
   @override
@@ -61,7 +65,12 @@ class WeightTrendChart extends StatelessWidget {
           Expanded(
             child: CustomPaint(
               size: Size.infinite,
-              painter: _WeightLinePainter(data: sorted, trends: trends),
+              painter: _WeightLinePainter(
+                data: sorted,
+                trends: trends,
+                startDate: startDate,
+                endDate: endDate,
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -69,11 +78,11 @@ class WeightTrendChart extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                DateFormat('MMM d').format(sorted.first.date),
+                DateFormat('MMM d').format(startDate),
                 style: const TextStyle(color: Colors.white54, fontSize: 10),
               ),
               Text(
-                DateFormat('MMM d').format(sorted.last.date),
+                DateFormat('MMM d').format(endDate),
                 style: const TextStyle(color: Colors.white54, fontSize: 10),
               ),
             ],
@@ -87,8 +96,15 @@ class WeightTrendChart extends StatelessWidget {
 class _WeightLinePainter extends CustomPainter {
   final List<Weight> data;
   final List<double> trends;
+  final DateTime startDate;
+  final DateTime endDate;
 
-  _WeightLinePainter({required this.data, required this.trends});
+  _WeightLinePainter({
+    required this.data,
+    required this.trends,
+    required this.startDate,
+    required this.endDate,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -104,9 +120,14 @@ class _WeightLinePainter extends CustomPainter {
     const double rightPadding = 40.0;
     final drawAreaWidth = size.width - rightPadding;
 
-    final xStep = drawAreaWidth / (data.length > 1 ? data.length - 1 : 1);
+    final totalDuration = endDate.difference(startDate).inSeconds;
 
-    double getX(int index) => index * xStep;
+    double getX(DateTime date) {
+      if (totalDuration == 0) return 0;
+      final elapsed = date.difference(startDate).inSeconds;
+      return (elapsed / totalDuration) * drawAreaWidth;
+    }
+
     double getY(double weight) {
       final normalized = (weight - minWeight) / weightRange;
       return size.height - (normalized * size.height);
@@ -145,10 +166,10 @@ class _WeightLinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final trendPath = Path();
-    trendPath.moveTo(getX(0), getY(trends[0]));
+    trendPath.moveTo(getX(data[0].date), getY(trends[0]));
 
     for (var i = 1; i < trends.length; i++) {
-      trendPath.lineTo(getX(i), getY(trends[i]));
+      trendPath.lineTo(getX(data[i].date), getY(trends[i]));
     }
     canvas.drawPath(trendPath, trendPaint);
 
@@ -164,10 +185,10 @@ class _WeightLinePainter extends CustomPainter {
     for (var i = 0; i < data.length; i++) {
       if (data[i].weight > 0) {
         if (firstPoint) {
-          weightPath.moveTo(getX(i), getY(data[i].weight));
+          weightPath.moveTo(getX(data[i].date), getY(data[i].weight));
           firstPoint = false;
         } else {
-          weightPath.lineTo(getX(i), getY(data[i].weight));
+          weightPath.lineTo(getX(data[i].date), getY(data[i].weight));
         }
       }
     }
@@ -180,7 +201,11 @@ class _WeightLinePainter extends CustomPainter {
 
     for (var i = 0; i < data.length; i++) {
       if (data[i].weight > 0) {
-        canvas.drawCircle(Offset(getX(i), getY(data[i].weight)), 3, dotPaint);
+        canvas.drawCircle(
+          Offset(getX(data[i].date), getY(data[i].weight)),
+          3,
+          dotPaint,
+        );
       }
     }
   }

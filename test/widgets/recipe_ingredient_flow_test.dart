@@ -135,8 +135,13 @@ void main() {
       ),
     );
 
-    // Find and tap the plus button
-    await tester.tap(find.byIcon(Icons.add));
+    // Find and tap the plus button within the search result
+    await tester.tap(
+      find.descendant(
+        of: find.byType(SearchResultTile),
+        matching: find.byIcon(Icons.add),
+      ),
+    );
     await tester.pumpAndSettle();
 
     // Verify it was added via onSaveOverride

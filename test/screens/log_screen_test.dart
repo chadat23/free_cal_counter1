@@ -7,6 +7,7 @@ import 'package:free_cal_counter1/screens/log_screen.dart';
 import 'package:free_cal_counter1/widgets/search_ribbon.dart';
 import 'package:free_cal_counter1/widgets/log_header.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -30,18 +31,21 @@ import 'log_screen_test.mocks.dart';
   SearchProvider,
   DatabaseService,
   GoalsProvider,
+  WeightProvider,
 ])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
   late MockSearchProvider mockSearchProvider;
   late MockGoalsProvider mockGoalsProvider;
+  late MockWeightProvider mockWeightProvider;
 
   setUp(() {
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
     mockSearchProvider = MockSearchProvider();
     mockGoalsProvider = MockGoalsProvider();
+    mockWeightProvider = MockWeightProvider();
 
     // Initialize in-memory databases for testing
     final liveDb = LiveDatabase(connection: NativeDatabase.memory());
@@ -60,6 +64,7 @@ void main() {
     when(mockLogProvider.dailyTargetFat).thenReturn(70.0);
     when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
     when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
+    when(mockLogProvider.isFasted).thenReturn(false);
     // Stub loadLoggedFoodsForDate to avoid null errors if called
     when(
       mockLogProvider.loadLoggedPortionsForDate(any),
@@ -89,6 +94,11 @@ void main() {
 
     // Stub GoalsProvider
     when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
+
+    // Stub WeightProvider
+    when(mockWeightProvider.recentWeights).thenReturn([]);
+    when(mockWeightProvider.loadWeights(any, any)).thenAnswer((_) async {});
+    when(mockWeightProvider.getWeightForDate(any)).thenReturn(null);
   });
 
   Widget createTestWidget() {
@@ -100,6 +110,7 @@ void main() {
         ),
         ChangeNotifierProvider<SearchProvider>.value(value: mockSearchProvider),
         ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
+        ChangeNotifierProvider<WeightProvider>.value(value: mockWeightProvider),
       ],
       child: const MaterialApp(home: LogScreen()),
     );
@@ -207,6 +218,8 @@ void main() {
         ).thenReturn([loggedPortion1, loggedPortion2]);
 
         await tester.pumpWidget(createTestWidget());
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
 
         // Should be 2 distinct meals
         expect(find.byType(MealWidget), findsNWidgets(2));

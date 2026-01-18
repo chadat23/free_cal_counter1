@@ -14,10 +14,12 @@ import 'package:free_cal_counter1/models/logged_portion.dart' as _i10;
 import 'package:free_cal_counter1/models/macro_goals.dart' as _i7;
 import 'package:free_cal_counter1/models/recipe.dart' as _i11;
 import 'package:free_cal_counter1/models/search_mode.dart' as _i18;
+import 'package:free_cal_counter1/models/weight.dart' as _i21;
 import 'package:free_cal_counter1/providers/goals_provider.dart' as _i19;
 import 'package:free_cal_counter1/providers/log_provider.dart' as _i8;
 import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i14;
 import 'package:free_cal_counter1/providers/search_provider.dart' as _i15;
+import 'package:free_cal_counter1/providers/weight_provider.dart' as _i20;
 import 'package:free_cal_counter1/services/database_service.dart' as _i3;
 import 'package:free_cal_counter1/services/open_food_facts_service.dart' as _i4;
 import 'package:free_cal_counter1/services/search_service.dart' as _i5;
@@ -188,6 +190,11 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
           as List<_i10.LoggedPortion>);
 
   @override
+  bool get isFasted =>
+      (super.noSuchMethod(Invocation.getter(#isFasted), returnValue: false)
+          as bool);
+
+  @override
   Set<int> get selectedPortionIds =>
       (super.noSuchMethod(
             Invocation.getter(#selectedPortionIds),
@@ -268,6 +275,15 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
   _i12.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#loadLoggedPortionsForDate, [date]),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
+
+  @override
+  _i12.Future<void> toggleFasted(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#toggleFasted, [date]),
             returnValue: _i12.Future<void>.value(),
             returnValueForMissingStub: _i12.Future<void>.value(),
           )
@@ -715,6 +731,105 @@ class MockGoalsProvider extends _i1.Mock implements _i19.GoalsProvider {
   _i12.Future<void> recalculateTargets() =>
       (super.noSuchMethod(
             Invocation.method(#recalculateTargets, []),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
+
+  @override
+  void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#addListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeListener(_i13.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#removeListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+    Invocation.method(#notifyListeners, []),
+    returnValueForMissingStub: null,
+  );
+}
+
+/// A class which mocks [WeightProvider].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockWeightProvider extends _i1.Mock implements _i20.WeightProvider {
+  MockWeightProvider() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  List<_i21.Weight> get weights =>
+      (super.noSuchMethod(
+            Invocation.getter(#weights),
+            returnValue: <_i21.Weight>[],
+          )
+          as List<_i21.Weight>);
+
+  @override
+  List<_i21.Weight> get recentWeights =>
+      (super.noSuchMethod(
+            Invocation.getter(#recentWeights),
+            returnValue: <_i21.Weight>[],
+          )
+          as List<_i21.Weight>);
+
+  @override
+  bool get isLoading =>
+      (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
+          as bool);
+
+  @override
+  bool get hasWeightToday =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasWeightToday),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get hasListeners =>
+      (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
+          as bool);
+
+  @override
+  _i21.Weight? getWeightForDate(DateTime? date) =>
+      (super.noSuchMethod(Invocation.method(#getWeightForDate, [date]))
+          as _i21.Weight?);
+
+  @override
+  _i12.Future<void> loadWeights(DateTime? start, DateTime? end) =>
+      (super.noSuchMethod(
+            Invocation.method(#loadWeights, [start, end]),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
+
+  @override
+  _i12.Future<void> saveWeight(double? value, DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveWeight, [value, date]),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
+
+  @override
+  _i12.Future<void> deleteWeight(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteWeight, [id]),
             returnValue: _i12.Future<void>.value(),
             returnValueForMissingStub: _i12.Future<void>.value(),
           )

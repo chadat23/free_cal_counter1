@@ -49,22 +49,6 @@ void main() {
       verify(mockDatabaseService.saveWeight(any)).called(1);
     });
 
-    test('toggleFasted should toggle isFasted flag', () async {
-      final date = DateTime(2023, 1, 1);
-
-      // Test toggling when no existing entry
-      when(mockDatabaseService.saveWeight(any)).thenAnswer((_) async => {});
-
-      await weightProvider.toggleFasted(date);
-
-      expect(weightProvider.weights.first.isFasted, true);
-      expect(weightProvider.weights.first.weight, 0.0);
-
-      // Toggle back
-      await weightProvider.toggleFasted(date);
-      expect(weightProvider.weights.first.isFasted, false);
-    });
-
     test('hasWeightToday should return correct status', () async {
       final now = DateTime.now();
       final weights = [Weight(weight: 70.0, date: now)];

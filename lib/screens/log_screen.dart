@@ -11,7 +11,6 @@ import 'package:free_cal_counter1/models/meal.dart';
 import 'package:free_cal_counter1/widgets/meal_widget.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
-import 'package:free_cal_counter1/utils/debug_seeder.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
 
 class LogScreen extends StatefulWidget {
@@ -31,9 +30,6 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   Future<void> _initData() async {
-    // Seed data if needed (debug only)
-    await DebugSeeder.seed();
-
     if (mounted) {
       // Load logs for the selected date
       final logProvider = Provider.of<LogProvider>(context, listen: false);
@@ -182,17 +178,17 @@ class _LogScreenState extends State<LogScreen> {
     if (loggedPortions.isEmpty) return [];
 
     // Sort by timestamp
-    loggedPortions.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    final sortedPortions = List<LoggedPortion>.from(loggedPortions)
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     final meals = <Meal>[];
 
     if (loggedPortions.isEmpty) return [];
 
-    var currentMealLogs = <LoggedPortion>[loggedPortions.first];
-
-    for (var i = 1; i < loggedPortions.length; i++) {
-      final current = loggedPortions[i];
-      final previous = loggedPortions[i - 1];
+    var currentMealLogs = <LoggedPortion>[sortedPortions.first];
+    for (var i = 1; i < sortedPortions.length; i++) {
+      final current = sortedPortions[i];
+      final previous = sortedPortions[i - 1];
 
       // Group essentially by exact timestamp (strict grouping)
       // Since queue items are logged with the same timestamp, they will group.

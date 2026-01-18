@@ -7,9 +7,10 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'log_header_test.mocks.dart';
 
-@GenerateMocks([NavigationProvider])
+@GenerateMocks([NavigationProvider, LogProvider])
 void main() {
   testWidgets('LogHeader displays date and navigates', (
     WidgetTester tester,
@@ -52,10 +53,17 @@ void main() {
 
     final mockNavProvider = MockNavigationProvider();
     when(mockNavProvider.showConsumed).thenReturn(true);
+    final mockLogProvider = MockLogProvider();
+    when(mockLogProvider.isFasted).thenReturn(false);
 
     await tester.pumpWidget(
-      ChangeNotifierProvider<NavigationProvider>.value(
-        value: mockNavProvider,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<NavigationProvider>.value(
+            value: mockNavProvider,
+          ),
+          ChangeNotifierProvider<LogProvider>.value(value: mockLogProvider),
+        ],
         child: MaterialApp(
           home: Scaffold(
             body: LogHeader(
@@ -71,7 +79,7 @@ void main() {
     );
 
     expect(find.text('Today'), findsOneWidget);
-    expect(find.byType(IconButton), findsNWidgets(2));
+    expect(find.byType(IconButton), findsNWidgets(3));
 
     await tester.tap(find.byIcon(Icons.chevron_left));
     await tester.pumpAndSettle();

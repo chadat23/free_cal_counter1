@@ -85,7 +85,12 @@ class _QuickAddDialogState extends State<QuickAddDialog> {
         fiber: 0,
         hidden: true,
         servings: [
-          FoodServing(unit: 'serving', quantity: 1, grams: 100), // Dummy unit
+          FoodServing(
+            foodId: 0,
+            unit: 'serving',
+            quantity: 1,
+            grams: 100,
+          ), // Dummy unit
         ],
       );
 

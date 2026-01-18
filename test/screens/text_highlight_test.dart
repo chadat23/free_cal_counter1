@@ -5,6 +5,7 @@ import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/recipe_provider.dart';
+import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
@@ -21,11 +22,12 @@ import 'package:drift/native.dart';
 
 import 'text_highlight_test.mocks.dart';
 
-@GenerateMocks([LogProvider, RecipeProvider, GoalsProvider])
+@GenerateMocks([LogProvider, RecipeProvider, GoalsProvider, WeightProvider])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockRecipeProvider mockRecipeProvider;
   late MockGoalsProvider mockGoalsProvider;
+  late MockWeightProvider mockWeightProvider;
 
   setUpAll(() {
     final liveDb = live_db.LiveDatabase(connection: NativeDatabase.memory());
@@ -37,6 +39,10 @@ void main() {
     mockLogProvider = MockLogProvider();
     mockRecipeProvider = MockRecipeProvider();
     mockGoalsProvider = MockGoalsProvider();
+    mockWeightProvider = MockWeightProvider();
+
+    when(mockWeightProvider.getWeightForDate(any)).thenReturn(null);
+    when(mockWeightProvider.loadWeights(any, any)).thenAnswer((_) async {});
 
     when(mockLogProvider.totalCalories).thenReturn(500.0);
     when(mockLogProvider.totalProtein).thenReturn(20.0);
@@ -69,6 +75,7 @@ void main() {
         ChangeNotifierProvider<LogProvider>.value(value: mockLogProvider),
         ChangeNotifierProvider<RecipeProvider>.value(value: mockRecipeProvider),
         ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
+        ChangeNotifierProvider<WeightProvider>.value(value: mockWeightProvider),
       ],
       child: MaterialApp(home: Scaffold(body: child)),
     );

@@ -11,23 +11,36 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 import 'overview_screen_test.mocks.dart';
 
-@GenerateMocks([LogProvider, NavigationProvider, SearchProvider, GoalsProvider])
+@GenerateMocks([
+  LogProvider,
+  NavigationProvider,
+  SearchProvider,
+  GoalsProvider,
+  WeightProvider,
+])
 void main() {
   late MockLogProvider mockLogProvider;
   late MockNavigationProvider mockNavigationProvider;
   late MockSearchProvider mockSearchProvider;
   late MockGoalsProvider mockGoalsProvider;
+  late MockWeightProvider mockWeightProvider;
 
   setUp(() {
     mockLogProvider = MockLogProvider();
     mockNavigationProvider = MockNavigationProvider();
     mockSearchProvider = MockSearchProvider();
     mockGoalsProvider = MockGoalsProvider();
+    mockWeightProvider = MockWeightProvider();
+
+    when(mockWeightProvider.recentWeights).thenReturn([]);
+    when(mockWeightProvider.weights).thenReturn([]);
+    when(mockWeightProvider.loadWeights(any, any)).thenAnswer((_) async {});
 
     // Stub LogProvider
     when(mockLogProvider.totalCalories).thenReturn(0.0);
@@ -45,6 +58,7 @@ void main() {
     when(mockLogProvider.dailyTargetFat).thenReturn(70.0);
     when(mockLogProvider.dailyTargetCarbs).thenReturn(250.0);
     when(mockLogProvider.dailyTargetFiber).thenReturn(30.0);
+    when(mockLogProvider.isFasted).thenReturn(false);
     when(mockLogProvider.getDailyMacroStats(any, any)).thenAnswer(
       (_) async => List.generate(
         7,
@@ -87,6 +101,7 @@ void main() {
         ),
         ChangeNotifierProvider<SearchProvider>.value(value: mockSearchProvider),
         ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
+        ChangeNotifierProvider<WeightProvider>.value(value: mockWeightProvider),
       ],
       child: const MaterialApp(home: OverviewScreen()),
     );
@@ -97,7 +112,8 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(NutritionTargetsOverviewChart), findsOneWidget);
       expect(find.byType(SearchRibbon), findsOneWidget);

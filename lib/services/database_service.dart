@@ -43,9 +43,7 @@ class DatabaseService {
 
   Future<void> init() async {
     _liveDb = LiveDatabase(connection: openLiveConnection());
-    _referenceDb = ReferenceDatabase(
-      connection: await openReferenceConnection(),
-    );
+    _referenceDb = ReferenceDatabase(connection: openReferenceConnection());
   }
 
   Future<void> restoreDatabase(File backupFile) async {
@@ -68,7 +66,6 @@ class DatabaseService {
       id: weightData.id,
       weight: weightData.weight,
       date: DateTime.fromMillisecondsSinceEpoch(weightData.date),
-      isFasted: weightData.isFasted,
     );
   }
 
@@ -131,19 +128,36 @@ class DatabaseService {
 
     final List<model.Food> results = [];
 
-    // Add Live Foods (skipping superseded ones)
+    // Collect IDs for batch fetching
+    final liveIdsToFetch = liveFoodsData
+        .where((f) => !parentIds.contains(f.id))
+        .map((f) => f.id)
+        .toList();
+
+    final refIdsToFetch = refFoodsData
+        .where((f) => !liveSourceIds.contains(f.id))
+        .map((f) => f.id)
+        .toList();
+
+    // Batch fetch servings
+    final liveServingsMap = await getServingsForFoods(liveIdsToFetch, 'live');
+    final refServingsMap = await getServingsForFoods(
+      refIdsToFetch,
+      'reference',
+    );
+
+    // Add Live Foods
     for (final foodData in liveFoodsData) {
       if (!parentIds.contains(foodData.id)) {
-        final servings = await getServingsForFood(foodData.id, foodData.source);
+        final servings = liveServingsMap[foodData.id] ?? [];
         results.add(_mapFoodData(foodData, servings));
       }
     }
 
-    // Add Reference Foods (skipping those that have a Live copy)
+    // Add Reference Foods
     for (final foodData in refFoodsData) {
       if (!liveSourceIds.contains(foodData.id)) {
-        // Also skip if it is somehow superseded? (Not applicable for ref db usually)
-        final servings = await getServingsForFood(foodData.id, foodData.source);
+        final servings = refServingsMap[foodData.id] ?? [];
         results.add(_mapFoodData(foodData, servings));
       }
     }
@@ -282,7 +296,10 @@ class DatabaseService {
 
         if (food.source == 'recipe') {
           recipeId = food.id;
-        } else if (food.source == 'live') {
+        } else if (food.source == 'live' ||
+            food.source == 'user_created' ||
+            food.source == 'off_cache' ||
+            food.source == 'system') {
           foodId = food.id;
         } else {
           // Reference or Foundation
@@ -356,9 +373,6 @@ class DatabaseService {
       999,
     ).millisecondsSinceEpoch;
 
-    // We invoke the join manually or fetch lazily?
-    // Manual left join to both Foods and Recipes is cleanest.
-
     final query = _liveDb.select(_liveDb.loggedPortions)
       ..where((p) => p.logTimestamp.isBetweenValues(startOfDay, endOfDay));
 
@@ -376,17 +390,8 @@ class DatabaseService {
         .toSet()
         .toList();
 
-    final foodsMap = <int, model.Food>{};
-    for (final id in foodIds) {
-      final f = await getFoodById(id, 'live');
-      if (f != null) foodsMap[id] = f;
-    }
-
-    final recipesMap = <int, model.Recipe>{};
-    for (final id in recipeIds) {
-      final r = await getRecipeById(id);
-      recipesMap[id] = r;
-    }
+    final foodsMap = await getFoodsByIds(foodIds, 'live');
+    final recipesMap = await getRecipesByIds(recipeIds);
 
     final results = <model.LoggedPortion>[];
 
@@ -651,7 +656,6 @@ class DatabaseService {
             WeightsCompanion.insert(
               weight: weight.weight,
               date: normalizedTimestamp,
-              isFasted: Value(weight.isFasted),
             ),
           );
     });
@@ -676,6 +680,113 @@ class DatabaseService {
 
   Future<void> deleteWeight(int id) async {
     await (_liveDb.delete(_liveDb.weights)..where((t) => t.id.equals(id))).go();
+    BackupConfigService.instance.markDirty();
+  }
+
+  // --- Fasting Operations ---
+
+  /// Ensures that a special "Fasted" food exists in the database.
+  Future<model.Food> _ensureFastedFood() async {
+    final existing =
+        await (_liveDb.select(_liveDb.foods)..where(
+              (t) => t.source.equals('system') & t.name.equals('Fasted'),
+            ))
+            .getSingleOrNull();
+
+    if (existing != null) {
+      return _mapFoodData(existing, []);
+    }
+
+    final id = await _liveDb
+        .into(_liveDb.foods)
+        .insert(
+          FoodsCompanion.insert(
+            name: 'Fasted',
+            source: 'system',
+            emoji: const Value('🌙'),
+            caloriesPerGram: 0,
+            proteinPerGram: 0,
+            fatPerGram: 0,
+            carbsPerGram: 0,
+            fiberPerGram: 0,
+            hidden: const Value(true),
+          ),
+        );
+
+    return model.Food(
+      id: id,
+      name: 'Fasted',
+      source: 'system',
+      calories: 0,
+      protein: 0,
+      fat: 0,
+      carbs: 0,
+      fiber: 0,
+      emoji: '🌙',
+      hidden: true,
+    );
+  }
+
+  Future<bool> isFastedOnDate(DateTime date) async {
+    final startOfDayMs = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).millisecondsSinceEpoch;
+    final endOfDayMs = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+      999,
+    ).millisecondsSinceEpoch;
+
+    final fastedFood = await _ensureFastedFood();
+
+    final query = _liveDb.select(_liveDb.loggedPortions)
+      ..where(
+        (t) =>
+            t.foodId.equals(fastedFood.id) &
+            t.logTimestamp.isBetweenValues(startOfDayMs, endOfDayMs),
+      );
+
+    final results = await query.get();
+    return results.isNotEmpty;
+  }
+
+  Future<void> toggleFasted(DateTime date) async {
+    final isCurrentlyFasted = await isFastedOnDate(date);
+    final fastedFood = await _ensureFastedFood();
+
+    if (isCurrentlyFasted) {
+      final startOfDayMs = DateTime(
+        date.year,
+        date.month,
+        date.day,
+      ).millisecondsSinceEpoch;
+      final endOfDayMs = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        23,
+        59,
+        59,
+        999,
+      ).millisecondsSinceEpoch;
+
+      await (_liveDb.delete(_liveDb.loggedPortions)..where(
+            (t) =>
+                t.foodId.equals(fastedFood.id) &
+                t.logTimestamp.isBetweenValues(startOfDayMs, endOfDayMs),
+          ))
+          .go();
+    } else {
+      await logPortions([
+        model.FoodPortion(food: fastedFood, grams: 0, unit: 'system'),
+      ], date);
+    }
     BackupConfigService.instance.markDirty();
   }
 
@@ -723,17 +834,8 @@ class DatabaseService {
         .toSet()
         .toList();
 
-    final foodsMap = <int, model.Food>{};
-    for (final id in foodIds) {
-      final f = await getFoodById(id, 'live');
-      if (f != null) foodsMap[id] = f;
-    }
-
-    final recipesMap = <int, model.Recipe>{};
-    for (final id in recipeIds) {
-      final r = await getRecipeById(id);
-      recipesMap[id] = r;
-    }
+    final foodsMap = await getFoodsByIds(foodIds, 'live');
+    final recipesMap = await getRecipesByIds(recipeIds);
 
     final results = <model_stats.LoggedMacroDTO>[];
 
@@ -777,19 +879,50 @@ class DatabaseService {
   }
 
   Future<model.Food?> getFoodById(int id, String source) async {
-    dynamic foodData;
+    final results = await getFoodsByIds([id], source);
+    return results[id];
+  }
+
+  Future<Map<int, model.Food>> getFoodsByIds(
+    List<int> ids,
+    String source,
+  ) async {
+    if (ids.isEmpty) return {};
+
+    List<dynamic> foodsData;
     if (source == 'live') {
-      foodData = await (_liveDb.select(
+      foodsData = await (_liveDb.select(
         _liveDb.foods,
-      )..where((t) => t.id.equals(id))).getSingleOrNull();
+      )..where((t) => t.id.isIn(ids))).get();
     } else {
-      foodData = await (_referenceDb.select(
+      foodsData = await (_referenceDb.select(
         _referenceDb.foods,
-      )..where((t) => t.id.equals(id))).getSingleOrNull();
+      )..where((t) => t.id.isIn(ids))).get();
     }
-    if (foodData == null) return null;
-    final servings = await getServingsForFood(id, source);
-    return _mapFoodData(foodData, servings);
+
+    final servingsMap = await getServingsForFoods(ids, source);
+    final Map<int, model.Food> results = {};
+
+    for (final foodData in foodsData) {
+      final servings = servingsMap[foodData.id] ?? [];
+      results[foodData.id] = _mapFoodData(foodData, servings);
+    }
+
+    return results;
+  }
+
+  Future<Map<int, model.Recipe>> getRecipesByIds(List<int> ids) async {
+    if (ids.isEmpty) return {};
+
+    final recipesData = await (_liveDb.select(
+      _liveDb.recipes,
+    )..where((t) => t.id.isIn(ids))).get();
+
+    final Map<int, model.Recipe> results = {};
+    for (final row in recipesData) {
+      results[row.id] = await getRecipeById(row.id);
+    }
+    return results;
   }
 
   Future<List<model.Recipe>> getRecipes({bool includeHidden = false}) async {

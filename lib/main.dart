@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
@@ -11,42 +12,137 @@ import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:free_cal_counter1/services/open_food_facts_service.dart';
-import 'package:free_cal_counter1/services/search_service.dart'; // ADDED
-import 'package:free_cal_counter1/services/food_sorting_service.dart'; // ADDED
+import 'package:free_cal_counter1/services/search_service.dart';
+import 'package:free_cal_counter1/services/food_sorting_service.dart';
 import 'package:free_cal_counter1/utils/debug_seeder.dart';
 import 'package:provider/provider.dart';
-import 'package:openfoodfacts/openfoodfacts.dart'; // Import openfoodfacts
+import 'package:openfoodfacts/openfoodfacts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
-
-  await DatabaseService.instance.init();
-
-  if (kDebugMode) {
-    await DebugSeeder.seed();
-  }
-
-  // Set user agent for OpenFoodFacts API
-  OpenFoodAPIConfiguration.userAgent = UserAgent(
-    name: 'FreeCalCounter',
-    version: '1.0',
-  );
-
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _initialized = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      debugPrint('MyApp: Starting initialization...');
+
+      if (Platform.isAndroid || Platform.isIOS) {
+        await Workmanager().initialize(
+          callbackDispatcher,
+          isInDebugMode: false,
+        );
+      }
+
+      await DatabaseService.instance.init();
+
+      if (kDebugMode) {
+        await DebugSeeder.seed();
+      }
+
+      // Set user agent for OpenFoodFacts API
+      OpenFoodAPIConfiguration.userAgent = UserAgent(
+        name: 'FreeCalCounter',
+        version: '1.0',
+      );
+
+      if (mounted) {
+        setState(() {
+          _initialized = true;
+        });
+      }
+      debugPrint('MyApp: Initialization complete.');
+    } catch (e, stack) {
+      debugPrint('MyApp: Initialization error: $e');
+      debugPrint(stack.toString());
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_error != null) {
+      return MaterialApp(
+        theme: ThemeData.dark(),
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Failed to initialize app',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _error!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.red[200]),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => _initialize(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (!_initialized) {
+      return MaterialApp(
+        theme: ThemeData.dark(),
+        home: Scaffold(
+          backgroundColor: Colors.grey[850],
+          body: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 24),
+                Text(
+                  'Cooking up your data...',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     // Instantiate services that will be injected
     final databaseService = DatabaseService.instance;
     final offApiService = OffApiService();
     final searchService = SearchService(
-      // NEW
       databaseService: databaseService,
       offApiService: offApiService,
       emojiForFoodName: emojiForFoodName,

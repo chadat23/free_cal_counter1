@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/weight_provider.dart';
+import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/utils/math_evaluator.dart';
@@ -73,6 +75,9 @@ class _WeightScreenState extends State<WeightScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Weight saved')));
+
+      // Navigate back to Home
+      Provider.of<NavigationProvider>(context, listen: false).changeTab(0);
     }
     // Don't clear if updating, or maybe do. User spec says "Overwrites".
     // I'll keep it there for visual confirmation but maybe clear on next day.
@@ -105,11 +110,12 @@ class _WeightScreenState extends State<WeightScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Consumer<WeightProvider>(
-                builder: (context, weightProvider, child) {
+              child: Consumer2<WeightProvider, GoalsProvider>(
+                builder: (context, weightProvider, goalsProvider, child) {
                   final weightEntry = weightProvider.getWeightForDate(
                     _selectedDate,
                   );
+                  final useMetric = goalsProvider.settings.useMetric;
 
                   // Update controller if user navigated and we have data
                   if (weightEntry != null &&
@@ -140,8 +146,7 @@ class _WeightScreenState extends State<WeightScreen> {
                               hintText: 'Weight',
                               hintStyle: TextStyle(color: Colors.grey[600]),
                               border: const UnderlineInputBorder(),
-                              suffixText:
-                                  'kg', // Or lbs, but we'll assume kg or generic for now
+                              suffixText: useMetric ? 'kg' : 'lbs',
                             ),
                             onSubmitted: (_) => _submitWeight(),
                             onTap: () {

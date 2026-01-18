@@ -192,6 +192,11 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
           as List<_i10.LoggedPortion>);
 
   @override
+  bool get isFasted =>
+      (super.noSuchMethod(Invocation.getter(#isFasted), returnValue: false)
+          as bool);
+
+  @override
   Set<int> get selectedPortionIds =>
       (super.noSuchMethod(
             Invocation.getter(#selectedPortionIds),
@@ -272,6 +277,15 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
   _i11.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#loadLoggedPortionsForDate, [date]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
+  _i11.Future<void> toggleFasted(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#toggleFasted, [date]),
             returnValue: _i11.Future<void>.value(),
             returnValueForMissingStub: _i11.Future<void>.value(),
           )
@@ -1111,6 +1125,23 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i11.Future<void>);
 
   @override
+  _i11.Future<bool> isFastedOnDate(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#isFastedOnDate, [date]),
+            returnValue: _i11.Future<bool>.value(false),
+          )
+          as _i11.Future<bool>);
+
+  @override
+  _i11.Future<void> toggleFasted(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#toggleFasted, [date]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
   _i11.Future<void> updateLoggedPortionsTimestamp(
     List<int>? loggedPortionIds,
     DateTime? newTimestamp,
@@ -1145,6 +1176,29 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
             returnValue: _i11.Future<_i7.Food?>.value(),
           )
           as _i11.Future<_i7.Food?>);
+
+  @override
+  _i11.Future<Map<int, _i7.Food>> getFoodsByIds(
+    List<int>? ids,
+    String? source,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getFoodsByIds, [ids, source]),
+            returnValue: _i11.Future<Map<int, _i7.Food>>.value(
+              <int, _i7.Food>{},
+            ),
+          )
+          as _i11.Future<Map<int, _i7.Food>>);
+
+  @override
+  _i11.Future<Map<int, _i6.Recipe>> getRecipesByIds(List<int>? ids) =>
+      (super.noSuchMethod(
+            Invocation.method(#getRecipesByIds, [ids]),
+            returnValue: _i11.Future<Map<int, _i6.Recipe>>.value(
+              <int, _i6.Recipe>{},
+            ),
+          )
+          as _i11.Future<Map<int, _i6.Recipe>>);
 
   @override
   _i11.Future<List<_i6.Recipe>> getRecipes({bool? includeHidden = false}) =>

@@ -151,6 +151,11 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
           as List<_i5.LoggedPortion>);
 
   @override
+  bool get isFasted =>
+      (super.noSuchMethod(Invocation.getter(#isFasted), returnValue: false)
+          as bool);
+
+  @override
   Set<int> get selectedPortionIds =>
       (super.noSuchMethod(
             Invocation.getter(#selectedPortionIds),
@@ -231,6 +236,15 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
   _i7.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#loadLoggedPortionsForDate, [date]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> toggleFasted(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#toggleFasted, [date]),
             returnValue: _i7.Future<void>.value(),
             returnValueForMissingStub: _i7.Future<void>.value(),
           )

@@ -11,6 +11,12 @@ class WeightProvider extends ChangeNotifier {
     : _databaseService = databaseService ?? DatabaseService.instance;
 
   List<Weight> get weights => List.unmodifiable(_weights);
+  List<Weight> get recentWeights {
+    final now = DateTime.now();
+    final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+    return _weights.where((w) => w.date.isAfter(thirtyDaysAgo)).toList();
+  }
+
   bool get isLoading => _isLoading;
 
   /// Returns true if a weight has been recorded for today.
@@ -54,14 +60,9 @@ class WeightProvider extends ChangeNotifier {
   }
 
   /// Saves or updates a weight entry.
-  Future<void> saveWeight(double value, DateTime date, {bool? isFasted}) async {
+  Future<void> saveWeight(double value, DateTime date) async {
     final existing = getWeightForDate(date);
-    final weight = Weight(
-      id: existing?.id,
-      weight: value,
-      date: date,
-      isFasted: isFasted ?? existing?.isFasted ?? false,
-    );
+    final weight = Weight(id: existing?.id, weight: value, date: date);
 
     try {
       await _databaseService.saveWeight(weight);
@@ -86,17 +87,6 @@ class WeightProvider extends ChangeNotifier {
     } finally {
       notifyListeners();
     }
-  }
-
-  /// Toggles the fasted status for a specific date.
-  Future<void> toggleFasted(DateTime date) async {
-    final existing = getWeightForDate(date);
-    final newValue = !(existing?.isFasted ?? false);
-
-    // If no weight but toggling fasted, we save with current weight or 0.0
-    final weightValue = existing?.weight ?? 0.0;
-
-    await saveWeight(weightValue, date, isFasted: newValue);
   }
 
   /// Deletes a weight entry.

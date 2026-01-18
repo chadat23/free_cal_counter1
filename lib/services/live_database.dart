@@ -24,7 +24,7 @@ class LiveDatabase extends _$LiveDatabase {
   LiveDatabase({required QueryExecutor connection}) : super(connection);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -62,8 +62,11 @@ class LiveDatabase extends _$LiveDatabase {
           await m.createTable(weights);
         }
         if (from < 7) {
-          // Add isFasted to Weights
-          await m.addColumn(weights, weights.isFasted);
+          // Version 7 originally added isFasted to Weights, but it was removed in v8.
+          // Doing nothing here to keep history clean.
+        }
+        if (from < 8) {
+          // Placeholder for v8 if needed, currently just incrementing to fix v7 mess.
         }
       },
       beforeOpen: (details) async {

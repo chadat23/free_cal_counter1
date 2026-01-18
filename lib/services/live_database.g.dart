@@ -3177,23 +3177,8 @@ class $WeightsTable extends Weights with TableInfo<$WeightsTable, Weight> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _isFastedMeta = const VerificationMeta(
-    'isFasted',
-  );
   @override
-  late final GeneratedColumn<bool> isFasted = GeneratedColumn<bool>(
-    'is_fasted',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_fasted" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [id, weight, date, isFasted];
+  List<GeneratedColumn> get $columns => [id, weight, date];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3225,12 +3210,6 @@ class $WeightsTable extends Weights with TableInfo<$WeightsTable, Weight> {
     } else if (isInserting) {
       context.missing(_dateMeta);
     }
-    if (data.containsKey('is_fasted')) {
-      context.handle(
-        _isFastedMeta,
-        isFasted.isAcceptableOrUnknown(data['is_fasted']!, _isFastedMeta),
-      );
-    }
     return context;
   }
 
@@ -3252,10 +3231,6 @@ class $WeightsTable extends Weights with TableInfo<$WeightsTable, Weight> {
         DriftSqlType.int,
         data['${effectivePrefix}date'],
       )!,
-      isFasted: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_fasted'],
-      )!,
     );
   }
 
@@ -3269,20 +3244,13 @@ class Weight extends DataClass implements Insertable<Weight> {
   final int id;
   final double weight;
   final int date;
-  final bool isFasted;
-  const Weight({
-    required this.id,
-    required this.weight,
-    required this.date,
-    required this.isFasted,
-  });
+  const Weight({required this.id, required this.weight, required this.date});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['weight'] = Variable<double>(weight);
     map['date'] = Variable<int>(date);
-    map['is_fasted'] = Variable<bool>(isFasted);
     return map;
   }
 
@@ -3291,7 +3259,6 @@ class Weight extends DataClass implements Insertable<Weight> {
       id: Value(id),
       weight: Value(weight),
       date: Value(date),
-      isFasted: Value(isFasted),
     );
   }
 
@@ -3304,7 +3271,6 @@ class Weight extends DataClass implements Insertable<Weight> {
       id: serializer.fromJson<int>(json['id']),
       weight: serializer.fromJson<double>(json['weight']),
       date: serializer.fromJson<int>(json['date']),
-      isFasted: serializer.fromJson<bool>(json['isFasted']),
     );
   }
   @override
@@ -3314,23 +3280,19 @@ class Weight extends DataClass implements Insertable<Weight> {
       'id': serializer.toJson<int>(id),
       'weight': serializer.toJson<double>(weight),
       'date': serializer.toJson<int>(date),
-      'isFasted': serializer.toJson<bool>(isFasted),
     };
   }
 
-  Weight copyWith({int? id, double? weight, int? date, bool? isFasted}) =>
-      Weight(
-        id: id ?? this.id,
-        weight: weight ?? this.weight,
-        date: date ?? this.date,
-        isFasted: isFasted ?? this.isFasted,
-      );
+  Weight copyWith({int? id, double? weight, int? date}) => Weight(
+    id: id ?? this.id,
+    weight: weight ?? this.weight,
+    date: date ?? this.date,
+  );
   Weight copyWithCompanion(WeightsCompanion data) {
     return Weight(
       id: data.id.present ? data.id.value : this.id,
       weight: data.weight.present ? data.weight.value : this.weight,
       date: data.date.present ? data.date.value : this.date,
-      isFasted: data.isFasted.present ? data.isFasted.value : this.isFasted,
     );
   }
 
@@ -3339,53 +3301,46 @@ class Weight extends DataClass implements Insertable<Weight> {
     return (StringBuffer('Weight(')
           ..write('id: $id, ')
           ..write('weight: $weight, ')
-          ..write('date: $date, ')
-          ..write('isFasted: $isFasted')
+          ..write('date: $date')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, weight, date, isFasted);
+  int get hashCode => Object.hash(id, weight, date);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Weight &&
           other.id == this.id &&
           other.weight == this.weight &&
-          other.date == this.date &&
-          other.isFasted == this.isFasted);
+          other.date == this.date);
 }
 
 class WeightsCompanion extends UpdateCompanion<Weight> {
   final Value<int> id;
   final Value<double> weight;
   final Value<int> date;
-  final Value<bool> isFasted;
   const WeightsCompanion({
     this.id = const Value.absent(),
     this.weight = const Value.absent(),
     this.date = const Value.absent(),
-    this.isFasted = const Value.absent(),
   });
   WeightsCompanion.insert({
     this.id = const Value.absent(),
     required double weight,
     required int date,
-    this.isFasted = const Value.absent(),
   }) : weight = Value(weight),
        date = Value(date);
   static Insertable<Weight> custom({
     Expression<int>? id,
     Expression<double>? weight,
     Expression<int>? date,
-    Expression<bool>? isFasted,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (weight != null) 'weight': weight,
       if (date != null) 'date': date,
-      if (isFasted != null) 'is_fasted': isFasted,
     });
   }
 
@@ -3393,13 +3348,11 @@ class WeightsCompanion extends UpdateCompanion<Weight> {
     Value<int>? id,
     Value<double>? weight,
     Value<int>? date,
-    Value<bool>? isFasted,
   }) {
     return WeightsCompanion(
       id: id ?? this.id,
       weight: weight ?? this.weight,
       date: date ?? this.date,
-      isFasted: isFasted ?? this.isFasted,
     );
   }
 
@@ -3415,9 +3368,6 @@ class WeightsCompanion extends UpdateCompanion<Weight> {
     if (date.present) {
       map['date'] = Variable<int>(date.value);
     }
-    if (isFasted.present) {
-      map['is_fasted'] = Variable<bool>(isFasted.value);
-    }
     return map;
   }
 
@@ -3426,8 +3376,7 @@ class WeightsCompanion extends UpdateCompanion<Weight> {
     return (StringBuffer('WeightsCompanion(')
           ..write('id: $id, ')
           ..write('weight: $weight, ')
-          ..write('date: $date, ')
-          ..write('isFasted: $isFasted')
+          ..write('date: $date')
           ..write(')'))
         .toString();
   }
@@ -6980,14 +6929,12 @@ typedef $$WeightsTableCreateCompanionBuilder =
       Value<int> id,
       required double weight,
       required int date,
-      Value<bool> isFasted,
     });
 typedef $$WeightsTableUpdateCompanionBuilder =
     WeightsCompanion Function({
       Value<int> id,
       Value<double> weight,
       Value<int> date,
-      Value<bool> isFasted,
     });
 
 class $$WeightsTableFilterComposer
@@ -7011,11 +6958,6 @@ class $$WeightsTableFilterComposer
 
   ColumnFilters<int> get date => $composableBuilder(
     column: $table.date,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isFasted => $composableBuilder(
-    column: $table.isFasted,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -7043,11 +6985,6 @@ class $$WeightsTableOrderingComposer
     column: $table.date,
     builder: (column) => ColumnOrderings(column),
   );
-
-  ColumnOrderings<bool> get isFasted => $composableBuilder(
-    column: $table.isFasted,
-    builder: (column) => ColumnOrderings(column),
-  );
 }
 
 class $$WeightsTableAnnotationComposer
@@ -7067,9 +7004,6 @@ class $$WeightsTableAnnotationComposer
 
   GeneratedColumn<int> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
-
-  GeneratedColumn<bool> get isFasted =>
-      $composableBuilder(column: $table.isFasted, builder: (column) => column);
 }
 
 class $$WeightsTableTableManager
@@ -7103,25 +7037,13 @@ class $$WeightsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<double> weight = const Value.absent(),
                 Value<int> date = const Value.absent(),
-                Value<bool> isFasted = const Value.absent(),
-              }) => WeightsCompanion(
-                id: id,
-                weight: weight,
-                date: date,
-                isFasted: isFasted,
-              ),
+              }) => WeightsCompanion(id: id, weight: weight, date: date),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required double weight,
                 required int date,
-                Value<bool> isFasted = const Value.absent(),
-              }) => WeightsCompanion.insert(
-                id: id,
-                weight: weight,
-                date: date,
-                isFasted: isFasted,
-              ),
+              }) => WeightsCompanion.insert(id: id, weight: weight, date: date),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),

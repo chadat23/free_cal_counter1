@@ -49,16 +49,25 @@ bool _phraseMatchesKey(String phrase, String key) {
 /// Sorts keys by word count (descending), then by length (descending)
 /// This ensures "tuna roll" matches before "tuna" or "roll"
 /// and "watermelon" matches before "melon"
-List<String> _getSortedKeys() {
-  return foodEmojiMap.keys.toList()..sort((a, b) {
-    final aWords = a.split(' ').length;
-    final bWords = b.split(' ').length;
+List<String>? _cachedSortedKeys;
 
-    if (aWords != bWords) {
-      return bWords.compareTo(aWords); // More words first
-    }
-    return b.length.compareTo(a.length); // Longer first
-  });
+List<String> _getSortedKeys() {
+  if (_cachedSortedKeys != null) {
+    return _cachedSortedKeys!;
+  }
+
+  _cachedSortedKeys = foodEmojiMap.keys.toList()
+    ..sort((a, b) {
+      final aWords = a.split(' ').length;
+      final bWords = b.split(' ').length;
+
+      if (aWords != bWords) {
+        return bWords.compareTo(aWords); // More words first
+      }
+      return b.length.compareTo(a.length); // Longer first
+    });
+
+  return _cachedSortedKeys!;
 }
 
 /// Cleans food name by removing descriptors, commas, parentheses, etc.

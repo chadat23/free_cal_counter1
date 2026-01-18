@@ -3,9 +3,15 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:ui' as _i3;
+import 'dart:async' as _i9;
+import 'dart:ui' as _i4;
 
-import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i2;
+import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i2;
+import 'package:free_cal_counter1/models/food_portion.dart' as _i6;
+import 'package:free_cal_counter1/models/logged_portion.dart' as _i7;
+import 'package:free_cal_counter1/models/recipe.dart' as _i8;
+import 'package:free_cal_counter1/providers/log_provider.dart' as _i5;
+import 'package:free_cal_counter1/providers/navigation_provider.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -23,11 +29,17 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
+class _FakeDailyMacroStats_0 extends _i1.SmartFake
+    implements _i2.DailyMacroStats {
+  _FakeDailyMacroStats_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [NavigationProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNavigationProvider extends _i1.Mock
-    implements _i2.NavigationProvider {
+    implements _i3.NavigationProvider {
   MockNavigationProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -92,13 +104,360 @@ class MockNavigationProvider extends _i1.Mock
   );
 
   @override
-  void addListener(_i3.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i3.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#removeListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+    Invocation.method(#notifyListeners, []),
+    returnValueForMissingStub: null,
+  );
+}
+
+/// A class which mocks [LogProvider].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
+  MockLogProvider() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  double get loggedCalories =>
+      (super.noSuchMethod(Invocation.getter(#loggedCalories), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedCalories =>
+      (super.noSuchMethod(Invocation.getter(#queuedCalories), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedProtein =>
+      (super.noSuchMethod(Invocation.getter(#queuedProtein), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedFat =>
+      (super.noSuchMethod(Invocation.getter(#queuedFat), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedCarbs =>
+      (super.noSuchMethod(Invocation.getter(#queuedCarbs), returnValue: 0.0)
+          as double);
+
+  @override
+  double get queuedFiber =>
+      (super.noSuchMethod(Invocation.getter(#queuedFiber), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalCalories =>
+      (super.noSuchMethod(Invocation.getter(#totalCalories), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalProtein =>
+      (super.noSuchMethod(Invocation.getter(#totalProtein), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalFat =>
+      (super.noSuchMethod(Invocation.getter(#totalFat), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalCarbs =>
+      (super.noSuchMethod(Invocation.getter(#totalCarbs), returnValue: 0.0)
+          as double);
+
+  @override
+  double get totalFiber =>
+      (super.noSuchMethod(Invocation.getter(#totalFiber), returnValue: 0.0)
+          as double);
+
+  @override
+  double get dailyTargetCalories =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetCalories),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
+  double get dailyTargetProtein =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetProtein),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
+  double get dailyTargetFat =>
+      (super.noSuchMethod(Invocation.getter(#dailyTargetFat), returnValue: 0.0)
+          as double);
+
+  @override
+  double get dailyTargetCarbs =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetCarbs),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
+  double get dailyTargetFiber =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyTargetFiber),
+            returnValue: 0.0,
+          )
+          as double);
+
+  @override
+  List<_i6.FoodPortion> get logQueue =>
+      (super.noSuchMethod(
+            Invocation.getter(#logQueue),
+            returnValue: <_i6.FoodPortion>[],
+          )
+          as List<_i6.FoodPortion>);
+
+  @override
+  List<_i7.LoggedPortion> get loggedPortion =>
+      (super.noSuchMethod(
+            Invocation.getter(#loggedPortion),
+            returnValue: <_i7.LoggedPortion>[],
+          )
+          as List<_i7.LoggedPortion>);
+
+  @override
+  bool get isFasted =>
+      (super.noSuchMethod(Invocation.getter(#isFasted), returnValue: false)
+          as bool);
+
+  @override
+  Set<int> get selectedPortionIds =>
+      (super.noSuchMethod(
+            Invocation.getter(#selectedPortionIds),
+            returnValue: <int>{},
+          )
+          as Set<int>);
+
+  @override
+  bool get hasSelectedPortions =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasSelectedPortions),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  int get selectedPortionCount =>
+      (super.noSuchMethod(
+            Invocation.getter(#selectedPortionCount),
+            returnValue: 0,
+          )
+          as int);
+
+  @override
+  bool get hasListeners =>
+      (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
+          as bool);
+
+  @override
+  void addFoodToQueue(_i6.FoodPortion? serving) => super.noSuchMethod(
+    Invocation.method(#addFoodToQueue, [serving]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addRecipeToQueue(_i8.Recipe? recipe, {double? quantity = 1.0}) =>
+      super.noSuchMethod(
+        Invocation.method(#addRecipeToQueue, [recipe], {#quantity: quantity}),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void dumpRecipeToQueue(_i8.Recipe? recipe, {double? quantity = 1.0}) =>
+      super.noSuchMethod(
+        Invocation.method(#dumpRecipeToQueue, [recipe], {#quantity: quantity}),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void updateFoodInQueue(int? index, _i6.FoodPortion? newPortion) =>
+      super.noSuchMethod(
+        Invocation.method(#updateFoodInQueue, [index, newPortion]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeFoodFromQueue(_i6.FoodPortion? serving) => super.noSuchMethod(
+    Invocation.method(#removeFoodFromQueue, [serving]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void clearQueue() => super.noSuchMethod(
+    Invocation.method(#clearQueue, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i9.Future<void> logQueueToDatabase() =>
+      (super.noSuchMethod(
+            Invocation.method(#logQueueToDatabase, []),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> loadLoggedPortionsForDate(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#loadLoggedPortionsForDate, [date]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> toggleFasted(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#toggleFasted, [date]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> deleteLoggedPortion(_i7.LoggedPortion? food) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteLoggedPortion, [food]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> updateLoggedPortion(
+    _i7.LoggedPortion? oldLoggedPortion,
+    _i6.FoodPortion? newPortion,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateLoggedPortion, [
+              oldLoggedPortion,
+              newPortion,
+            ]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
+  _i9.Future<List<_i2.DailyMacroStats>> getDailyMacroStats(
+    DateTime? start,
+    DateTime? end,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getDailyMacroStats, [start, end]),
+            returnValue: _i9.Future<List<_i2.DailyMacroStats>>.value(
+              <_i2.DailyMacroStats>[],
+            ),
+          )
+          as _i9.Future<List<_i2.DailyMacroStats>>);
+
+  @override
+  _i9.Future<_i2.DailyMacroStats> getTodayStats() =>
+      (super.noSuchMethod(
+            Invocation.method(#getTodayStats, []),
+            returnValue: _i9.Future<_i2.DailyMacroStats>.value(
+              _FakeDailyMacroStats_0(
+                this,
+                Invocation.method(#getTodayStats, []),
+              ),
+            ),
+          )
+          as _i9.Future<_i2.DailyMacroStats>);
+
+  @override
+  void togglePortionSelection(int? portionId) => super.noSuchMethod(
+    Invocation.method(#togglePortionSelection, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void selectPortion(int? portionId) => super.noSuchMethod(
+    Invocation.method(#selectPortion, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void deselectPortion(int? portionId) => super.noSuchMethod(
+    Invocation.method(#deselectPortion, [portionId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void clearSelection() => super.noSuchMethod(
+    Invocation.method(#clearSelection, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  bool isPortionSelected(int? portionId) =>
+      (super.noSuchMethod(
+            Invocation.method(#isPortionSelected, [portionId]),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  void copySelectedPortionsToQueue() => super.noSuchMethod(
+    Invocation.method(#copySelectedPortionsToQueue, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i9.Future<void> moveSelectedPortions(DateTime? newTimestamp) =>
+      (super.noSuchMethod(
+            Invocation.method(#moveSelectedPortions, [newTimestamp]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> deleteSelectedPortions() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSelectedPortions, []),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
+  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#addListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

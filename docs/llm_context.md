@@ -200,6 +200,8 @@ To ensure consistency across the application and codebase, the following terms a
   - 1.8.4.1 Inputs are stored in a dedicated `Weights` table in the Live DB, recording the weight value and the date.
   - 1.8.4.2 Entering a weight for a given day overwrites any previous entry for that same day.
   - 1.8.4.3 This data feeds the Overview Graph and the Goals calculation logic.
+  - 1.8.4.4 **Dynamic Units**: Display units ('kg' or 'lbs') are driven by the `useMetric` setting in `GoalSettings`.
+  - 1.8.4.5 **Navigation**: Saving a weight entry automatically returns the user to the Home screen.
 
 # 2 Search Functionality and Behavior
 - 2.1 Text Based Search

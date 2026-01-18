@@ -93,6 +93,4 @@ class Weights extends Table {
   RealColumn get weight => real().named('weight')();
   IntColumn get date =>
       integer().named('date')(); // Unix timestamp (start of day)
-  BoolColumn get isFasted =>
-      boolean().named('is_fasted').withDefault(const Constant(false))();
 }

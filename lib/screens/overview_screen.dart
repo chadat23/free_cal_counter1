@@ -23,6 +23,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
   List<NutritionTarget> _nutritionData = [];
   List<Weight> _weightHistory = [];
   bool _isLoading = true;
+  int _weightRangeDays = 30;
+  String _weightRangeLabel = '1 mo';
 
   @override
   void initState() {
@@ -41,8 +43,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
     final stats = await logProvider.getDailyMacroStats(start, today);
     final goals = goalsProvider.currentGoals;
 
-    final thirtyDaysAgo = today.subtract(const Duration(days: 30));
-    await weightProvider.loadWeights(thirtyDaysAgo, today);
+    final rangeStart = today.subtract(Duration(days: _weightRangeDays));
+    await weightProvider.loadWeights(rangeStart, today);
     final weightHistory = weightProvider.weights;
 
     // Process stats into NutritionTargets
@@ -121,6 +123,46 @@ class _OverviewScreenState extends State<OverviewScreen> {
     ];
   }
 
+  Widget _buildRangeSelector() {
+    final ranges = {
+      '1 wk': 7,
+      '1 mo': 30,
+      '3 mo': 90,
+      '6 mo': 180,
+      '1 yr': 365,
+    };
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: ranges.entries.map((entry) {
+        final isSelected = _weightRangeLabel == entry.key;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: TextButton(
+            onPressed: () {
+              setState(() {
+                _weightRangeLabel = entry.key;
+                _weightRangeDays = entry.value;
+                _isLoading = true;
+              });
+              _loadData();
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: isSelected ? Colors.white : Colors.transparent,
+              foregroundColor: isSelected ? Colors.black : Colors.white,
+              minimumSize: const Size(40, 32),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: Text(entry.key, style: const TextStyle(fontSize: 12)),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScreenBackground(
@@ -144,7 +186,16 @@ class _OverviewScreenState extends State<OverviewScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: WeightTrendChart(weightHistory: _weightHistory),
+                        child: Column(
+                          children: [
+                            WeightTrendChart(
+                              weightHistory: _weightHistory,
+                              timeframeLabel: _weightRangeLabel,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildRangeSelector(),
+                          ],
+                        ),
                       ),
                     ],
                   ),

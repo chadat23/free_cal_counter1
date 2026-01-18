@@ -7,7 +7,9 @@ void main() {
   testWidgets('WeightTrendChart displays empty state message', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(body: WeightTrendChart(weightHistory: [])),
+        home: Scaffold(
+          body: WeightTrendChart(weightHistory: [], timeframeLabel: '30d'),
+        ),
       ),
     );
 
@@ -22,11 +24,16 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: WeightTrendChart(weightHistory: history)),
+        home: Scaffold(
+          body: WeightTrendChart(
+            weightHistory: history,
+            timeframeLabel: '1 mo',
+          ),
+        ),
       ),
     );
 
-    expect(find.text('Weight Trend (30d)'), findsOneWidget);
+    expect(find.text('Weight Trend (1 mo)'), findsOneWidget);
     expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
     expect(find.text('Jan 1'), findsOneWidget);
     expect(find.text('Jan 2'), findsOneWidget);

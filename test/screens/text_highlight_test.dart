@@ -8,6 +8,7 @@ import 'package:free_cal_counter1/providers/recipe_provider.dart';
 import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/models/macro_goals.dart';
+import 'package:free_cal_counter1/models/goal_settings.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
 import 'package:free_cal_counter1/screens/recipe_edit_screen.dart';
 import 'package:free_cal_counter1/screens/weight_screen.dart';
@@ -67,6 +68,7 @@ void main() {
     when(mockRecipeProvider.caloriesPerPortion).thenReturn(0.0);
 
     when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
+    when(mockGoalsProvider.settings).thenReturn(GoalSettings.defaultSettings());
   });
 
   Widget wrapWithProviders(Widget child) {

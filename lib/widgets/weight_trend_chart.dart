@@ -7,8 +7,13 @@ import 'dart:ui' as ui;
 
 class WeightTrendChart extends StatelessWidget {
   final List<Weight> weightHistory;
+  final String timeframeLabel;
 
-  const WeightTrendChart({super.key, required this.weightHistory});
+  const WeightTrendChart({
+    super.key,
+    required this.weightHistory,
+    required this.timeframeLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +49,9 @@ class WeightTrendChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Weight Trend (30d)',
-            style: TextStyle(
+          Text(
+            'Weight Trend ($timeframeLabel)',
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,

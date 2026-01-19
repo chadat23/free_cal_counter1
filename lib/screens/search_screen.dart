@@ -119,14 +119,10 @@ class _SearchScreenState extends State<SearchScreen> {
             isSearchActive: true,
             focusNode: _focusNode,
             onChanged: (query) {
-              if (query.isNotEmpty) {
-                Provider.of<SearchProvider>(
-                  context,
-                  listen: false,
-                ).textSearch(query);
-              } else {
-                // Optionally clear results
-              }
+              Provider.of<SearchProvider>(
+                context,
+                listen: false,
+              ).textSearch(query);
             },
             onOffSearch: () {
               Provider.of<SearchProvider>(

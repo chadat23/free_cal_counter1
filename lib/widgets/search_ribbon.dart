@@ -56,6 +56,13 @@ class _SearchRibbonState extends State<SearchRibbon> {
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12.0,
                       ),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _controller.clear();
+                          widget.onChanged?.call('');
+                        },
+                      ),
                     ),
                     onChanged: widget.onChanged,
                   )

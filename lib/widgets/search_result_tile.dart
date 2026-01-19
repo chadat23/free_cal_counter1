@@ -87,6 +87,54 @@ class _SearchResultTileState extends State<SearchResultTile> {
     }
   }
 
+  void _showImagePopup(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Dialog(
+          child: GestureDetector(
+            onTap: () {}, // Prevent tap from propagating to parent
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 4,
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.fastfood, size: 100),
+                      fit: BoxFit.contain,
+                      width: 300,
+                      height: 300,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final emoji = emojiForFoodName(widget.food.name);
@@ -99,24 +147,31 @@ class _SearchResultTileState extends State<SearchResultTile> {
 
     return ListTile(
       tileColor: _getBackgroundColor(context),
-      leading: SizedBox(
-        width: 40,
-        height: 40,
-        child: Center(
-          child: widget.food.thumbnail != null
-              ? CachedNetworkImage(
-                  imageUrl: widget.food.thumbnail!,
-                  placeholder: (context, url) =>
-                      const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.fastfood),
-                  fit: BoxFit.cover,
-                )
-              : Text(
-                  emoji,
-                  style: const TextStyle(fontSize: 28),
-                  textAlign: TextAlign.center,
-                ),
+      leading: GestureDetector(
+        onTap: () {
+          if (widget.food.thumbnail != null) {
+            _showImagePopup(context, widget.food.thumbnail!);
+          }
+        },
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Center(
+            child: widget.food.thumbnail != null
+                ? CachedNetworkImage(
+                    imageUrl: widget.food.thumbnail!,
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.fastfood),
+                    fit: BoxFit.cover,
+                  )
+                : Text(
+                    emoji,
+                    style: const TextStyle(fontSize: 28),
+                    textAlign: TextAlign.center,
+                  ),
+          ),
         ),
       ),
       title: Row(

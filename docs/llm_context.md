@@ -254,3 +254,43 @@ To preserve historical accuracy while allowing food improvements, we implement a
   - The Search Logic must be aware of versioning.
   - It should filter out superseded or "old" versions of foods/recipes so the user only sees the latest version.
   - It should filter out Reference Database items if a "newer" version exists in the Live Database.
+
+## 3.4 Image Storage & Management
+- 3.4.1 **Overview**: Foods and Recipes support custom thumbnail images. Users can add images via camera or gallery, with optional cropping and automatic resizing to 200x200 pixels.
+- 3.4.2 **Storage Strategy**:
+  - **File Storage**: Images are stored as JPEG files in the app's documents directory: `{app_documents}/app_images/{guid}.jpg`
+  - **Database Reference**: The database stores only the GUID/filename (e.g., `550e8400-e29b-41d4-a716-446655440000.jpg`), not the full path
+  - **Runtime Resolution**: At runtime, the full path is constructed: `File('${appDir}/app_images/$guid.jpg')`
+  - **Image Processing**: Images are optionally cropped by the user, then resized to 200x200 pixels at 85% quality (~5-15KB per image)
+- 3.4.3 **Display Logic**:
+  - **Local Images**: Displayed using `Image.file(File(thumbnail))` for user-uploaded images
+  - **Remote Images**: Displayed using `CachedNetworkImage` for Open Food Facts URLs
+  - **Fallback**: If no thumbnail is available, display the emoji; if no emoji, display a default emoji
+- 3.4.4 **User Interface**:
+  - **Image Picker**: Users can select images from camera or gallery via `image_picker` package
+  - **Crop Tool**: Users can optionally crop images using `image_cropper` package before saving. Cropping is optional - users can skip cropping and use the whole image.
+  - **Resize**: After optional cropping, the image (either whole or cropped area) is resized to 200x200 pixels at 85% quality (~5-15KB per image)
+  - **Edit Screens**: Food Edit Screen and Recipe Edit Screen include an image picker button in the metadata section
+  - **Image Popup**: Tapping on a food image thumbnail displays a larger version in a dialog with pinch-to-zoom (0.5x to 4x scale)
+- 3.4.5 **Backup & Restore**:
+  - **Backup**: The backup process creates a zip archive containing: database.db + app_images/ directory
+  - **Restore**: The restore process extracts the zip to a temp directory, copies database.db to the live location, and copies app_images/ to the app documents directory
+  - **GUID Validity**: GUIDs remain valid across devices and app reinstalls since they're device-agnostic
+- 3.4.6 **Cross-Device Transfer**:
+  - **QR Sharing**: Recipes can be shared via QR codes. Images are converted to Base64 and embedded in the recipe JSON for transfer.
+  - **Import**: When importing a recipe via QR, Base64 images are decoded and saved as new files with new GUIDs, and the database is updated with the new GUIDs.
+  - **Performance**: Base64 conversion is slower but acceptable for occasional transfers (e.g., 30 seconds for a recipe with images).
+- 3.4.7 **Cleanup & Maintenance**:
+  - **Orphaned Images**: On restore, scan the database for all thumbnail GUIDs and delete any image files in app_images/ that are not referenced.
+  - **Deletion**: When a food or recipe is deleted, its associated image file is also deleted.
+- 3.4.8 **Implementation Details**:
+  - **Dependencies**: `image_picker`, `image_cropper`, `image`, `archive` packages
+  - **Complexity**: Moderate (~400 lines of code)
+  - **Risk**: Low (standard file operations)
+- 3.4.9 **Benefits**:
+  - Fast queries (no Base64 in database)
+  - Efficient storage (~5-15KB per image)
+  - Device-agnostic (GUIDs work across devices)
+  - Cross-device transfer possible via QR
+  - Automatic backup/restore
+  - Scalable to thousands of images

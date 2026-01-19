@@ -51,6 +51,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   List<FoodServing> _servings = [];
   bool _isPerServingMode = false;
   FoodServing? _selectedServingForMacroInput;
+  String? _thumbnail;
 
   @override
   void initState() {
@@ -63,6 +64,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     _nameController = TextEditingController(text: food?.name ?? '');
     _emojiController = TextEditingController(text: food?.emoji ?? '🍎');
     _notesController = TextEditingController(text: food?.usageNote ?? '');
+    _thumbnail = food?.thumbnail;
 
     if (food != null) {
       // Copy servings but ensure they are mutable
@@ -144,6 +146,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           : widget.originalFood!.id,
       name: _nameController.text.trim(),
       emoji: _emojiController.text.trim(),
+      thumbnail: _thumbnail,
       usageNote: _notesController.text.trim(),
       calories: _parse(_caloriesController.text) * factor,
       protein: _parse(_proteinController.text) * factor,

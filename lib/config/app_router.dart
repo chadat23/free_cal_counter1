@@ -4,7 +4,7 @@ import 'package:free_cal_counter1/screens/qr_sharing_screen.dart';
 import 'package:free_cal_counter1/screens/data_management_screen.dart';
 import 'package:free_cal_counter1/screens/search_screen.dart';
 import 'package:free_cal_counter1/models/recipe.dart';
-import 'package:free_cal_counter1/screens/home_screen.dart';
+import 'package:free_cal_counter1/screens/navigation_container_screen.dart';
 import 'package:free_cal_counter1/screens/log_queue_screen.dart';
 import 'package:free_cal_counter1/screens/recipe_edit_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
@@ -37,7 +37,9 @@ class AppRouter {
   Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case homeRoute:
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        return MaterialPageRoute(
+          builder: (_) => const NavigationContainerScreen(),
+        );
       case searchRoute:
         return MaterialPageRoute(
           builder: (_) => ChangeNotifierProvider(

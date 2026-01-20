@@ -7,8 +7,8 @@ import 'package:free_cal_counter1/screens/weight_screen.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class NavigationContainerScreen extends StatelessWidget {
+  const NavigationContainerScreen({super.key});
 
   static const List<Widget> _widgetOptions = <Widget>[
     OverviewScreen(),

@@ -17,6 +17,7 @@ class _QuickAddDialogState extends State<QuickAddDialog> {
   double _protein = 0;
   double _fat = 0;
   double _carbs = 0;
+  double _fiber = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +56,11 @@ class _QuickAddDialogState extends State<QuickAddDialog> {
                 keyboardType: TextInputType.number,
                 onSaved: (val) => _carbs = double.tryParse(val ?? '0') ?? 0,
               ),
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Fiber (g)'),
+                keyboardType: TextInputType.number,
+                onSaved: (val) => _fiber = double.tryParse(val ?? '0') ?? 0,
+              ),
             ],
           ),
         ),
@@ -82,7 +88,7 @@ class _QuickAddDialogState extends State<QuickAddDialog> {
         protein: _protein,
         fat: _fat,
         carbs: _carbs,
-        fiber: 0,
+        fiber: _fiber,
         hidden: true,
         servings: [
           FoodServing(

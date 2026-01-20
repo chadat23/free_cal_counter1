@@ -12,6 +12,7 @@ import 'package:free_cal_counter1/widgets/search/search_mode_tabs.dart';
 import 'package:free_cal_counter1/widgets/search/text_search_view.dart';
 import 'package:free_cal_counter1/widgets/search/scan_search_view.dart';
 import 'package:free_cal_counter1/widgets/search/recipe_search_view.dart';
+import 'package:free_cal_counter1/widgets/search/food_search_view.dart';
 import 'package:free_cal_counter1/models/search_config.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -144,6 +145,8 @@ class _SearchScreenState extends State<SearchScreen> {
         return const ScanSearchView();
       case SearchMode.recipe:
         return RecipeSearchView(config: widget.config);
+      case SearchMode.food:
+        return FoodSearchView(config: widget.config);
     }
   }
 }

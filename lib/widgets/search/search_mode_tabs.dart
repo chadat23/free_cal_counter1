@@ -33,6 +33,7 @@ class SearchModeTabs extends StatelessWidget {
                 SearchMode.recipe,
                 Icons.restaurant_menu,
               ),
+              _buildTab(context, provider, SearchMode.food, Icons.restaurant),
             ],
           ),
         );

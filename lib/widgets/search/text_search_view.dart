@@ -10,7 +10,6 @@ import 'package:free_cal_counter1/widgets/search/slidable_search_result.dart';
 import 'package:free_cal_counter1/models/food.dart' as model_food;
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/screens/food_edit_screen.dart';
-import 'package:free_cal_counter1/widgets/quick_add_dialog.dart';
 
 class TextSearchView extends StatelessWidget {
   final SearchConfig config;
@@ -39,45 +38,9 @@ class TextSearchView extends StatelessWidget {
         }
 
         return ListView.builder(
-          itemCount: searchProvider.searchResults.length + 1,
+          itemCount: searchProvider.searchResults.length,
           itemBuilder: (context, index) {
-            if (index == 0) {
-              return ListTile(
-                leading: const Icon(Icons.flash_on, color: Colors.orange),
-                title: const Text('Quick Add'),
-                subtitle: const Text('Directly log calories and protein'),
-                trailing: const Icon(Icons.add),
-                onTap: () async {
-                  final food = await showDialog<model_food.Food>(
-                    context: context,
-                    builder: (context) => const QuickAddDialog(),
-                  );
-
-                  if (food != null && context.mounted) {
-                    final portion = model_portion.FoodPortion(
-                      food: food,
-                      grams: food.servings.first.grams,
-                      unit: food.servings.first.unit,
-                    );
-
-                    if (config.onSaveOverride != null) {
-                      config.onSaveOverride!(portion);
-                    } else {
-                      Provider.of<LogProvider>(
-                        context,
-                        listen: false,
-                      ).addFoodToQueue(portion);
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Added ${food.name} to log')),
-                      );
-                    }
-                  }
-                },
-              );
-            }
-            final foodIndex = index - 1;
-            final food = searchProvider.searchResults[foodIndex];
+            final food = searchProvider.searchResults[index];
             final logProvider = Provider.of<LogProvider>(context);
             final int existingIndex = logProvider.logQueue.indexWhere(
               (p) =>

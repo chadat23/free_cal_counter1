@@ -1,0 +1,139 @@
+import 'package:flutter/material.dart';
+import 'package:free_cal_counter1/models/food.dart' as model_food;
+import 'package:free_cal_counter1/models/food_portion.dart' as model_portion;
+import 'package:free_cal_counter1/models/quantity_edit_config.dart';
+import 'package:free_cal_counter1/models/search_config.dart';
+import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/screens/food_edit_screen.dart';
+import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/widgets/quick_add_dialog.dart';
+import 'package:provider/provider.dart';
+
+class FoodSearchView extends StatelessWidget {
+  final SearchConfig config;
+  const FoodSearchView({super.key, required this.config});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildQuickAddButton(context),
+          const SizedBox(height: 16),
+          _buildCreateFoodButton(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAddButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.flash_on, size: 32),
+        label: const Text('Quick Add', style: TextStyle(fontSize: 18)),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          backgroundColor: Colors.orange,
+        ),
+        onPressed: () async {
+          final food = await showDialog<model_food.Food>(
+            context: context,
+            builder: (context) => const QuickAddDialog(),
+          );
+
+          if (food != null && context.mounted) {
+            // Create portion with quantity 1, using entered macros as total
+            // The Food object stores macros per 100g, so we use 1g to get the correct total
+            final portion = model_portion.FoodPortion(
+              food: food,
+              grams: 1.0,
+              unit: 'serving',
+            );
+
+            if (config.onSaveOverride != null) {
+              config.onSaveOverride!(portion);
+            } else {
+              Provider.of<LogProvider>(
+                context,
+                listen: false,
+              ).addFoodToQueue(portion);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Added ${food.name} to log')),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildCreateFoodButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.add_circle_outline, size: 32),
+        label: const Text('Create New Food', style: TextStyle(fontSize: 18)),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+        ),
+        onPressed: () async {
+          final result = await Navigator.push<FoodEditResult>(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  const FoodEditScreen(contextType: FoodEditContext.search),
+            ),
+          );
+
+          if (result != null && result.useImmediately && context.mounted) {
+            // If user chose "Save & Use", navigate to quantity edit
+            final food = await DatabaseService.instance.getFoodById(
+              result.foodId,
+              'live',
+            );
+            if (food != null) {
+              // Open quantity edit screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QuantityEditScreen(
+                    config: QuantityEditConfig(
+                      context: config.context,
+                      food: food,
+                      isUpdate: false,
+                      initialUnit: food.servings.first.unit,
+                      initialQuantity: 1.0,
+                      originalGrams: 0.0,
+                      onSave: (grams, unit) {
+                        final portion = model_portion.FoodPortion(
+                          food: food,
+                          grams: grams,
+                          unit: unit,
+                        );
+                        if (config.onSaveOverride != null) {
+                          Navigator.pop(context);
+                          config.onSaveOverride!(portion);
+                        } else {
+                          Provider.of<LogProvider>(
+                            context,
+                            listen: false,
+                          ).addFoodToQueue(portion);
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+}

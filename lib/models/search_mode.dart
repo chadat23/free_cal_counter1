@@ -1,1 +1,1 @@
-enum SearchMode { text, scan, recipe }
+enum SearchMode { text, scan, recipe, food }

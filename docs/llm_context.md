@@ -204,6 +204,93 @@ To ensure consistency across the application and codebase, the following terms a
   - 1.8.4.4 **Dynamic Units**: Display units ('kg' or 'lbs') are driven by the `useMetric` setting in `GoalSettings`.
   - 1.8.4.5 **Navigation**: Saving a weight entry automatically returns the user to the Home screen.
 
+## 1.9 Data Management: a screen for handling app data preservation and backup.
+- 1.9.1 The screen should provide access to both manual and automatic cloud backup options.
+- 1.9.2 **Cloud Backup**:
+  - 1.9.2.1 **Integration**: Seamless integration with Google Drive (specifically the hidden App Data folder to avoid clutter).
+  - 1.9.2.2 **Configuration**: Users can toggle this feature on/off and sign in/out of their Google account. The screen displays the currently signed-in Google account email.
+  - 1.9.2.3 **Retention Policy**: Users can configure the retention count (defaulting to 7 days, adjustable from 1 to 30 days) via a slider. The system automatically deletes old backups from Drive to save space.
+  - 1.9.2.4 **Smart Scheduling**: Backups are scheduled to run daily in the background. A "dirty flag" mechanism ensures backups only occur if the database has actually changed since the last successful backup, conserving data and battery.
+  - 1.9.2.5 **Status Display**: The screen displays the timestamp of the last successful backup to inform the user when their data was last saved to the cloud.
+- 1.9.3 **Manual Backup**:
+  - 1.9.3.1 **Export**: Users can manually export the entire live database to a file using the system's share sheet. The exported file is the live database file.
+  - 1.9.3.2 **Import**: Users can restore the database from a file. This is a destructive action that replaces the current database, so a confirmation dialog is required warning the user that this will overwrite all current logs and recipes and cannot be undone unless they have another backup.
+  - 1.9.3.3 **User Guidance**: A note should be displayed informing users that restoring data will replace their current recipes and food logs, and they should ensure they have a backup of their current data if they still need it.
+
+## 1.10 Food Edit: a screen for creating new foods or editing existing food definitions.
+- 1.10.1 The top should have a back button that brings the user back to the previous screen without making any changes, and a save button (checkmark icon) to save the food.
+- 1.10.2 **Context Types**: The screen can be accessed from different contexts:
+  - 1.10.2.1 **Search Context**: Accessed from the Search Screen via the Edit or Copy buttons on a search result. In this context, an additional "Save & Use Immediately" button is available, which saves the food and immediately adds it to the Log Queue or uses it in the appropriate context.
+  - 1.10.2.2 **Edit Definition Context**: Accessed when editing a food's definition directly. In this context, only the save button is available.
+- 1.10.3 **Metadata Section**:
+  - 1.10.3.1 An emoji field for selecting or entering an emoji to represent the food.
+  - 1.10.3.2 A food name field (required) for entering the name of the food.
+  - 1.10.3.3 A notes field (optional) for entering any additional notes about the food.
+  - 1.10.3.4 When copying a food, the name should have " - Copy" appended to the end of it.
+- 1.10.4 **Nutrition Section**:
+  - 1.10.4.1 A dropdown to toggle between entering nutrition values "Per 100g" or "Per Serving".
+  - 1.10.4.2 When "Per Serving" is selected, an additional dropdown appears to select which serving definition the macro values are based on.
+  - 1.10.4.3 Input fields for Calories (kcal), Protein (g), Fat (g), Carbs (g), and Fiber (g).
+  - 1.10.4.4 All macro values are stored internally as per-gram values, regardless of the input mode selected.
+- 1.10.5 **Servings/Units Section**:
+  - 1.10.5.1 A list of all serving definitions for the food, excluding the base 'g' (gram) unit which is always available.
+  - 1.10.5.2 Each serving definition displays the quantity, unit name, and equivalent weight in grams.
+  - 1.10.5.3 Users can add new servings, edit existing servings, or delete servings.
+  - 1.10.5.4 When adding or editing a serving, users specify the unit name (e.g., "cup", "slice"), the quantity (e.g., 1.0), and the weight in grams for that quantity.
+  - 1.10.5.5 If no servings are defined beyond the base 'g' unit, a message should indicate that defaults to grams only.
+- 1.10.6 **Save Behavior**:
+  - 1.10.6.1 When saving a new food or a copied food, a new record is created in the Live Database with `source` set to 'user'.
+  - 1.10.6.2 When editing an existing food, the system must check if the food is "Used" (referenced in log entries or recipes). If macro-affecting changes are made and the food is used, versioning logic should be triggered (see Section 3.3). If only macro-neutral changes are made (name, emoji, notes), the changes can be applied in-place.
+  - 1.10.6.3 If the original food is from the Reference Database, it must be copied to the Live Database upon saving, with all user-viewed data copied over. The new Live version should maintain a link to the original Reference item to avoid duplicate search results.
+
+## 1.11 Goal Settings: a screen for configuring weight goals and macro targets.
+- 1.11.1 The top should have a back button that brings the user back to the Settings screen without making any changes, and a save button to save the settings.
+- 1.11.2 **Goal Mode Selection**:
+  - 1.11.2.1 A segmented button selector to choose between "Lose", "Maintain", and "Gain" modes.
+  - 1.11.2.2 The selected mode determines how the daily calorie delta is calculated.
+- 1.11.3 **Weight Settings**:
+  - 1.11.3.1 An anchor weight field for entering the target or baseline weight. This is the reference point for calculating drift in Maintain mode.
+  - 1.11.3.2 A toggle for "Use Metric Units (kg)" which affects how weight is displayed and how calorie drift is calculated (approx 3500 cal/lb vs 7700 cal/kg).
+- 1.11.4 **Calorie Settings**:
+  - 1.11.4.1 An initial maintenance calories field for entering the estimated TDEE (Total Daily Energy Expenditure). This serves as the baseline for calculating daily calorie targets.
+  - 1.11.4.2 In "Lose" or "Gain" modes, a fixed delta field appears for entering the daily calorie adjustment (e.g., -500 for losing, +500 for gaining).
+  - 1.11.4.3 In "Maintain" mode, the delta is calculated automatically based on the difference between the anchor weight and the current trend weight, so no fixed delta field is shown.
+- 1.11.5 **Macro Split Settings**:
+  - 1.11.5.1 A protein target field for entering the daily protein goal in grams.
+  - 1.11.5.2 A fat target field for entering the daily fat goal in grams.
+  - 1.11.5.3 Carbs are calculated as the remainder of the calorie budget after accounting for protein and fat, so no direct carb input is needed.
+- 1.11.6 **Save Behavior**:
+  - 1.11.6.1 Saving updates the `GoalSettings` in the database.
+  - 1.11.6.2 The `lastTargetUpdate` timestamp is preserved when saving to ensure weekly updates continue to work correctly.
+  - 1.11.6.3 After saving, a confirmation message should be displayed to the user.
+  - 1.11.6.4 The calculated daily maintenance calories (TDEE) should be displayed in the goals/settings area for user reference.
+
+## 1.12 QR Sharing: a screen for sharing recipes via QR codes or scanning QR codes to import recipes.
+- 1.12.1 The screen has two modes: Export (sharing a recipe) and Import (scanning a recipe).
+- 1.12.2 **Export Mode**:
+  - 1.12.2.1 The screen displays a QR code containing the recipe data.
+  - 1.12.2.2 If the recipe data is small enough to fit in a single QR code, only one QR code is displayed.
+  - 1.12.2.3 If the recipe data is too large for a single QR code, it is split into multiple chunks (approximately 600 characters per chunk), and the QR codes cycle through automatically.
+  - 1.12.2.4 Each QR code chunk includes a header in the format "index/total|data" (e.g., "1/3|...") to indicate which part of the recipe it contains.
+  - 1.12.2.5 A progress indicator shows which part is currently being displayed (e.g., "Part 2 of 3").
+  - 1.12.2.6 Users can pause/resume the automatic cycling of QR codes using a play/pause button.
+  - 1.12.2.7 A message informs the recipient that they need to keep scanning until all parts are captured.
+- 1.12.3 **Import Mode**:
+  - 1.12.3.1 The screen displays a camera view for scanning QR codes.
+  - 1.12.3.2 As QR codes are scanned, the chunks are collected and reassembled.
+  - 1.12.3.3 A status message shows the progress (e.g., "Received part 2 of 3").
+  - 1.12.3.4 A progress bar indicates how many chunks have been received out of the total expected.
+  - 1.12.3.5 Once all chunks are received, the recipe is processed and imported into the Live Database.
+  - 1.12.3.6 If the import is successful, a confirmation message is displayed and the user is returned to the previous screen with the new recipe ID.
+  - 1.12.3.7 If the import fails, an error message is displayed and the user can retry scanning.
+- 1.12.4 **Data Format**:
+  - 1.12.4.1 Recipe data is exported as JSON, including all recipe metadata, ingredients, and images (converted to Base64).
+  - 1.12.4.2 Images are embedded in the JSON as Base64 strings for cross-device transfer.
+  - 1.12.4.3 When importing, Base64 images are decoded and saved as new files with new GUIDs, and the database is updated with the new GUIDs.
+- 1.12.5 **Access**:
+  - 1.12.5.1 The Export mode is accessed from the Recipe Edit Screen via the Share button (visible only for saved recipes).
+  - 1.12.5.2 The Import mode is accessed from the Recipe Edit Screen via the Import/Scan button (visible only when creating a new recipe).
+
 # 2 Search Functionality and Behavior
 - 2.1 Text Based Search
   - 2.1.1 All text based data sources (Reference DB, Live DB, and OFF API) should generally act as a unified search experience using similar fuzzy filtering/sorting logic where appropriate, though implementation details may vary by source.

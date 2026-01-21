@@ -264,11 +264,82 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           maxLines: 2,
         ),
         const SizedBox(height: 12),
-        // Image picker button
-        ElevatedButton.icon(
-          onPressed: _pickImage,
-          icon: const Icon(Icons.photo_camera),
-          label: const Text('Add Image'),
+        // Image picker with preview
+        Row(
+          children: [
+            // Image preview frame
+            _buildImagePreview(),
+            const SizedBox(width: 16),
+            // Image picker button
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.photo_camera),
+                label: const Text('Add Image'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImagePreview() {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[600]!, width: 2),
+      ),
+      child: _thumbnail != null
+          ? _buildThumbnailImage()
+          : _buildEmptyPlaceholder(),
+    );
+  }
+
+  Widget _buildThumbnailImage() {
+    final guid = _thumbnail?.replaceFirst('local:', '');
+    if (guid == null) {
+      return _buildEmptyPlaceholder();
+    }
+
+    return FutureBuilder<String>(
+      future: ImageStorageService.instance.getImagePath(guid),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return _buildEmptyPlaceholder();
+        }
+
+        final imagePath = snapshot.data!;
+        final imageFile = File(imagePath);
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Image.file(
+            imageFile,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildEmptyPlaceholder();
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyPlaceholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.image_outlined, size: 32, color: Colors.grey[600]),
+        const SizedBox(height: 4),
+        Text(
+          'No Image',
+          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
         ),
       ],
     );

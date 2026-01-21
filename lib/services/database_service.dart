@@ -275,6 +275,29 @@ class DatabaseService {
   ) async {
     final timestamp = logTimestamp.millisecondsSinceEpoch;
 
+    // First, ensure all foods are in the live database (copy if needed)
+    // This must be done outside the transaction to avoid nested transaction issues
+    for (final portion in portions) {
+      final food = portion.food;
+
+      if (food.source != 'recipe' &&
+          food.source != 'live' &&
+          food.source != 'user_created' &&
+          food.source != 'off_cache' &&
+          food.source != 'system') {
+        // Reference or Foundation - check if we already have a live copy
+        final existing = await (_liveDb.select(
+          _liveDb.foods,
+        )..where((f) => f.sourceFdcId.equals(food.id))).getSingleOrNull();
+
+        if (existing == null) {
+          // Copy to live
+          await copyFoodToLiveDb(food, isCopy: false);
+        }
+      }
+    }
+
+    // Now perform the actual logging within a transaction
     await _liveDb.transaction(() async {
       for (final portion in portions) {
         final food = portion.food;
@@ -304,18 +327,12 @@ class DatabaseService {
           foodId = food.id;
         } else {
           // Reference or Foundation
-          // Check if we already have a live copy
+          // Food should already be copied, so just find the live copy
           final existing = await (_liveDb.select(
             _liveDb.foods,
           )..where((f) => f.sourceFdcId.equals(food.id))).getSingleOrNull();
 
-          if (existing != null) {
-            foodId = existing.id;
-          } else {
-            // Copy to live
-            final newFood = await copyFoodToLiveDb(food, isCopy: false);
-            foodId = newFood.id;
-          }
+          foodId = existing!.id;
         }
 
         // Create the log entry

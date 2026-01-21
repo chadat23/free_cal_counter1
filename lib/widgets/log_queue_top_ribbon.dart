@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/nutrition_target.dart';
 import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/widgets/food_image_widget.dart';
 import 'package:provider/provider.dart';
 
 class LogQueueTopRibbon extends StatelessWidget {
@@ -148,32 +148,10 @@ class LogQueueTopRibbon extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: logProvider.logQueue.map((serving) {
-                      if (serving.food.thumbnail != null) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                          child: CachedNetworkImage(
-                            imageUrl: serving.food.thumbnail!,
-                            width: 26,
-                            height: 26,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => const SizedBox(
-                              width: 26,
-                              height: 26,
-                              child: CircularProgressIndicator(),
-                            ),
-                            errorWidget: (context, url, error) =>
-                                Text(serving.food.emoji ?? '🍴'),
-                          ),
-                        );
-                      } else {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                          child: Text(
-                            serving.food.emoji ?? '🍴',
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                        );
-                      }
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: FoodImageWidget(food: serving.food, size: 26.0),
+                      );
                     }).toList(),
                   ),
                 ),

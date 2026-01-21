@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
@@ -7,6 +8,8 @@ import 'package:free_cal_counter1/models/food_serving.dart' as model_unit;
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/emoji_service.dart';
+import 'package:free_cal_counter1/services/image_storage_service.dart';
+import 'package:free_cal_counter1/widgets/food_image_widget.dart';
 import 'package:provider/provider.dart';
 
 class SearchResultTile extends StatefulWidget {
@@ -87,7 +90,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
     }
   }
 
-  void _showImagePopup(BuildContext context, String imageUrl) {
+  void _showImagePopup(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => GestureDetector(
@@ -112,18 +115,13 @@ class _SearchResultTileState extends State<SearchResultTile> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: InteractiveViewer(
-                    minScale: 0.5,
-                    maxScale: 4,
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.fastfood, size: 100),
-                      fit: BoxFit.contain,
-                      width: 300,
-                      height: 300,
+                  child: SizedBox(
+                    width: 300,
+                    height: 300,
+                    child: InteractiveViewer(
+                      minScale: 0.5,
+                      maxScale: 4,
+                      child: _buildPopupImage(),
                     ),
                   ),
                 ),
@@ -135,10 +133,56 @@ class _SearchResultTileState extends State<SearchResultTile> {
     );
   }
 
+  Widget _buildPopupImage() {
+    if (widget.food.isLocalImage()) {
+      // Local image
+      final guid = widget.food.getLocalImageGuid();
+      if (guid == null) {
+        return const Icon(Icons.fastfood, size: 100);
+      }
+
+      return FutureBuilder<String>(
+        future: ImageStorageService.instance.getImagePath(guid),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
+
+          final imagePath = snapshot.data!;
+          final imageFile = File(imagePath);
+
+          return Image.file(
+            imageFile,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.fastfood, size: 100);
+            },
+          );
+        },
+      );
+    } else if (widget.food.thumbnail != null &&
+        widget.food.thumbnail!.isNotEmpty) {
+      // Network image
+      return CachedNetworkImage(
+        imageUrl: widget.food.thumbnail!,
+        placeholder: (context, url) => const CircularProgressIndicator(),
+        errorWidget: (context, url, error) =>
+            const Icon(Icons.fastfood, size: 100),
+        fit: BoxFit.contain,
+      );
+    } else {
+      // Emoji or placeholder
+      return Center(
+        child: Text(
+          emojiForFoodName(widget.food.name),
+          style: const TextStyle(fontSize: 100),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final emoji = emojiForFoodName(widget.food.name);
-
     final calories = widget.food.calories * _selectedUnit.grams;
     final protein = widget.food.protein * _selectedUnit.grams;
     final fat = widget.food.fat * _selectedUnit.grams;
@@ -149,29 +193,18 @@ class _SearchResultTileState extends State<SearchResultTile> {
       tileColor: _getBackgroundColor(context),
       leading: GestureDetector(
         onTap: () {
-          if (widget.food.thumbnail != null) {
-            _showImagePopup(context, widget.food.thumbnail!);
+          if (widget.food.thumbnail != null || widget.food.emoji != null) {
+            _showImagePopup(context);
           }
         },
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Center(
-            child: widget.food.thumbnail != null
-                ? CachedNetworkImage(
-                    imageUrl: widget.food.thumbnail!,
-                    placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.fastfood),
-                    fit: BoxFit.cover,
-                  )
-                : Text(
-                    emoji,
-                    style: const TextStyle(fontSize: 28),
-                    textAlign: TextAlign.center,
-                  ),
-          ),
+        child: FoodImageWidget(
+          food: widget.food,
+          size: 40.0,
+          onTap: () {
+            if (widget.food.thumbnail != null || widget.food.emoji != null) {
+              _showImagePopup(context);
+            }
+          },
         ),
       ),
       title: Row(

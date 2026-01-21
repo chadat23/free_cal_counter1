@@ -10,6 +10,7 @@ import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 import 'package:free_cal_counter1/screens/food_edit_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/widgets/food_image_widget.dart';
 
 class QuantityEditScreen extends StatefulWidget {
   final QuantityEditConfig config;
@@ -65,6 +66,8 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            _buildFoodHeader(),
+            const SizedBox(height: 16),
             _buildMacroDisplay(),
             const SizedBox(height: 24),
             _buildInputSection(),
@@ -375,6 +378,20 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
     );
   }
 
+  Widget _buildFoodHeader() {
+    return Column(
+      children: [
+        FoodImageWidget(food: _food, size: 80.0),
+        const SizedBox(height: 8),
+        Text(
+          _food.name,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
   void _handleSave() {
     final grams = _calculateCurrentGrams();
     if (grams > 0) {
@@ -401,9 +418,10 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
 
       if (result != null && mounted) {
         // Reload food from database to get latest changes
+        // Always query from 'live' since edited foods are saved there
         final updatedFood = await DatabaseService.instance.getFoodById(
           result.foodId,
-          _food.source,
+          'live',
         );
 
         if (updatedFood != null && mounted) {

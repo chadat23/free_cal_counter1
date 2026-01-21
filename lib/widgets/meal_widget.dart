@@ -8,6 +8,7 @@ import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/log_provider.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
 
 class MealWidget extends StatelessWidget {
   final Meal meal;
@@ -91,21 +92,31 @@ class MealWidget extends StatelessWidget {
                           onFoodDeleted!(loggedFood);
                         }
                       },
-                      onEdit: () {
+                      onEdit: () async {
+                        // Reload food from database to get latest changes (e.g., image)
+                        final foodId = loggedFood.portion.food.id;
+                        final reloadedFood = await DatabaseService.instance
+                            .getFoodById(foodId, 'live');
+
+                        if (reloadedFood == null) {
+                          // Fallback to cached food if reload fails
+                          return;
+                        }
+
+                        if (!context.mounted) return;
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) {
-                              final unit = loggedFood.portion.food.servings
-                                  .firstWhere(
-                                    (s) => s.unit == loggedFood.portion.unit,
-                                    orElse: () =>
-                                        loggedFood.portion.food.servings.first,
-                                  );
+                              final unit = reloadedFood.servings.firstWhere(
+                                (s) => s.unit == loggedFood.portion.unit,
+                                orElse: () => reloadedFood.servings.first,
+                              );
                               return QuantityEditScreen(
                                 config: QuantityEditConfig(
                                   context: QuantityEditContext.day,
-                                  food: loggedFood.portion.food,
+                                  food: reloadedFood,
                                   isUpdate: true,
                                   initialUnit: unit.unit,
                                   initialQuantity: unit.quantityFromGrams(
@@ -117,7 +128,7 @@ class MealWidget extends StatelessWidget {
                                       onFoodUpdated!(
                                         loggedFood,
                                         FoodPortion(
-                                          food: loggedFood.portion.food,
+                                          food: reloadedFood,
                                           grams: grams,
                                           unit: unitName,
                                         ),

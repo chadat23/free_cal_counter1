@@ -9,6 +9,7 @@ import 'package:free_cal_counter1/widgets/slidable_portion_widget.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
 import 'package:free_cal_counter1/screens/quantity_edit_screen.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:provider/provider.dart';
 
 class LogQueueScreen extends StatelessWidget {
@@ -66,19 +67,31 @@ class LogQueueScreen extends StatelessWidget {
                 onDelete: () {
                   logProvider.removeFoodFromQueue(foodServing);
                 },
-                onEdit: () {
+                onEdit: () async {
+                  // Reload food from database to get latest changes (e.g., image)
+                  final foodId = foodServing.food.id;
+                  final reloadedFood = await DatabaseService.instance
+                      .getFoodById(foodId, 'live');
+
+                  if (reloadedFood == null) {
+                    // Fallback to cached food if reload fails
+                    return;
+                  }
+
+                  if (!context.mounted) return;
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        final unit = foodServing.food.servings.firstWhere(
+                        final unit = reloadedFood.servings.firstWhere(
                           (s) => s.unit == foodServing.unit,
-                          orElse: () => foodServing.food.servings.first,
+                          orElse: () => reloadedFood.servings.first,
                         );
                         return QuantityEditScreen(
                           config: QuantityEditConfig(
                             context: QuantityEditContext.day,
-                            food: foodServing.food,
+                            food: reloadedFood,
                             isUpdate: true,
                             initialUnit: unit.unit,
                             initialQuantity: unit.quantityFromGrams(
@@ -89,7 +102,7 @@ class LogQueueScreen extends StatelessWidget {
                               logProvider.updateFoodInQueue(
                                 index,
                                 FoodPortion(
-                                  food: foodServing.food,
+                                  food: reloadedFood,
                                   grams: grams,
                                   unit: unitName,
                                 ),

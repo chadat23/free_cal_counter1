@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food_portion.dart';
+import 'package:free_cal_counter1/widgets/food_image_widget.dart';
 
 class PortionWidget extends StatelessWidget {
   final FoodPortion portion;
@@ -43,7 +43,9 @@ class PortionWidget extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isSelected
-              ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3)
+              ? Theme.of(
+                  context,
+                ).colorScheme.primaryContainer.withValues(alpha: 0.3)
               : null,
           border: isSelected
               ? Border.all(
@@ -56,27 +58,7 @@ class PortionWidget extends StatelessWidget {
         child: ListTile(
           leading: Stack(
             children: [
-              SizedBox(
-                width: 40,
-                height: 40,
-                child: Center(
-                  child: portion.food.thumbnail != null
-                      ? CachedNetworkImage(
-                          imageUrl: portion.food.thumbnail!,
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => Text(
-                            portion.food.emoji ?? '🍴',
-                            style: const TextStyle(fontSize: 24),
-                          ),
-                          fit: BoxFit.cover,
-                        )
-                      : Text(
-                          portion.food.emoji ?? '🍴',
-                          style: const TextStyle(fontSize: 24),
-                        ),
-                ),
-              ),
+              FoodImageWidget(food: portion.food, size: 40.0),
               if (isSelected)
                 Positioned(
                   top: 0,

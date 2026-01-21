@@ -1,6 +1,8 @@
 import 'package:free_cal_counter1/models/food_serving.dart';
+import 'package:free_cal_counter1/services/image_storage_service.dart';
 
 class Food {
+  static const String _localPrefix = 'local:';
   final int id;
   final String source;
   final String name;
@@ -119,5 +121,30 @@ class Food {
       'sourceBarcode': sourceBarcode,
       'hidden': hidden,
     };
+  }
+
+  /// Check if the thumbnail refers to a local image
+  bool isLocalImage() {
+    return thumbnail != null && thumbnail!.startsWith(_localPrefix);
+  }
+
+  /// Extract the GUID from a local thumbnail string
+  String? getLocalImageGuid() {
+    if (!isLocalImage()) {
+      return null;
+    }
+    return thumbnail!.substring(_localPrefix.length);
+  }
+
+  /// Get the display thumbnail (local path or URL)
+  /// For local images, returns the full file path
+  /// For URLs, returns the URL as-is
+  String? getDisplayThumbnail() {
+    if (!isLocalImage()) {
+      return thumbnail;
+    }
+    // For local images, return the GUID with prefix
+    // The caller will use ImageStorageService.getImagePath() to get the full path
+    return thumbnail;
   }
 }

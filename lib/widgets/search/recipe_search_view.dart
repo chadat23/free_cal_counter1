@@ -213,10 +213,23 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                               );
                               final existingPortion =
                                   logProvider.logQueue[existingIndex];
-                              final unitServing = food.servings.firstWhere(
-                                (s) => s.unit == existingPortion.unit,
-                                orElse: () => food.servings.first,
-                              );
+                              // Reload food from database to get latest changes (e.g., image)
+                              final reloadedFood = await DatabaseService
+                                  .instance
+                                  .getFoodById(food.id, 'live');
+
+                              if (reloadedFood == null) {
+                                // Fallback to cached food if reload fails
+                                return;
+                              }
+
+                              if (!context.mounted) return;
+
+                              final unitServing = reloadedFood.servings
+                                  .firstWhere(
+                                    (s) => s.unit == existingPortion.unit,
+                                    orElse: () => reloadedFood.servings.first,
+                                  );
 
                               Navigator.push(
                                 context,
@@ -224,7 +237,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                                   builder: (context) => QuantityEditScreen(
                                     config: QuantityEditConfig(
                                       context: widget.config.context,
-                                      food: food,
+                                      food: reloadedFood,
                                       isUpdate: true,
                                       initialUnit: existingPortion.unit,
                                       initialQuantity: unitServing
@@ -236,7 +249,7 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                                         logProvider.updateFoodInQueue(
                                           existingIndex,
                                           model_portion.FoodPortion(
-                                            food: food,
+                                            food: reloadedFood,
                                             grams: grams,
                                             unit: unit,
                                           ),

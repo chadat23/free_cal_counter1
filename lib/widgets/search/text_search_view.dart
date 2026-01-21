@@ -59,13 +59,24 @@ class TextSearchView extends StatelessWidget {
               food: food,
               isUpdate: isUpdate,
               note: food.usageNote,
-              onAdd: (selectedUnit) {
+              onAdd: (selectedUnit) async {
                 if (isUpdate && config.onSaveOverride == null) {
                   // If already in queue and no override, edit existing
                   final existingPortion = logProvider.logQueue[existingIndex];
-                  final unitServing = food.servings.firstWhere(
+                  // Reload food from database to get latest changes (e.g., image)
+                  final reloadedFood = await DatabaseService.instance
+                      .getFoodById(food.id, 'live');
+
+                  if (reloadedFood == null) {
+                    // Fallback to cached food if reload fails
+                    return;
+                  }
+
+                  if (!context.mounted) return;
+
+                  final unitServing = reloadedFood.servings.firstWhere(
                     (s) => s.unit == existingPortion.unit,
-                    orElse: () => food.servings.first,
+                    orElse: () => reloadedFood.servings.first,
                   );
                   Navigator.push(
                     context,
@@ -73,7 +84,7 @@ class TextSearchView extends StatelessWidget {
                       builder: (context) => QuantityEditScreen(
                         config: QuantityEditConfig(
                           context: config.context,
-                          food: food,
+                          food: reloadedFood,
                           isUpdate: true,
                           initialUnit: existingPortion.unit,
                           initialQuantity: unitServing.quantityFromGrams(
@@ -87,7 +98,7 @@ class TextSearchView extends StatelessWidget {
                             ).updateFoodInQueue(
                               existingIndex,
                               model_portion.FoodPortion(
-                                food: food,
+                                food: reloadedFood,
                                 grams: grams,
                                 unit: unit,
                               ),

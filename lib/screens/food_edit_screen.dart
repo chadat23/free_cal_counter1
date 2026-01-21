@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/services/image_storage_service.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
+import 'package:image_picker/image_picker.dart' as picker;
 
 enum FoodEditContext {
   search, // From Search Screen (Edit/Copy) -> "Save", "Save & Use"
@@ -260,6 +263,13 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           decoration: const InputDecoration(labelText: 'Notes (Optional)'),
           maxLines: 2,
         ),
+        const SizedBox(height: 12),
+        // Image picker button
+        ElevatedButton.icon(
+          onPressed: _pickImage,
+          icon: const Icon(Icons.photo_camera),
+          label: const Text('Add Image'),
+        ),
       ],
     );
   }
@@ -441,6 +451,96 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         );
       }
     });
+  }
+
+  Future<void> _pickImage() async {
+    // Show dialog with options
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Image'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () => Navigator.pop(context, 'camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () => Navigator.pop(context, 'gallery'),
+            ),
+            if (_thumbnail != null)
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Remove Image'),
+                onTap: () => Navigator.pop(context, 'remove'),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    if (choice == null) return;
+
+    if (choice == 'remove') {
+      // Delete old image if exists
+      if (_thumbnail != null) {
+        final guid = widget.originalFood?.getLocalImageGuid();
+        if (guid != null) {
+          await ImageStorageService.instance.deleteImage(guid);
+        }
+      }
+      setState(() {
+        _thumbnail = null;
+      });
+      return;
+    }
+
+    // Pick image from camera or gallery
+    final imagePicker = picker.ImagePicker();
+    final picker.XFile? pickedFile;
+    if (choice == 'camera') {
+      pickedFile = await imagePicker.pickImage(
+        source: picker.ImageSource.camera,
+      );
+    } else {
+      pickedFile = await imagePicker.pickImage(
+        source: picker.ImageSource.gallery,
+      );
+    }
+
+    if (pickedFile == null) return;
+
+    // Save image (cropping to be added later)
+    try {
+      final guid = await ImageStorageService.instance.saveImage(
+        File(pickedFile!.path),
+      );
+
+      // Delete old image if exists
+      if (_thumbnail != null) {
+        final oldGuid = widget.originalFood?.getLocalImageGuid();
+        if (oldGuid != null) {
+          await ImageStorageService.instance.deleteImage(oldGuid);
+        }
+      }
+
+      setState(() {
+        _thumbnail = 'local:$guid';
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving image: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _showServingDialog({int? index, FoodServing? serving}) async {

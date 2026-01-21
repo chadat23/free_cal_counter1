@@ -578,6 +578,19 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
               orElse: () => food.servings.first,
             );
 
+            // Reload food from database to get latest changes (e.g., image)
+            final reloadedFood = await DatabaseService.instance.getFoodById(
+              food.id,
+              'live',
+            );
+
+            if (reloadedFood == null) {
+              // Fallback to cached food if reload fails
+              return;
+            }
+
+            if (!mounted) return;
+
             // Navigate to QuantityEditScreen
             final updatedPortion = await Navigator.push<FoodPortion>(
               context,
@@ -585,7 +598,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                 builder: (context) => QuantityEditScreen(
                   config: QuantityEditConfig(
                     context: QuantityEditContext.recipe,
-                    food: food,
+                    food: reloadedFood,
                     isUpdate: true,
                     initialUnit: serving.unit,
                     initialQuantity: serving.quantityFromGrams(item.grams),
@@ -594,7 +607,11 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                     onSave: (grams, unit) {
                       Navigator.pop(
                         context,
-                        FoodPortion(food: food, grams: grams, unit: unit),
+                        FoodPortion(
+                          food: reloadedFood,
+                          grams: grams,
+                          unit: unit,
+                        ),
                       );
                     },
                   ),

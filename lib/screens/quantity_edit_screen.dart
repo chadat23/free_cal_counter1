@@ -434,6 +434,10 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
             }
           });
 
+          // Refresh the food in the log queue to propagate name/image changes
+          final logProvider = Provider.of<LogProvider>(context, listen: false);
+          await logProvider.refreshFoodInQueue(result.foodId, updatedFood);
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Food definition updated')),
           );

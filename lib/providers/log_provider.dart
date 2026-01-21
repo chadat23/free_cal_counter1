@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/models/food_portion.dart' as model;
 import 'package:free_cal_counter1/models/logged_portion.dart' as model;
 import 'package:free_cal_counter1/models/recipe.dart' as model;
+import 'package:free_cal_counter1/models/food.dart' as model_food;
 import 'package:free_cal_counter1/services/emoji_service.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
@@ -135,6 +136,32 @@ class LogProvider extends ChangeNotifier {
     _logQueue.clear();
     _recalculateQueuedMacros();
     notifyListeners();
+  }
+
+  /// Refreshes food references in the log queue after a food is edited
+  /// This ensures that when a food's name, image, or other metadata is updated,
+  /// the log queue reflects the latest version of the food.
+  Future<void> refreshFoodInQueue(
+    int foodId,
+    model_food.Food updatedFood,
+  ) async {
+    for (int i = 0; i < _logQueue.length; i++) {
+      final portion = _logQueue[i];
+      // Match by food ID or by barcode (for OFF foods)
+      if (portion.food.id == foodId ||
+          (portion.food.source == 'off' &&
+              portion.food.sourceBarcode == updatedFood.sourceBarcode)) {
+        // Update the portion with the new food reference
+        _logQueue[i] = model.FoodPortion(
+          food: updatedFood,
+          grams: portion.grams,
+          unit: portion.unit,
+        );
+        _recalculateQueuedMacros();
+        notifyListeners();
+        return; // Only update first match
+      }
+    }
   }
 
   Future<void> logQueueToDatabase() async {

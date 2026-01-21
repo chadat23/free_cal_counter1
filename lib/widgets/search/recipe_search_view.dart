@@ -245,11 +245,11 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                                             existingPortion.grams,
                                           ),
                                       originalGrams: existingPortion.grams,
-                                      onSave: (grams, unit) {
+                                      onSave: (grams, unit, updatedFood) {
                                         logProvider.updateFoodInQueue(
                                           existingIndex,
                                           model_portion.FoodPortion(
-                                            food: reloadedFood,
+                                            food: updatedFood ?? reloadedFood,
                                             grams: grams,
                                             unit: unit,
                                           ),
@@ -345,9 +345,9 @@ class _RecipeSearchViewState extends State<RecipeSearchView> {
                                     initialUnit: initialUnit,
                                     initialQuantity: initialQuantity,
                                     originalGrams: originalGrams,
-                                    onSave: (grams, unit) {
+                                    onSave: (grams, unit, updatedFood) {
                                       final portion = model_portion.FoodPortion(
-                                        food: food,
+                                        food: updatedFood ?? food,
                                         grams: grams,
                                         unit: unit,
                                       );

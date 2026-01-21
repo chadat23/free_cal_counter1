@@ -604,11 +604,11 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                     initialQuantity: serving.quantityFromGrams(item.grams),
                     originalGrams: item.grams,
                     recipeServings: provider.servingsCreated,
-                    onSave: (grams, unit) {
+                    onSave: (grams, unit, updatedFood) {
                       Navigator.pop(
                         context,
                         FoodPortion(
-                          food: reloadedFood,
+                          food: updatedFood ?? reloadedFood,
                           grams: grams,
                           unit: unit,
                         ),

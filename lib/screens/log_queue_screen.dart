@@ -98,11 +98,11 @@ class LogQueueScreen extends StatelessWidget {
                               foodServing.grams,
                             ),
                             originalGrams: foodServing.grams,
-                            onSave: (grams, unitName) {
+                            onSave: (grams, unitName, updatedFood) {
                               logProvider.updateFoodInQueue(
                                 index,
                                 FoodPortion(
-                                  food: reloadedFood,
+                                  food: updatedFood ?? reloadedFood,
                                   grams: grams,
                                   unit: unitName,
                                 ),

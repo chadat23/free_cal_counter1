@@ -2,7 +2,8 @@ import 'package:free_cal_counter1/models/food.dart';
 
 enum QuantityEditContext { day, recipe }
 
-typedef QuantitySaveCallback = void Function(double grams, String unit);
+typedef QuantitySaveCallback =
+    void Function(double grams, String unit, Food? updatedFood);
 
 class QuantityEditConfig {
   final QuantityEditContext context;

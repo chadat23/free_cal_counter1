@@ -395,8 +395,8 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
   void _handleSave() {
     final grams = _calculateCurrentGrams();
     if (grams > 0) {
-      // Call the callback for backward compatibility
-      widget.config.onSave(grams, _selectedUnit);
+      // Call the callback with the updated food reference
+      widget.config.onSave(grams, _selectedUnit, _food);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid amount')),

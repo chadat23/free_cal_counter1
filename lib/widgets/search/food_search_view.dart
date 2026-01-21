@@ -109,9 +109,9 @@ class FoodSearchView extends StatelessWidget {
                       initialUnit: food.servings.first.unit,
                       initialQuantity: 1.0,
                       originalGrams: 0.0,
-                      onSave: (grams, unit) {
+                      onSave: (grams, unit, updatedFood) {
                         final portion = model_portion.FoodPortion(
-                          food: food,
+                          food: updatedFood ?? food,
                           grams: grams,
                           unit: unit,
                         );

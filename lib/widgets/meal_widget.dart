@@ -123,12 +123,12 @@ class MealWidget extends StatelessWidget {
                                     loggedFood.portion.grams,
                                   ),
                                   originalGrams: loggedFood.portion.grams,
-                                  onSave: (grams, unitName) {
+                                  onSave: (grams, unitName, updatedFood) {
                                     if (onFoodUpdated != null) {
                                       onFoodUpdated!(
                                         loggedFood,
                                         FoodPortion(
-                                          food: reloadedFood,
+                                          food: updatedFood ?? reloadedFood,
                                           grams: grams,
                                           unit: unitName,
                                         ),

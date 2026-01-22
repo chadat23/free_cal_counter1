@@ -6,19 +6,26 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/screens/goal_settings_screen.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/models/goal_settings.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:free_cal_counter1/providers/weight_provider.dart';
+import 'package:free_cal_counter1/models/weight.dart';
 
 import 'goal_settings_screen_test.mocks.dart';
 
-@GenerateMocks([GoalsProvider])
+@GenerateMocks([GoalsProvider, WeightProvider])
 void main() {
   late MockGoalsProvider mockGoalsProvider;
+  late MockWeightProvider mockWeightProvider;
 
   setUp(() {
     mockGoalsProvider = MockGoalsProvider();
+    mockWeightProvider = MockWeightProvider();
 
     // Stub the settings getter
     when(mockGoalsProvider.settings).thenReturn(GoalSettings.defaultSettings());
+
+    // Stub weight provider
+    when(mockWeightProvider.getWeightForDate(any)).thenReturn(null);
+    when(mockWeightProvider.saveWeight(any, any)).thenAnswer((_) async {});
   });
 
   testWidgets('GoalSettingsScreen renders all fields and toggles', (
@@ -28,6 +35,9 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
+          ChangeNotifierProvider<WeightProvider>.value(
+            value: mockWeightProvider,
+          ),
         ],
         child: const MaterialApp(home: GoalSettingsScreen()),
       ),
@@ -35,6 +45,7 @@ void main() {
 
     expect(find.text('Goals & Targets'), findsOneWidget);
     expect(find.text('Goal Mode'), findsOneWidget);
+    expect(find.text('Current Weight (lb)'), findsOneWidget);
     expect(
       find.text('Anchor Weight (lb)'),
       findsOneWidget,
@@ -61,6 +72,9 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
+          ChangeNotifierProvider<WeightProvider>.value(
+            value: mockWeightProvider,
+          ),
         ],
         child: const MaterialApp(home: GoalSettingsScreen()),
       ),
@@ -73,5 +87,39 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Anchor Weight (kg)'), findsOneWidget);
+    expect(find.text('Current Weight (kg)'), findsOneWidget);
+  });
+
+  testWidgets('Saving settings saves current weight', (tester) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
+          ChangeNotifierProvider<WeightProvider>.value(
+            value: mockWeightProvider,
+          ),
+        ],
+        child: const MaterialApp(home: GoalSettingsScreen()),
+      ),
+    );
+
+    // Enter current weight
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Current Weight (lb)'),
+      '155.5',
+    );
+
+    // Scroll to save
+    final saveButton = find.text('Save Settings');
+    await tester.scrollUntilVisible(
+      saveButton,
+      500.0,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(saveButton);
+    await tester.pumpAndSettle();
+
+    verify(mockWeightProvider.saveWeight(155.5, any)).called(1);
+    verify(mockGoalsProvider.saveSettings(any)).called(1);
   });
 }

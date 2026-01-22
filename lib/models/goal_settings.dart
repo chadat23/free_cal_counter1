@@ -9,6 +9,7 @@ class GoalSettings {
   final double fixedDelta; // Used for gain/lose modes
   final DateTime lastTargetUpdate;
   final bool useMetric;
+  final bool isSet;
 
   GoalSettings({
     required this.anchorWeight,
@@ -19,6 +20,7 @@ class GoalSettings {
     this.fixedDelta = 0.0,
     required this.lastTargetUpdate,
     this.useMetric = false,
+    this.isSet = true,
   });
 
   factory GoalSettings.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,8 @@ class GoalSettings {
         json['lastTargetUpdate'] as int? ?? 0,
       ),
       useMetric: json['useMetric'] as bool? ?? false,
+      isSet:
+          json['isSet'] as bool? ?? true, // Default to true for existing users
     );
   }
 
@@ -50,6 +54,7 @@ class GoalSettings {
       'fixedDelta': fixedDelta,
       'lastTargetUpdate': lastTargetUpdate.millisecondsSinceEpoch,
       'useMetric': useMetric,
+      'isSet': isSet,
     };
   }
 
@@ -64,6 +69,7 @@ class GoalSettings {
       fixedDelta: 0.0,
       lastTargetUpdate: DateTime(2000), // Far in the past to trigger update
       useMetric: false,
+      isSet: false,
     );
   }
 }

@@ -182,6 +182,11 @@ class MockGoalsProvider extends _i1.Mock implements _i8.GoalsProvider {
           as bool);
 
   @override
+  bool get isGoalsSet =>
+      (super.noSuchMethod(Invocation.getter(#isGoalsSet), returnValue: false)
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);

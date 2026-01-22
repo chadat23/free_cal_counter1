@@ -23,10 +23,12 @@ class GoalsProvider extends ChangeNotifier {
   }
 
   // Getters
+  // Getters
   GoalSettings get settings => _settings;
   MacroGoals get currentGoals => _currentGoals ?? MacroGoals.hardcoded();
   bool get isLoading => _isLoading;
   bool get showUpdateNotification => _showUpdateNotification;
+  bool get isGoalsSet => _settings.isSet;
 
   void dismissNotification() {
     _showUpdateNotification = false;
@@ -53,7 +55,10 @@ class GoalsProvider extends ChangeNotifier {
       }
 
       // After loading, check if a weekly update is due
-      await checkWeeklyUpdate();
+      // Only check if goals are actually set
+      if (_settings.isSet) {
+        await checkWeeklyUpdate();
+      }
     } catch (e) {
       debugPrint('Error loading goal settings: $e');
     } finally {
@@ -63,7 +68,19 @@ class GoalsProvider extends ChangeNotifier {
   }
 
   Future<void> saveSettings(GoalSettings newSettings) async {
-    _settings = newSettings;
+    // Ensure we mark them as set when saving
+    _settings = GoalSettings(
+      anchorWeight: newSettings.anchorWeight,
+      maintenanceCaloriesStart: newSettings.maintenanceCaloriesStart,
+      proteinTarget: newSettings.proteinTarget,
+      fatTarget: newSettings.fatTarget,
+      mode: newSettings.mode,
+      fixedDelta: newSettings.fixedDelta,
+      lastTargetUpdate: newSettings.lastTargetUpdate,
+      useMetric: newSettings.useMetric,
+      isSet: true,
+    );
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_settingsKey, jsonEncode(_settings.toJson()));
 
@@ -152,6 +169,8 @@ class GoalsProvider extends ChangeNotifier {
       mode: _settings.mode,
       fixedDelta: _settings.fixedDelta,
       lastTargetUpdate: DateTime.now(),
+      useMetric: _settings.useMetric,
+      isSet: true,
     );
 
     final prefs = await SharedPreferences.getInstance();

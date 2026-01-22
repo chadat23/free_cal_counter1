@@ -8,7 +8,9 @@ import 'dart:ui' as _i6;
 
 import 'package:free_cal_counter1/models/goal_settings.dart' as _i2;
 import 'package:free_cal_counter1/models/macro_goals.dart' as _i3;
+import 'package:free_cal_counter1/models/weight.dart' as _i8;
 import 'package:free_cal_counter1/providers/goals_provider.dart' as _i4;
+import 'package:free_cal_counter1/providers/weight_provider.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -80,6 +82,11 @@ class MockGoalsProvider extends _i1.Mock implements _i4.GoalsProvider {
           as bool);
 
   @override
+  bool get isGoalsSet =>
+      (super.noSuchMethod(Invocation.getter(#isGoalsSet), returnValue: false)
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -112,6 +119,105 @@ class MockGoalsProvider extends _i1.Mock implements _i4.GoalsProvider {
   _i5.Future<void> recalculateTargets() =>
       (super.noSuchMethod(
             Invocation.method(#recalculateTargets, []),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#addListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#removeListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+    Invocation.method(#notifyListeners, []),
+    returnValueForMissingStub: null,
+  );
+}
+
+/// A class which mocks [WeightProvider].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockWeightProvider extends _i1.Mock implements _i7.WeightProvider {
+  MockWeightProvider() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  List<_i8.Weight> get weights =>
+      (super.noSuchMethod(
+            Invocation.getter(#weights),
+            returnValue: <_i8.Weight>[],
+          )
+          as List<_i8.Weight>);
+
+  @override
+  List<_i8.Weight> get recentWeights =>
+      (super.noSuchMethod(
+            Invocation.getter(#recentWeights),
+            returnValue: <_i8.Weight>[],
+          )
+          as List<_i8.Weight>);
+
+  @override
+  bool get isLoading =>
+      (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
+          as bool);
+
+  @override
+  bool get hasWeightToday =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasWeightToday),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get hasListeners =>
+      (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
+          as bool);
+
+  @override
+  _i8.Weight? getWeightForDate(DateTime? date) =>
+      (super.noSuchMethod(Invocation.method(#getWeightForDate, [date]))
+          as _i8.Weight?);
+
+  @override
+  _i5.Future<void> loadWeights(DateTime? start, DateTime? end) =>
+      (super.noSuchMethod(
+            Invocation.method(#loadWeights, [start, end]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> saveWeight(double? value, DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveWeight, [value, date]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> deleteWeight(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteWeight, [id]),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )

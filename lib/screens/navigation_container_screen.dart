@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:free_cal_counter1/config/app_router.dart';
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/screens/log_screen.dart';
 import 'package:free_cal_counter1/screens/overview_screen.dart';
@@ -22,10 +23,13 @@ class NavigationContainerScreen extends StatelessWidget {
     final navigationProvider = Provider.of<NavigationProvider>(context);
     final selectedIndex = navigationProvider.selectedIndex;
 
-    // Check for weekly target update notification
+    // Check for weekly target update notification or first-time setup
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
-      if (goalsProvider.showUpdateNotification) {
+
+      if (!goalsProvider.isGoalsSet) {
+        _showWelcomeDialog(context);
+      } else if (goalsProvider.showUpdateNotification) {
         _showUpdateDialog(context, goalsProvider);
       }
     });
@@ -91,6 +95,28 @@ class NavigationContainerScreen extends StatelessWidget {
               Navigator.pop(context);
             },
             child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWelcomeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Welcome!'),
+        content: const Text(
+          'To get started, please set up your initial weight goals so we can tailor the app to you.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              Navigator.pushNamed(context, AppRouter.goalSettingsRoute);
+            },
+            child: const Text('Get Started'),
           ),
         ],
       ),

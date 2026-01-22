@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/models/goal_settings.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
+import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/utils/ui_utils.dart';
 
@@ -13,6 +14,7 @@ class GoalSettingsScreen extends StatefulWidget {
 }
 
 class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
+  late TextEditingController _currentWeightController;
   late TextEditingController _anchorWeightController;
   late TextEditingController _maintenanceCalController;
   late TextEditingController _proteinController;
@@ -28,6 +30,13 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
       context,
       listen: false,
     ).settings;
+
+    final weightProvider = Provider.of<WeightProvider>(context, listen: false);
+    final todayWeight = weightProvider.getWeightForDate(DateTime.now())?.weight;
+
+    _currentWeightController = TextEditingController(
+      text: (todayWeight ?? settings.anchorWeight).toString(),
+    );
     _anchorWeightController = TextEditingController(
       text: settings.anchorWeight.toString(),
     );
@@ -47,6 +56,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
 
   @override
   void dispose() {
+    _currentWeightController.dispose();
     _anchorWeightController.dispose();
     _maintenanceCalController.dispose();
     _proteinController.dispose();
@@ -56,6 +66,15 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
   }
 
   void _save() {
+    // Save current weight first so it's available for calculation
+    final currentWeight = double.tryParse(_currentWeightController.text);
+    if (currentWeight != null) {
+      Provider.of<WeightProvider>(
+        context,
+        listen: false,
+      ).saveWeight(currentWeight, DateTime.now());
+    }
+
     final newSettings = GoalSettings(
       anchorWeight: double.tryParse(_anchorWeightController.text) ?? 0.0,
       maintenanceCaloriesStart:
@@ -69,6 +88,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
         listen: false,
       ).settings.lastTargetUpdate,
       useMetric: _useMetric,
+      isSet: true, // Mark as set on save (handling upgrade from null)
     );
 
     Provider.of<GoalsProvider>(
@@ -97,6 +117,11 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
           const SizedBox(height: 10),
           _buildModeSelector(),
           const Divider(height: 40),
+          _buildTextField(
+            controller: _currentWeightController,
+            label: 'Current Weight (${_useMetric ? 'kg' : 'lb'})',
+            hint: 'Your weight today',
+          ),
           _buildTextField(
             controller: _anchorWeightController,
             label: 'Anchor Weight (${_useMetric ? 'kg' : 'lb'})',

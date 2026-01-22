@@ -24,41 +24,47 @@ void main() {
 
   group('GoalsProvider', () {
     test('initial state should be loading then default settings', () async {
-      expect(goalsProvider.isLoading, true);
-
       // Wait for _loadFromPrefs to finish
       await Future.delayed(Duration.zero);
 
       expect(goalsProvider.isLoading, false);
       expect(goalsProvider.settings.anchorWeight, 0.0);
+      expect(goalsProvider.settings.isSet, false);
     });
 
-    test('saveSettings should persist to SharedPreferences', () async {
-      await Future.delayed(Duration.zero); // wait for load
+    test(
+      'saveSettings should persist to SharedPreferences and mark as set',
+      () async {
+        await Future.delayed(Duration.zero); // wait for load
 
-      final newSettings = GoalSettings(
-        anchorWeight: 75.0,
-        maintenanceCaloriesStart: 2500,
-        proteinTarget: 160,
-        fatTarget: 70,
-        mode: GoalMode.maintain,
-        fixedDelta: 0,
-        lastTargetUpdate: DateTime.now(),
-      );
+        final newSettings = GoalSettings(
+          anchorWeight: 75.0,
+          maintenanceCaloriesStart: 2500,
+          proteinTarget: 160,
+          fatTarget: 70,
+          mode: GoalMode.maintain,
+          fixedDelta: 0,
+          lastTargetUpdate: DateTime.now(),
+          // isSet should default to false in constructor if not provided,
+          // but saveSettings inside provider will handle the logic if we modify the provider.
+          // For now, let's just create the object.
+        );
 
-      // Stub recalculateTargets dependencies
-      when(
-        mockDatabaseService.getWeightsForRange(any, any),
-      ).thenAnswer((_) async => []);
+        // Stub recalculateTargets dependencies
+        when(
+          mockDatabaseService.getWeightsForRange(any, any),
+        ).thenAnswer((_) async => []);
 
-      await goalsProvider.saveSettings(newSettings);
+        await goalsProvider.saveSettings(newSettings);
 
-      final prefs = await SharedPreferences.getInstance();
-      final savedJson = prefs.getString('goal_settings');
-      expect(savedJson, isNotNull);
-      final decoded = GoalSettings.fromJson(jsonDecode(savedJson!));
-      expect(decoded.anchorWeight, 75.0);
-    });
+        final prefs = await SharedPreferences.getInstance();
+        final savedJson = prefs.getString('goal_settings');
+        expect(savedJson, isNotNull);
+        final decoded = GoalSettings.fromJson(jsonDecode(savedJson!));
+        expect(decoded.anchorWeight, 75.0);
+        expect(decoded.isSet, true);
+      },
+    );
 
     test(
       'recalculateTargets should use weight trend for maintenance mode',

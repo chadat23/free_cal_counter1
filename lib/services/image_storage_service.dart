@@ -9,7 +9,8 @@ class ImageStorageService {
   static final ImageStorageService instance = ImageStorageService._();
   ImageStorageService._();
 
-  static const String _localPrefix = 'local:';
+  // Public constant for use throughout the app
+  static const String localPrefix = 'local:';
   static const String _imagesFolderName = 'app_images';
   static const int _maxImageSize = 200;
   static const int _jpegQuality = 85;
@@ -91,7 +92,7 @@ class ImageStorageService {
 
   /// Check if a thumbnail string refers to a local image
   bool isLocalImage(String? thumbnail) {
-    return thumbnail != null && thumbnail.startsWith(_localPrefix);
+    return thumbnail != null && thumbnail.startsWith(localPrefix);
   }
 
   /// Extract the GUID from a local thumbnail string
@@ -99,7 +100,7 @@ class ImageStorageService {
     if (!isLocalImage(thumbnail)) {
       return null;
     }
-    return thumbnail.substring(_localPrefix.length);
+    return thumbnail.substring(localPrefix.length);
   }
 
   /// Get all GUIDs referenced in the database

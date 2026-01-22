@@ -4,39 +4,62 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/services/image_storage_service.dart';
 
+/// Widget for displaying food images with fallbacks.
+///
+/// Priority: local image > network thumbnail > emoji > placeholder
+///
+/// Usage with a Food object:
+/// ```dart
+/// FoodImageWidget(food: myFood, size: 40)
+/// ```
+///
+/// Usage with individual parameters (e.g., during editing):
+/// ```dart
+/// FoodImageWidget(thumbnail: 'local:abc123', emoji: '🍎', size: 80)
+/// ```
 class FoodImageWidget extends StatelessWidget {
-  final Food food;
+  final Food? food;
+  final String? thumbnail;
+  final String? emoji;
   final double? size;
   final VoidCallback? onTap;
 
-  const FoodImageWidget({super.key, required this.food, this.size, this.onTap});
+  const FoodImageWidget({
+    super.key,
+    this.food,
+    this.thumbnail,
+    this.emoji,
+    this.size,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Use provided food if available, otherwise use individual parameters
+    final displayThumbnail = food?.thumbnail ?? thumbnail;
+    final displayEmoji = food?.emoji ?? emoji;
+
     // Priority: local image > OFF thumbnail > emoji > placeholder
-    if (food.isLocalImage()) {
-      // Local image
-      return _buildLocalImage(context);
-    } else if (food.thumbnail != null && food.thumbnail!.isNotEmpty) {
-      // OFF thumbnail URL
-      return _buildNetworkImage(context);
-    } else if (food.emoji != null && food.emoji!.isNotEmpty) {
-      // Emoji
-      return _buildEmoji(context);
+    if (displayThumbnail != null &&
+        displayThumbnail.startsWith(ImageStorageService.localPrefix)) {
+      return _buildLocalImage(context, displayThumbnail);
+    } else if (displayThumbnail != null && displayThumbnail.isNotEmpty) {
+      return _buildNetworkImage(context, displayThumbnail);
+    } else if (displayEmoji != null && displayEmoji.isNotEmpty) {
+      return _buildEmoji(context, displayEmoji);
     } else {
-      // Placeholder
       return _buildPlaceholder(context);
     }
   }
 
-  Widget _buildLocalImage(BuildContext context) {
-    final guid = food.getLocalImageGuid();
-    if (guid == null) {
+  Widget _buildLocalImage(BuildContext context, String thumbnail) {
+    final guid = thumbnail.replaceFirst(ImageStorageService.localPrefix, '');
+    if (guid.isEmpty) {
       return _buildPlaceholder(context);
     }
 
     return FutureBuilder<String>(
-      future: ImageStorageService.instance.getImagePath(guid!),
+      future: ImageStorageService.instance.getImagePath(guid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return _buildPlaceholder(context);
@@ -70,7 +93,7 @@ class FoodImageWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildNetworkImage(BuildContext context) {
+  Widget _buildNetworkImage(BuildContext context, String thumbnail) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -83,7 +106,7 @@ class FoodImageWidget extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
-            imageUrl: food.thumbnail!,
+            imageUrl: thumbnail,
             fit: BoxFit.cover,
             placeholder: (context, url) => _buildPlaceholder(context),
             errorWidget: (context, url, error) => _buildPlaceholder(context),
@@ -93,7 +116,7 @@ class FoodImageWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildEmoji(BuildContext context) {
+  Widget _buildEmoji(BuildContext context, String emoji) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -105,7 +128,7 @@ class FoodImageWidget extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            food.emoji!,
+            emoji,
             style: TextStyle(fontSize: size != null ? size! * 0.6 : 32),
           ),
         ),

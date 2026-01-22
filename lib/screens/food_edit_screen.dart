@@ -6,6 +6,7 @@ import 'package:free_cal_counter1/models/food_serving.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/services/image_storage_service.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
+import 'package:free_cal_counter1/widgets/food_image_widget.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:image_picker/image_picker.dart' as picker;
 
@@ -300,34 +301,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   }
 
   Widget _buildThumbnailImage() {
-    final guid = _thumbnail?.replaceFirst('local:', '');
-    if (guid == null) {
-      return _buildEmptyPlaceholder();
-    }
-
-    return FutureBuilder<String>(
-      future: ImageStorageService.instance.getImagePath(guid),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return _buildEmptyPlaceholder();
-        }
-
-        final imagePath = snapshot.data!;
-        final imageFile = File(imagePath);
-
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Image.file(
-            imageFile,
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-            errorBuilder: (context, error, stackTrace) {
-              return _buildEmptyPlaceholder();
-            },
-          ),
-        );
-      },
+    return FoodImageWidget(
+      thumbnail: _thumbnail,
+      emoji: _emojiController.text,
+      size: 80,
+      onTap: _pickImage,
     );
   }
 
@@ -600,7 +578,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       }
 
       setState(() {
-        _thumbnail = 'local:$guid';
+        _thumbnail = '${ImageStorageService.localPrefix}$guid';
       });
     } catch (e) {
       if (mounted) {

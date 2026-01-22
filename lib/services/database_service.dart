@@ -16,6 +16,7 @@ import 'package:free_cal_counter1/models/daily_macro_stats.dart' as model_stats;
 import 'package:free_cal_counter1/services/reference_database.dart'
     hide FoodPortion, FoodsCompanion, FoodPortionsCompanion;
 import 'package:free_cal_counter1/models/food_usage_stats.dart';
+import 'package:free_cal_counter1/models/food_container.dart';
 
 class DatabaseService {
   late LiveDatabase _liveDb;
@@ -698,6 +699,75 @@ class DatabaseService {
 
   Future<void> deleteWeight(int id) async {
     await (_liveDb.delete(_liveDb.weights)..where((t) => t.id.equals(id))).go();
+    BackupConfigService.instance.markDirty();
+  }
+
+  // --- Container Operations ---
+
+  FoodContainer _mapContainerData(dynamic containerData) {
+    return FoodContainer(
+      id: containerData.id,
+      name: containerData.name,
+      weight: containerData.weight,
+      unit: containerData.unit,
+      thumbnail: containerData.thumbnail,
+      hidden: containerData.hidden,
+    );
+  }
+
+  Future<List<FoodContainer>> getAllContainers() async {
+    final query = _liveDb.select(_liveDb.containers)
+      ..where((t) => t.hidden.equals(false))
+      ..orderBy([(t) => OrderingTerm(expression: t.name)]);
+
+    final rows = await query.get();
+    return rows.map((row) => _mapContainerData(row)).toList();
+  }
+
+  Future<int> saveContainer(FoodContainer container) async {
+    return await _liveDb.transaction(() async {
+      if (container.id > 0) {
+        // Update
+        await (_liveDb.update(
+          _liveDb.containers,
+        )..where((t) => t.id.equals(container.id))).write(
+          ContainersCompanion(
+            name: Value(container.name),
+            weight: Value(container.weight),
+            unit: Value(container.unit),
+            thumbnail: Value(container.thumbnail),
+            hidden: Value(container.hidden),
+          ),
+        );
+        BackupConfigService.instance.markDirty();
+        return container.id;
+      } else {
+        // Insert
+        final id = await _liveDb
+            .into(_liveDb.containers)
+            .insert(
+              ContainersCompanion.insert(
+                name: container.name,
+                weight: container.weight,
+                unit: Value(container.unit),
+                thumbnail: Value(container.thumbnail),
+                hidden: Value(container.hidden),
+              ),
+            );
+        BackupConfigService.instance.markDirty();
+        return id;
+      }
+    });
+  }
+
+  Future<void> deleteContainer(int id) async {
+    // Soft delete by hiding, or hard delete?
+    // Plan implied basic management. Let's do hard delete for now as they are not referenced by foreign keys in logged portions (logs embed weight/unit).
+    // Actually, logs just store grams/unit. Usage doesn't link to container ID.
+    // So hard delete is safe.
+    await (_liveDb.delete(
+      _liveDb.containers,
+    )..where((t) => t.id.equals(id))).go();
     BackupConfigService.instance.markDirty();
   }
 

@@ -4,9 +4,10 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i7;
-import 'dart:ui' as _i8;
+import 'dart:ui' as _i9;
 
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i2;
+import 'package:free_cal_counter1/models/food.dart' as _i8;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i4;
 import 'package:free_cal_counter1/models/logged_portion.dart' as _i5;
 import 'package:free_cal_counter1/models/recipe.dart' as _i6;
@@ -224,6 +225,15 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
   );
 
   @override
+  _i7.Future<void> refreshFoodInQueue(int? foodId, _i8.Food? updatedFood) =>
+      (super.noSuchMethod(
+            Invocation.method(#refreshFoodInQueue, [foodId, updatedFood]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
   _i7.Future<void> logQueueToDatabase() =>
       (super.noSuchMethod(
             Invocation.method(#logQueueToDatabase, []),
@@ -357,13 +367,13 @@ class MockLogProvider extends _i1.Mock implements _i3.LogProvider {
           as _i7.Future<void>);
 
   @override
-  void addListener(_i8.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i9.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i8.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i9.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

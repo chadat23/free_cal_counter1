@@ -11,6 +11,7 @@ import 'package:free_cal_counter1/screens/food_edit_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/models/food.dart';
 import 'package:free_cal_counter1/widgets/food_image_widget.dart';
+import 'package:free_cal_counter1/models/food_container.dart';
 
 class QuantityEditScreen extends StatefulWidget {
   final QuantityEditConfig config;
@@ -169,6 +170,21 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
           },
         ),
         const SizedBox(height: 16),
+        // Add Minus Container Button
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: _showContainerSelection,
+            icon: const Icon(Icons.remove_circle_outline, size: 18),
+            label: const Text('Minus Container'),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
         const Text('Unit', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Wrap(
@@ -448,6 +464,111 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error updating food: $e')));
+      }
+    }
+  }
+
+  Future<void> _showContainerSelection() async {
+    // Load containers
+    final containers = await DatabaseService.instance.getAllContainers();
+    if (!mounted) return;
+
+    if (containers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No containers found. Add them in Settings.'),
+        ),
+      );
+      return;
+    }
+
+    final selected = await showModalBottomSheet<FoodContainer>(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Select Container to Subtract',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: containers.length,
+              itemBuilder: (context, index) {
+                final container = containers[index];
+                return ListTile(
+                  leading: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: container.thumbnail != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: FoodImageWidget(
+                              thumbnail: container.thumbnail,
+                              size: 40,
+                            ),
+                          )
+                        : const Icon(Icons.inventory_2_outlined),
+                  ),
+                  title: Text(container.name),
+                  subtitle: Text('${container.weight} ${container.unit}'),
+                  onTap: () => Navigator.pop(context, container),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (selected != null) {
+      final currentVal = double.tryParse(_quantityController.text) ?? 0.0;
+      // Assume container weight is in grams.
+      // If selected unit is NOT grams, we might need conversion?
+      // Plan implied simple gram subtraction.
+      // If user is in "oz", subtracting "50g" is tricky if we just subtract numbers.
+      // Ideally we convert container weight to selected unit.
+
+      double weightToSubtract = selected.weight;
+
+      // Simple conversion check
+      if (_selectedUnit != 'g' && _selectedUnit != 'gram') {
+        // Try to find conversion based on food serving?
+        // Or just warn?
+        // "Minus Container" implies we are weighing in GRAMS largely?
+        // If I'm weighing yogurt in a container, I'm likely using a scale in Grams.
+        // If I'm using "Cups", I'm not weighing the container usually.
+        // So let's assume this feature is primarily for Grams input.
+        if (_selectedUnit != 'g' && _selectedUnit != 'gram') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Please switch unit to "g" to subtract container weight correctly.',
+              ),
+            ),
+          );
+          return;
+        }
+      }
+
+      final newValue = currentVal - weightToSubtract;
+      if (newValue < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Container weight is larger than total weight!'),
+          ),
+        );
+      } else {
+        setState(() {
+          _quantityController.text = newValue.toStringAsFixed(1);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Subtracted ${selected.weight}g')),
+        );
       }
     }
   }

@@ -10,9 +10,10 @@ import 'dart:ui' as _i12;
 import 'package:free_cal_counter1/models/category.dart' as _i16;
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i2;
 import 'package:free_cal_counter1/models/food.dart' as _i7;
+import 'package:free_cal_counter1/models/food_container.dart' as _i23;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i9;
 import 'package:free_cal_counter1/models/food_serving.dart' as _i21;
-import 'package:free_cal_counter1/models/food_usage_stats.dart' as _i23;
+import 'package:free_cal_counter1/models/food_usage_stats.dart' as _i24;
 import 'package:free_cal_counter1/models/logged_portion.dart' as _i10;
 import 'package:free_cal_counter1/models/recipe.dart' as _i6;
 import 'package:free_cal_counter1/models/recipe_item.dart' as _i15;
@@ -263,6 +264,15 @@ class MockLogProvider extends _i1.Mock implements _i8.LogProvider {
     Invocation.method(#clearQueue, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i11.Future<void> refreshFoodInQueue(int? foodId, _i7.Food? updatedFood) =>
+      (super.noSuchMethod(
+            Invocation.method(#refreshFoodInQueue, [foodId, updatedFood]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
 
   @override
   _i11.Future<void> logQueueToDatabase() =>
@@ -1125,6 +1135,33 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i11.Future<void>);
 
   @override
+  _i11.Future<List<_i23.FoodContainer>> getAllContainers() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllContainers, []),
+            returnValue: _i11.Future<List<_i23.FoodContainer>>.value(
+              <_i23.FoodContainer>[],
+            ),
+          )
+          as _i11.Future<List<_i23.FoodContainer>>);
+
+  @override
+  _i11.Future<int> saveContainer(_i23.FoodContainer? container) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveContainer, [container]),
+            returnValue: _i11.Future<int>.value(0),
+          )
+          as _i11.Future<int>);
+
+  @override
+  _i11.Future<void> deleteContainer(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteContainer, [id]),
+            returnValue: _i11.Future<void>.value(),
+            returnValueForMissingStub: _i11.Future<void>.value(),
+          )
+          as _i11.Future<void>);
+
+  @override
   _i11.Future<bool> isFastedOnDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#isFastedOnDate, [date]),
@@ -1363,28 +1400,28 @@ class MockDatabaseService extends _i1.Mock implements _i3.DatabaseService {
           as _i11.Future<List<_i7.Food>>);
 
   @override
-  _i11.Future<Map<int, _i23.FoodUsageStats>> getFoodUsageStats(
+  _i11.Future<Map<int, _i24.FoodUsageStats>> getFoodUsageStats(
     List<int>? foodIds,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getFoodUsageStats, [foodIds]),
-            returnValue: _i11.Future<Map<int, _i23.FoodUsageStats>>.value(
-              <int, _i23.FoodUsageStats>{},
+            returnValue: _i11.Future<Map<int, _i24.FoodUsageStats>>.value(
+              <int, _i24.FoodUsageStats>{},
             ),
           )
-          as _i11.Future<Map<int, _i23.FoodUsageStats>>);
+          as _i11.Future<Map<int, _i24.FoodUsageStats>>);
 
   @override
-  _i11.Future<Map<int, _i23.FoodUsageStats>> getRecipeUsageStats(
+  _i11.Future<Map<int, _i24.FoodUsageStats>> getRecipeUsageStats(
     List<int>? recipeIds,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getRecipeUsageStats, [recipeIds]),
-            returnValue: _i11.Future<Map<int, _i23.FoodUsageStats>>.value(
-              <int, _i23.FoodUsageStats>{},
+            returnValue: _i11.Future<Map<int, _i24.FoodUsageStats>>.value(
+              <int, _i24.FoodUsageStats>{},
             ),
           )
-          as _i11.Future<Map<int, _i23.FoodUsageStats>>);
+          as _i11.Future<Map<int, _i24.FoodUsageStats>>);
 
   @override
   _i11.Future<bool> isRecipeReferenced(int? id) =>

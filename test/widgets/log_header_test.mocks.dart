@@ -7,6 +7,7 @@ import 'dart:async' as _i9;
 import 'dart:ui' as _i4;
 
 import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i2;
+import 'package:free_cal_counter1/models/food.dart' as _i10;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i6;
 import 'package:free_cal_counter1/models/logged_portion.dart' as _i7;
 import 'package:free_cal_counter1/models/recipe.dart' as _i8;
@@ -316,6 +317,15 @@ class MockLogProvider extends _i1.Mock implements _i5.LogProvider {
     Invocation.method(#clearQueue, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i9.Future<void> refreshFoodInQueue(int? foodId, _i10.Food? updatedFood) =>
+      (super.noSuchMethod(
+            Invocation.method(#refreshFoodInQueue, [foodId, updatedFood]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
 
   @override
   _i9.Future<void> logQueueToDatabase() =>

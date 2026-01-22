@@ -6,12 +6,13 @@
 import 'dart:async' as _i5;
 import 'dart:io' as _i6;
 
-import 'package:free_cal_counter1/models/category.dart' as _i12;
-import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i11;
+import 'package:free_cal_counter1/models/category.dart' as _i13;
+import 'package:free_cal_counter1/models/daily_macro_stats.dart' as _i12;
 import 'package:free_cal_counter1/models/food.dart' as _i3;
+import 'package:free_cal_counter1/models/food_container.dart' as _i11;
 import 'package:free_cal_counter1/models/food_portion.dart' as _i8;
 import 'package:free_cal_counter1/models/food_serving.dart' as _i7;
-import 'package:free_cal_counter1/models/food_usage_stats.dart' as _i13;
+import 'package:free_cal_counter1/models/food_usage_stats.dart' as _i14;
 import 'package:free_cal_counter1/models/logged_portion.dart' as _i9;
 import 'package:free_cal_counter1/models/recipe.dart' as _i2;
 import 'package:free_cal_counter1/models/weight.dart' as _i10;
@@ -247,6 +248,33 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i5.Future<void>);
 
   @override
+  _i5.Future<List<_i11.FoodContainer>> getAllContainers() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllContainers, []),
+            returnValue: _i5.Future<List<_i11.FoodContainer>>.value(
+              <_i11.FoodContainer>[],
+            ),
+          )
+          as _i5.Future<List<_i11.FoodContainer>>);
+
+  @override
+  _i5.Future<int> saveContainer(_i11.FoodContainer? container) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveContainer, [container]),
+            returnValue: _i5.Future<int>.value(0),
+          )
+          as _i5.Future<int>);
+
+  @override
+  _i5.Future<void> deleteContainer(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteContainer, [id]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
   _i5.Future<bool> isFastedOnDate(DateTime? date) =>
       (super.noSuchMethod(
             Invocation.method(#isFastedOnDate, [date]),
@@ -279,17 +307,17 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i11.LoggedMacroDTO>> getLoggedMacrosForDateRange(
+  _i5.Future<List<_i12.LoggedMacroDTO>> getLoggedMacrosForDateRange(
     DateTime? start,
     DateTime? end,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getLoggedMacrosForDateRange, [start, end]),
-            returnValue: _i5.Future<List<_i11.LoggedMacroDTO>>.value(
-              <_i11.LoggedMacroDTO>[],
+            returnValue: _i5.Future<List<_i12.LoggedMacroDTO>>.value(
+              <_i12.LoggedMacroDTO>[],
             ),
           )
-          as _i5.Future<List<_i11.LoggedMacroDTO>>);
+          as _i5.Future<List<_i12.LoggedMacroDTO>>);
 
   @override
   _i5.Future<_i3.Food?> getFoodById(int? id, String? source) =>
@@ -356,14 +384,14 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i5.Future<_i2.Recipe>);
 
   @override
-  _i5.Future<List<_i12.Category>> getCategoriesForRecipe(int? recipeId) =>
+  _i5.Future<List<_i13.Category>> getCategoriesForRecipe(int? recipeId) =>
       (super.noSuchMethod(
             Invocation.method(#getCategoriesForRecipe, [recipeId]),
-            returnValue: _i5.Future<List<_i12.Category>>.value(
-              <_i12.Category>[],
+            returnValue: _i5.Future<List<_i13.Category>>.value(
+              <_i13.Category>[],
             ),
           )
-          as _i5.Future<List<_i12.Category>>);
+          as _i5.Future<List<_i13.Category>>);
 
   @override
   _i5.Future<int> saveRecipe(_i2.Recipe? recipe) =>
@@ -383,14 +411,14 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i12.Category>> getCategories() =>
+  _i5.Future<List<_i13.Category>> getCategories() =>
       (super.noSuchMethod(
             Invocation.method(#getCategories, []),
-            returnValue: _i5.Future<List<_i12.Category>>.value(
-              <_i12.Category>[],
+            returnValue: _i5.Future<List<_i13.Category>>.value(
+              <_i13.Category>[],
             ),
           )
-          as _i5.Future<List<_i12.Category>>);
+          as _i5.Future<List<_i13.Category>>);
 
   @override
   _i5.Future<int> addCategory(String? name) =>
@@ -485,28 +513,28 @@ class MockDatabaseService extends _i1.Mock implements _i4.DatabaseService {
           as _i5.Future<List<_i3.Food>>);
 
   @override
-  _i5.Future<Map<int, _i13.FoodUsageStats>> getFoodUsageStats(
+  _i5.Future<Map<int, _i14.FoodUsageStats>> getFoodUsageStats(
     List<int>? foodIds,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getFoodUsageStats, [foodIds]),
-            returnValue: _i5.Future<Map<int, _i13.FoodUsageStats>>.value(
-              <int, _i13.FoodUsageStats>{},
+            returnValue: _i5.Future<Map<int, _i14.FoodUsageStats>>.value(
+              <int, _i14.FoodUsageStats>{},
             ),
           )
-          as _i5.Future<Map<int, _i13.FoodUsageStats>>);
+          as _i5.Future<Map<int, _i14.FoodUsageStats>>);
 
   @override
-  _i5.Future<Map<int, _i13.FoodUsageStats>> getRecipeUsageStats(
+  _i5.Future<Map<int, _i14.FoodUsageStats>> getRecipeUsageStats(
     List<int>? recipeIds,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getRecipeUsageStats, [recipeIds]),
-            returnValue: _i5.Future<Map<int, _i13.FoodUsageStats>>.value(
-              <int, _i13.FoodUsageStats>{},
+            returnValue: _i5.Future<Map<int, _i14.FoodUsageStats>>.value(
+              <int, _i14.FoodUsageStats>{},
             ),
           )
-          as _i5.Future<Map<int, _i13.FoodUsageStats>>);
+          as _i5.Future<Map<int, _i14.FoodUsageStats>>);
 
   @override
   _i5.Future<bool> isRecipeReferenced(int? id) =>

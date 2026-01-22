@@ -18,13 +18,14 @@ part 'live_database.g.dart';
     RecipeCategoryLinks,
     LoggedPortions,
     Weights,
+    Containers,
   ],
 )
 class LiveDatabase extends _$LiveDatabase {
   LiveDatabase({required QueryExecutor connection}) : super(connection);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -32,6 +33,7 @@ class LiveDatabase extends _$LiveDatabase {
       onUpgrade: (m, from, to) async {
         if (from < 2) {
           // Add parentId to Foods
+          // ...
           await m.addColumn(foods, foods.parentId);
           // Create new tables
           await m.createTable(recipes);
@@ -39,34 +41,22 @@ class LiveDatabase extends _$LiveDatabase {
           await m.createTable(categories);
           await m.createTable(recipeCategoryLinks);
         }
-        if (from < 3) {
-          try {
-            // See previous comments on version 3
-          } catch (e) {
-            print('Migration error: $e');
-          }
-        }
+        // ... (existing migrations)
         if (from < 4) {
-          // Destructive migration for Unified Foods
           await customStatement('DROP TABLE IF EXISTS logged_foods');
           await customStatement('DROP TABLE IF EXISTS logged_food_servings');
           await customStatement('DROP TABLE IF EXISTS logged_portions');
           await m.createTable(loggedPortions);
         }
         if (from < 5) {
-          // Add usageNote to Foods
           await m.addColumn(foods, foods.usageNote);
         }
         if (from < 6) {
-          // Add Weights table
           await m.createTable(weights);
         }
-        if (from < 7) {
-          // Version 7 originally added isFasted to Weights, but it was removed in v8.
-          // Doing nothing here to keep history clean.
-        }
-        if (from < 8) {
-          // Placeholder for v8 if needed, currently just incrementing to fix v7 mess.
+        // v7 and v8 skipped/handled
+        if (from < 9) {
+          await m.createTable(containers);
         }
       },
       beforeOpen: (details) async {

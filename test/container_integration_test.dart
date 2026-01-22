@@ -1,0 +1,57 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:free_cal_counter1/models/food_container.dart';
+import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/services/live_database.dart' hide Food;
+import 'package:free_cal_counter1/services/reference_database.dart' hide Food;
+import 'package:drift/native.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late LiveDatabase liveDb;
+  late ReferenceDatabase refDb;
+  late DatabaseService dbService;
+
+  setUp(() async {
+    liveDb = LiveDatabase(connection: NativeDatabase.memory());
+    refDb = ReferenceDatabase(connection: NativeDatabase.memory());
+    dbService = DatabaseService.forTesting(liveDb, refDb);
+    // Initialize singleton just in case
+    DatabaseService.initSingletonForTesting(liveDb, refDb);
+  });
+
+  tearDown(() async {
+    await liveDb.close();
+    await refDb.close();
+  });
+
+  group('Container Management Tests', () {
+    test('CRUD operations for containers', () async {
+      // Create
+      final newContainer = FoodContainer(
+        id: 0,
+        name: 'Blue Bowl',
+        weight: 150.0,
+        unit: 'g',
+      );
+      final id = await dbService.saveContainer(newContainer);
+      expect(id, isPositive);
+
+      // Read
+      var containers = await dbService.getAllContainers();
+      expect(containers.length, 1);
+      expect(containers.first.name, 'Blue Bowl');
+
+      // Update
+      final updatedContainer = newContainer.copyWith(id: id, weight: 155.0);
+      await dbService.saveContainer(updatedContainer);
+      containers = await dbService.getAllContainers();
+      expect(containers.first.weight, 155.0);
+
+      // Delete
+      await dbService.deleteContainer(id);
+      containers = await dbService.getAllContainers();
+      expect(containers, isEmpty);
+    });
+  });
+}

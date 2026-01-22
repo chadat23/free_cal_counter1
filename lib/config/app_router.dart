@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/models/search_config.dart';
 import 'package:free_cal_counter1/models/quantity_edit_config.dart';
+import 'package:free_cal_counter1/screens/container_settings_screen.dart';
 
 class AppRouter {
   static const String homeRoute = '/';
@@ -23,6 +24,7 @@ class AppRouter {
   static const String dataManagementRoute = '/data_management';
   static const String qrSharingRoute = '/qr_sharing';
   static const String goalSettingsRoute = '/goal_settings';
+  static const String containerSettingsRoute = '/container_settings';
 
   final DatabaseService databaseService;
   final OffApiService offApiService;
@@ -70,6 +72,10 @@ class AppRouter {
         );
       case goalSettingsRoute:
         return MaterialPageRoute(builder: (_) => const GoalSettingsScreen());
+      case containerSettingsRoute:
+        return MaterialPageRoute(
+          builder: (_) => const ContainerSettingsScreen(),
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

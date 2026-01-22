@@ -3382,6 +3382,398 @@ class WeightsCompanion extends UpdateCompanion<Weight> {
   }
 }
 
+class $ContainersTable extends Containers
+    with TableInfo<$ContainersTable, ContainerEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ContainersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'UNIQUE',
+  );
+  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<double> weight = GeneratedColumn<double>(
+    'weight',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('g'),
+  );
+  static const VerificationMeta _thumbnailMeta = const VerificationMeta(
+    'thumbnail',
+  );
+  @override
+  late final GeneratedColumn<String> thumbnail = GeneratedColumn<String>(
+    'thumbnail',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hiddenMeta = const VerificationMeta('hidden');
+  @override
+  late final GeneratedColumn<bool> hidden = GeneratedColumn<bool>(
+    'hidden',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    weight,
+    unit,
+    thumbnail,
+    hidden,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'containers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ContainerEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('weight')) {
+      context.handle(
+        _weightMeta,
+        weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weightMeta);
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    }
+    if (data.containsKey('thumbnail')) {
+      context.handle(
+        _thumbnailMeta,
+        thumbnail.isAcceptableOrUnknown(data['thumbnail']!, _thumbnailMeta),
+      );
+    }
+    if (data.containsKey('hidden')) {
+      context.handle(
+        _hiddenMeta,
+        hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ContainerEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ContainerEntity(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      weight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight'],
+      )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
+      thumbnail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}thumbnail'],
+      ),
+      hidden: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden'],
+      )!,
+    );
+  }
+
+  @override
+  $ContainersTable createAlias(String alias) {
+    return $ContainersTable(attachedDatabase, alias);
+  }
+}
+
+class ContainerEntity extends DataClass implements Insertable<ContainerEntity> {
+  final int id;
+  final String name;
+  final double weight;
+  final String unit;
+  final String? thumbnail;
+  final bool hidden;
+  const ContainerEntity({
+    required this.id,
+    required this.name,
+    required this.weight,
+    required this.unit,
+    this.thumbnail,
+    required this.hidden,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['weight'] = Variable<double>(weight);
+    map['unit'] = Variable<String>(unit);
+    if (!nullToAbsent || thumbnail != null) {
+      map['thumbnail'] = Variable<String>(thumbnail);
+    }
+    map['hidden'] = Variable<bool>(hidden);
+    return map;
+  }
+
+  ContainersCompanion toCompanion(bool nullToAbsent) {
+    return ContainersCompanion(
+      id: Value(id),
+      name: Value(name),
+      weight: Value(weight),
+      unit: Value(unit),
+      thumbnail: thumbnail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thumbnail),
+      hidden: Value(hidden),
+    );
+  }
+
+  factory ContainerEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ContainerEntity(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      weight: serializer.fromJson<double>(json['weight']),
+      unit: serializer.fromJson<String>(json['unit']),
+      thumbnail: serializer.fromJson<String?>(json['thumbnail']),
+      hidden: serializer.fromJson<bool>(json['hidden']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'weight': serializer.toJson<double>(weight),
+      'unit': serializer.toJson<String>(unit),
+      'thumbnail': serializer.toJson<String?>(thumbnail),
+      'hidden': serializer.toJson<bool>(hidden),
+    };
+  }
+
+  ContainerEntity copyWith({
+    int? id,
+    String? name,
+    double? weight,
+    String? unit,
+    Value<String?> thumbnail = const Value.absent(),
+    bool? hidden,
+  }) => ContainerEntity(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    weight: weight ?? this.weight,
+    unit: unit ?? this.unit,
+    thumbnail: thumbnail.present ? thumbnail.value : this.thumbnail,
+    hidden: hidden ?? this.hidden,
+  );
+  ContainerEntity copyWithCompanion(ContainersCompanion data) {
+    return ContainerEntity(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      weight: data.weight.present ? data.weight.value : this.weight,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      thumbnail: data.thumbnail.present ? data.thumbnail.value : this.thumbnail,
+      hidden: data.hidden.present ? data.hidden.value : this.hidden,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContainerEntity(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('weight: $weight, ')
+          ..write('unit: $unit, ')
+          ..write('thumbnail: $thumbnail, ')
+          ..write('hidden: $hidden')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, weight, unit, thumbnail, hidden);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ContainerEntity &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.weight == this.weight &&
+          other.unit == this.unit &&
+          other.thumbnail == this.thumbnail &&
+          other.hidden == this.hidden);
+}
+
+class ContainersCompanion extends UpdateCompanion<ContainerEntity> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<double> weight;
+  final Value<String> unit;
+  final Value<String?> thumbnail;
+  final Value<bool> hidden;
+  const ContainersCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.thumbnail = const Value.absent(),
+    this.hidden = const Value.absent(),
+  });
+  ContainersCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required double weight,
+    this.unit = const Value.absent(),
+    this.thumbnail = const Value.absent(),
+    this.hidden = const Value.absent(),
+  }) : name = Value(name),
+       weight = Value(weight);
+  static Insertable<ContainerEntity> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<double>? weight,
+    Expression<String>? unit,
+    Expression<String>? thumbnail,
+    Expression<bool>? hidden,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (weight != null) 'weight': weight,
+      if (unit != null) 'unit': unit,
+      if (thumbnail != null) 'thumbnail': thumbnail,
+      if (hidden != null) 'hidden': hidden,
+    });
+  }
+
+  ContainersCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<double>? weight,
+    Value<String>? unit,
+    Value<String?>? thumbnail,
+    Value<bool>? hidden,
+  }) {
+    return ContainersCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      weight: weight ?? this.weight,
+      unit: unit ?? this.unit,
+      thumbnail: thumbnail ?? this.thumbnail,
+      hidden: hidden ?? this.hidden,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<double>(weight.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (thumbnail.present) {
+      map['thumbnail'] = Variable<String>(thumbnail.value);
+    }
+    if (hidden.present) {
+      map['hidden'] = Variable<bool>(hidden.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContainersCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('weight: $weight, ')
+          ..write('unit: $unit, ')
+          ..write('thumbnail: $thumbnail, ')
+          ..write('hidden: $hidden')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LiveDatabase extends GeneratedDatabase {
   _$LiveDatabase(QueryExecutor e) : super(e);
   $LiveDatabaseManager get managers => $LiveDatabaseManager(this);
@@ -3394,6 +3786,7 @@ abstract class _$LiveDatabase extends GeneratedDatabase {
       $RecipeCategoryLinksTable(this);
   late final $LoggedPortionsTable loggedPortions = $LoggedPortionsTable(this);
   late final $WeightsTable weights = $WeightsTable(this);
+  late final $ContainersTable containers = $ContainersTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3407,6 +3800,7 @@ abstract class _$LiveDatabase extends GeneratedDatabase {
     recipeCategoryLinks,
     loggedPortions,
     weights,
+    containers,
   ];
 }
 
@@ -7066,6 +7460,219 @@ typedef $$WeightsTableProcessedTableManager =
       Weight,
       PrefetchHooks Function()
     >;
+typedef $$ContainersTableCreateCompanionBuilder =
+    ContainersCompanion Function({
+      Value<int> id,
+      required String name,
+      required double weight,
+      Value<String> unit,
+      Value<String?> thumbnail,
+      Value<bool> hidden,
+    });
+typedef $$ContainersTableUpdateCompanionBuilder =
+    ContainersCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<double> weight,
+      Value<String> unit,
+      Value<String?> thumbnail,
+      Value<bool> hidden,
+    });
+
+class $$ContainersTableFilterComposer
+    extends Composer<_$LiveDatabase, $ContainersTable> {
+  $$ContainersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get thumbnail => $composableBuilder(
+    column: $table.thumbnail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hidden => $composableBuilder(
+    column: $table.hidden,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ContainersTableOrderingComposer
+    extends Composer<_$LiveDatabase, $ContainersTable> {
+  $$ContainersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get thumbnail => $composableBuilder(
+    column: $table.thumbnail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hidden => $composableBuilder(
+    column: $table.hidden,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ContainersTableAnnotationComposer
+    extends Composer<_$LiveDatabase, $ContainersTable> {
+  $$ContainersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<double> get weight =>
+      $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<String> get thumbnail =>
+      $composableBuilder(column: $table.thumbnail, builder: (column) => column);
+
+  GeneratedColumn<bool> get hidden =>
+      $composableBuilder(column: $table.hidden, builder: (column) => column);
+}
+
+class $$ContainersTableTableManager
+    extends
+        RootTableManager<
+          _$LiveDatabase,
+          $ContainersTable,
+          ContainerEntity,
+          $$ContainersTableFilterComposer,
+          $$ContainersTableOrderingComposer,
+          $$ContainersTableAnnotationComposer,
+          $$ContainersTableCreateCompanionBuilder,
+          $$ContainersTableUpdateCompanionBuilder,
+          (
+            ContainerEntity,
+            BaseReferences<_$LiveDatabase, $ContainersTable, ContainerEntity>,
+          ),
+          ContainerEntity,
+          PrefetchHooks Function()
+        > {
+  $$ContainersTableTableManager(_$LiveDatabase db, $ContainersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ContainersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ContainersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ContainersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<double> weight = const Value.absent(),
+                Value<String> unit = const Value.absent(),
+                Value<String?> thumbnail = const Value.absent(),
+                Value<bool> hidden = const Value.absent(),
+              }) => ContainersCompanion(
+                id: id,
+                name: name,
+                weight: weight,
+                unit: unit,
+                thumbnail: thumbnail,
+                hidden: hidden,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required double weight,
+                Value<String> unit = const Value.absent(),
+                Value<String?> thumbnail = const Value.absent(),
+                Value<bool> hidden = const Value.absent(),
+              }) => ContainersCompanion.insert(
+                id: id,
+                name: name,
+                weight: weight,
+                unit: unit,
+                thumbnail: thumbnail,
+                hidden: hidden,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ContainersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$LiveDatabase,
+      $ContainersTable,
+      ContainerEntity,
+      $$ContainersTableFilterComposer,
+      $$ContainersTableOrderingComposer,
+      $$ContainersTableAnnotationComposer,
+      $$ContainersTableCreateCompanionBuilder,
+      $$ContainersTableUpdateCompanionBuilder,
+      (
+        ContainerEntity,
+        BaseReferences<_$LiveDatabase, $ContainersTable, ContainerEntity>,
+      ),
+      ContainerEntity,
+      PrefetchHooks Function()
+    >;
 
 class $LiveDatabaseManager {
   final _$LiveDatabase _db;
@@ -7086,4 +7693,6 @@ class $LiveDatabaseManager {
       $$LoggedPortionsTableTableManager(_db, _db.loggedPortions);
   $$WeightsTableTableManager get weights =>
       $$WeightsTableTableManager(_db, _db.weights);
+  $$ContainersTableTableManager get containers =>
+      $$ContainersTableTableManager(_db, _db.containers);
 }

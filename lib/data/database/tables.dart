@@ -94,3 +94,13 @@ class Weights extends Table {
   IntColumn get date =>
       integer().named('date')(); // Unix timestamp (start of day)
 }
+
+@DataClassName('ContainerEntity')
+class Containers extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().customConstraint('UNIQUE')();
+  RealColumn get weight => real()();
+  TextColumn get unit => text().withDefault(const Constant('g'))();
+  TextColumn get thumbnail => text().nullable()();
+  BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+}

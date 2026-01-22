@@ -31,6 +31,15 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.inventory_2, color: Colors.orange),
+            title: const Text('Containers'),
+            subtitle: const Text('Manage tare weights and cookware'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.pushNamed(context, AppRouter.containerSettingsRoute);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.track_changes, color: Colors.green),
             title: const Text('Goals & Targets'),
             subtitle: const Text('Configure calorie and macro targets'),

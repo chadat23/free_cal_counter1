@@ -7,6 +7,7 @@ import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/config/app_colors.dart';
 import 'package:free_cal_counter1/utils/math_evaluator.dart';
+import 'package:free_cal_counter1/utils/ui_utils.dart';
 
 class WeightScreen extends StatefulWidget {
   const WeightScreen({super.key});
@@ -72,9 +73,7 @@ class _WeightScreenState extends State<WeightScreen> {
         context,
         listen: false,
       ).saveWeight(weightValue, _selectedDate);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Weight saved')));
+      UiUtils.showAutoDismissDialog(context, 'Weight saved');
 
       // Navigate back to Home
       Provider.of<NavigationProvider>(context, listen: false).changeTab(0);

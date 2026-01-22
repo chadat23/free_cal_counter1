@@ -60,6 +60,10 @@ void main() {
     // Actually in WeightScreen there's an ElevatedButton to save.
     expect(find.byType(ElevatedButton), findsOneWidget);
     await tester.tap(find.byType(ElevatedButton));
+    await tester.pump(); // Start animation/dialog
+    await tester.pump(
+      const Duration(milliseconds: 1100),
+    ); // Wait for dialog timer
     await tester.pumpAndSettle();
 
     // Verify that saveWeight was called

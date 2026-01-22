@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/models/goal_settings.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
+import 'package:free_cal_counter1/utils/ui_utils.dart';
 
 class GoalSettingsScreen extends StatefulWidget {
   const GoalSettingsScreen({super.key});
@@ -75,9 +76,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
       listen: false,
     ).saveSettings(newSettings);
     Navigator.pop(context);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Goal settings saved')));
+    UiUtils.showAutoDismissDialog(context, 'Goal settings saved');
   }
 
   @override

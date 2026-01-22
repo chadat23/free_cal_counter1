@@ -10,6 +10,7 @@ import 'package:free_cal_counter1/services/google_drive_service.dart';
 import 'package:free_cal_counter1/services/background_backup_worker.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:intl/intl.dart';
+import 'package:free_cal_counter1/utils/ui_utils.dart';
 
 class DataManagementScreen extends StatefulWidget {
   const DataManagementScreen({super.key});
@@ -176,8 +177,9 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           final backupFile = File(result.files.single.path!);
           await DatabaseService.instance.restoreDatabase(backupFile);
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Database restored successfully!')),
+            await UiUtils.showAutoDismissDialog(
+              context,
+              'Database restored successfully!',
             );
           }
         } catch (e) {

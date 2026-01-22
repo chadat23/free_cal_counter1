@@ -10,6 +10,7 @@ import 'package:free_cal_counter1/widgets/horizontal_mini_bar_chart.dart';
 import 'package:free_cal_counter1/screens/food_edit_screen.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
 import 'package:free_cal_counter1/models/food.dart';
+import 'package:free_cal_counter1/utils/ui_utils.dart';
 import 'package:free_cal_counter1/widgets/food_image_widget.dart';
 import 'package:free_cal_counter1/models/food_container.dart';
 
@@ -567,14 +568,9 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
           _quantityController.text = newValue.toStringAsFixed(1);
         });
         if (mounted) {
-          await showDialog(
-            context: context,
-            barrierDismissible: true,
-            builder: (context) => AlertDialog(
-              content: Text(
-                'Subtracted ${selected.weight}g for ${selected.name}',
-              ),
-            ),
+          await UiUtils.showAutoDismissDialog(
+            context,
+            'Subtracted ${selected.weight}g for ${selected.name}',
           );
         }
       }

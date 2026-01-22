@@ -566,9 +566,17 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         setState(() {
           _quantityController.text = newValue.toStringAsFixed(1);
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Subtracted ${selected.weight}g')),
-        );
+        if (mounted) {
+          await showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (context) => AlertDialog(
+              content: Text(
+                'Subtracted ${selected.weight}g for ${selected.name}',
+              ),
+            ),
+          );
+        }
       }
     }
   }

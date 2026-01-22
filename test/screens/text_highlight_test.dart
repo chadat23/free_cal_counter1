@@ -102,7 +102,7 @@ void main() {
         ),
         initialUnit: 'g',
         initialQuantity: 100.0,
-        onSave: (grams, unit) {},
+        onSave: (grams, unit, updatedFood) {},
       );
 
       await tester.pumpWidget(

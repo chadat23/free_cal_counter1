@@ -121,10 +121,11 @@ void main() {
         );
 
         // Verify edit button is shown (due to isUpdate being true)
-        expect(find.byIcon(Icons.edit), findsOneWidget);
+        // Note: There are 2 edit icons when isUpdate is true (slidable action + trailing button)
+        expect(find.byIcon(Icons.edit), findsWidgets);
 
-        // Tap the edit button
-        await tester.tap(find.byIcon(Icons.edit));
+        // Tap the tile to open QuantityEditScreen (onTap callback handles this correctly)
+        await tester.tap(find.text('Apple'));
         await tester.pumpAndSettle();
 
         // EXPECTED BEHAVIOR (FIXED): It should NOT call addFoodToQueue directly

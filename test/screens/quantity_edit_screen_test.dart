@@ -81,7 +81,7 @@ void main() {
       food: mockFood,
       initialUnit: 'piece',
       initialQuantity: 1.5,
-      onSave: (grams, unit) {},
+      onSave: (grams, unit, updatedFood) {},
     );
 
     await tester.pumpWidget(createTestWidget(config));
@@ -105,7 +105,7 @@ void main() {
       food: mockFood,
       initialUnit: 'piece',
       initialQuantity: 1.0,
-      onSave: (grams, unit) {},
+      onSave: (grams, unit, updatedFood) {},
     );
 
     await tester.pumpWidget(createTestWidget(config));
@@ -118,7 +118,8 @@ void main() {
       true,
     );
 
-    // Click 'Calories' target
+    // Click 'Calories' target (ensure it's visible first)
+    await tester.ensureVisible(find.text('Calories'));
     await tester.tap(find.text('Calories'));
     await tester.pumpAndSettle();
 
@@ -143,12 +144,13 @@ void main() {
         food: mockFood,
         initialUnit: 'g',
         initialQuantity: 100.0,
-        onSave: (grams, unit) {},
+        onSave: (grams, unit, updatedFood) {},
       );
 
       await tester.pumpWidget(createTestWidget(config));
 
-      // Select 'Calories' target
+      // Select 'Calories' target (ensure it's visible first)
+      await tester.ensureVisible(find.text('Calories'));
       await tester.tap(find.text('Calories'));
       await tester.pumpAndSettle();
 
@@ -174,7 +176,7 @@ void main() {
       food: mockFood,
       initialUnit: 'piece',
       initialQuantity: 1.0,
-      onSave: (grams, unit) {
+      onSave: (grams, unit, updatedFood) {
         savedGrams = grams;
         savedUnit = unit;
       },

@@ -45,6 +45,7 @@ void main() {
           mode: GoalMode.maintain,
           fixedDelta: 0,
           lastTargetUpdate: DateTime.now(),
+          fiberTarget: 37.0,
           // isSet should default to false in constructor if not provided,
           // but saveSettings inside provider will handle the logic if we modify the provider.
           // For now, let's just create the object.
@@ -92,6 +93,7 @@ void main() {
           fixedDelta: 0,
           lastTargetUpdate: DateTime.now().subtract(const Duration(days: 7)),
           useMetric: false,
+          fiberTarget: 37.0,
         );
         await goalsProvider.saveSettings(settings);
 
@@ -121,6 +123,7 @@ void main() {
           fixedDelta: 0,
           lastTargetUpdate: DateTime.now().subtract(const Duration(days: 7)),
           useMetric: true,
+          fiberTarget: 37.0,
         );
         await goalsProvider.saveSettings(settings);
 

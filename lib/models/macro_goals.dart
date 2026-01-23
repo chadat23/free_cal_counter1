@@ -13,17 +13,6 @@ class MacroGoals {
     this.fiber = 15.0, // Default fiber
   });
 
-  // Factory for hardcoded targets as requested
-  factory MacroGoals.hardcoded() {
-    return const MacroGoals(
-      calories: 2650,
-      protein: 160,
-      fat: 80,
-      carbs: 323,
-      fiber: 15,
-    );
-  }
-
   factory MacroGoals.fromJson(Map<String, dynamic> json) {
     return MacroGoals(
       calories: (json['calories'] as num).toDouble(),
@@ -42,5 +31,9 @@ class MacroGoals {
       'carbs': carbs,
       'fiber': fiber,
     };
+  }
+
+  factory MacroGoals.hardcoded() {
+    return MacroGoals(calories: 0, protein: 0, fat: 0, carbs: 0, fiber: 0);
   }
 }

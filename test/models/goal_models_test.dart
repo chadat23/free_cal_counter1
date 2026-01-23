@@ -10,6 +10,7 @@ void main() {
         maintenanceCaloriesStart: 2500,
         proteinTarget: 160,
         fatTarget: 70,
+        fiberTarget: 38,
         mode: GoalMode.lose,
         fixedDelta: 500,
         lastTargetUpdate: DateTime(2023, 10, 1),

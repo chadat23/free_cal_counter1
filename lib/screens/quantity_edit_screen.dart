@@ -335,7 +335,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                   child: _buildMiniBar(
                     '🔥',
                     values['Calories']!,
-                    targets?['Calories'] ?? 2650,
+                    targets?['Calories'] ?? 0,
                     Colors.orange,
                   ),
                 ),
@@ -344,7 +344,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                   child: _buildMiniBar(
                     'P',
                     values['Protein']!,
-                    targets?['Protein'] ?? 160,
+                    targets?['Protein'] ?? 0,
                     Colors.red,
                   ),
                 ),
@@ -353,7 +353,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                   child: _buildMiniBar(
                     'F',
                     values['Fat']!,
-                    targets?['Fat'] ?? 80,
+                    targets?['Fat'] ?? 0,
                     Colors.yellow,
                   ),
                 ),
@@ -362,7 +362,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                   child: _buildMiniBar(
                     'C',
                     values['Carbs']!,
-                    targets?['Carbs'] ?? 250,
+                    targets?['Carbs'] ?? 0,
                     Colors.green,
                   ),
                 ),
@@ -371,7 +371,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
                   child: _buildMiniBar(
                     'Fb',
                     values['Fiber']!,
-                    targets?['Fiber'] ?? 15,
+                    targets?['Fiber'] ?? 0,
                     Colors.brown,
                   ),
                 ),

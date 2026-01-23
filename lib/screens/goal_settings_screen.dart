@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/models/goal_settings.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
-import 'package:free_cal_counter1/providers/weight_provider.dart';
+import 'package:free_cal_counter1/providers/navigation_provider.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:free_cal_counter1/utils/ui_utils.dart';
 
@@ -14,11 +14,11 @@ class GoalSettingsScreen extends StatefulWidget {
 }
 
 class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
-  late TextEditingController _currentWeightController;
   late TextEditingController _anchorWeightController;
   late TextEditingController _maintenanceCalController;
   late TextEditingController _proteinController;
   late TextEditingController _fatController;
+  late TextEditingController _fiberController;
   late TextEditingController _fixedDeltaController;
   late GoalMode _mode;
   late bool _useMetric;
@@ -31,12 +31,6 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
       listen: false,
     ).settings;
 
-    final weightProvider = Provider.of<WeightProvider>(context, listen: false);
-    final todayWeight = weightProvider.getWeightForDate(DateTime.now())?.weight;
-
-    _currentWeightController = TextEditingController(
-      text: (todayWeight ?? settings.anchorWeight).toString(),
-    );
     _anchorWeightController = TextEditingController(
       text: settings.anchorWeight.toString(),
     );
@@ -47,6 +41,9 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
       text: settings.proteinTarget.toString(),
     );
     _fatController = TextEditingController(text: settings.fatTarget.toString());
+    _fiberController = TextEditingController(
+      text: settings.fiberTarget.toString(),
+    );
     _fixedDeltaController = TextEditingController(
       text: settings.fixedDelta.toString(),
     );
@@ -56,46 +53,96 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
 
   @override
   void dispose() {
-    _currentWeightController.dispose();
     _anchorWeightController.dispose();
     _maintenanceCalController.dispose();
     _proteinController.dispose();
     _fatController.dispose();
+    _fiberController.dispose();
     _fixedDeltaController.dispose();
     super.dispose();
   }
 
   void _save() {
-    // Save current weight first so it's available for calculation
-    final currentWeight = double.tryParse(_currentWeightController.text);
-    if (currentWeight != null) {
-      Provider.of<WeightProvider>(
+    // Validate required fields
+    final maintenanceCal = double.tryParse(_maintenanceCalController.text);
+    if (maintenanceCal == null || maintenanceCal <= 0) {
+      UiUtils.showAutoDismissDialog(
         context,
-        listen: false,
-      ).saveWeight(currentWeight, DateTime.now());
+        'Please enter valid maintenance calories',
+      );
+      return;
     }
 
-    final newSettings = GoalSettings(
-      anchorWeight: double.tryParse(_anchorWeightController.text) ?? 0.0,
-      maintenanceCaloriesStart:
-          double.tryParse(_maintenanceCalController.text) ?? 2000.0,
-      proteinTarget: double.tryParse(_proteinController.text) ?? 150.0,
-      fatTarget: double.tryParse(_fatController.text) ?? 70.0,
-      mode: _mode,
-      fixedDelta: double.tryParse(_fixedDeltaController.text) ?? 0.0,
-      lastTargetUpdate: Provider.of<GoalsProvider>(
+    final protein = double.tryParse(_proteinController.text);
+    if (protein == null || protein <= 0) {
+      UiUtils.showAutoDismissDialog(
         context,
-        listen: false,
-      ).settings.lastTargetUpdate,
+        'Please enter valid protein target',
+      );
+      return;
+    }
+
+    final fat = double.tryParse(_fatController.text);
+    if (fat == null || fat <= 0) {
+      UiUtils.showAutoDismissDialog(context, 'Please enter valid fat target');
+      return;
+    }
+
+    final fiber = double.tryParse(_fiberController.text);
+    if (fiber == null || fiber <= 0) {
+      UiUtils.showAutoDismissDialog(context, 'Please enter valid fiber target');
+      return;
+    }
+
+    // For maintain mode, validate target weight
+    double? targetWeight;
+    if (_mode == GoalMode.maintain) {
+      targetWeight = double.tryParse(_anchorWeightController.text);
+      if (targetWeight == null || targetWeight <= 0) {
+        UiUtils.showAutoDismissDialog(
+          context,
+          'Please enter a valid target weight',
+        );
+        return;
+      }
+    }
+
+    // For lose/gain modes, validate delta
+    double? delta;
+    if (_mode != GoalMode.maintain) {
+      delta = double.tryParse(_fixedDeltaController.text);
+      if (delta == null || delta <= 0) {
+        UiUtils.showAutoDismissDialog(context, 'Please enter a valid delta');
+        return;
+      }
+    }
+
+    // Detect if this is initial setup
+    final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
+    final isInitialSetup = !goalsProvider.isGoalsSet;
+
+    final newSettings = GoalSettings(
+      anchorWeight: _mode == GoalMode.maintain
+          ? targetWeight!
+          : 0.0, // No anchor weight needed for lose/gain
+      maintenanceCaloriesStart: maintenanceCal,
+      proteinTarget: protein,
+      fatTarget: fat,
+      fiberTarget: fiber,
+      mode: _mode,
+      fixedDelta: _mode != GoalMode.maintain ? delta! : 0.0,
+      lastTargetUpdate: goalsProvider.settings.lastTargetUpdate,
       useMetric: _useMetric,
-      isSet: true, // Mark as set on save (handling upgrade from null)
+      isSet: true,
     );
 
-    Provider.of<GoalsProvider>(
-      context,
-      listen: false,
-    ).saveSettings(newSettings);
+    goalsProvider.saveSettings(newSettings, isInitialSetup: isInitialSetup);
     Navigator.pop(context);
+
+    // Switch to Log tab so Overview will reload when user navigates back
+    final navProvider = Provider.of<NavigationProvider>(context, listen: false);
+    navProvider.changeTab(1);
+
     UiUtils.showAutoDismissDialog(context, 'Goal settings saved');
   }
 
@@ -117,16 +164,12 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
           const SizedBox(height: 10),
           _buildModeSelector(),
           const Divider(height: 40),
-          _buildTextField(
-            controller: _currentWeightController,
-            label: 'Current Weight (${_useMetric ? 'kg' : 'lb'})',
-            hint: 'Your weight today',
-          ),
-          _buildTextField(
-            controller: _anchorWeightController,
-            label: 'Anchor Weight (${_useMetric ? 'kg' : 'lb'})',
-            hint: 'Your target or baseline weight',
-          ),
+          if (_mode == GoalMode.maintain)
+            _buildTextField(
+              controller: _anchorWeightController,
+              label: 'Target Weight (${_useMetric ? 'kg' : 'lb'})',
+              hint: 'Your target weight',
+            ),
           SwitchListTile(
             title: const Text('Use Metric Units (kg)'),
             subtitle: const Text('Affects calorie drift calculation'),
@@ -160,6 +203,11 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
           _buildTextField(
             controller: _fatController,
             label: 'Fat (g)',
+            keyboardType: TextInputType.number,
+          ),
+          _buildTextField(
+            controller: _fiberController,
+            label: 'Fiber (g)',
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 40),

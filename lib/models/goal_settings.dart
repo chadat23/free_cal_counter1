@@ -5,6 +5,7 @@ class GoalSettings {
   final double maintenanceCaloriesStart;
   final double proteinTarget; // In grams
   final double fatTarget; // In grams
+  final double fiberTarget; // In grams
   final GoalMode mode;
   final double fixedDelta; // Used for gain/lose modes
   final DateTime lastTargetUpdate;
@@ -16,6 +17,7 @@ class GoalSettings {
     required this.maintenanceCaloriesStart,
     required this.proteinTarget,
     required this.fatTarget,
+    required this.fiberTarget,
     required this.mode,
     this.fixedDelta = 0.0,
     required this.lastTargetUpdate,
@@ -30,6 +32,7 @@ class GoalSettings {
           .toDouble(),
       proteinTarget: (json['proteinTarget'] as num).toDouble(),
       fatTarget: (json['fatTarget'] as num).toDouble(),
+      fiberTarget: (json['fiberTarget'] as num).toDouble(),
       mode: GoalMode.values.firstWhere(
         (e) => e.toString() == (json['mode'] as String),
         orElse: () => GoalMode.maintain,
@@ -50,6 +53,7 @@ class GoalSettings {
       'maintenanceCaloriesStart': maintenanceCaloriesStart,
       'proteinTarget': proteinTarget,
       'fatTarget': fatTarget,
+      'fiberTarget': fiberTarget,
       'mode': mode.toString(),
       'fixedDelta': fixedDelta,
       'lastTargetUpdate': lastTargetUpdate.millisecondsSinceEpoch,
@@ -65,11 +69,40 @@ class GoalSettings {
       maintenanceCaloriesStart: 2000.0,
       proteinTarget: 150.0,
       fatTarget: 70.0,
+      fiberTarget: 38.0,
       mode: GoalMode.maintain,
       fixedDelta: 0.0,
       lastTargetUpdate: DateTime(2000), // Far in the past to trigger update
       useMetric: false,
       isSet: false,
+    );
+  }
+
+  // Helper to create a copy with some fields changed
+  GoalSettings copyWith({
+    double? anchorWeight,
+    double? maintenanceCaloriesStart,
+    double? proteinTarget,
+    double? fatTarget,
+    double? fiberTarget,
+    GoalMode? mode,
+    double? fixedDelta,
+    DateTime? lastTargetUpdate,
+    bool? useMetric,
+    bool? isSet,
+  }) {
+    return GoalSettings(
+      anchorWeight: anchorWeight ?? this.anchorWeight,
+      maintenanceCaloriesStart:
+          maintenanceCaloriesStart ?? this.maintenanceCaloriesStart,
+      proteinTarget: proteinTarget ?? this.proteinTarget,
+      fatTarget: fatTarget ?? this.fatTarget,
+      fiberTarget: fiberTarget ?? this.fiberTarget,
+      mode: mode ?? this.mode,
+      fixedDelta: fixedDelta ?? this.fixedDelta,
+      lastTargetUpdate: lastTargetUpdate ?? this.lastTargetUpdate,
+      useMetric: useMetric ?? this.useMetric,
+      isSet: isSet ?? this.isSet,
     );
   }
 }

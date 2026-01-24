@@ -198,9 +198,16 @@ class MockGoalsProvider extends _i1.Mock implements _i8.GoalsProvider {
   );
 
   @override
-  _i6.Future<void> saveSettings(_i2.GoalSettings? newSettings) =>
+  _i6.Future<void> saveSettings(
+    _i2.GoalSettings? newSettings, {
+    bool? isInitialSetup = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#saveSettings, [newSettings]),
+            Invocation.method(
+              #saveSettings,
+              [newSettings],
+              {#isInitialSetup: isInitialSetup},
+            ),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
@@ -216,9 +223,11 @@ class MockGoalsProvider extends _i1.Mock implements _i8.GoalsProvider {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<void> recalculateTargets() =>
+  _i6.Future<void> recalculateTargets({bool? isInitialSetup = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#recalculateTargets, []),
+            Invocation.method(#recalculateTargets, [], {
+              #isInitialSetup: isInitialSetup,
+            }),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )

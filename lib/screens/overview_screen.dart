@@ -31,10 +31,22 @@ class _OverviewScreenState extends State<OverviewScreen> {
   @override
   void initState() {
     super.initState();
+    // Initial load happens in didChangeDependencies
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload data when providers change
+    // This will be called whenever LogProvider or GoalsProvider notifies
+    Provider.of<LogProvider>(context);
+    Provider.of<GoalsProvider>(context);
+    Provider.of<WeightProvider>(context);
     _loadData();
   }
 
   Future<void> _loadData() async {
+    // Avoid double loading if already loading
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final start = today.subtract(const Duration(days: 6)); // Last 7 days
@@ -42,6 +54,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
     final logProvider = Provider.of<LogProvider>(context, listen: false);
     final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
     final weightProvider = Provider.of<WeightProvider>(context, listen: false);
+
     final stats = await logProvider.getDailyMacroStats(start, today);
     final goals = goalsProvider.currentGoals;
 

@@ -24,54 +24,55 @@ class HorizontalMiniBarChart extends StatelessWidget {
     final double percentage = target > 0 ? (displayValue / target) : 0.0;
     final double clippedPercentage = percentage.clamp(0.0, 1.1);
 
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$macroLabel ${displayValue.toStringAsFixed(0)} / ${target.toStringAsFixed(0)}$unitLabel',
-            style: const TextStyle(color: Colors.white, fontSize: 10),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: Colors.grey[850],
+            borderRadius: BorderRadius.circular(8),
           ),
-          const SizedBox(height: 4),
-          Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 8,
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(4),
-                ),
+              Text(
+                '$macroLabel ${displayValue.toStringAsFixed(0)} / ${target.toStringAsFixed(0)}$unitLabel',
+                style: const TextStyle(color: Colors.white, fontSize: 10),
               ),
-              FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: clippedPercentage,
-                child: Container(
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(4),
+              const SizedBox(height: 4),
+              Stack(
+                children: [
+                  Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[800],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
-                ),
-              ),
-              Positioned(
-                left:
-                    MediaQuery.of(context).size.width *
-                    (1 / target) *
-                    target *
-                    0.2, // This is a bit of a hack to get the line to show up in the right place
-                top: -4,
-                bottom: -4,
-                child: Container(width: 2, color: Colors.white),
+                  FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: clippedPercentage,
+                    child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  if (target > 0)
+                    Positioned(
+                      left: constraints.maxWidth * 0.2, // Use local width
+                      top: -4,
+                      bottom: -4,
+                      child: Container(width: 2, color: Colors.white),
+                    ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

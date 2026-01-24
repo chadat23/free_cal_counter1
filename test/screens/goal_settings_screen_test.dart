@@ -7,7 +7,6 @@ import 'package:free_cal_counter1/screens/goal_settings_screen.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/models/goal_settings.dart';
 import 'package:free_cal_counter1/providers/weight_provider.dart';
-import 'package:free_cal_counter1/models/weight.dart';
 
 import 'package:free_cal_counter1/providers/navigation_provider.dart';
 
@@ -17,13 +16,16 @@ import 'goal_settings_screen_test.mocks.dart';
 void main() {
   late MockGoalsProvider mockGoalsProvider;
   late MockWeightProvider mockWeightProvider;
+  late MockNavigationProvider mockNavigationProvider;
 
   setUp(() {
     mockGoalsProvider = MockGoalsProvider();
     mockWeightProvider = MockWeightProvider();
+    mockNavigationProvider = MockNavigationProvider();
 
     // Stub the settings getter
     when(mockGoalsProvider.settings).thenReturn(GoalSettings.defaultSettings());
+    when(mockGoalsProvider.isGoalsSet).thenReturn(false);
 
     // Stub weight provider
     when(mockWeightProvider.getWeightForDate(any)).thenReturn(null);
@@ -103,7 +105,7 @@ void main() {
         providers: [
           ChangeNotifierProvider<GoalsProvider>.value(value: mockGoalsProvider),
           ChangeNotifierProvider<NavigationProvider>.value(
-            value: MockNavigationProvider(),
+            value: mockNavigationProvider,
           ),
           ChangeNotifierProvider<WeightProvider>.value(
             value: mockWeightProvider,
@@ -112,12 +114,25 @@ void main() {
         child: const MaterialApp(home: GoalSettingsScreen()),
       ),
     );
+    await tester.pumpAndSettle();
 
-    // Enter target weight
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Target Weight (lb)'),
-      '155.5',
-    );
+    // Helper to fill a field by label
+    Future<void> fillField(String label, String value) async {
+      final finder = find.widgetWithText(TextField, label);
+      await tester.scrollUntilVisible(
+        finder,
+        500.0,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.enterText(finder, value);
+      await tester.pump();
+    }
+
+    await fillField('Target Weight (lb)', '155.5');
+    await fillField('Initial Maintenance Calories', '2340');
+    await fillField('Protein (g)', '150');
+    await fillField('Fat (g)', '70');
+    await fillField('Fiber (g)', '38');
 
     // Scroll to save
     final saveButton = find.text('Save Settings');
@@ -135,5 +150,6 @@ void main() {
         isInitialSetup: anyNamed('isInitialSetup'),
       ),
     ).called(1);
+    verify(mockNavigationProvider.changeTab(0)).called(1);
   });
 }

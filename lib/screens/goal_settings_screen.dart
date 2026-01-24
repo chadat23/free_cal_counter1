@@ -137,13 +137,12 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
     );
 
     goalsProvider.saveSettings(newSettings, isInitialSetup: isInitialSetup);
-    Navigator.pop(context);
 
-    // Switch to Overview tab so Overview will reload when user navigates back
+    // Switch to Overview tab
     final navProvider = Provider.of<NavigationProvider>(context, listen: false);
     navProvider.changeTab(0);
 
-    UiUtils.showAutoDismissDialog(context, 'Goal settings saved');
+    Navigator.pop(context);
   }
 
   @override

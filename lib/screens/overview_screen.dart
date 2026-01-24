@@ -31,8 +31,10 @@ class _OverviewScreenState extends State<OverviewScreen> {
   @override
   void initState() {
     super.initState();
-    // Initial load happens in didChangeDependencies
+    _loadData();
   }
+
+  bool _isDataLoading = false;
 
   @override
   void didChangeDependencies() {
@@ -46,31 +48,43 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   Future<void> _loadData() async {
-    // Avoid double loading if already loading
+    if (_isDataLoading) return;
+    _isDataLoading = true;
+    if (!mounted) return;
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final start = today.subtract(const Duration(days: 6)); // Last 7 days
 
-    final logProvider = Provider.of<LogProvider>(context, listen: false);
-    final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
-    final weightProvider = Provider.of<WeightProvider>(context, listen: false);
+    try {
+      final logProvider = Provider.of<LogProvider>(context, listen: false);
+      final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
+      final weightProvider = Provider.of<WeightProvider>(
+        context,
+        listen: false,
+      );
 
-    final stats = await logProvider.getDailyMacroStats(start, today);
-    final goals = goalsProvider.currentGoals;
+      final stats = await logProvider.getDailyMacroStats(start, today);
+      final goals = goalsProvider.currentGoals;
 
-    final rangeStart = today.subtract(Duration(days: _weightRangeDays));
-    await weightProvider.loadWeights(rangeStart, today);
-    final weightHistory = weightProvider.weights;
+      final rangeStart = today.subtract(Duration(days: _weightRangeDays));
+      await weightProvider.loadWeights(rangeStart, today);
+      final weightHistory = weightProvider.weights;
 
-    // Process stats into NutritionTargets
-    if (mounted) {
-      setState(() {
-        _nutritionData = _buildTargets(stats, goals);
-        _weightHistory = weightHistory;
-        _weightRangeStart = rangeStart;
-        _weightRangeEnd = today;
-        _isLoading = false;
-      });
+      // Process stats into NutritionTargets
+      if (mounted) {
+        setState(() {
+          _nutritionData = _buildTargets(stats, goals);
+          _weightHistory = weightHistory;
+          _weightRangeStart = rangeStart;
+          _weightRangeEnd = today;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading overview data: $e');
+    } finally {
+      _isDataLoading = false;
     }
   }
 

@@ -50,54 +50,25 @@ void main() {
         child: const MaterialApp(home: GoalSettingsScreen()),
       ),
     );
+    await tester.pumpAndSettle();
 
-    // Enter target weight
-    final weightField = find.widgetWithText(TextField, 'Target Weight (lb)');
-    await tester.scrollUntilVisible(
-      weightField,
-      500.0,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.enterText(weightField, '150');
+    // Helper to fill a field by label
+    Future<void> fillField(String label, String value) async {
+      final finder = find.widgetWithText(TextField, label);
+      await tester.scrollUntilVisible(
+        finder,
+        500.0,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.enterText(finder, value);
+      await tester.pump();
+    }
 
-    // Enter maintenance calories
-    final maintenanceField = find.widgetWithText(
-      TextField,
-      'Initial Maintenance Calories',
-    );
-    await tester.scrollUntilVisible(
-      maintenanceField,
-      500.0,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.enterText(maintenanceField, '2340');
-
-    // Enter protein
-    final proteinField = find.widgetWithText(TextField, 'Protein (g)');
-    await tester.scrollUntilVisible(
-      proteinField,
-      500.0,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.enterText(proteinField, '150');
-
-    // Enter fat
-    final fatField = find.widgetWithText(TextField, 'Fat (g)');
-    await tester.scrollUntilVisible(
-      fatField,
-      500.0,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.enterText(fatField, '70');
-
-    // Enter fiber
-    final fiberField = find.widgetWithText(TextField, 'Fiber (g)');
-    await tester.scrollUntilVisible(
-      fiberField,
-      500.0,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.enterText(fiberField, '38');
+    await fillField('Target Weight (lb)', '150');
+    await fillField('Initial Maintenance Calories', '2340');
+    await fillField('Protein (g)', '150');
+    await fillField('Fat (g)', '70');
+    await fillField('Fiber (g)', '38');
 
     // Scroll to save button
     final saveButton = find.text('Save Settings');

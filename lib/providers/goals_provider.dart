@@ -9,11 +9,13 @@ import 'package:free_cal_counter1/services/goal_logic_service.dart';
 class GoalsProvider extends ChangeNotifier {
   static const String _settingsKey = 'goal_settings';
   static const String _targetsKey = 'macro_targets';
+  static const String _hasSeenWelcomeKey = 'has_seen_welcome';
 
   GoalSettings _settings = GoalSettings.defaultSettings();
   MacroGoals? _currentGoals;
   bool _isLoading = true;
   bool _showUpdateNotification = false;
+  bool _hasSeenWelcome = false;
 
   final DatabaseService _databaseService;
 
@@ -29,6 +31,7 @@ class GoalsProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get showUpdateNotification => _showUpdateNotification;
   bool get isGoalsSet => _settings.isSet;
+  bool get hasSeenWelcome => _hasSeenWelcome;
 
   void dismissNotification() {
     _showUpdateNotification = false;
@@ -45,6 +48,15 @@ class GoalsProvider extends ChangeNotifier {
       final settingsJson = prefs.getString(_settingsKey);
       if (settingsJson != null) {
         _settings = GoalSettings.fromJson(jsonDecode(settingsJson));
+      }
+
+      // Load welcome seen state
+      _hasSeenWelcome = prefs.getBool(_hasSeenWelcomeKey) ?? false;
+
+      // For existing users who already have goals set, ensure they don't see the welcome
+      if (_settings.isSet && !_hasSeenWelcome) {
+        _hasSeenWelcome = true;
+        await prefs.setBool(_hasSeenWelcomeKey, true);
       }
 
       final targetsJson = prefs.getString(_targetsKey);
@@ -103,6 +115,15 @@ class GoalsProvider extends ChangeNotifier {
     // Changing settings might require immediate recalculation of targets
     await recalculateTargets(isInitialSetup: isInitialSetup);
     notifyListeners();
+  }
+
+  Future<void> markWelcomeSeen() async {
+    if (!_hasSeenWelcome) {
+      _hasSeenWelcome = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_hasSeenWelcomeKey, true);
+      notifyListeners();
+    }
   }
 
   /// Checks if today is Monday and if we need to update the weekly targets.

@@ -136,8 +136,46 @@ void main() {
       // This test is tricky because it uses DateTime.now()
       // For a true unit test we might need a clock wrapper,
       // but we'll test the logic by ensuring recalculateTargets is called if date is old.
-
-      // Note: checkWeeklyUpdate is called in _loadFromPrefs.
     });
+  });
+
+  group('GoalsProvider Onboarding', () {
+    test('initial hasSeenWelcome should be false', () async {
+      SharedPreferences.setMockInitialValues({});
+      final provider = GoalsProvider(databaseService: MockDatabaseService());
+      await Future.delayed(Duration.zero);
+      expect(provider.hasSeenWelcome, false);
+    });
+
+    test('markWelcomeSeen should persist to SharedPreferences', () async {
+      SharedPreferences.setMockInitialValues({});
+      final provider = GoalsProvider(databaseService: MockDatabaseService());
+      await Future.delayed(Duration.zero);
+
+      await provider.markWelcomeSeen();
+      expect(provider.hasSeenWelcome, true);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('has_seen_welcome'), true);
+    });
+
+    test(
+      'existing users with goals set should have hasSeenWelcome = true',
+      () async {
+        final settings = GoalSettings.defaultSettings().copyWith(isSet: true);
+        SharedPreferences.setMockInitialValues({
+          'goal_settings': jsonEncode(settings.toJson()),
+        });
+
+        final provider = GoalsProvider(databaseService: MockDatabaseService());
+        await Future.delayed(Duration.zero);
+
+        expect(provider.isGoalsSet, true);
+        expect(provider.hasSeenWelcome, true);
+
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getBool('has_seen_welcome'), true);
+      },
+    );
   });
 }

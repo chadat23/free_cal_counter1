@@ -38,10 +38,44 @@ class WeightTrendChart extends StatelessWidget {
       );
     }
 
-    // Sort and get trend
-    final sorted = List<Weight>.from(weightHistory)
+    // 1. Calculate min weight for placeholders
+    final realWeights = weightHistory.map((e) => e.weight).toList();
+    final minRealWeight = realWeights.reduce((a, b) => a < b ? a : b);
+
+    // 2. Map existing weights by date (date only)
+    final weightMap = <DateTime, double>{};
+    for (final w in weightHistory) {
+      final dateOnly = DateTime(w.date.year, w.date.month, w.date.day);
+      weightMap[dateOnly] = w.weight;
+    }
+
+    // 3. Generate points for every day in the range
+    final points = <_ChartPoint>[];
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+
+    var current = DateTime(startDate.year, startDate.month, startDate.day);
+    final end = DateTime(endDate.year, endDate.month, endDate.day);
+
+    while (!current.isAfter(end)) {
+      final realWeight = weightMap[current];
+      final isPlaceholder = realWeight == null;
+
+      points.add(
+        _ChartPoint(
+          date: current,
+          weight: realWeight ?? minRealWeight,
+          isPlaceholder: isPlaceholder,
+          isToday: current.isAtSameMomentAs(todayDate),
+        ),
+      );
+      current = current.add(const Duration(days: 1));
+    }
+
+    // Sort sorted strictly for trend calculation (using only real data)
+    final sortedReal = List<Weight>.from(weightHistory)
       ..sort((a, b) => a.date.compareTo(b.date));
-    final trends = GoalLogicService.calculateTrendHistory(sorted);
+    final trends = GoalLogicService.calculateTrendHistory(sortedReal);
 
     return Container(
       height: 250,
@@ -66,7 +100,8 @@ class WeightTrendChart extends StatelessWidget {
             child: CustomPaint(
               size: Size.infinite,
               painter: _WeightLinePainter(
-                data: sorted,
+                points: points,
+                realData: sortedReal,
                 trends: trends,
                 startDate: startDate,
                 endDate: endDate,
@@ -93,14 +128,30 @@ class WeightTrendChart extends StatelessWidget {
   }
 }
 
+class _ChartPoint {
+  final DateTime date;
+  final double weight;
+  final bool isPlaceholder;
+  final bool isToday;
+
+  _ChartPoint({
+    required this.date,
+    required this.weight,
+    required this.isPlaceholder,
+    this.isToday = false,
+  });
+}
+
 class _WeightLinePainter extends CustomPainter {
-  final List<Weight> data;
+  final List<_ChartPoint> points;
+  final List<Weight> realData;
   final List<double> trends;
   final DateTime startDate;
   final DateTime endDate;
 
   _WeightLinePainter({
-    required this.data,
+    required this.points,
+    required this.realData,
     required this.trends,
     required this.startDate,
     required this.endDate,
@@ -108,9 +159,9 @@ class _WeightLinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (data.isEmpty) return;
+    if (points.isEmpty || realData.isEmpty) return;
 
-    final weights = data.map((e) => e.weight).toList();
+    final weights = realData.map((e) => e.weight).toList();
     final allValues = [...weights, ...trends];
     final minWeight = allValues.reduce((a, b) => a < b ? a : b) - 0.5;
     final maxWeight = allValues.reduce((a, b) => a > b ? a : b) + 0.5;
@@ -166,14 +217,14 @@ class _WeightLinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final trendPath = Path();
-    trendPath.moveTo(getX(data[0].date), getY(trends[0]));
+    trendPath.moveTo(getX(realData[0].date), getY(trends[0]));
 
     for (var i = 1; i < trends.length; i++) {
-      trendPath.lineTo(getX(data[i].date), getY(trends[i]));
+      trendPath.lineTo(getX(realData[i].date), getY(trends[i]));
     }
     canvas.drawPath(trendPath, trendPaint);
 
-    // 3. Paint Connected Weight Line Segments
+    // 3. Paint Connected Weight Line Segments (Real Data Only)
     final linePaint = Paint()
       ..color = Colors.blue
       ..strokeWidth = 2.0
@@ -182,27 +233,38 @@ class _WeightLinePainter extends CustomPainter {
     final weightPath = Path();
     bool firstPoint = true;
 
-    for (var i = 0; i < data.length; i++) {
-      if (data[i].weight > 0) {
+    for (var i = 0; i < points.length; i++) {
+      if (!points[i].isPlaceholder) {
         if (firstPoint) {
-          weightPath.moveTo(getX(data[i].date), getY(data[i].weight));
+          weightPath.moveTo(getX(points[i].date), getY(points[i].weight));
           firstPoint = false;
         } else {
-          weightPath.lineTo(getX(data[i].date), getY(data[i].weight));
+          weightPath.lineTo(getX(points[i].date), getY(points[i].weight));
         }
       }
     }
     canvas.drawPath(weightPath, linePaint);
 
     // 4. Paint Raw Weight Points (Dots)
-    final dotPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+    final dotPaint = Paint()..style = PaintingStyle.fill;
 
-    for (var i = 0; i < data.length; i++) {
-      if (data[i].weight > 0) {
+    for (var i = 0; i < points.length; i++) {
+      final point = points[i];
+      if (point.isPlaceholder) {
+        // Muted color for old placeholders, red for today
+        dotPaint.color = point.isToday
+            ? Colors.red.withOpacity(0.8)
+            : Colors.white.withOpacity(0.2);
         canvas.drawCircle(
-          Offset(getX(data[i].date), getY(data[i].weight)),
+          Offset(getX(point.date), getY(point.weight)),
+          point.isToday ? 4 : 2,
+          dotPaint,
+        );
+      } else {
+        // Real data point
+        dotPaint.color = Colors.white;
+        canvas.drawCircle(
+          Offset(getX(point.date), getY(point.weight)),
           3,
           dotPaint,
         );
@@ -211,5 +273,5 @@ class _WeightLinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

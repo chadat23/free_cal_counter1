@@ -45,4 +45,38 @@ void main() {
     expect(find.text('Jan 1'), findsOneWidget);
     expect(find.text('Jan 31'), findsOneWidget);
   });
+
+  testWidgets('WeightTrendChart handles gaps in data with placeholder dots', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final twoDaysAgo = today.subtract(const Duration(days: 2));
+
+    // Data only for 2 days ago and yesterday, MISSING today
+    final history = [
+      Weight(weight: 80.0, date: twoDaysAgo),
+      Weight(weight: 81.0, date: yesterday),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: WeightTrendChart(
+            weightHistory: history,
+            timeframeLabel: '1 wk',
+            startDate: twoDaysAgo,
+            endDate: today,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Weight Trend (1 wk)'), findsOneWidget);
+    expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
+
+    // We can't easily check the painter's private dots, but we can verify it renders.
+    // Future: Add more specific checks if WeightTrendChart is refactored to expose point counts.
+  });
 }

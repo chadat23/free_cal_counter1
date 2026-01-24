@@ -27,7 +27,8 @@ class NavigationContainerScreen extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
 
-      if (!goalsProvider.isGoalsSet) {
+      if (!goalsProvider.hasSeenWelcome && !goalsProvider.isGoalsSet) {
+        goalsProvider.markWelcomeSeen();
         _showWelcomeDialog(context);
       } else if (goalsProvider.showUpdateNotification) {
         _showUpdateDialog(context, goalsProvider);

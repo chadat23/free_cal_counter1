@@ -1243,6 +1243,14 @@ class MockGoalsProvider extends _i1.Mock implements _i25.GoalsProvider {
           as bool);
 
   @override
+  bool get hasSeenWelcome =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasSeenWelcome),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -1264,6 +1272,15 @@ class MockGoalsProvider extends _i1.Mock implements _i25.GoalsProvider {
               [newSettings],
               {#isInitialSetup: isInitialSetup},
             ),
+            returnValue: _i13.Future<void>.value(),
+            returnValueForMissingStub: _i13.Future<void>.value(),
+          )
+          as _i13.Future<void>);
+
+  @override
+  _i13.Future<void> markWelcomeSeen() =>
+      (super.noSuchMethod(
+            Invocation.method(#markWelcomeSeen, []),
             returnValue: _i13.Future<void>.value(),
             returnValueForMissingStub: _i13.Future<void>.value(),
           )

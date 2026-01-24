@@ -78,4 +78,79 @@ class GoalLogicService {
       'carbs': carbGrams,
     };
   }
+
+  /// Estimates TDEE using a Kalman Filter approach.
+  /// x = [Weight, TDEE]
+  static List<double> calculateKalmanTDEE({
+    required List<double> weights, // Daily weights (0.0 if missing)
+    required List<double> intakes, // Daily caloric intakes
+    required double initialTDEE,
+    required double initialWeight,
+    bool isMetric = false,
+  }) {
+    if (weights.isEmpty || intakes.isEmpty) return [];
+
+    final double C = isMetric ? 7716.0 : 3500.0;
+    final double invC = 1.0 / C;
+
+    // State initialization
+    double xWeight = initialWeight;
+    double xTdee = initialTDEE;
+
+    // Covariance initialization
+    double pWW = 1.0;
+    double pWT = 0.0;
+    double pTW = 0.0;
+    double pTT = 10000.0; // High uncertainty for TDEE
+
+    // Noise parameters
+    const double qWW = 0.0001;
+    const double qTT = 400.0; // TDEE can drift (std dev ~20 cal)
+    const double rW = 1.0; // Weight scale noise
+
+    final List<double> estimates = [];
+
+    for (int i = 0; i < weights.length; i++) {
+      final double intake = intakes[i];
+      final double observedWeight = weights[i];
+
+      // 1. Predict
+      // x = Fx + Bu
+      // F = [1, -invC; 0, 1], B = [invC; 0]
+      xWeight = xWeight + invC * (intake - xTdee);
+      // xTdee remains same
+
+      // P = FPF' + Q
+      final double nextPWW = pWW - invC * pTW - invC * (pWT - invC * pTT) + qWW;
+      final double nextPWT = pWT - invC * pTT;
+      final double nextPTW = pTW - invC * pTT;
+      final double nextPTT = pTT + qTT;
+
+      pWW = nextPWW;
+      pWT = nextPWT;
+      pTW = nextPTW;
+      pTT = nextPTT;
+
+      // 2. Update (if weight is available)
+      if (observedWeight > 0) {
+        final double z = observedWeight - xWeight;
+        final double s = pWW + rW;
+        final double kW = pWW / s;
+        final double kT = pTW / s;
+
+        xWeight = xWeight + kW * z;
+        xTdee = xTdee + kT * z;
+
+        // P = (I - KH)P
+        pWW = (1.0 - kW) * pWW;
+        pWT = (1.0 - kW) * pWT;
+        pTW = pTW - kT * pWW;
+        pTT = pTT - kT * pWT;
+      }
+
+      estimates.add(xTdee);
+    }
+
+    return estimates;
+  }
 }

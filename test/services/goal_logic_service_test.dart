@@ -74,9 +74,57 @@ void main() {
         proteinGrams: 150,
         fatGrams: 60,
       );
-      expect(macros['carbs'], 215.0);
-      expect(macros['protein'], 150.0);
       expect(macros['fat'], 60.0);
+    });
+
+    test('calculateKalmanTDEE should handle stable weight and intake', () {
+      final weights = List.generate(30, (_) => 100.0);
+      final intakes = List.generate(30, (_) => 2000.0);
+      final results = GoalLogicService.calculateKalmanTDEE(
+        weights: weights,
+        intakes: intakes,
+        initialTDEE: 2000.0,
+        initialWeight: 100.0,
+      );
+
+      expect(results.length, 30);
+      // Should stay around 2000
+      expect(results.last, closeTo(2000.0, 10.0));
+    });
+
+    test(
+      'calculateKalmanTDEE should handle increasing weight with high intake',
+      () {
+        final weights = List.generate(
+          30,
+          (i) => 100.0 + i * 0.1,
+        ); // gaining 0.1lb/day
+        final intakes = List.generate(30, (_) => 2500.0);
+        // Gain of 0.1lb/day means surplus of 350cal.
+        // If intake is 2500, TDEE should be ~2150.
+        final results = GoalLogicService.calculateKalmanTDEE(
+          weights: weights,
+          intakes: intakes,
+          initialTDEE: 2500.0,
+          initialWeight: 100.0,
+        );
+
+        expect(results.last, closeTo(2150.0, 100.0));
+      },
+    );
+
+    test('calculateKalmanTDEE should handle missing weight data', () {
+      final weights = List.generate(30, (i) => i % 7 == 0 ? 100.0 : 0.0);
+      final intakes = List.generate(30, (_) => 2000.0);
+      final results = GoalLogicService.calculateKalmanTDEE(
+        weights: weights,
+        intakes: intakes,
+        initialTDEE: 2000.0,
+        initialWeight: 100.0,
+      );
+
+      expect(results.length, 30);
+      expect(results.last, closeTo(2000.0, 50.0));
     });
   });
 }

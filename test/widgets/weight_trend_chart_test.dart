@@ -10,6 +10,7 @@ void main() {
         home: Scaffold(
           body: WeightTrendChart(
             weightHistory: [],
+            maintenanceHistory: [],
             timeframeLabel: '30d',
             startDate: DateTime(2023, 1, 1),
             endDate: DateTime(2023, 1, 31),
@@ -32,6 +33,7 @@ void main() {
         home: Scaffold(
           body: WeightTrendChart(
             weightHistory: history,
+            maintenanceHistory: List.generate(31, (_) => 2000.0),
             timeframeLabel: '1 mo',
             startDate: DateTime(2023, 1, 1),
             endDate: DateTime(2023, 1, 31),
@@ -65,6 +67,7 @@ void main() {
         home: Scaffold(
           body: WeightTrendChart(
             weightHistory: history,
+            maintenanceHistory: List.generate(3, (_) => 2000.0),
             timeframeLabel: '1 wk',
             startDate: twoDaysAgo,
             endDate: today,

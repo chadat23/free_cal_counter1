@@ -11,6 +11,7 @@ class GoalSettings {
   final DateTime lastTargetUpdate;
   final bool useMetric;
   final bool isSet;
+  final int tdeeWindowDays;
 
   GoalSettings({
     required this.anchorWeight,
@@ -23,6 +24,7 @@ class GoalSettings {
     required this.lastTargetUpdate,
     this.useMetric = false,
     this.isSet = true,
+    this.tdeeWindowDays = 30,
   });
 
   factory GoalSettings.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class GoalSettings {
       useMetric: json['useMetric'] as bool? ?? false,
       isSet:
           json['isSet'] as bool? ?? true, // Default to true for existing users
+      tdeeWindowDays: json['tdeeWindowDays'] as int? ?? 30,
     );
   }
 
@@ -59,6 +62,7 @@ class GoalSettings {
       'lastTargetUpdate': lastTargetUpdate.millisecondsSinceEpoch,
       'useMetric': useMetric,
       'isSet': isSet,
+      'tdeeWindowDays': tdeeWindowDays,
     };
   }
 
@@ -75,6 +79,7 @@ class GoalSettings {
       lastTargetUpdate: DateTime(2000), // Far in the past to trigger update
       useMetric: false,
       isSet: false,
+      tdeeWindowDays: 30,
     );
   }
 
@@ -90,6 +95,7 @@ class GoalSettings {
     DateTime? lastTargetUpdate,
     bool? useMetric,
     bool? isSet,
+    int? tdeeWindowDays,
   }) {
     return GoalSettings(
       anchorWeight: anchorWeight ?? this.anchorWeight,
@@ -103,6 +109,7 @@ class GoalSettings {
       lastTargetUpdate: lastTargetUpdate ?? this.lastTargetUpdate,
       useMetric: useMetric ?? this.useMetric,
       isSet: isSet ?? this.isSet,
+      tdeeWindowDays: tdeeWindowDays ?? this.tdeeWindowDays,
     );
   }
 }

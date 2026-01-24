@@ -11,6 +11,7 @@ import 'package:free_cal_counter1/models/macro_goals.dart';
 import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/widgets/weight_trend_chart.dart';
 import 'package:free_cal_counter1/models/weight.dart';
+import 'package:free_cal_counter1/services/goal_logic_service.dart';
 
 class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
@@ -22,6 +23,7 @@ class OverviewScreen extends StatefulWidget {
 class _OverviewScreenState extends State<OverviewScreen> {
   List<NutritionTarget> _nutritionData = [];
   List<Weight> _weightHistory = [];
+  List<double> _maintenanceHistory = [];
   bool _isLoading = true;
   int _weightRangeDays = 30;
   String _weightRangeLabel = '1 mo';
@@ -68,14 +70,77 @@ class _OverviewScreenState extends State<OverviewScreen> {
       final goals = goalsProvider.currentGoals;
 
       final rangeStart = today.subtract(Duration(days: _weightRangeDays));
-      await weightProvider.loadWeights(rangeStart, today);
-      final weightHistory = weightProvider.weights;
+      final window = goalsProvider.settings.tdeeWindowDays;
+      final analysisStart = rangeStart.subtract(Duration(days: window));
+
+      final analysisStats = await logProvider.getDailyMacroStats(
+        analysisStart,
+        today,
+      );
+      // Ensure weights are loaded for the full analysis window
+      await weightProvider.loadWeights(analysisStart, today);
+      final analysisWeights = weightProvider.weights;
+
+      // Map data for Kalman
+      final weightMap = {
+        for (var w in analysisWeights)
+          DateTime(w.date.year, w.date.month, w.date.day): w.weight,
+      };
+
+      final List<double> dailyWeights = [];
+      final List<double> dailyIntakes = [];
+
+      var current = analysisStart;
+      while (!current.isAfter(today)) {
+        final dateOnly = DateTime(current.year, current.month, current.day);
+        dailyWeights.add(weightMap[dateOnly] ?? 0.0);
+
+        final stat = analysisStats.firstWhere(
+          (s) =>
+              s.date.year == current.year &&
+              s.date.month == current.month &&
+              s.date.day == current.day,
+          orElse: () => DailyMacroStats(
+            date: dateOnly,
+            calories: 0,
+            protein: 0,
+            fat: 0,
+            carbs: 0,
+            fiber: 0,
+          ),
+        );
+        dailyIntakes.add(stat.calories);
+
+        current = current.add(const Duration(days: 1));
+      }
+
+      final maintenanceTrend = GoalLogicService.calculateKalmanTDEE(
+        weights: dailyWeights,
+        intakes: dailyIntakes,
+        initialTDEE: goalsProvider.settings.maintenanceCaloriesStart,
+        initialWeight: goalsProvider.settings.anchorWeight > 0
+            ? goalsProvider.settings.anchorWeight
+            : (analysisWeights.isNotEmpty
+                  ? analysisWeights.first.weight
+                  : 70.0),
+        isMetric: goalsProvider.settings.useMetric,
+      );
+
+      // Extract the portion corresponding to the displayed range
+      final int displayCount = _weightRangeDays + 1;
+      final displayMaintenance = maintenanceTrend.length >= displayCount
+          ? maintenanceTrend.sublist(maintenanceTrend.length - displayCount)
+          : maintenanceTrend;
 
       // Process stats into NutritionTargets
       if (mounted) {
         setState(() {
           _nutritionData = _buildTargets(stats, goals);
-          _weightHistory = weightHistory;
+          _weightHistory = weightProvider.weights.where((w) {
+            final d = DateTime(w.date.year, w.date.month, w.date.day);
+            return !d.isBefore(rangeStart);
+          }).toList();
+          _maintenanceHistory = displayMaintenance;
           _weightRangeStart = rangeStart;
           _weightRangeEnd = today;
           _isLoading = false;
@@ -221,6 +286,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                           children: [
                             WeightTrendChart(
                               weightHistory: _weightHistory,
+                              maintenanceHistory: _maintenanceHistory,
                               timeframeLabel: _weightRangeLabel,
                               startDate: _weightRangeStart,
                               endDate: _weightRangeEnd,

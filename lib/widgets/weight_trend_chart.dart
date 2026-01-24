@@ -7,6 +7,7 @@ import 'dart:ui' as ui;
 
 class WeightTrendChart extends StatelessWidget {
   final List<Weight> weightHistory;
+  final List<double> maintenanceHistory;
   final String timeframeLabel;
   final DateTime startDate;
   final DateTime endDate;
@@ -14,6 +15,7 @@ class WeightTrendChart extends StatelessWidget {
   const WeightTrendChart({
     super.key,
     required this.weightHistory,
+    required this.maintenanceHistory,
     required this.timeframeLabel,
     required this.startDate,
     required this.endDate,
@@ -103,6 +105,7 @@ class WeightTrendChart extends StatelessWidget {
                 points: points,
                 realData: sortedReal,
                 trends: trends,
+                maintenanceHistory: maintenanceHistory,
                 startDate: startDate,
                 endDate: endDate,
               ),
@@ -146,6 +149,7 @@ class _WeightLinePainter extends CustomPainter {
   final List<_ChartPoint> points;
   final List<Weight> realData;
   final List<double> trends;
+  final List<double> maintenanceHistory;
   final DateTime startDate;
   final DateTime endDate;
 
@@ -153,6 +157,7 @@ class _WeightLinePainter extends CustomPainter {
     required this.points,
     required this.realData,
     required this.trends,
+    required this.maintenanceHistory,
     required this.startDate,
     required this.endDate,
   });
@@ -167,20 +172,38 @@ class _WeightLinePainter extends CustomPainter {
     final maxWeight = allValues.reduce((a, b) => a > b ? a : b) + 0.5;
     final weightRange = maxWeight - minWeight;
 
+    // Calorie range (for left axis)
+    final double minMain = maintenanceHistory.isNotEmpty
+        ? maintenanceHistory.reduce((a, b) => a < b ? a : b)
+        : 1500;
+    final double maxMain = maintenanceHistory.isNotEmpty
+        ? maintenanceHistory.reduce((a, b) => a > b ? a : b)
+        : 2500;
+    final double mainRange = (maxMain - minMain).clamp(100, double.infinity);
+    final double mainAxisMin = minMain - (mainRange * 0.1);
+    final double mainAxisMax = maxMain + (mainRange * 0.1);
+    final double mainAxisRange = mainAxisMax - mainAxisMin;
+
     // Drawing area padding for labels
     const double rightPadding = 40.0;
-    final drawAreaWidth = size.width - rightPadding;
+    const double leftPadding = 40.0;
+    final drawAreaWidth = size.width - rightPadding - leftPadding;
 
     final totalDuration = endDate.difference(startDate).inSeconds;
 
     double getX(DateTime date) {
-      if (totalDuration == 0) return 0;
+      if (totalDuration == 0) return leftPadding;
       final elapsed = date.difference(startDate).inSeconds;
-      return (elapsed / totalDuration) * drawAreaWidth;
+      return leftPadding + (elapsed / totalDuration) * drawAreaWidth;
     }
 
-    double getY(double weight) {
+    double getYWeight(double weight) {
       final normalized = (weight - minWeight) / weightRange;
+      return size.height - (normalized * size.height);
+    }
+
+    double getYMain(double cal) {
+      final normalized = (cal - mainAxisMin) / mainAxisRange;
       return size.height - (normalized * size.height);
     }
 
@@ -194,35 +217,83 @@ class _WeightLinePainter extends CustomPainter {
       ..color = Colors.white.withOpacity(0.05)
       ..strokeWidth = 1.0;
 
-    void drawYLabel(double weight) {
-      final y = getY(weight);
-      canvas.drawLine(Offset(0, y), Offset(drawAreaWidth, y), gridPaint);
+    void drawYLabelRight(double weight) {
+      final y = getYWeight(weight);
+      canvas.drawLine(
+        Offset(leftPadding, y),
+        Offset(leftPadding + drawAreaWidth, y),
+        gridPaint,
+      );
 
       labelPainter.text = TextSpan(
         text: weight.toStringAsFixed(1),
         style: const TextStyle(color: Colors.white38, fontSize: 9),
       );
       labelPainter.layout();
-      labelPainter.paint(canvas, Offset(drawAreaWidth + 5, y - 6));
+      labelPainter.paint(
+        canvas,
+        Offset(leftPadding + drawAreaWidth + 5, y - 6),
+      );
     }
 
-    drawYLabel(minWeight + 0.5);
-    drawYLabel(maxWeight - 0.5);
-    drawYLabel((minWeight + maxWeight) / 2);
+    void drawYLabelLeft(double cal) {
+      final y = getYMain(cal);
+      // No extra grid line for left side to avoid clutter
 
-    // 2. Paint Trend Line (EMA) - Background Layer
+      labelPainter.text = TextSpan(
+        text: cal.toInt().toString(),
+        style: const TextStyle(color: Colors.orangeAccent, fontSize: 9),
+      );
+      labelPainter.layout();
+      labelPainter.paint(canvas, Offset(5, y - 6));
+    }
+
+    // Weight Labels (Right)
+    drawYLabelRight(minWeight + 0.5);
+    drawYLabelRight(maxWeight - 0.5);
+    drawYLabelRight((minWeight + maxWeight) / 2);
+
+    // Calorie Labels (Left)
+    if (maintenanceHistory.isNotEmpty) {
+      drawYLabelLeft(mainAxisMin + (mainAxisRange * 0.1));
+      drawYLabelLeft(mainAxisMax - (mainAxisRange * 0.1));
+      drawYLabelLeft((mainAxisMin + mainAxisMax) / 2);
+    }
+
+    // 2. Paint trend line (EMA)
     final trendPaint = Paint()
       ..color = Colors.blue.withOpacity(0.3)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
     final trendPath = Path();
-    trendPath.moveTo(getX(realData[0].date), getY(trends[0]));
+    trendPath.moveTo(getX(realData[0].date), getYWeight(trends[0]));
 
     for (var i = 1; i < trends.length; i++) {
-      trendPath.lineTo(getX(realData[i].date), getY(trends[i]));
+      trendPath.lineTo(getX(realData[i].date), getYWeight(trends[i]));
     }
     canvas.drawPath(trendPath, trendPaint);
+
+    // 2.5 Paint Maintenance Calories (Kalman)
+    if (maintenanceHistory.isNotEmpty) {
+      final mainPaint = Paint()
+        ..color = Colors.orangeAccent.withOpacity(0.6)
+        ..strokeWidth = 1.5
+        ..style = PaintingStyle.stroke;
+
+      final mainPath = Path();
+      // maintenanceHistory maps 1:1 to daily points between startDate and endDate
+      var current = DateTime(startDate.year, startDate.month, startDate.day);
+      mainPath.moveTo(getX(current), getYMain(maintenanceHistory[0]));
+
+      for (var i = 1; i < maintenanceHistory.length; i++) {
+        current = current.add(const Duration(days: 1));
+        mainPath.lineTo(getX(current), getYMain(maintenanceHistory[i]));
+      }
+
+      // Draw dashed line
+      _drawDashedPath(canvas, mainPath, mainPaint);
+    }
 
     // 3. Paint Connected Weight Line Segments (Real Data Only)
     final linePaint = Paint()
@@ -236,10 +307,10 @@ class _WeightLinePainter extends CustomPainter {
     for (var i = 0; i < points.length; i++) {
       if (!points[i].isPlaceholder) {
         if (firstPoint) {
-          weightPath.moveTo(getX(points[i].date), getY(points[i].weight));
+          weightPath.moveTo(getX(points[i].date), getYWeight(points[i].weight));
           firstPoint = false;
         } else {
-          weightPath.lineTo(getX(points[i].date), getY(points[i].weight));
+          weightPath.lineTo(getX(points[i].date), getYWeight(points[i].weight));
         }
       }
     }
@@ -256,7 +327,7 @@ class _WeightLinePainter extends CustomPainter {
             ? Colors.red.withOpacity(0.8)
             : Colors.white.withOpacity(0.2);
         canvas.drawCircle(
-          Offset(getX(point.date), getY(point.weight)),
+          Offset(getX(point.date), getYWeight(point.weight)),
           point.isToday ? 4 : 2,
           dotPaint,
         );
@@ -264,7 +335,7 @@ class _WeightLinePainter extends CustomPainter {
         // Real data point
         dotPaint.color = Colors.white;
         canvas.drawCircle(
-          Offset(getX(point.date), getY(point.weight)),
+          Offset(getX(point.date), getYWeight(point.weight)),
           3,
           dotPaint,
         );
@@ -272,6 +343,24 @@ class _WeightLinePainter extends CustomPainter {
     }
   }
 
+  void _drawDashedPath(Canvas canvas, Path path, Paint paint) {
+    const double dashWidth = 5.0;
+    const double dashSpace = 3.0;
+
+    final ui.PathMetrics pathMetrics = path.computeMetrics();
+    for (ui.PathMetric pathMetric in pathMetrics) {
+      double distance = 0.0;
+      while (distance < pathMetric.length) {
+        final ui.Path extractPath = pathMetric.extractPath(
+          distance,
+          distance + dashWidth,
+        );
+        canvas.drawPath(extractPath, paint);
+        distance += dashWidth + dashSpace;
+      }
+    }
+  }
+
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }

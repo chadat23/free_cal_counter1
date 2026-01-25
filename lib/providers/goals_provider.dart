@@ -64,11 +64,20 @@ class GoalsProvider extends ChangeNotifier {
         _currentGoals = MacroGoals.fromJson(jsonDecode(targetsJson));
       } else {
         // Calculate initial goals from default settings
-        final macros = GoalLogicService.calculateMacros(
-          targetCalories: _settings.maintenanceCaloriesStart,
-          proteinGrams: _settings.proteinTarget,
-          fatGrams: _settings.fatTarget,
-        );
+        final Map<String, double> macros;
+        if (_settings.calculationMode == MacroCalculationMode.proteinFat) {
+          macros = GoalLogicService.calculateMacrosFromProteinFat(
+            targetCalories: _settings.maintenanceCaloriesStart,
+            proteinGrams: _settings.proteinTarget,
+            fatGrams: _settings.fatTarget,
+          );
+        } else {
+          macros = GoalLogicService.calculateMacrosFromProteinCarbs(
+            targetCalories: _settings.maintenanceCaloriesStart,
+            proteinGrams: _settings.proteinTarget,
+            carbGrams: _settings.carbTarget,
+          );
+        }
         _currentGoals = MacroGoals(
           calories: macros['calories']!,
           protein: macros['protein']!,
@@ -101,8 +110,10 @@ class GoalsProvider extends ChangeNotifier {
       maintenanceCaloriesStart: newSettings.maintenanceCaloriesStart,
       proteinTarget: newSettings.proteinTarget,
       fatTarget: newSettings.fatTarget,
+      carbTarget: newSettings.carbTarget,
       fiberTarget: newSettings.fiberTarget,
       mode: newSettings.mode,
+      calculationMode: newSettings.calculationMode,
       fixedDelta: newSettings.fixedDelta,
       lastTargetUpdate: newSettings.lastTargetUpdate,
       useMetric: newSettings.useMetric,
@@ -217,11 +228,20 @@ class GoalsProvider extends ChangeNotifier {
     }
 
     // 2. Derive macros
-    final macros = GoalLogicService.calculateMacros(
-      targetCalories: targetCalories,
-      proteinGrams: _settings.proteinTarget,
-      fatGrams: _settings.fatTarget,
-    );
+    final Map<String, double> macros;
+    if (_settings.calculationMode == MacroCalculationMode.proteinFat) {
+      macros = GoalLogicService.calculateMacrosFromProteinFat(
+        targetCalories: targetCalories,
+        proteinGrams: _settings.proteinTarget,
+        fatGrams: _settings.fatTarget,
+      );
+    } else {
+      macros = GoalLogicService.calculateMacrosFromProteinCarbs(
+        targetCalories: targetCalories,
+        proteinGrams: _settings.proteinTarget,
+        carbGrams: _settings.carbTarget,
+      );
+    }
 
     _currentGoals = MacroGoals(
       calories: macros['calories']!,

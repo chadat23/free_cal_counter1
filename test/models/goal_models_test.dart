@@ -10,8 +10,10 @@ void main() {
         maintenanceCaloriesStart: 2500,
         proteinTarget: 160,
         fatTarget: 70,
+        carbTarget: 250,
         fiberTarget: 38,
         mode: GoalMode.lose,
+        calculationMode: MacroCalculationMode.proteinCarbs,
         fixedDelta: 500,
         lastTargetUpdate: DateTime(2023, 10, 1),
         useMetric: true,
@@ -27,7 +29,9 @@ void main() {
       );
       expect(decoded.proteinTarget, settings.proteinTarget);
       expect(decoded.fatTarget, settings.fatTarget);
+      expect(decoded.carbTarget, settings.carbTarget);
       expect(decoded.mode, settings.mode);
+      expect(decoded.calculationMode, settings.calculationMode);
       expect(decoded.fixedDelta, settings.fixedDelta);
       expect(
         decoded.lastTargetUpdate.millisecondsSinceEpoch,

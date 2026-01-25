@@ -60,7 +60,7 @@ class GoalLogicService {
 
   /// Calculates the macro targets based on a calorie budget and fixed P/F targets.
   /// Carbs are the remainder.
-  static Map<String, double> calculateMacros({
+  static Map<String, double> calculateMacrosFromProteinFat({
     required double targetCalories,
     required double proteinGrams,
     required double fatGrams,
@@ -77,6 +77,40 @@ class GoalLogicService {
       'fat': fatGrams,
       'carbs': carbGrams,
     };
+  }
+
+  /// Calculates the macro targets based on a calorie budget and fixed P/C targets.
+  /// Fat is the remainder.
+  static Map<String, double> calculateMacrosFromProteinCarbs({
+    required double targetCalories,
+    required double proteinGrams,
+    required double carbGrams,
+  }) {
+    final proteinCalories = proteinGrams * 4.0;
+    final carbCalories = carbGrams * 4.0;
+
+    final remainingCalories = targetCalories - proteinCalories - carbCalories;
+    final fatGrams = max(0.0, remainingCalories / 9.0);
+
+    return {
+      'calories': targetCalories,
+      'protein': proteinGrams,
+      'fat': fatGrams,
+      'carbs': carbGrams,
+    };
+  }
+
+  /// Legacy helper for calculateMacros (defaults to Protein + Fat input)
+  static Map<String, double> calculateMacros({
+    required double targetCalories,
+    required double proteinGrams,
+    required double fatGrams,
+  }) {
+    return calculateMacrosFromProteinFat(
+      targetCalories: targetCalories,
+      proteinGrams: proteinGrams,
+      fatGrams: fatGrams,
+    );
   }
 
   /// Estimates TDEE using a Kalman Filter approach.

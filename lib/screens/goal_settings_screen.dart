@@ -18,9 +18,11 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
   late TextEditingController _maintenanceCalController;
   late TextEditingController _proteinController;
   late TextEditingController _fatController;
+  late TextEditingController _carbController;
   late TextEditingController _fiberController;
   late TextEditingController _fixedDeltaController;
   late GoalMode _mode;
+  late MacroCalculationMode _calcMode;
   late bool _useMetric;
 
   @override
@@ -41,6 +43,9 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
       text: settings.proteinTarget.toString(),
     );
     _fatController = TextEditingController(text: settings.fatTarget.toString());
+    _carbController = TextEditingController(
+      text: settings.carbTarget.toString(),
+    );
     _fiberController = TextEditingController(
       text: settings.fiberTarget.toString(),
     );
@@ -48,6 +53,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
       text: settings.fixedDelta.toString(),
     );
     _mode = settings.mode;
+    _calcMode = settings.calculationMode;
     _useMetric = settings.useMetric;
   }
 
@@ -57,6 +63,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
     _maintenanceCalController.dispose();
     _proteinController.dispose();
     _fatController.dispose();
+    _carbController.dispose();
     _fiberController.dispose();
     _fixedDeltaController.dispose();
     super.dispose();
@@ -83,8 +90,16 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
     }
 
     final fat = double.tryParse(_fatController.text);
-    if (fat == null || fat <= 0) {
+    if (_calcMode == MacroCalculationMode.proteinFat &&
+        (fat == null || fat <= 0)) {
       UiUtils.showAutoDismissDialog(context, 'Please enter valid fat target');
+      return;
+    }
+
+    final carbs = double.tryParse(_carbController.text);
+    if (_calcMode == MacroCalculationMode.proteinCarbs &&
+        (carbs == null || carbs <= 0)) {
+      UiUtils.showAutoDismissDialog(context, 'Please enter valid carb target');
       return;
     }
 
@@ -122,14 +137,14 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
     final isInitialSetup = !goalsProvider.isGoalsSet;
 
     final newSettings = GoalSettings(
-      anchorWeight: _mode == GoalMode.maintain
-          ? targetWeight!
-          : 0.0, // No anchor weight needed for lose/gain
+      anchorWeight: _mode == GoalMode.maintain ? targetWeight! : 0.0,
       maintenanceCaloriesStart: maintenanceCal,
       proteinTarget: protein,
-      fatTarget: fat,
+      fatTarget: fat ?? 0.0,
+      carbTarget: carbs ?? 0.0,
       fiberTarget: fiber,
       mode: _mode,
+      calculationMode: _calcMode,
       fixedDelta: _mode != GoalMode.maintain ? delta! : 0.0,
       lastTargetUpdate: goalsProvider.settings.lastTargetUpdate,
       useMetric: _useMetric,
@@ -190,20 +205,29 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
             ),
           const Divider(height: 40),
           const Text(
-            'Macro Split (Fixed)',
+            'Macro Split Strategy',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
+          _buildCalcModeSelector(),
+          const SizedBox(height: 20),
           _buildTextField(
             controller: _proteinController,
             label: 'Protein (g)',
             keyboardType: TextInputType.number,
           ),
-          _buildTextField(
-            controller: _fatController,
-            label: 'Fat (g)',
-            keyboardType: TextInputType.number,
-          ),
+          if (_calcMode == MacroCalculationMode.proteinFat)
+            _buildTextField(
+              controller: _fatController,
+              label: 'Fat (g)',
+              keyboardType: TextInputType.number,
+            ),
+          if (_calcMode == MacroCalculationMode.proteinCarbs)
+            _buildTextField(
+              controller: _carbController,
+              label: 'Carbs (g)',
+              keyboardType: TextInputType.number,
+            ),
           _buildTextField(
             controller: _fiberController,
             label: 'Fiber (g)',
@@ -217,6 +241,39 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCalcModeSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Choose what to calculate as the remainder:',
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+        const SizedBox(height: 8),
+        SegmentedButton<MacroCalculationMode>(
+          segments: const [
+            ButtonSegment(
+              value: MacroCalculationMode.proteinCarbs,
+              label: Text('Calc Fat'),
+              tooltip: 'Enter Protein & Carbs',
+            ),
+            ButtonSegment(
+              value: MacroCalculationMode.proteinFat,
+              label: Text('Calc Carbs'),
+              tooltip: 'Enter Protein & Fat',
+            ),
+          ],
+          selected: {_calcMode},
+          onSelectionChanged: (newSelection) {
+            setState(() {
+              _calcMode = newSelection.first;
+            });
+          },
+        ),
+      ],
     );
   }
 

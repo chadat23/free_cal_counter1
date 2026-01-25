@@ -9,6 +9,7 @@ import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/providers/search_provider.dart';
 import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/models/macro_goals.dart';
+import 'package:free_cal_counter1/models/goal_settings.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 import 'package:free_cal_counter1/models/daily_macro_stats.dart';
 import 'package:free_cal_counter1/config/app_router.dart';
@@ -35,7 +36,9 @@ void main() {
 
     when(mockGoalsProvider.showUpdateNotification).thenReturn(false);
     when(mockGoalsProvider.isGoalsSet).thenReturn(true);
+    when(mockGoalsProvider.hasSeenWelcome).thenReturn(false);
     when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
+    when(mockGoalsProvider.settings).thenReturn(GoalSettings.defaultSettings());
 
     // Stub WeightProvider
     when(mockWeightProvider.recentWeights).thenReturn([]);

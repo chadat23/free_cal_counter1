@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:free_cal_counter1/providers/weight_provider.dart';
 import 'package:free_cal_counter1/providers/goals_provider.dart';
 import 'package:free_cal_counter1/models/macro_goals.dart';
+import 'package:free_cal_counter1/models/goal_settings.dart';
 import 'package:free_cal_counter1/models/search_mode.dart';
 import 'overview_screen_test.mocks.dart';
 
@@ -90,6 +91,10 @@ void main() {
 
     // Stub GoalsProvider
     when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
+    when(mockGoalsProvider.settings).thenReturn(GoalSettings.defaultSettings());
+    when(mockGoalsProvider.hasSeenWelcome).thenReturn(true);
+    when(mockGoalsProvider.isGoalsSet).thenReturn(true);
+    when(mockGoalsProvider.showUpdateNotification).thenReturn(false);
   });
 
   Widget createTestWidget() {

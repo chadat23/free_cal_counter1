@@ -65,16 +65,32 @@ void main() {
       },
     );
 
-    test('calculateMacros should derive carbs correctly', () {
+    test('calculateMacrosFromProteinFat should derive carbs correctly', () {
       // Budget = 2000. P = 150 (600 cal). F = 60 (540 cal).
       // Remainder = 2000 - 600 - 540 = 860 cal.
       // Carbs = 860 / 4 = 215g.
-      final macros = GoalLogicService.calculateMacros(
+      final macros = GoalLogicService.calculateMacrosFromProteinFat(
         targetCalories: 2000,
         proteinGrams: 150,
         fatGrams: 60,
       );
+      expect(macros['carbs'], 215.0);
+      expect(macros['protein'], 150.0);
       expect(macros['fat'], 60.0);
+    });
+
+    test('calculateMacrosFromProteinCarbs should derive fat correctly', () {
+      // Budget = 2000. P = 150 (600 cal). C = 200 (800 cal).
+      // Remainder = 2000 - 600 - 800 = 600 cal.
+      // Fat = 600 / 9 = 66.66...g.
+      final macros = GoalLogicService.calculateMacrosFromProteinCarbs(
+        targetCalories: 2000,
+        proteinGrams: 150,
+        carbGrams: 200,
+      );
+      expect(macros['fat'], closeTo(66.66, 0.01));
+      expect(macros['protein'], 150.0);
+      expect(macros['carbs'], 200.0);
     });
 
     test('calculateKalmanTDEE should handle stable weight and intake', () {

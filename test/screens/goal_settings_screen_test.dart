@@ -131,7 +131,7 @@ void main() {
     await fillField('Target Weight (lb)', '155.5');
     await fillField('Initial Maintenance Calories', '2340');
     await fillField('Protein (g)', '150');
-    await fillField('Fat (g)', '70');
+    await fillField('Carbs (g)', '200');
     await fillField('Fiber (g)', '38');
 
     // Scroll to save

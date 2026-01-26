@@ -156,4 +156,48 @@ class GoogleDriveService {
       debugPrint('Retention Policy Error: $e');
     }
   }
+
+  Future<List<drive.File>> listBackups() async {
+    final api = await _getDriveApi();
+    if (api == null) return [];
+
+    try {
+      final fileList = await api.files.list(
+        spaces: 'appDataFolder',
+        $fields: 'files(id, name, createdTime, size)',
+        orderBy: 'createdTime desc',
+      );
+      return fileList.files ?? [];
+    } catch (e) {
+      debugPrint('Error listing backups: $e');
+      return [];
+    }
+  }
+
+  Future<File?> downloadBackup(String fileId) async {
+    final api = await _getDriveApi();
+    if (api == null) return null;
+
+    try {
+      final drive.Media response =
+          await api.files.get(
+                fileId,
+                downloadOptions: drive.DownloadOptions.fullMedia,
+              )
+              as drive.Media;
+
+      final tempDir = await Directory.systemTemp.createTemp();
+      final file = File('${tempDir.path}/temp_restore.zip');
+
+      final List<int> data = [];
+      await for (final chunk in response.stream) {
+        data.addAll(chunk);
+      }
+      await file.writeAsBytes(data);
+      return file;
+    } catch (e) {
+      debugPrint('Error downloading backup: $e');
+      return null;
+    }
+  }
 }

@@ -4,6 +4,7 @@ import 'package:free_cal_counter1/models/recipe.dart';
 import 'package:free_cal_counter1/models/recipe_item.dart';
 import 'package:free_cal_counter1/models/category.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
+import 'package:free_cal_counter1/services/image_storage_service.dart';
 
 class RecipeProvider extends ChangeNotifier {
   int _id = 0;
@@ -229,8 +230,41 @@ class RecipeProvider extends ChangeNotifier {
   }
 
   // Sharing Logic
-  String exportRecipe(Recipe recipe) {
-    return jsonEncode(recipe.toJson());
+  Future<String> exportRecipe(Recipe recipe) async {
+    final Map<String, dynamic> json = recipe.toJson();
+    final Map<String, String> images = {};
+
+    // Collect images from recipe and ingredients
+    final imgService = ImageStorageService.instance;
+
+    // Check recipe itself
+    // Note: Recipe model doesn't have a thumbnail directly,
+    // but its toFood() might be used? Actually the spec says
+    // "Foods and Recipes support custom thumbnail images".
+    // Wait, let's check Recipe model again.
+
+    // Collect from ingredients
+    for (final item in recipe.items) {
+      if (item.isFood && item.food!.thumbnail != null) {
+        final guid = imgService.extractGuid(item.food!.thumbnail!);
+        if (guid != null && !images.containsKey(guid)) {
+          final b64 = await imgService.encodeImageToBase64(guid);
+          if (b64 != null) {
+            images[guid] = b64;
+          }
+        }
+      } else if (item.isRecipe) {
+        // Recursively handle sub-recipes?
+        // For now let's handle one level as per MVP,
+        // but recursive is better.
+      }
+    }
+
+    if (images.isNotEmpty) {
+      json['images_b64'] = images;
+    }
+
+    return jsonEncode(json);
   }
 
   Future<int?> importRecipe(String jsonContent) async {
@@ -240,7 +274,29 @@ class RecipeProvider extends ChangeNotifier {
 
     try {
       final Map<String, dynamic> data = jsonDecode(jsonContent);
-      final recipe = Recipe.fromJson(data);
+
+      // Process images first
+      final Map<String, String> guidMap = {}; // oldGuid -> newGuid
+      if (data.containsKey('images_b64')) {
+        final imagesB64 = Map<String, String>.from(data['images_b64']);
+        final imgService = ImageStorageService.instance;
+        for (final entry in imagesB64.entries) {
+          final newGuid = await imgService.saveImageFromBase64(entry.value);
+          guidMap[entry.key] = newGuid;
+        }
+      }
+
+      // We need a way to replace GUIDs in the JSON before parsing,
+      // or replace them in the resulting objects.
+      // Replacing in JSON string is easiest if we are careful.
+      String processedJson = jsonContent;
+      for (final entry in guidMap.entries) {
+        processedJson = processedJson.replaceAll(entry.key, entry.value);
+      }
+
+      // Re-parse
+      final Map<String, dynamic> processedData = jsonDecode(processedJson);
+      final recipe = Recipe.fromJson(processedData);
       final db = DatabaseService.instance;
 
       final newId = await _importRecipeRecursive(recipe, db);

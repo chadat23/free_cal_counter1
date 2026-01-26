@@ -46,9 +46,9 @@ class _QrSharingScreenState extends State<QrSharingScreen>
     super.dispose();
   }
 
-  void _prepareExport() {
+  Future<void> _prepareExport() async {
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    final jsonStr = recipeProvider.exportRecipe(widget.recipeToShare!);
+    final jsonStr = await recipeProvider.exportRecipe(widget.recipeToShare!);
 
     // Naive chunking strategy: ~800 chars per chunk to be safe for standard QR
     // Header format: "current_index/total_chunks|data"
@@ -71,12 +71,14 @@ class _QrSharingScreenState extends State<QrSharingScreen>
       }
     }
 
-    setState(() {
-      _qrChunks = chunks;
-      if (chunks.length > 1) {
-        _startAnimation();
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _qrChunks = chunks;
+        if (chunks.length > 1) {
+          _startAnimation();
+        }
+      });
+    }
   }
 
   void _startAnimation() {

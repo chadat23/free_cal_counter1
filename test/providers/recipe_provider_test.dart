@@ -404,14 +404,14 @@ void main() {
   group('RecipeProvider Import/Export', () {
     test('exportRecipe should return valid JSON', () async {
       final recipe = await createTestRecipe();
-      final jsonStr = provider.exportRecipe(recipe);
+      final jsonStr = await provider.exportRecipe(recipe);
       expect(jsonStr, isNotEmpty);
       expect(jsonStr, contains('"name":"Test Recipe"'));
     });
 
     test('importRecipe should return ID on success', () async {
       final recipe = await createTestRecipe();
-      final jsonStr = provider.exportRecipe(recipe);
+      final jsonStr = await provider.exportRecipe(recipe);
 
       final newId = await provider.importRecipe(jsonStr);
       expect(newId, isNotNull);

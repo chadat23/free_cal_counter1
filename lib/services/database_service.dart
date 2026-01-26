@@ -17,6 +17,7 @@ import 'package:free_cal_counter1/services/reference_database.dart'
     hide FoodPortion, FoodsCompanion, FoodPortionsCompanion;
 import 'package:free_cal_counter1/models/food_usage_stats.dart';
 import 'package:free_cal_counter1/models/food_container.dart';
+import 'package:free_cal_counter1/services/image_storage_service.dart';
 
 class DatabaseService {
   late LiveDatabase _liveDb;
@@ -50,17 +51,77 @@ class DatabaseService {
 
   Future<void> restoreDatabase(File backupFile) async {
     final liveFile = await getLiveDbFile();
+    final imgService = ImageStorageService.instance;
+    final imagesDir = await imgService.getImagesDirectory();
 
     // 1. Close current connections
     await _liveDb.close();
     await _referenceDb.close();
 
-    // 2. Overwrite live database file
-    await backupFile.copy(liveFile.path);
+    try {
+      if (backupFile.path.endsWith('.zip')) {
+        // Zip restore
+        final bytes = await backupFile.readAsBytes();
+        final archive = ZipDecoder().decodeBytes(bytes);
 
-    // 3. Re-initialize
-    await init();
-    BackupConfigService.instance.markDirty();
+        for (final file in archive) {
+          if (file.isFile) {
+            if (file.name == 'free_cal.db') {
+              final dbFile = File(liveFile.path);
+              await dbFile.writeAsBytes(file.content as List<int>);
+            } else if (file.name.startsWith('app_images/')) {
+              // Extract image
+              final relativePath = file.name.substring('app_images/'.length);
+              final targetFile = File('${imagesDir.path}/$relativePath');
+              await targetFile.parent.create(recursive: true);
+              await targetFile.writeAsBytes(file.content as List<int>);
+            }
+          }
+        }
+      } else {
+        // Legacy .db restore
+        await backupFile.copy(liveFile.path);
+      }
+    } finally {
+      // 3. Re-initialize
+      await init();
+      BackupConfigService.instance.markDirty();
+    }
+  }
+
+  /// Exports the live database and all images as a zip archive
+  Future<File> exportBackupAsZip() async {
+    final liveFile = await getLiveDbFile();
+    final imgService = ImageStorageService.instance;
+    final imagesDir = await imgService.getImagesDirectory();
+
+    final archive = Archive();
+
+    // Add database
+    final dbBytes = await liveFile.readAsBytes();
+    archive.addFile(ArchiveFile('free_cal.db', dbBytes.length, dbBytes));
+
+    // Add images
+    if (await imagesDir.exists()) {
+      await for (final entity in imagesDir.list(recursive: true)) {
+        if (entity is File) {
+          final relativePath = entity.path.substring(
+            imagesDir.parent.path.length + 1,
+          );
+          final bytes = await entity.readAsBytes();
+          archive.addFile(ArchiveFile(relativePath, bytes.length, bytes));
+        }
+      }
+    }
+
+    final zipBytes = ZipEncoder().encode(archive);
+    if (zipBytes == null) throw Exception('Failed to encode zip');
+
+    final tempDir = await Directory.systemTemp.createTemp();
+    final zipFile = File('${tempDir.path}/free_cal_backup.zip');
+    await zipFile.writeAsBytes(zipBytes);
+
+    return zipFile;
   }
 
   model.Weight _mapWeightData(dynamic weightData) {

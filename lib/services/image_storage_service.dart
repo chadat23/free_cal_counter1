@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image/image.dart';
-import 'package:drift/drift.dart';
 import 'package:free_cal_counter1/services/live_database.dart';
 
 class ImageStorageService {
@@ -157,5 +157,34 @@ class ImageStorageService {
       await init();
     }
     return _imagesDirectory!;
+  }
+
+  /// Encode an image to Base64 string for QR sharing
+  Future<String?> encodeImageToBase64(String guid) async {
+    final imagePath = await getImagePath(guid);
+    final file = File(imagePath);
+    if (!await file.exists()) {
+      return null;
+    }
+    final bytes = await file.readAsBytes();
+    return base64Encode(bytes);
+  }
+
+  /// Save an image from a Base64 string (used during QR import)
+  /// Returns the new GUID
+  Future<String> saveImageFromBase64(String base64Data) async {
+    if (_imagesDirectory == null) {
+      await init();
+    }
+
+    final bytes = base64Decode(base64Data);
+    final guid = const Uuid().v4();
+    final fileName = '$guid.jpg';
+    final targetPath = '${_imagesDirectory!.path}/$fileName';
+
+    final outputFile = File(targetPath);
+    await outputFile.writeAsBytes(bytes);
+
+    return guid;
   }
 }

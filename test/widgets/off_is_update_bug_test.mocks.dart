@@ -886,15 +886,17 @@ class MockRecipeProvider extends _i1.Mock implements _i19.RecipeProvider {
   );
 
   @override
-  String exportRecipe(_i11.Recipe? recipe) =>
+  _i12.Future<String> exportRecipe(_i11.Recipe? recipe) =>
       (super.noSuchMethod(
             Invocation.method(#exportRecipe, [recipe]),
-            returnValue: _i16.dummyValue<String>(
-              this,
-              Invocation.method(#exportRecipe, [recipe]),
+            returnValue: _i12.Future<String>.value(
+              _i16.dummyValue<String>(
+                this,
+                Invocation.method(#exportRecipe, [recipe]),
+              ),
             ),
           )
-          as String);
+          as _i12.Future<String>);
 
   @override
   _i12.Future<int?> importRecipe(String? jsonContent) =>

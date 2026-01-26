@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:free_cal_counter1/services/database_service.dart';
-import 'package:free_cal_counter1/services/live_database.dart';
 import 'package:free_cal_counter1/widgets/screen_background.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:free_cal_counter1/services/backup_config_service.dart';
 import 'package:free_cal_counter1/services/google_drive_service.dart';
+import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:free_cal_counter1/services/background_backup_worker.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:intl/intl.dart';
@@ -126,15 +126,25 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
 
   Future<void> _exportBackup() async {
     try {
-      final file = await getLiveDbFile();
-      if (await file.exists()) {
+      setState(
+        () => _isRestoring = true,
+      ); // Use same loading state or another one
+      final zipFile = await DatabaseService.instance.exportBackupAsZip();
+
+      if (await zipFile.exists()) {
         await Share.shareXFiles([
-          XFile(file.path),
-        ], text: 'FreeCal Counter Backup');
+          XFile(
+            zipFile.path,
+            name:
+                'free_cal_backup_${DateTime.now().millisecondsSinceEpoch}.zip',
+          ),
+        ], text: 'FreeCal Counter Backup (with images)');
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Database file not found.')),
+            const SnackBar(
+              content: Text('Database file could not be created.'),
+            ),
           );
         }
       }
@@ -144,6 +154,8 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           context,
         ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
+    } finally {
+      if (mounted) setState(() => _isRestoring = false);
     }
   }
 
@@ -179,7 +191,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           if (mounted) {
             await UiUtils.showAutoDismissDialog(
               context,
-              'Database restored successfully!',
+              'Backup restored successfully!',
             );
           }
         } catch (e) {
@@ -192,6 +204,115 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           setState(() => _isRestoring = false);
         }
       }
+    }
+  }
+
+  Future<void> _restoreFromCloud() async {
+    setState(() => _isRestoring = true);
+    try {
+      final driveService = GoogleDriveService.instance;
+      final backups = await driveService.listBackups();
+
+      if (backups.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No cloud backups found.')),
+          );
+        }
+        return;
+      }
+
+      if (!mounted) return;
+
+      final selectedBackup = await showDialog<drive.File>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Select Cloud Backup'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: backups.length,
+              itemBuilder: (context, index) {
+                final b = backups[index];
+                final date = b.createdTime != null
+                    ? DateFormat('MM/dd/yyyy HH:mm').format(b.createdTime!)
+                    : 'Unknown Date';
+                final size = b.size != null
+                    ? '${(int.parse(b.size!) / 1024).toStringAsFixed(1)} KB'
+                    : 'Unknown Size';
+
+                return ListTile(
+                  title: Text(date),
+                  subtitle: Text(size),
+                  onTap: () => Navigator.pop(context, b),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('CANCEL'),
+            ),
+          ],
+        ),
+      );
+
+      if (selectedBackup != null && selectedBackup.id != null) {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Restore Cloud Backup?'),
+            content: const Text(
+              'This will overwrite all your current logs and recipes. This action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('CANCEL'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  'RESTORE',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        if (confirmed == true) {
+          final tempFile = await driveService.downloadBackup(
+            selectedBackup.id!,
+          );
+          if (tempFile != null) {
+            await DatabaseService.instance.restoreDatabase(tempFile);
+            await tempFile.delete();
+            if (mounted) {
+              await UiUtils.showAutoDismissDialog(
+                context,
+                'Cloud backup restored successfully!',
+              );
+            }
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Download failed.')));
+            }
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Restore failed: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isRestoring = false);
     }
   }
 
@@ -224,7 +345,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                     leading: const Icon(Icons.file_upload, color: Colors.blue),
                     title: const Text('Export to File'),
                     subtitle: const Text(
-                      'Export your live database to a file.',
+                      'Export database and images as a .zip file.',
                     ),
                     onTap: _exportBackup,
                   ),
@@ -239,11 +360,28 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                     ),
                     title: const Text('Restore from File'),
                     subtitle: const Text(
-                      'Import logs and recipes from a .db file.',
+                      'Import from a backup .zip or .db file.',
                     ),
                     onTap: _importBackup,
                   ),
                 ),
+                if (_googleEmail != null) ...[
+                  const SizedBox(height: 16),
+                  Card(
+                    color: Colors.grey[900],
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.cloud_download,
+                        color: Colors.orange,
+                      ),
+                      title: const Text('Restore from Cloud'),
+                      subtitle: const Text(
+                        'Select a backup to restore from Google Drive.',
+                      ),
+                      onTap: _restoreFromCloud,
+                    ),
+                  ),
+                ],
                 const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(

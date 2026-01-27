@@ -13,22 +13,30 @@ class GoogleDriveService {
   static final GoogleDriveService instance = GoogleDriveService._();
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [drive.DriveApi.driveAppdataScope],
+    scopes: [
+      drive.DriveApi.driveAppdataScope,
+      'https://www.googleapis.com/auth/userinfo.email',
+    ],
   );
 
   GoogleSignInAccount? get currentUser => _googleSignIn.currentUser;
 
   Future<GoogleSignInAccount?> signIn() async {
     try {
+      debugPrint('GoogleDriveService: Starting sign-in...');
       final account = await _googleSignIn.signIn();
+      debugPrint(
+        'GoogleDriveService: Sign-in complete. Account: ${account?.email}',
+      );
       return account;
     } catch (e) {
-      debugPrint('Google Sign-In Error: $e');
+      debugPrint('GoogleDriveService: Sign-In Error: $e');
       return null;
     }
   }
 
   Future<void> signOut() async {
+    debugPrint('GoogleDriveService: Signing out...');
     await _googleSignIn.signOut();
   }
 
@@ -39,9 +47,13 @@ class GoogleDriveService {
 
   Future<void> silentSignIn() async {
     try {
-      await _googleSignIn.signInSilently();
+      debugPrint('GoogleDriveService: Starting silent sign-in...');
+      final account = await _googleSignIn.signInSilently();
+      debugPrint(
+        'GoogleDriveService: Silent sign-in complete. Account: ${account?.email}',
+      );
     } catch (e) {
-      debugPrint('Silent Sign-In Error: $e');
+      debugPrint('GoogleDriveService: Silent Sign-In Error: $e');
     }
   }
 
@@ -60,8 +72,14 @@ class GoogleDriveService {
   /// If [retentionCount] is provided, it deletes older backups exceeding that count.
   Future<bool> uploadBackup(File file, {int retentionCount = 7}) async {
     try {
+      debugPrint('GoogleDriveService: Starting backup upload...');
       final api = await _getDriveApi();
-      if (api == null) return false;
+      if (api == null) {
+        debugPrint(
+          'GoogleDriveService: Failed to get Drive API (not signed in?)',
+        );
+        return false;
+      }
 
       // Create zip file containing database and images
       final archive = Archive();
@@ -74,6 +92,7 @@ class GoogleDriveService {
       // Add images folder to archive
       final imagesDir = await ImageStorageService.instance.getImagesDirectory();
       if (await imagesDir.exists()) {
+        debugPrint('GoogleDriveService: Adding images to backup zip...');
         await for (final entity in imagesDir.list(recursive: true)) {
           if (entity is File) {
             final relativePath = p.relative(
@@ -94,7 +113,7 @@ class GoogleDriveService {
       // Create zip file
       final zipBytes = ZipEncoder().encode(archive);
       if (zipBytes == null) {
-        debugPrint('Failed to create zip file');
+        debugPrint('GoogleDriveService: Failed to create zip file');
         return false;
       }
       final zipFile = File(
@@ -110,7 +129,9 @@ class GoogleDriveService {
       driveFile.name = fileName;
       driveFile.parents = ['appDataFolder'];
 
+      debugPrint('GoogleDriveService: Uploading $fileName to Drive...');
       await api.files.create(driveFile, uploadMedia: media);
+      debugPrint('GoogleDriveService: Upload complete.');
 
       // Clean up temporary zip file
       await zipFile.delete();
@@ -121,7 +142,7 @@ class GoogleDriveService {
 
       return true;
     } catch (e) {
-      debugPrint('Drive Upload Error: $e');
+      debugPrint('GoogleDriveService: Drive Upload Error: $e');
       return false;
     }
   }

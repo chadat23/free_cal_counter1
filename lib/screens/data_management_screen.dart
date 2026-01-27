@@ -65,25 +65,36 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
       if (value) {
         // Turning ON
         // 1. Ensure Signed In
-        if (_googleEmail == null) {
-          final account = await GoogleDriveService.instance.signIn();
+        var account = GoogleDriveService.instance.currentUser;
+        if (account == null) {
+          debugPrint(
+            'DataManagementScreen: Not signed in, requesting sign-in...',
+          );
+          account = await GoogleDriveService.instance.signIn();
           if (account == null) {
-            // Cancelled or failed
+            debugPrint('DataManagementScreen: Sign-in failed or cancelled');
             if (mounted) {
               setState(() {
                 _isAutoBackupEnabled = false;
                 _isLoadingCloudSettings = false;
               });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Sign-in required to enable cloud backup.'),
+                ),
+              );
             }
             return;
           }
-          _googleEmail = account.email;
         }
+        _googleEmail = account.email;
+        debugPrint('DataManagementScreen: Signed in as $_googleEmail');
 
         // 2. Enable Config
         await BackupConfigService.instance.setAutoBackupEnabled(true);
 
         // 3. Register Worker (Daily)
+        debugPrint('DataManagementScreen: Registering Workmanager task...');
         await Workmanager().registerPeriodicTask(
           backupTaskKey,
           backupTaskKey,
@@ -92,13 +103,27 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
             networkType: NetworkType.connected,
             requiresBatteryNotLow: true,
           ),
-          existingWorkPolicy:
-              ExistingPeriodicWorkPolicy.update, // Restart schedule
+          existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
         );
+        debugPrint('DataManagementScreen: Workmanager task registered.');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Daily cloud backup enabled!')),
+          );
+        }
       } else {
         // Turning OFF
+        debugPrint('DataManagementScreen: Disabling auto-backup...');
         await BackupConfigService.instance.setAutoBackupEnabled(false);
         await Workmanager().cancelByUniqueName(backupTaskKey);
+        debugPrint('DataManagementScreen: Auto-backup disabled.');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cloud backup disabled.')),
+          );
+        }
       }
 
       if (mounted) {
@@ -107,13 +132,16 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           _isLoadingCloudSettings = false;
         });
       }
-    } catch (e) {
-      debugPrint('Error toggling backup: $e');
+    } catch (e, stack) {
+      debugPrint('DataManagementScreen: Error toggling backup: $e');
+      debugPrint(stack.toString());
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-        setState(() => _isLoadingCloudSettings = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update backup settings: $e')),
+        );
+        setState(() {
+          _isLoadingCloudSettings = false;
+        });
       }
     }
   }

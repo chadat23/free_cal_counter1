@@ -25,13 +25,16 @@ class NavigationContainerScreen extends StatelessWidget {
 
     // Check for weekly target update notification or first-time setup
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
       final goalsProvider = Provider.of<GoalsProvider>(context, listen: false);
 
-      if (!goalsProvider.hasSeenWelcome && !goalsProvider.isGoalsSet) {
-        goalsProvider.markWelcomeSeen();
-        _showWelcomeDialog(context);
-      } else if (goalsProvider.showUpdateNotification) {
-        _showUpdateDialog(context, goalsProvider);
+      if (!goalsProvider.isLoading) {
+        if (!goalsProvider.hasSeenWelcome && !goalsProvider.isGoalsSet) {
+          goalsProvider.markWelcomeSeen();
+          _showWelcomeDialog(context);
+        } else if (goalsProvider.showUpdateNotification) {
+          _showUpdateDialog(context, goalsProvider);
+        }
       }
     });
 

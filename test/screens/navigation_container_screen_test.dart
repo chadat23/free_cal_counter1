@@ -37,6 +37,7 @@ void main() {
     when(mockGoalsProvider.showUpdateNotification).thenReturn(false);
     when(mockGoalsProvider.isGoalsSet).thenReturn(true);
     when(mockGoalsProvider.hasSeenWelcome).thenReturn(false);
+    when(mockGoalsProvider.isLoading).thenReturn(false);
     when(mockGoalsProvider.currentGoals).thenReturn(MacroGoals.hardcoded());
     when(mockGoalsProvider.settings).thenReturn(GoalSettings.defaultSettings());
 

@@ -11,8 +11,6 @@ import 'package:free_cal_counter1/providers/weight_provider.dart';
 
 import 'onboarding_navigation_test.mocks.dart';
 
-import 'package:free_cal_counter1/screens/navigation_container_screen.dart';
-
 import 'package:free_cal_counter1/providers/log_provider.dart';
 import 'package:free_cal_counter1/screens/navigation_container_screen.dart';
 
@@ -32,6 +30,7 @@ void main() {
     when(mockGoalsProvider.settings).thenReturn(GoalSettings.defaultSettings());
     when(mockGoalsProvider.isGoalsSet).thenReturn(false);
     when(mockGoalsProvider.hasSeenWelcome).thenReturn(false);
+    when(mockGoalsProvider.isLoading).thenReturn(false);
     when(
       mockGoalsProvider.saveSettings(
         any,

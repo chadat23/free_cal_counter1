@@ -23,14 +23,11 @@ class NavigationProvider extends ChangeNotifier {
   void goToSearch() {
     _previousIndex = _selectedIndex;
     _shouldFocusSearch = true;
-    // A value that doesn't correspond to any tab
-    _selectedIndex = -1;
     notifyListeners();
   }
 
   void goToDataManagement() {
     _previousIndex = _selectedIndex;
-    _selectedIndex = -1;
     notifyListeners();
   }
 

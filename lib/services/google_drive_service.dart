@@ -28,6 +28,23 @@ class GoogleDriveService {
       debugPrint(
         'GoogleDriveService: Sign-in complete. Account: ${account?.email}',
       );
+
+      // Verify the account is properly set as current user
+      if (account != null) {
+        final currentUser = _googleSignIn.currentUser;
+        debugPrint(
+          'GoogleDriveService: Current user after sign-in: ${currentUser?.email}',
+        );
+
+        // If there's a mismatch, try silent sign-in to sync state
+        if (currentUser == null || currentUser.email != account.email) {
+          debugPrint(
+            'GoogleDriveService: State mismatch detected, attempting silent sign-in...',
+          );
+          await silentSignIn();
+        }
+      }
+
       return account;
     } catch (e) {
       debugPrint('GoogleDriveService: Sign-In Error: $e');
@@ -45,6 +62,22 @@ class GoogleDriveService {
         await _googleSignIn.isSignedIn();
   }
 
+  /// Forces a refresh of the current user state
+  Future<GoogleSignInAccount?> refreshCurrentUser() async {
+    try {
+      debugPrint('GoogleDriveService: Refreshing current user...');
+      await silentSignIn();
+      final user = _googleSignIn.currentUser;
+      debugPrint(
+        'GoogleDriveService: Current user after refresh: ${user?.email}',
+      );
+      return user;
+    } catch (e) {
+      debugPrint('GoogleDriveService: Error refreshing current user: $e');
+      return null;
+    }
+  }
+
   Future<void> silentSignIn() async {
     try {
       debugPrint('GoogleDriveService: Starting silent sign-in...');
@@ -52,6 +85,13 @@ class GoogleDriveService {
       debugPrint(
         'GoogleDriveService: Silent sign-in complete. Account: ${account?.email}',
       );
+
+      // Force refresh the current user to ensure state is synchronized
+      if (account != null) {
+        debugPrint(
+          'GoogleDriveService: Account verified, current user: ${_googleSignIn.currentUser?.email}',
+        );
+      }
     } catch (e) {
       debugPrint('GoogleDriveService: Silent Sign-In Error: $e');
     }

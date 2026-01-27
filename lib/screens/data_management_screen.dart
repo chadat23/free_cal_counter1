@@ -40,8 +40,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
     final drive = GoogleDriveService.instance;
 
     // Try silent sign-in to get email if possible
-    await drive.silentSignIn();
-    final account = drive.currentUser;
+    final account = await drive.refreshCurrentUser();
 
     final enabled = await config.isAutoBackupEnabled();
     final retention = await config.getRetentionCount();
@@ -81,6 +80,27 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Sign-in required to enable cloud backup.'),
+                ),
+              );
+            }
+            return;
+          }
+
+          // Verify sign-in state is properly established
+          account = await GoogleDriveService.instance.refreshCurrentUser();
+
+          if (account == null) {
+            debugPrint('DataManagementScreen: Sign-in verification failed');
+            if (mounted) {
+              setState(() {
+                _isAutoBackupEnabled = false;
+                _isLoadingCloudSettings = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Failed to verify Google account. Please try again.',
+                  ),
                 ),
               );
             }

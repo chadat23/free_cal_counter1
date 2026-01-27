@@ -28,9 +28,9 @@ void callbackDispatcher() {
         }
 
         final driveService = GoogleDriveService.instance;
-        await driveService.silentSignIn();
+        final account = await driveService.refreshCurrentUser();
 
-        if (!await driveService.isSignedIn()) {
+        if (account == null) {
           debugPrint("Not signed in to Google. Cannot backup.");
           return Future.value(true);
         }

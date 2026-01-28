@@ -20,4 +20,4 @@ samples, guidance on mobile development, and a full API reference.
 flutter build apk --release
 
 # 2. Install the release APK to your connected device
-flutter install
+adb install -r build/app/outputs/flutter-apk/app-release.apk

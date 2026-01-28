@@ -46,3 +46,6 @@ app.*.map.json
 
 # Flutter / Dart VS Code reports
 problems-report.html
+
+*.jks
+key.properties

@@ -348,9 +348,23 @@ class DatabaseService {
           food.source != 'off_cache' &&
           food.source != 'system') {
         // Reference or Foundation - check if we already have a live copy
-        final existing = await (_liveDb.select(
-          _liveDb.foods,
-        )..where((f) => f.sourceFdcId.equals(food.id))).getSingleOrNull();
+        // For OFF items, check by barcode
+        var existing;
+
+        if (food.source == 'off') {
+          if (food.sourceBarcode != null) {
+            existing =
+                await (_liveDb.select(_liveDb.foods)..where(
+                      (f) => f.sourceBarcode.equals(food.sourceBarcode!),
+                    ))
+                    .getSingleOrNull();
+          }
+        } else {
+          // Standard reference/foundation match by FDC ID
+          existing = await (_liveDb.select(
+            _liveDb.foods,
+          )..where((f) => f.sourceFdcId.equals(food.id))).getSingleOrNull();
+        }
 
         if (existing == null) {
           // Copy to live
@@ -387,6 +401,20 @@ class DatabaseService {
             food.source == 'off_cache' ||
             food.source == 'system') {
           foodId = food.id;
+        } else if (food.source == 'off') {
+          // OFF Item: Look up by barcode
+          final existing =
+              await (_liveDb.select(_liveDb.foods)
+                    ..where((f) => f.sourceBarcode.equals(food.sourceBarcode!)))
+                  .getSingleOrNull();
+
+          if (existing != null) {
+            foodId = existing.id;
+          } else {
+            // Should have been created in the loop above, but safe fallback
+            final newFood = await copyFoodToLiveDb(food, isCopy: false);
+            foodId = newFood.id;
+          }
         } else {
           // Reference or Foundation
           // Food should already be copied, so just find the live copy
@@ -1510,8 +1538,11 @@ class DatabaseService {
               fiberPerGram: sourceFood.fiber,
               parentId: const Value(null),
               sourceFdcId: Value(
-                sourceFood.source != 'live' ? sourceFood.id : null,
+                (sourceFood.source != 'live' && sourceFood.source != 'off')
+                    ? sourceFood.id
+                    : null,
               ),
+              sourceBarcode: Value(sourceFood.sourceBarcode),
             ),
           );
 

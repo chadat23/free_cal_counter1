@@ -22,34 +22,29 @@ class GoogleDriveService {
   GoogleSignInAccount? get currentUser => _googleSignIn.currentUser;
 
   Future<GoogleSignInAccount?> signIn() async {
-    try {
-      debugPrint('GoogleDriveService: Starting sign-in...');
-      final account = await _googleSignIn.signIn();
+    debugPrint('GoogleDriveService: Starting sign-in...');
+    final account = await _googleSignIn.signIn();
+    debugPrint(
+      'GoogleDriveService: Sign-in complete. Account: ${account?.email}',
+    );
+
+    // Verify the account is properly set as current user
+    if (account != null) {
+      final currentUser = _googleSignIn.currentUser;
       debugPrint(
-        'GoogleDriveService: Sign-in complete. Account: ${account?.email}',
+        'GoogleDriveService: Current user after sign-in: ${currentUser?.email}',
       );
 
-      // Verify the account is properly set as current user
-      if (account != null) {
-        final currentUser = _googleSignIn.currentUser;
+      // If there's a mismatch, try silent sign-in to sync state
+      if (currentUser == null || currentUser.email != account.email) {
         debugPrint(
-          'GoogleDriveService: Current user after sign-in: ${currentUser?.email}',
+          'GoogleDriveService: State mismatch detected, attempting silent sign-in...',
         );
-
-        // If there's a mismatch, try silent sign-in to sync state
-        if (currentUser == null || currentUser.email != account.email) {
-          debugPrint(
-            'GoogleDriveService: State mismatch detected, attempting silent sign-in...',
-          );
-          await silentSignIn();
-        }
+        await silentSignIn();
       }
-
-      return account;
-    } catch (e) {
-      debugPrint('GoogleDriveService: Sign-In Error: $e');
-      return null;
     }
+
+    return account;
   }
 
   Future<void> signOut() async {

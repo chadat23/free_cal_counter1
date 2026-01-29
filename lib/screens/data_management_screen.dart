@@ -82,7 +82,41 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           debugPrint(
             'DataManagementScreen: Not signed in, requesting sign-in...',
           );
-          account = await _driveService.signIn();
+          try {
+            account = await _driveService.signIn();
+          } catch (e) {
+            debugPrint('DataManagementScreen: Sign-in error: $e');
+            if (mounted) {
+              setState(() {
+                _isAutoBackupEnabled = false;
+                _isLoadingCloudSettings = false;
+              });
+              await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Sign In Failed'),
+                  content: Text(
+                    'Unable to sign in to Google Drive.\n\nError: $e\n\nWould you like to try again?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('CANCEL'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _toggleAutoBackup(true); // Retry
+                      },
+                      child: const Text('RETRY'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return;
+          }
+
           if (account == null) {
             if (mounted) {
               setState(() {

@@ -59,6 +59,28 @@ void main() {
       expect(find.text('SIGN IN'), findsOneWidget);
     });
 
+    testWidgets('shows error dialog when sign-in throws exception', (
+      tester,
+    ) async {
+      // Arrange
+      when(mockDriveService.signIn()).thenThrow(Exception('Network Error'));
+      when(mockDriveService.currentUser).thenReturn(null);
+
+      await tester.pumpWidget(createSubject());
+      await tester.pumpAndSettle();
+
+      // Act
+      final switchFinder = find.byType(Switch);
+      expect(switchFinder, findsOneWidget);
+      await tester.tap(switchFinder);
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.text('Sign In Failed'), findsOneWidget);
+      expect(find.textContaining('Network Error'), findsOneWidget);
+      expect(find.text('RETRY'), findsOneWidget);
+    });
+
     testWidgets('shows account dialog when account text is tapped', (
       tester,
     ) async {

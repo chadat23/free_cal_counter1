@@ -19,5 +19,12 @@ samples, guidance on mobile development, and a full API reference.
 # 1. Build the release APK
 flutter build apk --release
 
-# 2. Install the release APK to your connected device
-adb install -r build/app/outputs/flutter-apk/app-release.apk
+# 2. Get the device list
+> adb devices
+
+List of devices attached
+emulator-5554   device
+R58M123ABC      device
+
+# 3. Install the release APK to your connected device
+adb -s R58M123ABC install -r build/app/outputs/flutter-apk/app-release.apk

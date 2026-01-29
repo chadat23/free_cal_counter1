@@ -71,6 +71,8 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
             _buildFoodHeader(),
             const SizedBox(height: 16),
             _buildMacroDisplay(),
+            const SizedBox(height: 32),
+            _buildResultsActions(),
             const SizedBox(height: 24),
             _buildInputSection(),
             const SizedBox(height: 16),
@@ -80,8 +82,6 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
             _buildTargetSelection(),
             const SizedBox(height: 16),
             _buildResultDisplay(),
-            const SizedBox(height: 32),
-            _buildFooterActions(),
           ],
         ),
       ),
@@ -243,7 +243,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
     );
   }
 
-  Widget _buildFooterActions() {
+  Widget _buildResultsActions() {
     return Row(
       children: [
         Expanded(

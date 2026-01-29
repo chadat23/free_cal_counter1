@@ -143,29 +143,35 @@ To ensure consistency across the application and codebase, the following terms a
   - 1.6.2.1 **Manual Backup**:
     - 1.6.2.1.1 **Export**: Users can manually export the entire live database to a file using the system's share sheet.
     - 1.6.2.1.2 **Import**: Users can restore the database from a file. This is a destructive action that replaces the current database, so a confirmation dialog is required.
-  - 1.6.2.2 **Automatic Cloud Backup**:
-    - 1.6.2.2.1 **Integration**: Seamless integration with Google Drive (specifically the hidden App Data folder to avoid clutter).
-    - 1.6.2.2.2 **Configuration**: Users can toggle this feature on/off and sign in/out of their Google account.
-    - 1.6.2.2.3 **Retention Policy**: Users configurable retention count (defaulting to 7 days). The system automatically deletes old backups from Drive to save space.
-    - 1.6.2.2.4 **Smart Scheduling**: Backups are scheduled to run daily in the background. A "dirty flag" mechanism ensures backups only occur if the database has actually changed since the last successful backup, conserving data and battery.
-  - 1.6.3 **Goals & Targets Logic**:
-    - 1.6.3.1 **Configuration**:
-      - 1.6.3.1.1 **Manual Maintenance Start**: Users manually enter an estimated starting Maintenance Calorie amount.
-      - 1.6.3.1.2 **Target Weight**: Users manually set a specific Weight Goal (Anchor Weight).
-      - 1.6.3.1.3 **Macro Split**: User sets specific targets for Protein (g) and Fat (g). Carbs (g) are calculated as the remainder of the calorie budget.
-      - 1.6.3.1.4 **Maintenance Display**: The calculated daily Maintenance Calories (TDEE) should be displayed in the goals/settings area for user reference.
-    - 1.6.3.2 **Calculation Loop**:
-      - 1.6.3.2.1 Formula: `Target Intake = Maintenance Intake +/- Delta`.
-      - 1.6.3.2.2 **Gain/Lose Mode**: `Delta` is a *fixed calorie amount* specified by the user (e.g., +500 or -500 per day).
-      - 1.6.3.2.3 **Maintain Mode**: `Delta` is *calculated* to correct drift. Formula: `(Reference Anchor Weight - Current Trend Weight) / 30`. This measures the gap, assumes a 30-day correction window, calculates the daily mass change required, converts that to calories (approx 3500 cal/lb), and creates the Delta.
-    - 1.6.3.3 **Updates & Trends**:
-      - 1.6.3.3.1 **Weekly Updates**: Calculating and updating the active Macro Targets (Calories/Carbs) happens once per week (every Monday). On the first app open of the week, a popup or noticeable banner must inform the user of their new macro targets.
-      - 1.6.3.3.2 **Data Gap Handling**:
-        - Days with NO food entry or NO weight entry are **ignored** (assumed missing data), NOT treated as zero.
-        - Days explicitly marked "Fasted" are treated as 0 calories.
-        - Weight inputs assume one per day; entering a second time overwrites the first.
-    - 1.6.3.4 **Estimation**: The "Current Trend Weight" is derived from a best-fit/average of recent weight entries to smooth out daily fluctuations.
-    - 1.6.3.5 **Future Projection**: The screen displays a projection of what the user will weight in 1 month if they stick to the current plan (based on the gain/lose/maintain delta).
+  - 1.6.2.2 Automatic Cloud Backup
+    - 1.6.2.2.1 Integration
+      - 1.6.2.2.1.1 Automatic backups integrate directly with Google Drive using the Google Drive REST API.
+      - 1.6.2.2.1.2 Backups are stored in the hidden appDataFolder to avoid cluttering the user’s Drive.
+      - 1.6.2.2.1.3 No Firebase services are used for authentication or storage.
+    - 1.6.2.2.2 Authentication Model
+      - 1.6.2.2.2.1 Authentication is handled via Google Sign‑In (OAuth 2.0) using the Android app’s package name and signing certificate.
+      - 1.6.2.2.2.2 This requires a one‑time configuration of an Android OAuth Client ID in Google Cloud Console.
+      - 1.6.2.2.2.3 No API keys are embedded in the app.
+      - 1.6.2.2.2.4 No credentials are stored or transmitted to any backend.
+      - 1.6.2.2.2.5 This is a platform security requirement, not a Firebase dependency.
+- 1.6.3 **Goals & Targets Logic**:
+  - 1.6.3.1 **Configuration**:
+    - 1.6.3.1.1 **Manual Maintenance Start**: Users manually enter an estimated starting Maintenance Calorie amount.
+    - 1.6.3.1.2 **Target Weight**: Users manually set a specific Weight Goal (Anchor Weight).
+    - 1.6.3.1.3 **Macro Split**: User sets specific targets for Protein (g) and Fat (g). Carbs (g) are calculated as the remainder of the calorie budget.
+    - 1.6.3.1.4 **Maintenance Display**: The calculated daily Maintenance Calories (TDEE) should be displayed in the goals/settings area for user reference.
+  - 1.6.3.2 **Calculation Loop**:
+    - 1.6.3.2.1 Formula: `Target Intake = Maintenance Intake +/- Delta`.
+    - 1.6.3.2.2 **Gain/Lose Mode**: `Delta` is a *fixed calorie amount* specified by the user (e.g., +500 or -500 per day).
+    - 1.6.3.2.3 **Maintain Mode**: `Delta` is *calculated* to correct drift. Formula: `(Reference Anchor Weight - Current Trend Weight) / 30`. This measures the gap, assumes a 30-day correction window, calculates the daily mass change required, converts that to calories (approx 3500 cal/lb), and creates the Delta.
+  - 1.6.3.3 **Updates & Trends**:
+    - 1.6.3.3.1 **Weekly Updates**: Calculating and updating the active Macro Targets (Calories/Carbs) happens once per week (every Monday). On the first app open of the week, a popup or noticeable banner must inform the user of their new macro targets.
+    - 1.6.3.3.2 **Data Gap Handling**:
+      - Days with NO food entry or NO weight entry are **ignored** (assumed missing data), NOT treated as zero.
+      - Days explicitly marked "Fasted" are treated as 0 calories.
+      - Weight inputs assume one per day; entering a second time overwrites the first.
+  - 1.6.3.4 **Estimation**: The "Current Trend Weight" is derived from a best-fit/average of recent weight entries to smooth out daily fluctuations.
+  - 1.6.3.5 **Future Projection**: The screen displays a projection of what the user will weight in 1 month if they stick to the current plan (based on the gain/lose/maintain delta).
 
 ## 1.7 Recipe Edit: a screen for editing and creating recipes
 - 1.7.1 The top row of the screen should have a back button that'll bring the user back to the Search Screen, the recipe name (if its previously been saved), a Share button, and a Save button.
@@ -388,3 +394,55 @@ To preserve historical accuracy while allowing food improvements, we implement a
   - Automatic backup/restore with garbage collection
   - Scalable to thousands of images
   - Clear distinction between local and remote images via `local:` prefix
+
+## 3.5 Cloud Backup Architecture (Google Drive, No Firebase)
+- 3.5.1 Design Principles
+  - Local‑first: The Live Database is always the source of truth.
+  - Optional: Cloud backup is opt‑in and can be disabled at any time.
+  - Stateless: No backend services are required.
+  - User‑owned data: Backups live entirely in the user’s Google Drive.
+- 3.5.2 Authentication & Identity
+  - Uses google_sign_in for OAuth authentication.
+  - Requires:
+    - Android package name
+    - SHA‑1 fingerprint of the signing certificate
+  - This configuration exists outside the app binary and is required for:
+    - Debug builds
+    - Release builds (Play Store signing uses a different SHA‑1)
+  - Important:
+    - This is not Firebase authentication.
+    - No google-services.json is required.
+    - The app does not depend on any Firebase SDKs.
+- 3.5.3 Backup Format
+  - Each backup is a zip archive containing:
+    - database.db
+    - app_images/ (only referenced images)
+  - Backups are named using an ISO‑8601 timestamp:
+    - freecalcounter_backup_YYYY-MM-DDTHH-mm-ssZ.zip
+  - Metadata (timestamp, app version) is stored in Drive file properties.
+- 3.5.4 Retention & Cleanup
+  - Retention count is user configurable (default: 7).
+  - After a successful upload:
+    - The app lists existing backups in appDataFolder
+    - Deletes oldest backups beyond the retention count
+  - Cleanup is best‑effort:
+    - Failure to delete old backups must not fail the current backup.
+- 3.5.5 Scheduling & Dirty Flag
+  - A persistent dirtyFlag is set whenever:
+    - The Live Database is modified
+    - Images are added, replaced, or deleted
+  - Daily background backup runs:
+    - Skip execution if dirtyFlag == false
+    - Clear flag only after successful upload
+  - This conserves:
+    - Battery
+    - Network usage
+    - Drive API quota
+- 3.5.6 Failure Modes & UX
+  - Backup failures must be:
+    - Silent during background runs
+    - Explicit when triggered manually
+  - Common recoverable failures:
+    - User signed out
+    - Missing SHA‑1 configuration (Android)
+    - Network unavailable

@@ -13,7 +13,14 @@ import 'package:intl/intl.dart';
 import 'package:free_cal_counter1/utils/ui_utils.dart';
 
 class DataManagementScreen extends StatefulWidget {
-  const DataManagementScreen({super.key});
+  final GoogleDriveService? googleDriveService;
+  final BackupConfigService? backupConfigService;
+
+  const DataManagementScreen({
+    super.key,
+    this.googleDriveService,
+    this.backupConfigService,
+  });
 
   @override
   State<DataManagementScreen> createState() => _DataManagementScreenState();
@@ -29,15 +36,21 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
   DateTime? _lastBackupTime;
   bool _isLoadingCloudSettings = true;
 
+  late final GoogleDriveService _driveService;
+  late final BackupConfigService _backupConfigService;
+
   @override
   void initState() {
     super.initState();
+    _driveService = widget.googleDriveService ?? GoogleDriveService.instance;
+    _backupConfigService =
+        widget.backupConfigService ?? BackupConfigService.instance;
     _loadCloudSettings();
   }
 
   Future<void> _loadCloudSettings() async {
-    final config = BackupConfigService.instance;
-    final drive = GoogleDriveService.instance;
+    final config = _backupConfigService;
+    final drive = _driveService;
 
     // Try silent sign-in to get email if possible
     final account = await drive.refreshCurrentUser();
@@ -64,22 +77,38 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
       if (value) {
         // Turning ON
         // 1. Ensure Signed In
-        var account = GoogleDriveService.instance.currentUser;
+        var account = _driveService.currentUser;
         if (account == null) {
           debugPrint(
             'DataManagementScreen: Not signed in, requesting sign-in...',
           );
-          account = await GoogleDriveService.instance.signIn();
+          account = await _driveService.signIn();
           if (account == null) {
-            debugPrint('DataManagementScreen: Sign-in failed or cancelled');
             if (mounted) {
               setState(() {
                 _isAutoBackupEnabled = false;
                 _isLoadingCloudSettings = false;
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Sign-in required to enable cloud backup.'),
+              await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Sign In Required'),
+                  content: const Text(
+                    'You need a Google account to enable cloud backup. Would you like to sign in now?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('CANCEL'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _toggleAutoBackup(true); // Retry
+                      },
+                      child: const Text('SIGN IN'),
+                    ),
+                  ],
                 ),
               );
             }
@@ -87,7 +116,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           }
 
           // Verify sign-in state is properly established
-          account = await GoogleDriveService.instance.refreshCurrentUser();
+          account = await _driveService.refreshCurrentUser();
 
           if (account == null) {
             debugPrint('DataManagementScreen: Sign-in verification failed');
@@ -111,7 +140,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
         debugPrint('DataManagementScreen: Signed in as $_googleEmail');
 
         // 2. Enable Config
-        await BackupConfigService.instance.setAutoBackupEnabled(true);
+        await _backupConfigService.setAutoBackupEnabled(true);
 
         // 3. Register Worker (Daily)
         debugPrint('DataManagementScreen: Registering Workmanager task...');
@@ -135,7 +164,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
       } else {
         // Turning OFF
         debugPrint('DataManagementScreen: Disabling auto-backup...');
-        await BackupConfigService.instance.setAutoBackupEnabled(false);
+        await _backupConfigService.setAutoBackupEnabled(false);
         await Workmanager().cancelByUniqueName(backupTaskKey);
         debugPrint('DataManagementScreen: Auto-backup disabled.');
 
@@ -169,7 +198,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
   Future<void> _updateRetention(double value) async {
     final intVal = value.toInt();
     setState(() => _retentionCount = intVal);
-    await BackupConfigService.instance.setRetentionCount(intVal);
+    await _backupConfigService.setRetentionCount(intVal);
   }
 
   Future<void> _exportBackup() async {
@@ -258,7 +287,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
   Future<void> _restoreFromCloud() async {
     setState(() => _isRestoring = true);
     try {
-      final driveService = GoogleDriveService.instance;
+      final driveService = _driveService;
       final backups = await driveService.listBackups();
 
       if (backups.isEmpty) {
@@ -481,9 +510,48 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
             if (_googleEmail != null)
               Padding(
                 padding: const EdgeInsets.only(left: 36.0, bottom: 12.0),
-                child: Text(
-                  'Account: $_googleEmail',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                child: InkWell(
+                  onTap: () async {
+                    await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Google Account'),
+                        content: Text('Signed in as $_googleEmail'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('CLOSE'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              await _driveService.signOut();
+                              _loadCloudSettings();
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
+                            child: const Text('SIGN OUT'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Account: $_googleEmail',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.edit, size: 12, color: Colors.blue),
+                    ],
+                  ),
                 ),
               ),
 

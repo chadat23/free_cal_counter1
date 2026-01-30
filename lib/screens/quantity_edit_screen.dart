@@ -290,7 +290,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
     final currentGrams = _calculateCurrentGrams();
     return Center(
       child: Text(
-        'Result: ${currentGrams.toStringAsFixed(1)}g',
+        'Result: ${currentGrams.toStringAsFixed(0)}g',
         style: Theme.of(context).textTheme.bodySmall,
       ),
     );
@@ -565,7 +565,7 @@ class _QuantityEditScreenState extends State<QuantityEditScreen> {
         );
       } else {
         setState(() {
-          _quantityController.text = newValue.toStringAsFixed(1);
+          _quantityController.text = newValue.toStringAsFixed(0);
         });
         if (mounted) {
           await UiUtils.showAutoDismissDialog(

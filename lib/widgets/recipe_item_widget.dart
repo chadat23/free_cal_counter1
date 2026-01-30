@@ -25,13 +25,13 @@ class RecipeItemWidget extends StatelessWidget {
       ),
       title: Text(item.name),
       subtitle: Text(
-        '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C • ${fiber.toStringAsFixed(1)}Fb',
+        '${calories.round()}🔥 • ${protein.toStringAsFixed(0)}P • ${fat.toStringAsFixed(0)}F • ${carbs.toStringAsFixed(0)}C • ${fiber.toStringAsFixed(0)}Fb',
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '${item.grams.toStringAsFixed(1)}g', // Currently RecipeItem only stores grams natively
+            '${item.grams.toStringAsFixed(0)}g', // Currently RecipeItem only stores grams natively
           ),
           const SizedBox(width: 8),
           if (onEdit != null)

@@ -144,7 +144,7 @@ class _ContainerSettingsScreenState extends State<ContainerSettingsScreen> {
                       ),
                       title: Text(container.name),
                       subtitle: Text(
-                        '${container.weight.toStringAsFixed(1)} ${container.unit}',
+                        '${container.weight.toStringAsFixed(0)} ${container.unit}',
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

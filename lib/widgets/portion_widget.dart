@@ -81,13 +81,13 @@ class PortionWidget extends StatelessWidget {
           ),
           title: Text(portion.food.name),
           subtitle: Text(
-            '${calories.round()}🔥 • ${protein.toStringAsFixed(1)}P • ${fat.toStringAsFixed(1)}F • ${carbs.toStringAsFixed(1)}C • ${fiber.toStringAsFixed(1)}Fb',
+            '${calories.round()}🔥 • ${protein.toStringAsFixed(0)}P • ${fat.toStringAsFixed(0)}F • ${carbs.toStringAsFixed(0)}C • ${fiber.toStringAsFixed(0)}Fb',
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '${unitDef.quantityFromGrams(totalGrams).toStringAsFixed(1)} ${unitDef.unit}',
+                '${unitDef.quantityFromGrams(totalGrams).toStringAsFixed(0)} ${unitDef.unit}',
               ),
               const SizedBox(width: 8),
               IconButton(

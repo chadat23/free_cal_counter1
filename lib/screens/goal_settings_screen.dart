@@ -199,7 +199,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
           if (_mode != GoalMode.maintain)
             _buildTextField(
               controller: _fixedDeltaController,
-              label: _mode == GoalMode.gain ? 'Gain Delta' : 'Lose Delta',
+              label: _mode == GoalMode.gain ? 'Serplus' : 'Deficit',
               hint: 'e.g. 500',
               keyboardType: TextInputType.number,
             ),

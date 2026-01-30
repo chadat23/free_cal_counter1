@@ -164,7 +164,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => WeightProvider()),
       ],
       child: MaterialApp(
-        title: 'FreeCal Counter',
+        title: 'Free Cal Counter',
         theme: ThemeData(
           primarySwatch: Colors.blue,
           scaffoldBackgroundColor: Colors.grey[850],

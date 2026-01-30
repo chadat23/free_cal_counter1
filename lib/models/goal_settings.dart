@@ -33,7 +33,7 @@ class GoalSettings {
     required this.lastTargetUpdate,
     this.useMetric = false,
     this.isSet = true,
-    this.tdeeWindowDays = 30,
+    this.tdeeWindowDays = 14,
   });
 
   factory GoalSettings.fromJson(Map<String, dynamic> json) {

@@ -25,8 +25,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
   List<Weight> _weightHistory = [];
   List<double> _maintenanceHistory = [];
   bool _isLoading = true;
-  int _weightRangeDays = 30;
-  String _weightRangeLabel = '1 mo';
+  int _weightRangeDays = 7;
+  String _weightRangeLabel = '1 wk';
   DateTime _weightRangeStart = DateTime.now();
   DateTime _weightRangeEnd = DateTime.now();
 

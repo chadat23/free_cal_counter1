@@ -90,10 +90,10 @@ void main() {
     // Then
     expect(find.text(DateFormat.jm().format(meal.timestamp)), findsOneWidget);
     expect(find.text('🔥185'), findsOneWidget);
-    expect(find.text('P: 1.8'), findsOneWidget);
-    expect(find.text('F: 0.7'), findsOneWidget);
-    expect(find.text('C: 48.5'), findsOneWidget);
-    expect(find.text('Fb: 6.3'), findsOneWidget);
+    expect(find.text('P: 2'), findsOneWidget);
+    expect(find.text('F: 1'), findsOneWidget);
+    expect(find.text('C: 49'), findsOneWidget);
+    expect(find.text('Fb: 6'), findsOneWidget);
     expect(find.byType(SlidablePortionWidget), findsNWidgets(2));
   });
 

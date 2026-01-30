@@ -32,8 +32,8 @@ void main() {
     // Then
     expect(find.text('🍎'), findsOneWidget);
     expect(find.text('Apple'), findsOneWidget);
-    expect(find.text('52🔥 • 0.3P • 0.2F • 14.0C • 2.4Fb'), findsOneWidget);
-    expect(find.text('100.0 g'), findsOneWidget);
+    expect(find.text('52🔥 • 0P • 0F • 14C • 2Fb'), findsOneWidget);
+    expect(find.text('100 g'), findsOneWidget);
     expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
   });
 }

@@ -80,7 +80,7 @@ void main() {
 
       // Verify initial nutritional info (should be for 1g by default)
       // Calories: 0.52 * 1 = 0.52
-      expect(find.text('1🔥 • 0.0P • 0.0F • 0.1C • 0.0Fb'), findsOneWidget);
+      expect(find.text('1🔥 • 0P • 0F • 0C • 0Fb'), findsOneWidget);
 
       // Open the dropdown
       await tester.tap(find.byType(DropdownButton<model_unit.FoodServing>));
@@ -96,7 +96,7 @@ void main() {
       // Fat: 0.002 * 182 = 0.364
       // Carbs: 0.14 * 182 = 25.48
       // Fiber: 0.024 * 182 = 4.368
-      expect(find.text('95🔥 • 0.5P • 0.4F • 25.5C • 4.4Fb'), findsOneWidget);
+      expect(find.text('95🔥 • 1P • 0F • 25C • 4Fb'), findsOneWidget);
 
       // Select '1 cup sliced' unit
       await tester.tap(find.byType(DropdownButton<model_unit.FoodServing>));
@@ -110,7 +110,7 @@ void main() {
       // Fat: 0.002 * 109 = 0.218
       // Carbs: 0.14 * 109 = 15.26
       // Fiber: 0.024 * 109 = 2.616
-      expect(find.text('57🔥 • 0.3P • 0.2F • 15.3C • 2.6Fb'), findsOneWidget);
+      expect(find.text('57🔥 • 0P • 0F • 15C • 3Fb'), findsOneWidget);
     });
 
     testWidgets(
@@ -206,7 +206,7 @@ void main() {
       expect(find.text('🍎'), findsOneWidget);
 
       // Verify nutritional info (should be for 1g by default)
-      expect(find.text('1🔥 • 0.0P • 0.0F • 0.1C • 0.0Fb'), findsOneWidget);
+      expect(find.text('1🔥 • 0P • 0F • 0C • 0Fb'), findsOneWidget);
 
       // Verify dropdown IS displayed (it should auto-add 'g')
       expect(

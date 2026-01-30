@@ -68,7 +68,7 @@ class VerticalMiniBarChartPainter extends CustomPainter {
     if (maxValue > 0) {
       final totalHeightForMaxValue =
           size.height / 1.2; // 100% mark is 20% less than total height
-      final barRatio = (value / maxValue).clamp(0.0, 1.10); // Clip at 110%
+      final barRatio = (value / maxValue).clamp(0.0, 1.15); // Clip at 115%
       final barHeight = barRatio * totalHeightForMaxValue;
 
       final finalBarHeight = min(barHeight, size.height);
